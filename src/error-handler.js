@@ -1,7 +1,9 @@
+const NODE_ENV = process.env.NODE_ENV || 'development';
+
 function errorHandler (error, req, res) {
   const statusCode = error.statusCode || 500;
 
-  res.writeHead(statusCode);
+  res.statusCode = statusCode;
   res.setHeader('content-type', 'application/json');
 
   const result = {
@@ -11,8 +13,8 @@ function errorHandler (error, req, res) {
     }
   };
 
-  if (process.env.NODE_ENV === 'development') {
-    result.error.stack = error.stack;
+  if (NODE_ENV === 'development') {
+    result.error.stack = error.stack.split(/\r?\n/);
     result.error.info = error.info;
   }
 

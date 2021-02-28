@@ -42,30 +42,29 @@ const ERRORS = {
   NetworkAuthenticationRequired: 511
 };
 
-const exports = {};
+const methods = {};
 
 for (const key of Object.keys(ERRORS)) {
-  exports[key] = function () {
-    const hasMessage = typeof arguments[0] === 'string';
-    const error = new Error(hasMessage ? arguments[0] : key);
+  methods[key] = function (message, info) {
+    const error = new Error(message || key);
     error.statusCode = ERRORS[key];
-    error.info = normalize(hasMessage ? arguments[1] : arguments[0]);
-    Error.captureStackTrace(error, exports[key]);
+    error.info = normalize(info);
+    Error.captureStackTrace(error, methods[key]);
     return error;
   };
 }
 
-module.exports = exports;
+module.exports = methods;
 
 function normalize (value) {
   if (typeof value !== 'object' || value === null) return value;
   if (value instanceof Date) return value;
-  if (value instanceof Error) return { error: { message: value.message, name: value.name } };
+  if (value instanceof Error) return { message: value.message, name: value.name };
   if (Array.isArray(value)) return value.map(normalize);
 
   const result = {};
   for (const key of Object.keys(value)) {
-    result[key] = normalize(value);
+    result[key] = normalize(value[key]);
   }
   return result;
 }

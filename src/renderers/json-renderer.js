@@ -1,14 +1,14 @@
-const { InternalServerError } = require('../create-error.js');
+const NODE_ENV = process.env.NODE_ENV || 'development';
 
-function jsonRenderer (payload, res) {
+function jsonRenderer (rL, payload, res) {
   try {
-    if (process.env.NODE_ENV === 'development') {
+    if (NODE_ENV === 'development') {
       res.end(JSON.stringify(payload, null, 2));
     } else {
       res.end(JSON.stringify(payload));
     }
   } catch (error) {
-    throw InternalServerError('Invalid json response', { payload, error });
+    throw rL.errors.InternalServerError('Invalid json response', { payload, error });
   }
 }
 

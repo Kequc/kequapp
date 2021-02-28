@@ -1,32 +1,32 @@
-const { InternalServerError } = require('./create-error.js');
 const { URL } = require('url');
+const parseBody = require('./util/parse-body.js');
 
-async function execute (route, req, res) {
+async function execute (rL, route, req, res) {
   let context = {};
   let result;
 
-  res.setHeader('content-type', 'text/plain');
-
-  const { pathname, searchParams } = new URL(req.url);
+  const { pathname, searchParams } = new URL(req.url, `http://${req.headers.host}`);
   const params = extractParams(route.pathname, pathname);
   const query = Object.fromEntries(searchParams);
+  const body = await parseBody(rL, req);
 
-  for (const handler of route.handlers) {
+  for (const handle of route.handles) {
     // construct context from middleware
 
     if (result) {
       if (typeof result !== 'object') {
-        throw InternalServerError('Unexpected middleware result', { type: typeof result, result });
+        throw rL.errors.InternalServerError('Unexpected middleware result', { type: typeof result, result });
       }
       context = Object.assign({}, context, result);
     }
 
-    result = await handler({
+    result = await handle({
       req,
       res,
       context,
       params,
-      query
+      query,
+      body
     });
   }
 

@@ -1,10 +1,9 @@
 const querystring = require('querystring');
 const { StringDecoder } = require('string_decoder');
-const { PayloadTooLarge } = require('./create-error.js');
 
 async function parseBody (rL, req) {
   const { maxPayloadSize } = rL._opt;
-  const contentType = req.getHeader('content-type');
+  const contentType = req.headers['content-type'];
 
   return await new Promise(function (resolve, reject) {
     const decoder = new StringDecoder('utf-8');
@@ -30,7 +29,7 @@ async function parseBody (rL, req) {
       }
     }
 
-    function abort (error) {
+    function abortRequest (error) {
       req.off('data', handleData);
       req.off('end', handleEnd);
       reject(error);
@@ -38,7 +37,7 @@ async function parseBody (rL, req) {
 
     function verifyPayload () {
       if (maxPayloadSize !== null && buffer.length > maxPayloadSize) {
-        abort(PayloadTooLarge());
+        abortRequest(rL.errors.PayloadTooLarge());
       }
     }
   });

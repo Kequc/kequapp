@@ -1,15 +1,17 @@
-const { URL } = require('url');
-
-function findRouteFromReq (rL, req) {
-  const { method } = req;
-  const { pathname } = new URL(req.url);
-
+function findRoute (rL, { method, pathname }) {
   const result = rL._routes.find(routeMatch(pathname, method));
 
-  return result || null;
+  if (!result) {
+    throw rL.errors.NotFound(`Not Found: ${pathname}`, {
+      request: { method, pathname },
+      routes: rL._routes.map(formatRoute)
+    });
+  }
+
+  return result;
 }
 
-module.exports = findRouteFromReq;
+module.exports = findRoute;
 
 function routeMatch (pathname, method) {
   return function (route) {
@@ -21,12 +23,18 @@ function routeMatch (pathname, method) {
 }
 
 function comparePathnames (srcPathname, reqPathname) {
-  const srcParts = srcPathname.split('/');
-  const reqParts = reqPathname.split('/');
+  const srcParts = srcPathname.split('/').filter(part => !!part);
+  const reqParts = reqPathname.split('/').filter(part => !!part);
   if (srcParts.length !== reqParts.length) return false;
   for (let i = 0; i < srcParts.length; i++) {
     if (srcParts[i].startsWith(':')) continue;
     if (srcParts[i] === reqParts[i]) continue;
+    return false;
   }
   return true;
+}
+
+function formatRoute (route) {
+  const methods = `[${route.methods.join(', ')}]`;
+  return `${methods} ${route.pathname}`;
 }

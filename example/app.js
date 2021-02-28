@@ -1,6 +1,10 @@
-const { kequserver } = require('../index.js'); // 'kequserver'
+const kequserver = require('../index.js'); // 'kequserver'
 
 const app = kequserver();
+
+app.use(function ({ res }) {
+  res.setHeader('content-type', 'application/json');
+});
 
 app.route('/cats/:id/owner', ['get'], function ({ query }) {
   return { query };
@@ -22,5 +26,9 @@ app.branch('/cats')
   .route(['get'], function ({ query }) {
     return { query };
   });
+
+app.route('/', ['get'], function () {
+  return { hello: 'homepage' };
+});
 
 module.exports = app;
