@@ -1,3 +1,4 @@
+const { InternalServerError } = require('./create-error.js');
 const path = require('path');
 
 function buildScope (rL, parent) {
@@ -29,7 +30,9 @@ function buildRoute (rL, parent) {
     const pathname = typeof handles[0] === 'string' ? handles.shift() : '/';
     const methods = handles.shift();
 
-    // TODO validate
+    if (!Array.isArray(methods) || methods.findIndex(method => typeof method !== 'string') >= 0) {
+      throw InternalServerError('Invalid methods format', { methods });
+    }
 
     const route = branchMerge(parent, {
       pathname,

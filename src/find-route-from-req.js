@@ -1,8 +1,8 @@
-const { parse } = require('url');
+const { URL } = require('url');
 
 function findRouteFromReq (rL, req) {
   const { method } = req;
-  const { pathname } = parse(req.url, true);
+  const { pathname } = new URL(req.url);
 
   const result = rL._routes.find(routeMatch(pathname, method));
 
@@ -20,13 +20,13 @@ function routeMatch (pathname, method) {
   };
 }
 
-function comparePathnames (aRaw, bRaw) {
-  const aa = aRaw.split('/');
-  const bb = bRaw.split('/');
-  if (aa.length !== bb.length) return false;
-  for (let i = 0; i < aa.length; i++) {
-    if (aa[i].startsWith(':')) continue;
-    if (aa[i] === bb[i]) continue;
+function comparePathnames (srcPathname, reqPathname) {
+  const srcParts = srcPathname.split('/');
+  const reqParts = reqPathname.split('/');
+  if (srcParts.length !== reqParts.length) return false;
+  for (let i = 0; i < srcParts.length; i++) {
+    if (srcParts[i].startsWith(':')) continue;
+    if (srcParts[i] === reqParts[i]) continue;
   }
   return true;
 }
