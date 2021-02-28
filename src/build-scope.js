@@ -2,51 +2,49 @@ const path = require('path');
 
 function buildScope (rL, parent) {
   return {
-    trail: buildTrail(rL, parent),
+    branch: buildBranch(rL, parent),
     route: buildRoute(rL, parent)
   };
 }
 
 module.exports = buildScope;
 
-function buildTrail (rL, parent) {
-  function trail (...handles) {
+function buildBranch (rL, parent) {
+  return function branch (...handles) {
     const pathname = typeof handles[0] === 'string' ? handles.shift() : '/';
 
     // TODO validate
 
-    const newParent = mergeWith(parent, {
+    const newParent = branchMerge(parent, {
       pathname,
       handles
     });
 
     return buildScope(rL, newParent);
-  }
-
-  return trail;
+  };
 }
 
 function buildRoute (rL, parent) {
-  function route (...handles) {
+  return function route (...handles) {
     const pathname = typeof handles[0] === 'string' ? handles.shift() : '/';
-    const methods = handles.pop();
+    const methods = handles.shift();
 
     // TODO validate
 
-    const route = mergeWith(parent, {
+    const route = branchMerge(parent, {
       pathname,
       handles
     }, {
       methods
     });
 
-    rL.routes.push(route);
-  }
+    rL._routes.push(route);
 
-  return route;
+    return parent;
+  };
 }
 
-function mergeWith (parent, child, more = {}) {
+function branchMerge (parent, child, more = {}) {
   return Object.assign({
     pathname: path.join(parent.pathname, child.pathname),
     handles: parent.handles.concat(sanitizeHandles(child.handles))
