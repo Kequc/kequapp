@@ -66,7 +66,9 @@ app.branch('/user', loggedIn)
 
 ### Use
 
-Middleware is added to the current branch using `app.use`. The path parameter is optional, followed by any number of functions which define the request lifecycle. Useful at the base of an application to set common middleware.
+Middleware is added to the current branch using `app.use`. The path parameter is optional, followed by any number of functions which define the request lifecycle.
+
+Often useful at the base of an application to set common middleware.
 
 ```javascript
 app.use(({ res }) => {
@@ -76,7 +78,7 @@ app.use(({ res }) => {
 
 ### Renderers
 
-Default renderers are included for `text/plain`, and `application/json`. Renderers are chosen based on the `content-type` header. The above example would cause the entire application to use `application/json` rendered responses.
+Default renderers are included for `text/plain`, and `application/json`. Renderers are chosen based on the `content-type` header. The above example would cause all routes of the application to use `application/json` rendered responses.
 
 You can override renderers or add your own using `renderers` during instantiation. This is the final step of a request's lifecycle and should explicitly finalize the response.
 
