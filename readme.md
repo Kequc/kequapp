@@ -49,7 +49,7 @@ app.route('/user/:id', ['get'], ({ params }) => {
   return `userId: ${params.id}!`;
 });
 
-app.route('/admin', ['get'], loggedIn, ({ context }) => {
+app.route('/admin/dashboard', ['get'], loggedIn, ({ context }) => {
   return `Hello admin ${context.auth}`;
 });
 ```
@@ -70,7 +70,7 @@ app.branch('/user')
   });
 
 app.branch('/admin', loggedIn)
-  .route('/admin', ['get'], ({ context }) => {
+  .route('/dashboard', ['get'], ({ context }) => {
     return `Hello admin ${context.auth}`;
   });
 ```
