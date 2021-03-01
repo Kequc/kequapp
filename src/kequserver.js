@@ -13,7 +13,7 @@ const DEFAULT_OPTIONS = {
   maxPayloadSize: null // maybe 1e6
 };
 
-function kequserver (options = {}) {
+function createApp (options = {}) {
   async function rL (req, res) {
     const { log } = rL._opt;
     const url = new URL(req.url, `http://${req.headers.host}`);
@@ -64,4 +64,7 @@ function kequserver (options = {}) {
   return rL;
 }
 
-module.exports = kequserver;
+module.exports = {
+  createApp,
+  errors
+};

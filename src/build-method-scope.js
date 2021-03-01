@@ -4,9 +4,9 @@ const { sanitizePathname } = require('./util/sanitize.js');
 
 function buildMethodScope (rL, parent) {
   const scope = {};
-  scope.branch = buildBranch(rL, parent);
-  scope.use = buildUse(parent, scope);
   scope.route = buildRoute(rL, parent, scope);
+  scope.branch = buildBranch(rL, parent);
+  scope.middleware = buildMiddleware(parent, scope);
   return scope;
 }
 
@@ -25,8 +25,8 @@ function buildBranch (rL, parent) {
   };
 }
 
-function buildUse (parent, scope) {
-  return function use (...handles) {
+function buildMiddleware (parent, scope) {
+  return function middleware (...handles) {
     const pathname = typeof handles[0] === 'string' ? handles.shift() : '/';
 
     Object.assign(parent, branchMerge(parent, {

@@ -1,8 +1,8 @@
-const kequserver = require('../../index.js'); // 'kequserver'
+const { createApp } = require('../../index.js'); // 'kequserver'
 
-const app = kequserver();
+const app = createApp();
 
-app.use(function ({ res }) {
+app.middleware(function ({ res }) {
   res.setHeader('content-type', 'application/json');
 });
 

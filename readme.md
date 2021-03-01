@@ -1,7 +1,7 @@
 Kequserver
 ===
 
-This is the development branch of an experimental request listener for basic nodejs servers. It's intended to be non-intrusive and versatile as possible.
+This is the development branch of an experimental request listener for basic nodejs servers. It's intended to be versatile and non-intrusive.
 
 ### Setup
 
@@ -11,9 +11,9 @@ npm i kequserver
 
 ```javascript
 const http = require('http');
-const kequserver = require('kequserver')
+const { createApp } = require('kequserver');
 
-const app = kequserver();
+const app = createApp();
 const server = http.createServer(app);
 
 app.route(['get'], () => {
@@ -28,7 +28,7 @@ server.listen(4000, () => {
 
 ### Route
 
-Routes are defined using `app.route`. The path parameter is optional, followed by an array of incoming method names you would like the route to listen for. Followed by any number of functions which define the request lifecycle.
+Routes are defined using `route()`. The pathname is optional, followed by an array of incoming method names you would like the route to listen for. Followed by any number of functions which define the request lifecycle.
 
 Optionally each middleware function can return an object as a result. That object gets merged through all middleware as the `context` parameter.
 
@@ -46,32 +46,35 @@ function loggedIn ({ req }) {
 }
 
 app.route('/user/admin', ['get'], loggedIn, ({ context }) => {
-  return `Hello admin with ${context.auth}!`;
+  return `Hello admin ${context.auth}`;
 });
 ```
 
 ### Branch
 
-Branches are defined using `app.branch`. The path parameter is optional, followed by any number of functions. It returns a branch of the application which will adopt all middleware and pathname prefix. By itself this does not create a route, it will be used in conjunction with routes.
+Branches are defined using `branch()`. The path parameter is optional, followed by any number of functions. It returns a branch of the application which will adopt all middleware and a pathname prefix. By itself this does not create a route, it will be used in conjunction with routes.
 
 ```javascript
 app.branch('/user', loggedIn)
   .route('/:id', ['get'], ({ params }) => {
-    return `Profile for: ${params.id}!`;
+    return `userId: ${params.id}!`;
   })
   .route('/admin', ['get'], ({ context }) => {
-    return `Hello admin with ${context.auth}!`; // Same as previous example
+    // Same as previous example
+    return `Hello admin ${context.auth}`;
   });
 ```
 
-### Use
+### Middleware
 
-Middleware is added to the current branch using `app.use`. The path parameter is optional, followed by any number of functions which define the middleware you would like to add.
+Middleware is added to the current branch using `middleware()`. The pathname prefix is optional, followed by any number of functions which define the middleware you would like.
+
+This affects all routes in the current branch, forcing routes to start with a given prefix and run the given middleware.
 
 Often useful at the base of an application to perform tasks for all routes.
 
 ```javascript
-app.use(({ res }) => {
+app.middleware(({ res }) => {
   res.setHeader('content-type', 'application/json');
 });
 ```
@@ -93,9 +96,23 @@ const app = kequserver({
 });
 ```
 
+### Parameters
+
+| parameter | description |
+| - | - |
+| `req` | The node `req` parameter. |
+| `res` | The node `res` parameter. |
+| `errors` | Http error creation helper. |
+| `method` | Method provided by the client in lowercase. |
+| `pathname` | Pathname provided by the client. |
+| `params` | Params extracted from pathname. |
+| `query` | Params extracted from querystring. |
+| `body` | Params extracted from body. |
+| `context` | Params returned from middleware functions. |
+
 ### Errors
 
-Error generation is available using the `errors` parameter. Any thrown error will be caught by the error handler but will default to a `500` status code, this utility enables you to utilise the full spectrum of status codes.
+Error generation is available using the `errors` parameter. Any thrown error will be caught by the error handler and will default to a `500` status code, this utility is a helper enabling you to utilise the full spectrum of status codes.
 
 ```javascript
 app.route('/about', ['get'], ({ errors }) => {
@@ -106,7 +123,9 @@ app.route('/about', ['get'], ({ errors }) => {
 
 ### Error handler
 
-The default error handler returns json containing helpful information for debugging. It can be overridden using `errorHandler` during instantiation. It has `error` as well as `req` and `res` parameters. The return value will be sent back to the renderer for processing.
+The default error handler returns json containing helpful information for debugging. It can be overridden using `errorHandler` during instantiation. The returned value will be sent to the renderer again for processing.
+
+Errors thrown inside of the error handler or the renderer chosen to parse the error handler's response will cause a fatal exception.
 
 This example sends a very basic response.
 
@@ -118,7 +137,7 @@ const app = kequserver({
     res.statusCode = statusCode;
     res.setHeader('content-type', 'text/plain');
 
-    return `${statusCode} ${error.message}`
+    return `${statusCode} ${error.message}`;
   }
 });
 ```

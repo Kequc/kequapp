@@ -35,6 +35,6 @@ function comparePathnames (srcPathname, reqPathname) {
 }
 
 function formatRoute (route) {
-  const methods = `[${route.methods.join(', ')}]`;
+  const methods = `[${route.methods.join(',')}]`;
   return `${methods} ${route.pathname}`;
 }
