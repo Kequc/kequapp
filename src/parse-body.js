@@ -1,7 +1,7 @@
 const querystring = require('querystring');
 const { StringDecoder } = require('string_decoder');
 
-async function parseBody (rL, req) {
+async function parseBody (rL, { req, errors }) {
   const { maxPayloadSize } = rL._opt;
   const contentType = req.headers['content-type'];
 
@@ -37,7 +37,7 @@ async function parseBody (rL, req) {
 
     function verifyPayload () {
       if (maxPayloadSize !== null && buffer.length > maxPayloadSize) {
-        abortRequest(rL.errors.PayloadTooLarge());
+        abortRequest(errors.PayloadTooLarge());
       }
     }
   });

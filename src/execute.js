@@ -1,37 +1,33 @@
-const { URL } = require('url');
-const parseBody = require('./util/parse-body.js');
+const parseBody = require('./parse-body.js');
+const errors = require('./errors.js');
 
-async function execute (rL, route, req, res, pathname) {
-  let context = {};
+async function execute (rL, route, bundle) {
+  const context = {};
   let payload;
 
-  const { searchParams } = new URL(req.url, `http://${req.headers.host}`);
-  const params = extractParams(route.pathname, pathname);
-  const query = Object.fromEntries(searchParams);
-  const body = await parseBody(rL, req);
+  const params = extractParams(route.pathname, bundle.pathname);
+  const body = await parseBody(rL, bundle);
+
+  Object.assign(bundle, {
+    params,
+    body,
+    context
+  });
 
   for (const handle of route.handles) {
     // construct context from middleware
 
     if (payload) {
-      if (typeof payload !== 'object') {
-        throw rL.errors.InternalServerError('Unexpected middleware result', { type: typeof payload, payload });
+      if (typeof previousResult !== 'object') {
+        throw errors.InternalServerError('Unexpected middleware result', { type: typeof payload, payload });
       }
-      context = Object.assign({}, context, payload);
+      Object.assign(context, payload);
     }
 
-    payload = await handle({
-      rL,
-      req,
-      res,
-      context,
-      params,
-      query,
-      body
-    });
+    payload = await handle(bundle);
   }
 
-  return { payload, context };
+  return payload;
 }
 
 module.exports = execute;

@@ -1,30 +1,41 @@
-const findRendererFromRes = require('./util/find-renderer-from-res.js');
-const findRouteFromReq = require('./util/find-route-from-req.js');
-const { getPathnameFromReq } = require('./util/sanitize.js');
-const buildScope = require('./build-scope.js');
+const { URL } = require('url');
+const buildScope = require('./build-method-scope.js');
+const errors = require('./errors.js');
 const execute = require('./execute.js');
+const findRenderer = require('./find-renderer.js');
+const findRoute = require('./find-route.js');
+const { sanitizePathname } = require('./util/sanitize.js');
 
 const DEFAULT_OPTIONS = {
   log: console,
   renderers: {},
-  errorHandler: require('./error-handler.js'),
+  errorHandler: require('./defaults/error-handler.js'),
   maxPayloadSize: null // maybe 1e6
 };
 
 function kequserver (options = {}) {
   async function rL (req, res) {
     const { log } = rL._opt;
+    const url = new URL(req.url, `http://${req.headers.host}`);
 
-    const method = req.method.toLowerCase();
-    const pathname = getPathnameFromReq(req);
+    const bundle = {
+      method: req.method.toLowerCase(),
+      pathname: sanitizePathname(url.pathname),
+      query: Object.fromEntries(url.searchParams),
+      req,
+      res,
+      errors
+    };
 
     try {
-      await renderRoute(req, res, pathname);
-      log.debug(res.statusCode, `[${method}]`, pathname);
+      await renderRoute(rL, bundle);
+      log.debug(res.statusCode, `[${bundle.method}]`, bundle.pathname);
     } catch (error) {
-      await renderError(req, res, error);
-      log.debug(res.statusCode, `[${method}]`, pathname);
-      if (res.statusCode === 500) log.debug(error);
+      await renderError(rL, error, bundle);
+      log.debug(res.statusCode, `[${bundle.method}]`, bundle.pathname);
+      if (res.statusCode === 500) {
+        log.error(error);
+      }
     }
   }
 
@@ -35,36 +46,19 @@ function kequserver (options = {}) {
 
   rL._routes = [];
   rL._opt = Object.assign({}, DEFAULT_OPTIONS, options);
-  rL.errors = require('./errors.js');
 
-  async function renderRoute (req, res, pathname) {
-    const route = findRouteFromReq(rL, req);
-
-    const { payload, context } = await execute(rL, route, req, res, pathname);
-
-    await findRendererFromRes(rL, res)({
-      rL,
-      payload,
-      res,
-      context
-    });
+  async function renderRoute (rL, bundle) {
+    const route = findRoute(rL, bundle);
+    const payload = await execute(rL, route, bundle);
+    const renderer = findRenderer(rL, bundle);
+    await renderer(payload, bundle);
   }
 
-  async function renderError (req, res, error) {
+  async function renderError (rL, error, bundle) {
     const { errorHandler } = rL._opt;
-
-    const payload = await errorHandler({
-      rL,
-      error,
-      req,
-      res
-    });
-
-    await findRendererFromRes(rL, res)({
-      rL,
-      payload,
-      res
-    });
+    const payload = await errorHandler(error, bundle);
+    const renderer = findRenderer(rL, bundle);
+    await renderer(payload, bundle);
   }
 
   return rL;

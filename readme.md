@@ -32,7 +32,7 @@ Routes are defined using `app.route`. The path parameter is optional, followed b
 
 Optionally each middleware function can return an object as a result. That object gets merged through all middleware as the `context` parameter.
 
-The final function which is run is the handle. The handle returns the payload that should be given to the renderer.
+The final function which is run is the handle. The handle returns the payload that should be handed off to the renderer.
 
 ```javascript
 app.route('/about', ['get'], () => {
@@ -41,12 +41,12 @@ app.route('/about', ['get'], () => {
 
 function loggedIn ({ req }) {
   return {
-    user: req.getHeader('authorization');
+    auth: req.getHeader('authorization');
   }
 }
 
 app.route('/user/admin', ['get'], loggedIn, ({ context }) => {
-  return `Hello ${context.user}!`;
+  return `Hello admin with ${context.auth}!`;
 });
 ```
 
@@ -56,19 +56,19 @@ Branches are defined using `app.branch`. The path parameter is optional, followe
 
 ```javascript
 app.branch('/user', loggedIn)
-  .route('/admin', ['get'], ({ context }) => {
-    return `Hello ${context.user}!`;
+  .route('/:id', ['get'], ({ params }) => {
+    return `Profile for: ${params.id}!`;
   })
-  .route('/logout', ['get'], ({ context }) => {
-    return `Goodbye ${context.user}!`;
+  .route('/admin', ['get'], ({ context }) => {
+    return `Hello admin with ${context.auth}!`; // Same as previous example
   });
 ```
 
 ### Use
 
-Middleware is added to the current branch using `app.use`. The path parameter is optional, followed by any number of functions which define the request lifecycle.
+Middleware is added to the current branch using `app.use`. The path parameter is optional, followed by any number of functions which define the middleware you would like to add.
 
-Often useful at the base of an application to set common middleware.
+Often useful at the base of an application to perform tasks for all routes.
 
 ```javascript
 app.use(({ res }) => {
@@ -78,14 +78,14 @@ app.use(({ res }) => {
 
 ### Renderers
 
-Default renderers are included for `text/plain`, and `application/json`. Renderers are chosen based on the `content-type` header. The above example would cause all routes of the application to use `application/json` rendered responses.
+Default renderers are included for `text/plain`, and `application/json`. Renderers are chosen based on the `content-type` header. The above example would cause all routes of the application to return `application/json` rendered responses.
 
 You can override renderers or add your own using `renderers` during instantiation. This is the final step of a request's lifecycle and should explicitly finalize the response.
 
 ```javascript
 const app = kequserver({
   renderers: {
-    'text/html': ({ payload, res }) => {
+    'text/html': (payload, { res }) => {
       const html = myMarkupRenderer(payload);
       res.end(html);
     }
@@ -95,12 +95,12 @@ const app = kequserver({
 
 ### Errors
 
-Error generation is available using `app.errors`. A direct alias for `app` is `rL`, which is an abbreviation of 'requestListener'. Any thrown error will be caught by the error handler but will default to a `500` status code. This utility handles the full spectrum of status codes.
+Error generation is available using the `errors` parameter. Any thrown error will be caught by the error handler but will default to a `500` status code, this utility enables you to utilise the full spectrum of status codes.
 
 ```javascript
-app.route('/about', ['get'], ({ rL }) => {
+app.route('/about', ['get'], ({ errors }) => {
   // 404
-  throw rL.errors.NotFound('Custom message');
+  throw errors.NotFound('Custom message');
 });
 ```
 
@@ -112,7 +112,7 @@ This example sends a very basic response.
 
 ```javascript
 const app = kequserver({
-  errorHandler: ({ error, res }) => {
+  errorHandler: (error, { res }) => {
     const statusCode = error.statusCode || 500;
 
     res.statusCode = statusCode;

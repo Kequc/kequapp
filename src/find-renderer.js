@@ -1,5 +1,5 @@
-const jsonRenderer = require('../renderers/json-renderer.js');
-const textRenderer = require('../renderers/text-renderer.js');
+const jsonRenderer = require('./defaults/json-renderer.js');
+const textRenderer = require('./defaults/text-renderer.js');
 
 const DEFAULT_RENDERERS = {
   'application/json': jsonRenderer,
@@ -7,13 +7,13 @@ const DEFAULT_RENDERERS = {
   'text/html': textRenderer
 };
 
-function findRenderer (rL, res) {
+function findRenderer (rL, { res, errors }) {
   const { renderers } = rL._opt;
   const contentType = res.getHeader('content-type') || 'text/plain';
   const renderer = renderers[contentType] || DEFAULT_RENDERERS[contentType] || null;
 
   if (typeof renderer !== 'function') {
-    throw rL.errors.InternalServerError('Renderer not found', { contentType });
+    throw errors.InternalServerError('Renderer not found', { contentType });
   }
 
   return renderer;

@@ -1,15 +1,16 @@
 const path = require('path');
-const { sanitizeHandles, sanitizePathname } = require('./util/sanitize.js');
+const errors = require('./errors.js');
+const { sanitizePathname } = require('./util/sanitize.js');
 
-function buildScope (rL, parent) {
+function buildMethodScope (rL, parent) {
   const scope = {};
   scope.branch = buildBranch(rL, parent);
-  scope.use = buildUse(rL, parent, scope);
+  scope.use = buildUse(parent, scope);
   scope.route = buildRoute(rL, parent, scope);
   return scope;
 }
 
-module.exports = buildScope;
+module.exports = buildMethodScope;
 
 function buildBranch (rL, parent) {
   return function branch (...handles) {
@@ -20,11 +21,11 @@ function buildBranch (rL, parent) {
       handles
     });
 
-    return buildScope(rL, newParent);
+    return buildMethodScope(rL, newParent);
   };
 }
 
-function buildUse (rL, parent, scope) {
+function buildUse (parent, scope) {
   return function use (...handles) {
     const pathname = typeof handles[0] === 'string' ? handles.shift() : '/';
 
@@ -43,7 +44,7 @@ function buildRoute (rL, parent, scope) {
     const methods = handles.shift();
 
     if (!Array.isArray(methods) || methods.findIndex(method => typeof method !== 'string') >= 0) {
-      throw rL.errors.InternalServerError('Invalid methods format', { methods });
+      throw errors.InternalServerError('Invalid methods format', { methods });
     }
 
     const route = branchMerge(parent, {
@@ -67,4 +68,8 @@ function branchMerge (parent, child, more = {}) {
     pathname: sanitizePathname(newPathname),
     handles: sanitizeHandles(newHandles)
   }, more);
+}
+
+function sanitizeHandles (handles) {
+  return handles.flat().filter(handle => typeof handle === 'function');
 }

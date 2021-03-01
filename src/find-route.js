@@ -1,12 +1,8 @@
-const { getPathnameFromReq } = require('./sanitize.js');
-
-function findRoute (rL, req) {
-  const method = req.method.toLowerCase();
-  const pathname = getPathnameFromReq(req);
+function findRoute (rL, { method, pathname, errors }) {
   const result = rL._routes.find(routeMatch(method, pathname));
 
   if (!result) {
-    throw rL.errors.NotFound(`Not Found: ${pathname}`, {
+    throw errors.NotFound(`Not Found: ${pathname}`, {
       request: { method, pathname },
       routes: rL._routes.map(formatRoute)
     });
