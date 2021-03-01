@@ -14,13 +14,12 @@ const http = require('http');
 const { createApp } = require('kequserver');
 
 const app = createApp();
-const server = http.createServer(app);
 
-app.route(['get'], () => {
+app.route('/', ['get'], () => {
   return 'Hello world!';
 });
 
-server.listen(4000, () => {
+http.createServer(app).listen(4000, () => {
   console.log('Server running on port 4000');
 });
 
@@ -56,6 +55,9 @@ Branches are defined using `branch()`. The path parameter is optional, followed 
 
 ```javascript
 app.branch('/user', loggedIn)
+  .route(['get'], () => {
+    return 'User list';
+  })
   .route('/:id', ['get'], ({ params }) => {
     return `userId: ${params.id}!`;
   })
@@ -86,7 +88,7 @@ Default renderers are included for `text/plain`, and `application/json`. Rendere
 You can override renderers or add your own using `renderers` during instantiation. This is the final step of a request's lifecycle and should explicitly finalize the response.
 
 ```javascript
-const app = kequserver({
+const app = createApp({
   renderers: {
     'text/html': (payload, { res }) => {
       const html = myMarkupRenderer(payload);
@@ -130,7 +132,7 @@ Errors thrown inside of the error handler or the renderer chosen to parse the er
 This example sends a very basic response.
 
 ```javascript
-const app = kequserver({
+const app = createApp({
   errorHandler: (error, { res }) => {
     const statusCode = error.statusCode || 500;
 
