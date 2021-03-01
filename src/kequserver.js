@@ -1,5 +1,5 @@
-const findRendererFromRes = require('./util/find-renderer-from-req.js');
-const findRouteFromReq = require('./util/find-route-from-res.js');
+const findRendererFromRes = require('./util/find-renderer-from-res.js');
+const findRouteFromReq = require('./util/find-route-from-req.js');
 const { getPathnameFromReq } = require('./util/sanitize.js');
 const buildScope = require('./build-scope.js');
 const execute = require('./execute.js');
