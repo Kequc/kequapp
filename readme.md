@@ -22,56 +22,64 @@ app.route('/', ['get'], () => {
 http.createServer(app).listen(4000, () => {
   console.log('Server running on port 4000');
 });
-
 ```
 
 ### Route
 
-Routes are defined using `route()`. The pathname is optional, followed by an array of incoming method names you would like the route to listen for. Followed by any number of functions which define the request lifecycle.
+Routes are defined using the `route()` method.
+
+Pathname is optional, followed by an array of incoming method names you would like the route to listen for. Followed by any number of functions which define the request lifecycle.
 
 Optionally each middleware function can return an object as a result. That object gets merged through all middleware as the `context` parameter.
 
-The final function which is run is the handle. The handle returns the payload that should be handed off to the renderer.
+The final function which is run is the handle. The handle returns the `payload` that should be handed off to the renderer.
 
 ```javascript
-app.route('/about', ['get'], () => {
-  return 'Page here';
-});
-
 function loggedIn ({ req }) {
   return {
     auth: req.getHeader('authorization');
   }
 }
 
-app.route('/user/admin', ['get'], loggedIn, ({ context }) => {
+app.route('/user', ['get'], () => {
+  return 'User list';
+});
+
+app.route('/user/:id', ['get'], ({ params }) => {
+  return `userId: ${params.id}!`;
+});
+
+app.route('/admin', ['get'], loggedIn, ({ context }) => {
   return `Hello admin ${context.auth}`;
 });
 ```
 
 ### Branch
 
-Branches are defined using `branch()`. The path parameter is optional, followed by any number of functions. It returns a branch of the application which will adopt all middleware and a pathname prefix. By itself this does not create a route, it will be used in conjunction with routes.
+Branches are defined using the `branch()` method.
+
+Pathname prefix is optional, followed by any number of functions. It returns a branch of the application which will adopt all middleware and a pathname prefix. By itself this does not create a route, it will be used in conjunction with routes.
 
 ```javascript
-app.branch('/user', loggedIn)
+app.branch('/user')
   .route(['get'], () => {
     return 'User list';
   })
   .route('/:id', ['get'], ({ params }) => {
     return `userId: ${params.id}!`;
-  })
+  });
+
+app.branch('/admin', loggedIn)
   .route('/admin', ['get'], ({ context }) => {
-    // Same as previous example
     return `Hello admin ${context.auth}`;
   });
 ```
 
 ### Middleware
 
-Middleware is added to the current branch using `middleware()`. The pathname prefix is optional, followed by any number of functions which define the middleware you would like.
+Middleware is added to the current branch using the `middleware()` method.
 
-This affects all routes in the current branch, forcing routes to start with a given prefix and run the given middleware.
+Pathname prefix is optional, followed by any number of functions which define the middleware you would like to use. This affects all routes in the current branch, forcing routes to start with a given prefix and run the given middleware.
 
 Often useful at the base of an application to perform tasks for all routes.
 
@@ -100,6 +108,8 @@ const app = createApp({
 
 ### Parameters
 
+The following parameters are available in most functions you define.
+
 | parameter | description |
 | - | - |
 | `req` | The node `req` parameter. |
@@ -114,7 +124,7 @@ const app = createApp({
 
 ### Errors
 
-Error generation is available using the `errors` parameter. Any thrown error will be caught by the error handler and will default to a `500` status code, this utility is a helper enabling you to utilise the full spectrum of status codes.
+Error generation is available using the `errors` parameter. Any thrown error will be caught by the error handler and will use a `500` status code, this helper utility enables you to utilise the full spectrum of status codes.
 
 ```javascript
 app.route('/about', ['get'], ({ errors }) => {
@@ -127,7 +137,7 @@ app.route('/about', ['get'], ({ errors }) => {
 
 The default error handler returns json containing helpful information for debugging. It can be overridden using `errorHandler` during instantiation. The returned value will be sent to the renderer again for processing.
 
-Errors thrown inside of the error handler or the renderer chosen to parse the error handler's response will cause a fatal exception.
+Errors thrown inside of the error handler or the renderer chosen to parse the error handler's payload will cause a fatal exception.
 
 This example sends a very basic response.
 
