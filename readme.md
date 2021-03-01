@@ -117,9 +117,9 @@ The following parameters are available in most functions you define.
 | `errors` | Http error creation helper. |
 | `method` | Method provided by the client in lowercase. |
 | `pathname` | Pathname provided by the client. |
-| `params` | Params extracted from pathname. |
-| `query` | Params extracted from querystring. |
-| `body` | Params extracted from body. |
+| `params` | Params extracted from the pathname. |
+| `query` | Params extracted from the querystring. |
+| `body` | Params extracted from the body. |
 | `context` | Params returned from middleware functions. |
 
 ### Errors
