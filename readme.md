@@ -10,8 +10,8 @@ npm i kequserver
 ```
 
 ```javascript
-const http = require('http');
 const { createApp } = require('kequserver');
+const { createServer } = require('http');
 
 const app = createApp();
 
@@ -19,7 +19,7 @@ app.route('/', ['get'], () => {
   return 'Hello world!';
 });
 
-http.createServer(app).listen(4000, () => {
+createServer(app).listen(4000, () => {
   console.log('Server running on port 4000');
 });
 ```
@@ -108,7 +108,7 @@ const app = createApp({
 
 ### Parameters
 
-The following parameters are available in most functions you define.
+The following parameters are made available always when possible.
 
 | parameter | description |
 | - | - |
@@ -126,10 +126,12 @@ The following parameters are available in most functions you define.
 
 Error generation is available using the `errors` parameter. Any thrown error will be caught by the error handler and will use a `500` status code, this helper utility enables you to utilise the full spectrum of status codes.
 
+A second `info` parameter can be provided which will help you debug in development.
+
 ```javascript
 app.route('/about', ['get'], ({ errors }) => {
   // 404
-  throw errors.NotFound('Custom message');
+  throw errors.NotFound('Custom message', { extra: 'info' });
 });
 ```
 
