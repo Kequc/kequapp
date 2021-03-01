@@ -15,8 +15,6 @@ function buildBranch (rL, parent) {
   return function branch (...handles) {
     const pathname = typeof handles[0] === 'string' ? handles.shift() : '/';
 
-    // TODO validate
-
     const newParent = branchMerge(parent, {
       pathname,
       handles
@@ -62,8 +60,11 @@ function buildRoute (rL, parent, scope) {
 }
 
 function branchMerge (parent, child, more = {}) {
+  const newPathname = path.join(parent.pathname, child.pathname);
+  const newHandles = parent.handles.concat(child.handles);
+
   return Object.assign({
-    pathname: sanitizePathname(path.join(parent.pathname, child.pathname)),
-    handles: parent.handles.concat(sanitizeHandles(child.handles))
+    pathname: sanitizePathname(newPathname),
+    handles: sanitizeHandles(newHandles)
   }, more);
 }

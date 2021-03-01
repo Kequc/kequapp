@@ -1,9 +1,6 @@
-const { URL } = require('url');
-
-const errors = require('./util/create-error.js');
-const findRenderer = require('./util/find-renderer.js');
-const findRoute = require('./util/find-route.js');
-const { sanitizePathname } = require('./util/sanitize.js');
+const findRendererFromRes = require('./util/find-renderer-from-req.js');
+const findRouteFromReq = require('./util/find-route-from-res.js');
+const { getPathnameFromReq } = require('./util/sanitize.js');
 const buildScope = require('./build-scope.js');
 const execute = require('./execute.js');
 
@@ -16,20 +13,18 @@ const DEFAULT_OPTIONS = {
 
 function kequserver (options = {}) {
   async function rL (req, res) {
-    const reqInfo = getReqInfo(req);
-    res.setHeader('content-type', 'text/plain'); // default
+    const { log } = rL._opt;
+
+    const method = req.method.toLowerCase();
+    const pathname = getPathnameFromReq(req);
+
     try {
-      const route = findRoute(rL, reqInfo);
-      const { result, context } = await execute(rL, route, req, res);
-      const renderer = findRenderer(rL, res);
-      renderer(rL, result, res, context);
-      debug(res, reqInfo);
+      await renderRoute(req, res, pathname);
+      log.debug(res.statusCode, `[${method}]`, pathname);
     } catch (error) {
-      const { errorHandler } = rL._opt;
-      const result = errorHandler(error, req, res);
-      const renderer = findRenderer(rL, res);
-      renderer(rL, result, res);
-      debug(res, reqInfo, error);
+      await renderError(req, res, error);
+      log.debug(res.statusCode, `[${method}]`, pathname);
+      if (res.statusCode === 500) log.debug(error);
     }
   }
 
@@ -40,24 +35,39 @@ function kequserver (options = {}) {
 
   rL._routes = [];
   rL._opt = Object.assign({}, DEFAULT_OPTIONS, options);
-  rL.errors = errors;
+  rL.errors = require('./errors.js');
 
-  function debug (res, { method, pathname }, error) {
-    const { log } = rL._opt;
-    log.debug(res.statusCode, `[${method}]`, pathname);
-    if (res.statusCode === 500) {
-      log.debug(error);
-    }
+  async function renderRoute (req, res, pathname) {
+    const route = findRouteFromReq(rL, req);
+
+    const { payload, context } = await execute(rL, route, req, res, pathname);
+
+    await findRendererFromRes(rL, res)({
+      rL,
+      payload,
+      res,
+      context
+    });
   }
-  
+
+  async function renderError (req, res, error) {
+    const { errorHandler } = rL._opt;
+
+    const payload = await errorHandler({
+      rL,
+      error,
+      req,
+      res
+    });
+
+    await findRendererFromRes(rL, res)({
+      rL,
+      payload,
+      res
+    });
+  }
+
   return rL;
 }
 
 module.exports = kequserver;
-
-function getReqInfo (req) {
-  return {
-    method: req.method.toLowerCase(),
-    pathname: sanitizePathname(new URL(req.url, `http://${req.headers.host}`).pathname)
-  };
-}

@@ -9,7 +9,7 @@ const DEFAULT_RENDERERS = {
 
 function findRenderer (rL, res) {
   const { renderers } = rL._opt;
-  const contentType = res.getHeader('content-type');
+  const contentType = res.getHeader('content-type') || 'text/plain';
   const renderer = renderers[contentType] || DEFAULT_RENDERERS[contentType] || null;
 
   if (typeof renderer !== 'function') {

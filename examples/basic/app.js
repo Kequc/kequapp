@@ -1,4 +1,4 @@
-const kequserver = require('../index.js'); // 'kequserver'
+const kequserver = require('../../index.js'); // 'kequserver'
 
 const app = kequserver();
 

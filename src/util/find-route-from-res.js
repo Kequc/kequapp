@@ -1,5 +1,9 @@
-function findRoute (rL, { method, pathname }) {
-  const result = rL._routes.find(routeMatch(pathname, method));
+const { getPathnameFromReq } = require('./sanitize.js');
+
+function findRoute (rL, req) {
+  const method = req.method.toLowerCase();
+  const pathname = getPathnameFromReq(req);
+  const result = rL._routes.find(routeMatch(method, pathname));
 
   if (!result) {
     throw rL.errors.NotFound(`Not Found: ${pathname}`, {
@@ -13,7 +17,7 @@ function findRoute (rL, { method, pathname }) {
 
 module.exports = findRoute;
 
-function routeMatch (pathname, method) {
+function routeMatch (method, pathname) {
   return function (route) {
     if (!route.methods.includes(method)) {
       return false;

@@ -1,8 +1,8 @@
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
-function jsonRenderer (rL, payload, res) {
+function jsonRenderer ({ rL, payload, res }) {
   try {
-    if (NODE_ENV === 'development') {
+    if (NODE_ENV !== 'production') {
       res.end(JSON.stringify(payload, null, 2));
     } else {
       res.end(JSON.stringify(payload));

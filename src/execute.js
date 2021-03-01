@@ -1,11 +1,11 @@
 const { URL } = require('url');
 const parseBody = require('./util/parse-body.js');
 
-async function execute (rL, route, req, res) {
+async function execute (rL, route, req, res, pathname) {
   let context = {};
-  let result;
+  let payload;
 
-  const { pathname, searchParams } = new URL(req.url, `http://${req.headers.host}`);
+  const { searchParams } = new URL(req.url, `http://${req.headers.host}`);
   const params = extractParams(route.pathname, pathname);
   const query = Object.fromEntries(searchParams);
   const body = await parseBody(rL, req);
@@ -13,14 +13,15 @@ async function execute (rL, route, req, res) {
   for (const handle of route.handles) {
     // construct context from middleware
 
-    if (result) {
-      if (typeof result !== 'object') {
-        throw rL.errors.InternalServerError('Unexpected middleware result', { type: typeof result, result });
+    if (payload) {
+      if (typeof payload !== 'object') {
+        throw rL.errors.InternalServerError('Unexpected middleware result', { type: typeof payload, payload });
       }
-      context = Object.assign({}, context, result);
+      context = Object.assign({}, context, payload);
     }
 
-    result = await handle({
+    payload = await handle({
+      rL,
       req,
       res,
       context,
@@ -30,7 +31,7 @@ async function execute (rL, route, req, res) {
     });
   }
 
-  return { result, context };
+  return { payload, context };
 }
 
 module.exports = execute;

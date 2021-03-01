@@ -1,4 +1,4 @@
-function textRenderer (rL, payload, res) {
+function textRenderer ({ rL, payload, res }) {
   try {
     res.end(String(payload));
   } catch (error) {

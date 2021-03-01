@@ -1,6 +1,6 @@
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
-function errorHandler (error, req, res) {
+function errorHandler ({ error, res }) {
   const statusCode = error.statusCode || 500;
 
   res.statusCode = statusCode;
