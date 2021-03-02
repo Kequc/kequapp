@@ -138,7 +138,7 @@ app.route('/user', ['post'], async ({ getBody }) => {
 I recommend use of an external library.
 
 ```javascript
-const cookie = require('cookie');
+const cookie = require('cookie'); // npm i cookie
 
 app.middleware(({ req }) => {
   const cookies = cookie.parse(req.getHeader('cookie'));
