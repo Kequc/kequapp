@@ -4,10 +4,13 @@
   "main": "index.js",
   "scripts": {
     "start": "node ./examples/basic/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "kequtest"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "kequtest": "^0.2.25"
+  }
 }

@@ -8,6 +8,7 @@ function jsonRenderer (payload, { res, errors }) {
       res.end(JSON.stringify(payload));
     }
   } catch (error) {
+    console.log(error);
     throw errors.InternalServerError('Invalid json response', { payload, error });
   }
 }

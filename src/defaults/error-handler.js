@@ -13,7 +13,7 @@ function errorHandler (error, { res }) {
     }
   };
 
-  if (NODE_ENV === 'development') {
+  if (NODE_ENV !== 'production') {
     result.error.stack = error.stack.split(/\r?\n/);
     result.error.info = error.info;
   }

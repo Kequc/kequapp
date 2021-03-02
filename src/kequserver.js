@@ -4,6 +4,7 @@ const errors = require('./errors.js');
 const execute = require('./execute.js');
 const findRenderer = require('./find-renderer.js');
 const findRoute = require('./find-route.js');
+const inject = require('./inject/inject.js');
 const { sanitizePathname } = require('./util/sanitize.js');
 
 const DEFAULT_OPTIONS = {
@@ -46,6 +47,10 @@ function createApp (options = {}) {
 
   rL._routes = [];
   rL._opt = Object.assign({}, DEFAULT_OPTIONS, options);
+
+  rL.inject = (pathname, method, options = {}) => {
+    return inject(rL, pathname, method, options);
+  };
 
   async function renderRoute (rL, bundle) {
     const route = findRoute(rL, bundle);

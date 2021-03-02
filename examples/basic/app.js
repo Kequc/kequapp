@@ -2,33 +2,32 @@ const { createApp } = require('../../index.js'); // 'kequserver'
 
 const app = createApp();
 
-app.middleware(function ({ res }) {
-  res.setHeader('content-type', 'application/json');
+app.route('/', ['get'], () => {
+  return 'Hello world!';
 });
 
-app.route('/cats/:id/owner', ['get'], function ({ query }) {
-  return { query };
-});
+function loggedIn ({ req }) {
+  return {
+    auth: req.getHeader('authorization')
+  };
+}
 
-app.branch('/cats')
-  .route(['post'], function ({ query }) {
-    return { query };
+app.branch('/user')
+  .route(['get'], ({ query }) => {
+    return 'User list ' + JSON.stringify(query);
   })
-  .route('/:id', ['get'], function ({ query }) {
-    return { query };
-  })
-  .route('/:id', ['put'], function ({ query }) {
-    return { query };
-  })
-  .route('/:id', ['delete'], function ({ query }) {
-    return { query };
-  })
-  .route(['get'], function ({ query }) {
-    return { query };
+  .route('/:id', ['get'], ({ params }) => {
+    return `userId: ${params.id}!`;
   });
 
-app.route('/', ['get'], function () {
-  return { hello: 'homepage' };
+app.branch('/admin', loggedIn)
+  .route('/dashboard', ['get'], ({ context }) => {
+    return `Hello admin ${context.auth}!`;
+  });
+
+app.route('/user', ['post'], async ({ getBody }) => {
+  const body = await getBody();
+  return `User creation ${body.name}!`;
 });
 
 module.exports = app;

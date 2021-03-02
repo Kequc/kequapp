@@ -37,8 +37,8 @@ The final function which is run is the handle. The handle returns the `payload` 
 ```javascript
 function loggedIn ({ req }) {
   return {
-    auth: req.getHeader('authorization');
-  }
+    auth: req.getHeader('authorization')
+  };
 }
 
 app.route('/user', ['get'], () => {
@@ -50,7 +50,7 @@ app.route('/user/:id', ['get'], ({ params }) => {
 });
 
 app.route('/admin/dashboard', ['get'], loggedIn, ({ context }) => {
-  return `Hello admin ${context.auth}`;
+  return `Hello admin ${context.auth}!`;
 });
 ```
 
@@ -71,7 +71,7 @@ app.branch('/user')
 
 app.branch('/admin', loggedIn)
   .route('/dashboard', ['get'], ({ context }) => {
-    return `Hello admin ${context.auth}`;
+    return `Hello admin ${context.auth}!`;
   });
 ```
 
@@ -117,10 +117,21 @@ The following parameters are made available always when possible.
 | `errors` | Http error creation helper. |
 | `method` | Method provided by the client in lowercase. |
 | `pathname` | Pathname provided by the client. |
+| `getBody` | Function to extract params from the request body. |
 | `params` | Params extracted from the pathname. |
 | `query` | Params extracted from the querystring. |
-| `body` | Params extracted from the body. |
 | `context` | Params returned from middleware functions. |
+
+### Body
+
+Node delivers the body of a request in chunks. It is not always necessary to wait for the request to finish before we begin processing it. Therefore a helper `getBody()` method is provided which you can use to await body parameters from the completed request.
+
+```javascript
+app.route('/user', ['post'], async ({ getBody }) => {
+  const body = await getBody();
+  return `User creation ${body.name}!`;
+});
+```
 
 ### Errors
 
@@ -153,5 +164,49 @@ const app = createApp({
 
     return `${statusCode} ${error.message}`;
   }
+});
+```
+
+### Unit Tests
+
+It is possible to test your application without spinning up a server using the `inject()` method. It returns `req`, and `res` parameters.
+
+It also returns `getBody()` which is a utility you may use to wait for your application to respond. Alternatively you can inspect what your application is doing making use of the native node `req`, and `res` objects in realtime.
+
+```javascript
+it('returns the expected result', async function () {
+  const { getBody, res } = app.inject('/user/21', 'get');
+
+  const body = await getBody();
+
+  assert.strictEqual(res.getHeader('content-type'), 'text/plain');
+  assert.strictEqual(body, 'userId: 21!');
+});
+```
+
+The `inject()` method waits until next tick inside of node before continuing, so you have the opportunity to make changes to the `req` object.
+
+```javascript
+it('reads the authorization header', async function () {
+  const { getBody, req, res } = app.inject('/admin/dashboard', 'get');
+
+  req.setHeader('Authorization', 'mike');
+
+  const body = await getBody();
+
+  assert.strictEqual(res.getHeader('content-type'), 'text/plain');
+  assert.strictEqual(body, 'Hello admin mike!');
+});
+
+it('reads the body of a request', async function () {
+  const { getBody, req, res } = app.inject('/user', 'post');
+
+  req.setHeader('content-type', 'application/json');
+  req.end('{ "name": "april" }');
+
+  const body = await getBody();
+
+  assert.strictEqual(res.getHeader('content-type'), 'text/plain');
+  assert.strictEqual(body, 'User creation april!');
 });
 ```
