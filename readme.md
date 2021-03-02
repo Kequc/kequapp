@@ -133,24 +133,42 @@ app.route('/user', ['post'], async ({ getBody }) => {
 });
 ```
 
-### Errors
+### Cookies
 
-Error generation is available using the `errors` parameter. Any thrown error will be caught by the error handler and will use a `500` status code, this helper utility enables you to utilise the full spectrum of status codes.
-
-A second `info` parameter can be provided which will help you debug in development.
+I recommend use of an external library.
 
 ```javascript
-app.route('/about', ['get'], ({ errors }) => {
-  // 404
+const cookie = require('cookie');
+
+app.middleware(({ req }) => {
+  const cookies = cookie.parse(req.getHeader('cookie'));
+  // cookies ~= { myCookie: 'hello' }
+});
+
+app.route('/login', ({ res }) => {
+  res.setHeader('set-cookie', cookie.serialize('myCookie', 'hello'));
+});
+```
+
+### Errors
+
+Error generation is available using the `errors` parameter. Any thrown error will be caught by the error handler and will use a `500` status code, this helper utility enables you to utilise all status codes `400` and above.
+
+```javascript
+app.route('/throw-error', ['get'], ({ errors }) => {
+  throw errors.StatusCode(404);
+  throw errors.StatusCode(404, 'Custom message', { extra: 'info' });
+  // same as
+  throw errors.NotFound();
   throw errors.NotFound('Custom message', { extra: 'info' });
 });
 ```
 
-### Error handler
+### Error Handling
 
 The default error handler returns json containing helpful information for debugging. It can be overridden using `errorHandler` during instantiation. The returned value will be sent to the renderer again for processing.
 
-Errors thrown inside of the error handler or the renderer chosen to parse the error handler's payload will cause a fatal exception.
+Errors thrown inside of the error handler or within the renderer chosen to parse the error handler's payload will cause a fatal exception.
 
 This example sends a very basic response.
 

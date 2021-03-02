@@ -1,7 +1,8 @@
+const querystring = require('querystring');
 const { StringDecoder } = require('string_decoder');
 const errors = require('../errors.js');
 
-async function streamReader (stream, maxPayloadSize) {
+async function streamReader (stream, contentType, maxPayloadSize) {
   return await new Promise(function (resolve, reject) {
     const decoder = new StringDecoder('utf-8');
     let buffer = '';
@@ -16,7 +17,13 @@ async function streamReader (stream, maxPayloadSize) {
 
     function handleEnd () {
       buffer += decoder.end();
-      resolve(buffer);
+      if (contentType === 'application/x-www-form-urlencoded') {
+        resolve(querystring.parse(buffer));
+      } else if (contentType === 'application/json') {
+        resolve(JSON.parse(buffer));
+      } else {
+        resolve(buffer);
+      }
     }
 
     function abortStream (error) {

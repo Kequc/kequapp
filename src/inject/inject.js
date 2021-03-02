@@ -25,7 +25,7 @@ function inject (app, pathname, method, options) {
 
   async function getBody () {
     if (_body === undefined) {
-      _body = await streamReader(res);
+      _body = await streamReader(res, res.getHeader('content-type'));
     }
     return _body;
   }

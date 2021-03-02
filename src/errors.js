@@ -1,60 +1,80 @@
-const ERRORS = {
-  BadRequest: 400,
-  Unauthorized: 401,
-  PaymentRequired: 402,
-  Forbidden: 403,
-  NotFound: 404,
-  MethodNotAllowed: 405,
-  NotAcceptable: 406,
-  ProxyAuthenticationRequired: 407,
-  RequestTimeout: 408,
-  Conflict: 409,
-  Gone: 410,
-  LengthRequired: 411,
-  PreconditionFailed: 412,
-  PayloadTooLarge: 413,
-  URITooLong: 414,
-  UnsupportedMediaType: 415,
-  RangeNotSatisfiable: 416,
-  ExpectationFailed: 417,
-  ImATeapot: 418,
-  MisdirectedRequest: 421,
-  UnprocessableEntity: 422,
-  Locked: 423,
-  FailedDependency: 424,
-  UnorderedCollection: 425,
-  UpgradeRequired: 426,
-  PreconditionRequired: 428,
-  TooManyRequests: 429,
-  RequestHeaderFieldsTooLarge: 431,
-  UnavailableForLegalReasons: 451,
-  InternalServerError: 500,
-  NotImplemented: 501,
-  BadGateway: 502,
-  ServiceUnavailable: 503,
-  GatewayTimeout: 504,
-  HTTPVersionNotSupported: 505,
-  VariantAlsoNegotiates: 506,
-  InsufficientStorage: 507,
-  LoopDetected: 508,
-  BandwidthLimitExceeded: 509,
-  NotExtended: 510,
-  NetworkAuthenticationRequired: 511
+const { STATUS_CODES } = require('http');
+
+// 400 BadRequest
+// 401 Unauthorized
+// 402 PaymentRequired
+// 403 Forbidden
+// 404 NotFound
+// 405 MethodNotAllowed
+// 406 NotAcceptable
+// 407 ProxyAuthenticationRequired
+// 408 RequestTimeout
+// 409 Conflict
+// 410 Gone
+// 411 LengthRequired
+// 412 PreconditionFailed
+// 413 PayloadTooLarge
+// 414 URITooLong
+// 415 UnsupportedMediaType
+// 416 RangeNotSatisfiable
+// 417 ExpectationFailed
+// 418 ImATeapot
+// 421 MisdirectedRequest
+// 422 UnprocessableEntity
+// 423 Locked
+// 424 FailedDependency
+// 425 TooEarly
+// 426 UpgradeRequired
+// 428 PreconditionRequired
+// 429 TooManyRequests
+// 431 RequestHeaderFieldsTooLarge
+// 451 UnavailableForLegalReasons
+// 500 InternalServerError
+// 501 NotImplemented
+// 502 BadGateway
+// 503 ServiceUnavailable
+// 504 GatewayTimeout
+// 505 HTTPVersionNotSupported
+// 506 VariantAlsoNegotiates
+// 507 InsufficientStorage
+// 508 LoopDetected
+// 509 BandwidthLimitExceeded
+// 510 NotExtended
+// 511 NetworkAuthenticationRequired
+
+const methods = {
+  StatusCode
 };
 
-const methods = {};
+function StatusCode (statusCode, message, ...info) {
+  if (!STATUS_CODES[statusCode]) {
+    return _buildError(StatusCode, 500, message, ...info);
+  }
+  return _buildError(StatusCode, statusCode, message, ...info);
+}
 
-for (const key of Object.keys(ERRORS)) {
+for (const statusCode of Object.keys(STATUS_CODES)) {
+  if (statusCode < 400) continue;
+  const key = createMethodName(statusCode);
   methods[key] = function (message, ...info) {
-    const error = new Error(message || key);
-    error.statusCode = ERRORS[key];
-    error.info = normalize(info);
-    Error.captureStackTrace(error, methods[key]);
-    return error;
+    return _buildError(methods[key], statusCode, message, ...info);
   };
 }
 
 module.exports = methods;
+
+function _buildError (parent, statusCode, message, ...info) {
+  const error = new Error(message || STATUS_CODES[statusCode]);
+  error.statusCode = statusCode;
+  error.info = info.map(normalize);
+  Error.captureStackTrace(error, parent);
+  return error;
+}
+
+function createMethodName (statusCode) {
+  const message = STATUS_CODES[statusCode];
+  return message.replace('\'', '').split(/[\s-]+/).map(word => word.charAt(0).toUpperCase() + word.substr(1)).join('');
+}
 
 function normalize (value) {
   if (typeof value !== 'object' || value === null) return value;
