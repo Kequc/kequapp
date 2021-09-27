@@ -241,7 +241,7 @@ it('reads the body of a request', async function () {
 });
 
 it('reads the body of a request', async function () {
-  const { getBody, req, res } = inject(app, {
+  const { getBody, res } = inject(app, {
     method: 'POST',
     url: '/user',
     headers: {
