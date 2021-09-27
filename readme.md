@@ -37,7 +37,7 @@ The final function which is run is the handle. The handle returns the `payload` 
 ```javascript
 function loggedIn ({ req }) {
   return {
-    auth: req.headers['authorization']
+    auth: req.headers.authorization
   };
 }
 
@@ -141,7 +141,7 @@ I recommend use of an external library.
 const cookie = require('cookie'); // npm i cookie
 
 app.middleware(({ req }) => {
-  const cookies = cookie.parse(req.getHeader('cookie'));
+  const cookies = cookie.parse(req.headers.cookie);
   // cookies ~= { myCookie: 'hello' }
 });
 

@@ -8,7 +8,7 @@ app.route('/', ['get'], () => {
 
 function loggedIn ({ req }) {
   return {
-    auth: req.headers['authorization']
+    auth: req.headers.authorization
   };
 }
 
