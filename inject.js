@@ -11,7 +11,7 @@ function inject (app, options) {
   let _body;
 
   if (_options.search) {
-    _options.search = new URLSearchParams(_options.search).toString()
+    _options.search = new URLSearchParams(_options.search).toString();
   }
 
   if (options.body) {
