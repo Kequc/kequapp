@@ -187,7 +187,7 @@ const app = createApp({
 
 ### Unit Tests
 
-It is possible to test your application without spinning up a server using the `inject()` tool. The `req` and `res` objects returned are from the npm `mock-req` and `mock-res` modules respectively.
+It is possible to test your application without spinning up a server using the `inject()` tool. The first parameter is your app. The options you provide are used largely to populate the request. The returned `req` and `res` objects are from the npm `mock-req` and `mock-res` modules respectively.
 
 It also returns `getBody()` which is a utility you may use to wait for your application to respond. Alternatively you can inspect what your application is doing making use of the `req`, and `res` objects in realtime.
 
@@ -220,7 +220,7 @@ it('reads the authorization header', async function () {
 });
 ```
 
-The `inject()` tool waits until next tick inside of node before continuing, so you have the opportunity to make changes to the `req` object. Optionally a `body` parameter can be provided as a convenience instead of writing to the stream, the following two examples are the same.
+Optionally a `body` parameter can be provided as a convenience instead of writing to the stream, the following two examples are the same.
 
 ```javascript
 it('reads the body of a request', async function () {
