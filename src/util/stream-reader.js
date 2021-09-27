@@ -1,4 +1,3 @@
-const querystring = require('querystring');
 const { StringDecoder } = require('string_decoder');
 const errors = require('../errors.js');
 
@@ -18,7 +17,7 @@ async function streamReader (stream, contentType, maxPayloadSize) {
     function handleEnd () {
       buffer += decoder.end();
       if (contentType === 'application/x-www-form-urlencoded') {
-        resolve(querystring.parse(buffer));
+        resolve(parseUrlEncoded(buffer));
       } else if (contentType === 'application/json') {
         resolve(JSON.parse(buffer));
       } else {
@@ -41,3 +40,18 @@ async function streamReader (stream, contentType, maxPayloadSize) {
 }
 
 module.exports = streamReader;
+
+function parseUrlEncoded (search) {
+  const params = new URLSearchParams(search);
+  const result = {};
+
+  for (const key of params.keys()) {
+    if (params.getAll(key).length > 1) {
+      result[key] = params.getAll(key);
+    } else {
+      result[key] = params.get(key);
+    }
+  }
+
+  return result;
+}
