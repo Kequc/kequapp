@@ -1,8 +1,8 @@
 const streamReader = require('./util/stream-reader.js');
 
 async function parseBody (rL, { req }) {
-  const { maxPayloadSize } = rL._opt;
-  const contentType = req.getHeader('content-type');
+  const { maxPayloadSize } = rL._options;
+  const contentType = req.headers['content-type'];
 
   return await streamReader(req, contentType, maxPayloadSize);
 }

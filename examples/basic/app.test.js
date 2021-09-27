@@ -1,10 +1,13 @@
 const assert = require('assert');
+const inject = require('../../inject.js'); // 'kequserver/inject'
 const app = require('./app.js');
 
-app._opt.log = util.log();
+app._options.logger = util.log();
 
 it('returns the expected result', async function () {
-  const { getBody, res } = app.inject('/user/21', 'get');
+  const { getBody, res } = inject(app, {
+    url: '/user/21'
+  });
 
   const body = await getBody();
 
@@ -13,9 +16,12 @@ it('returns the expected result', async function () {
 });
 
 it('reads the authorization header', async function () {
-  const { getBody, req, res } = app.inject('/admin/dashboard', 'get');
-
-  req.setHeader('Authorization', 'mike');
+  const { getBody, res } = inject(app, {
+    url: '/admin/dashboard',
+    headers: {
+      authorization: 'mike'
+    }
+  });
 
   const body = await getBody();
 
@@ -24,9 +30,14 @@ it('reads the authorization header', async function () {
 });
 
 it('reads the body of a request', async function () {
-  const { getBody, req, res } = app.inject('/user', 'post');
+  const { getBody, req, res } = inject(app, {
+    method: 'POST',
+    url: '/user',
+    headers: {
+      'content-type': 'application/json'
+    }
+  });
 
-  req.setHeader('content-type', 'application/json');
   req.end('{ "name": "april" }');
 
   const body = await getBody();

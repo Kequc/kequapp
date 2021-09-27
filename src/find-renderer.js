@@ -8,7 +8,7 @@ const DEFAULT_RENDERERS = {
 };
 
 function findRenderer (rL, { res, errors }) {
-  const { renderers } = rL._opt;
+  const { renderers } = rL._options;
   const contentType = res.getHeader('content-type');
   const renderer = renderers[contentType] || DEFAULT_RENDERERS[contentType] || null;
 

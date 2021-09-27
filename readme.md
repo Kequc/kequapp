@@ -37,7 +37,7 @@ The final function which is run is the handle. The handle returns the `payload` 
 ```javascript
 function loggedIn ({ req }) {
   return {
-    auth: req.getHeader('authorization')
+    auth: req.headers['authorization']
   };
 }
 
@@ -187,40 +187,68 @@ const app = createApp({
 
 ### Unit Tests
 
-It is possible to test your application without spinning up a server using the `inject()` method. It returns `req`, and `res` parameters.
+It is possible to test your application without spinning up a server using the `inject()` tool. The `req` and `res` objects returned are from the npm `mock-req` and `mock-res` modules respectively.
 
-It also returns `getBody()` which is a utility you may use to wait for your application to respond. Alternatively you can inspect what your application is doing making use of the native node `req`, and `res` objects in realtime.
+It also returns `getBody()` which is a utility you may use to wait for your application to respond. Alternatively you can inspect what your application is doing making use of the `req`, and `res` objects in realtime.
 
 ```javascript
+const inject = require('kequserver/inject');
+
 it('returns the expected result', async function () {
-  const { getBody, res } = app.inject('/user/21', 'get');
+  const { getBody, res } = inject(app, {
+    url: '/user/21'
+  });
 
   const body = await getBody();
 
   assert.strictEqual(res.getHeader('content-type'), 'text/plain');
   assert.strictEqual(body, 'userId: 21!');
 });
-```
 
-The `inject()` method waits until next tick inside of node before continuing, so you have the opportunity to make changes to the `req` object.
-
-```javascript
 it('reads the authorization header', async function () {
-  const { getBody, req, res } = app.inject('/admin/dashboard', 'get');
-
-  req.setHeader('Authorization', 'mike');
+  const { getBody, res } = inject(app, {
+    url: '/admin/dashboard',
+    headers: {
+      authorization: 'mike'
+    }
+  });
 
   const body = await getBody();
 
   assert.strictEqual(res.getHeader('content-type'), 'text/plain');
   assert.strictEqual(body, 'Hello admin mike!');
 });
+```
+
+The `inject()` tool waits until next tick inside of node before continuing, so you have the opportunity to make changes to the `req` object. Optionally a `body` parameter can be provided as a convenience instead of writing to the stream, the following two examples are the same.
+
+```javascript
+it('reads the body of a request', async function () {
+  const { getBody, req, res } = inject(app, {
+    method: 'POST',
+    url: '/user',
+    headers: {
+      'content-type': 'application/json'
+    }
+  });
+
+  req.end('{ "name": "april" }');
+
+  const body = await getBody();
+
+  assert.strictEqual(res.getHeader('content-type'), 'text/plain');
+  assert.strictEqual(body, 'User creation april!');
+});
 
 it('reads the body of a request', async function () {
-  const { getBody, req, res } = app.inject('/user', 'post');
-
-  req.setHeader('content-type', 'application/json');
-  req.end('{ "name": "april" }');
+  const { getBody, req, res } = inject(app, {
+    method: 'POST',
+    url: '/user',
+    headers: {
+      'content-type': 'application/json'
+    },
+    body: '{ "name": "april" }'
+  });
 
   const body = await getBody();
 

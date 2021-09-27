@@ -4,11 +4,10 @@ const errors = require('./errors.js');
 const execute = require('./execute.js');
 const findRenderer = require('./find-renderer.js');
 const findRoute = require('./find-route.js');
-const inject = require('./inject/inject.js');
 const { sanitizePathname } = require('./util/sanitize.js');
 
 const DEFAULT_OPTIONS = {
-  log: console,
+  logger: console,
   renderers: {},
   errorHandler: require('./defaults/error-handler.js'),
   maxPayloadSize: null // maybe 1e6
@@ -16,7 +15,7 @@ const DEFAULT_OPTIONS = {
 
 function createApp (options = {}) {
   async function rL (req, res) {
-    const { log } = rL._opt;
+    const { logger } = rL._options;
     const url = new URL(req.url, `http://${req.headers.host}`);
 
     const bundle = {
@@ -30,12 +29,12 @@ function createApp (options = {}) {
 
     try {
       await renderRoute(rL, bundle);
-      log.debug(res.statusCode, `[${bundle.method}]`, bundle.pathname);
+      logger.debug(res.statusCode, `[${bundle.method}]`, bundle.pathname);
     } catch (error) {
       await renderError(rL, error, bundle);
-      log.debug(res.statusCode, `[${bundle.method}]`, bundle.pathname);
+      logger.debug(res.statusCode, `[${bundle.method}]`, bundle.pathname);
       if (res.statusCode === 500) {
-        log.error(error);
+        logger.error(error);
       }
     }
   }
@@ -46,11 +45,7 @@ function createApp (options = {}) {
   }));
 
   rL._routes = [];
-  rL._opt = Object.assign({}, DEFAULT_OPTIONS, options);
-
-  rL.inject = (pathname, method, options = {}) => {
-    return inject(rL, pathname, method, options);
-  };
+  rL._options = Object.assign({}, DEFAULT_OPTIONS, options);
 
   async function renderRoute (rL, bundle) {
     const route = findRoute(rL, bundle);
@@ -60,7 +55,7 @@ function createApp (options = {}) {
   }
 
   async function renderError (rL, error, bundle) {
-    const { errorHandler } = rL._opt;
+    const { errorHandler } = rL._options;
     const payload = await errorHandler(error, bundle);
     const renderer = findRenderer(rL, bundle);
     await renderer(payload, bundle);

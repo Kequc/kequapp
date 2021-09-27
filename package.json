@@ -11,6 +11,8 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "kequtest": "^0.2.25"
+    "kequtest": "^0.2.25",
+    "mock-req": "^0.2.0",
+    "mock-res": "^0.5.0"
   }
 }
