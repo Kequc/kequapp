@@ -3,7 +3,7 @@ const parseBody = require('./parse-body.js');
 async function execute (rL, route, bundle) {
   const params = extractParams(route.pathname, bundle.pathname);
 
-  bundle.res.setHeader('content-type', 'text/plain'); // default
+  bundle.res.setHeader('Content-Type', 'text/plain; charset=utf-8'); // default
   let _body;
 
   async function getBody () {

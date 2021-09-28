@@ -88,7 +88,7 @@ Often useful at the base of an application to interact with all routes.
 
 ```javascript
 app.middleware(({ res }) => {
-  res.setHeader('content-type', 'application/json');
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
 });
 
 app.branch('/admin')
@@ -100,7 +100,7 @@ app.branch('/admin')
 
 ### Renderers
 
-Default renderers are included for `text/plain`, and `application/json`. Renderers are chosen based on the `content-type` header set by your application. The above example would cause all routes of the application to render `application/json`.
+Default renderers are included for `text/plain`, and `application/json`. Renderers are chosen based on the `Content-Type` header set by your application. The above example would cause all routes of the application to render `application/json`.
 
 You can override renderers or add your own by defining `renderers`. These act as the final step of a request's lifecycle and should explicitly finalize the response.
 
@@ -207,7 +207,7 @@ const app = createApp({
     const statusCode = error.statusCode || 500;
 
     res.statusCode = statusCode;
-    res.setHeader('content-type', 'text/plain');
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
 
     return `${statusCode} ${error.message}`;
   }
@@ -232,7 +232,7 @@ it('returns the expected result', async function () {
 
   const body = await getBody();
 
-  assert.strictEqual(res.getHeader('content-type'), 'text/plain');
+  assert.strictEqual(res.getHeader('Content-Type'), 'text/plain; charset=utf-8');
   assert.strictEqual(body, 'userId: 21!');
 });
 
@@ -246,7 +246,7 @@ it('reads the authorization header', async function () {
 
   const body = await getBody();
 
-  assert.strictEqual(res.getHeader('content-type'), 'text/plain');
+  assert.strictEqual(res.getHeader('Content-Type'), 'text/plain; charset=utf-8');
   assert.strictEqual(body, 'Hello admin mike!');
 });
 ```
@@ -259,7 +259,7 @@ it('reads the body of a request', async function () {
     method: 'POST',
     url: '/user',
     headers: {
-      'content-type': 'application/json'
+      'Content-Type': 'application/json'
     }
   });
 
@@ -267,7 +267,6 @@ it('reads the body of a request', async function () {
 
   const body = await getBody();
 
-  assert.strictEqual(res.getHeader('content-type'), 'text/plain');
   assert.strictEqual(body, 'User creation april!');
 });
 
@@ -276,14 +275,13 @@ it('reads the body of a request', async function () {
     method: 'POST',
     url: '/user',
     headers: {
-      'content-type': 'application/json'
+      'Content-Type': 'application/json'
     },
     body: '{ "name": "april" }'
   });
 
   const body = await getBody();
 
-  assert.strictEqual(res.getHeader('content-type'), 'text/plain');
   assert.strictEqual(body, 'User creation april!');
 });
 ```

@@ -4,7 +4,7 @@ function errorHandler (error, { res }) {
   const statusCode = error.statusCode || 500;
 
   res.statusCode = statusCode;
-  res.setHeader('content-type', 'application/json');
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
 
   const result = {
     error: {

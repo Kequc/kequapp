@@ -6,6 +6,11 @@ function sanitizePathname (pathname) {
   return result;
 }
 
+function extractContentType (rawContentType = '') {
+  return rawContentType.split(';')[0];
+}
+
 module.exports = {
-  sanitizePathname
+  sanitizePathname,
+  extractContentType
 };
