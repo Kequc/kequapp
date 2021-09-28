@@ -189,11 +189,13 @@ const app = createApp({
 
 It is possible to test your application without spinning up a server using the `inject()` tool. The first parameter is your app. The options you provide are used largely to populate the request. The returned `req` and `res` objects are from the npm `mock-req` and `mock-res` modules respectively.
 
+```javascript
+const inject = require('kequserver/inject');
+```
+
 It also returns `getBody()` which is a utility you may use to wait for your application to respond. Alternatively you can inspect what your application is doing making use of the `req`, and `res` objects in realtime.
 
 ```javascript
-const inject = require('kequserver/inject');
-
 it('returns the expected result', async function () {
   const { getBody, res } = inject(app, {
     url: '/user/21'
