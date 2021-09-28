@@ -47,26 +47,6 @@ function createApp (options = {}) {
   rL._routes = [];
   rL._options = Object.assign({}, DEFAULT_OPTIONS, options);
 
-  async function renderRoute (rL, bundle) {
-    const route = findRoute(rL, bundle);
-    const payload = await execute(rL, route, bundle);
-
-    if (!bundle.res.writableEnded) {
-      const renderer = findRenderer(rL, bundle);
-      await renderer(payload, bundle);
-    }
-  }
-
-  async function renderError (rL, error, bundle) {
-    const { errorHandler } = rL._options;
-    const payload = await errorHandler(error, bundle);
-
-    if (!bundle.res.writableEnded) {
-      const renderer = findRenderer(rL, bundle);
-      await renderer(payload, bundle);
-    }
-  }
-
   return rL;
 }
 
@@ -74,3 +54,23 @@ module.exports = {
   createApp,
   errors
 };
+
+async function renderRoute (rL, bundle) {
+  const route = findRoute(rL, bundle);
+  const payload = await execute(rL, route, bundle);
+
+  if (!bundle.res.writableEnded) {
+    const renderer = findRenderer(rL, bundle);
+    await renderer(payload, bundle);
+  }
+}
+
+async function renderError (rL, error, bundle) {
+  const { errorHandler } = rL._options;
+  const payload = await errorHandler(error, bundle);
+
+  if (!bundle.res.writableEnded) {
+    const renderer = findRenderer(rL, bundle);
+    await renderer(payload, bundle);
+  }
+}
