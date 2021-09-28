@@ -19,7 +19,7 @@ it('reads the authorization header', async function () {
   const { getBody, res } = inject(app, {
     url: '/admin/dashboard',
     headers: {
-      authorization: 'mike'
+      Authorization: 'mike'
     }
   });
 
@@ -33,7 +33,7 @@ it('returns an error if auth is invalid', async function () {
   const { getBody, res } = inject(app, {
     url: '/admin/dashboard',
     headers: {
-      authorization: 'lisa'
+      Authorization: 'lisa'
     }
   });
 
@@ -49,7 +49,7 @@ it('reads the body of a request', async function () {
     method: 'POST',
     url: '/user',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json; charset=utf-8'
     }
   });
 

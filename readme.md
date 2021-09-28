@@ -240,7 +240,7 @@ it('reads the authorization header', async function () {
   const { getBody, res } = inject(app, {
     url: '/admin/dashboard',
     headers: {
-      authorization: 'mike'
+      Authorization: 'mike'
     }
   });
 
@@ -259,7 +259,7 @@ it('reads the body of a request', async function () {
     method: 'POST',
     url: '/user',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json; charset=utf-8'
     }
   });
 
@@ -275,7 +275,7 @@ it('reads the body of a request', async function () {
     method: 'POST',
     url: '/user',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json; charset=utf-8'
     },
     body: '{ "name": "april" }'
   });
