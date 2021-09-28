@@ -1,5 +1,9 @@
 function findRoute (rL, { method, pathname, errors }) {
-  const result = rL._routes.find(routeMatch(method, pathname));
+  let result = rL._routes.find(routeMatch(method, pathname));
+
+  if (!result && method === 'HEAD') {
+    result = rL._routes.find(routeMatch('GET', pathname));
+  }
 
   if (!result) {
     throw errors.NotFound(`Not Found: ${pathname}`, {
@@ -15,7 +19,7 @@ module.exports = findRoute;
 
 function routeMatch (method, pathname) {
   return function (route) {
-    if (!route.methods.includes(method)) {
+    if (route.method !== method) {
       return false;
     }
     return comparePathnames(route.pathname, pathname);
@@ -35,6 +39,5 @@ function comparePathnames (srcPathname, reqPathname) {
 }
 
 function formatRoute (route) {
-  const methods = `[${route.methods.join(',')}]`;
-  return `${methods} ${route.pathname}`;
+  return `[${route.method}] ${route.pathname}`;
 }

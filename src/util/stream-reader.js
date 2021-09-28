@@ -16,11 +16,14 @@ async function streamReader (stream, contentType, maxPayloadSize) {
 
     function handleEnd () {
       buffer += decoder.end();
-      if (contentType === 'application/x-www-form-urlencoded') {
+      switch (findContentType(stream, contentType)) {
+      case 'application/x-www-form-urlencoded':
         resolve(parseUrlEncoded(buffer));
-      } else if (contentType === 'application/json') {
+        break;
+      case 'application/json':
         resolve(JSON.parse(buffer));
-      } else {
+        break;
+      default:
         resolve(buffer);
       }
     }
@@ -40,6 +43,15 @@ async function streamReader (stream, contentType, maxPayloadSize) {
 }
 
 module.exports = streamReader;
+
+function findContentType (stream, contentType) {
+  if (contentType !== undefined) {
+    return contentType;
+  }
+  if (stream.getHeader) {
+    return stream.getHeader('content-type');
+  }
+}
 
 function parseUrlEncoded (search) {
   const params = new URLSearchParams(search);

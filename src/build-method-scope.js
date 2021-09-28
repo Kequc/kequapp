@@ -1,5 +1,4 @@
 const path = require('path');
-const errors = require('./errors.js');
 const { sanitizePathname } = require('./util/sanitize.js');
 
 function buildMethodScope (rL, parent) {
@@ -14,8 +13,7 @@ module.exports = buildMethodScope;
 
 function buildBranch (rL, parent) {
   return function branch (...handles) {
-    const pathname = typeof handles[0] === 'string' ? handles.shift() : '/';
-
+    const pathname = extractPathname(handles);
     const newParent = branchMerge(parent, {
       pathname,
       handles
@@ -27,7 +25,7 @@ function buildBranch (rL, parent) {
 
 function buildMiddleware (parent, scope) {
   return function middleware (...handles) {
-    const pathname = typeof handles[0] === 'string' ? handles.shift() : '/';
+    const pathname = extractPathname(handles);
 
     Object.assign(parent, branchMerge(parent, {
       pathname,
@@ -40,24 +38,34 @@ function buildMiddleware (parent, scope) {
 
 function buildRoute (rL, parent, scope) {
   return function route (...handles) {
-    const pathname = typeof handles[0] === 'string' ? handles.shift() : '/';
-    const methods = handles.shift();
-
-    if (!Array.isArray(methods) || methods.findIndex(method => typeof method !== 'string') >= 0) {
-      throw errors.InternalServerError('Invalid methods format', { methods });
-    }
+    const method = extractMethod(handles);
+    const pathname = extractPathname(handles);
 
     const route = branchMerge(parent, {
       pathname,
       handles
     }, {
-      methods: methods.map(method => method.toLowerCase())
+      method
     });
 
     rL._routes.push(route);
 
     return scope;
   };
+}
+
+function extractMethod (handles) {
+  if (typeof handles[0] !== 'string' || handles[0][0] === '/') {
+    return 'GET';
+  }
+  return handles.shift().toUpperCase();
+}
+
+function extractPathname (handles) {
+  if (typeof handles[0] !== 'string' || handles[0][0] !== '/') {
+    return '/';
+  }
+  return handles.shift();
 }
 
 function branchMerge (parent, child, more = {}) {

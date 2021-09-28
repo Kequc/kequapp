@@ -30,7 +30,7 @@ function inject (app, options) {
 
   async function getBody () {
     if (_body === undefined) {
-      _body = await streamReader(res, res.getHeader('content-type'));
+      _body = await streamReader(res);
     }
     return _body;
   }

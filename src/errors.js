@@ -42,6 +42,7 @@ const { STATUS_CODES } = require('http');
 // 510 NotExtended
 // 511 NetworkAuthenticationRequired
 
+const statusCodes = Object.keys(STATUS_CODES).map(statusCode => parseInt(statusCode, 10));
 const methods = {
   StatusCode
 };
@@ -53,7 +54,7 @@ function StatusCode (statusCode, message, ...info) {
   return _buildError(StatusCode, statusCode, message, ...info);
 }
 
-for (const statusCode of Object.keys(STATUS_CODES)) {
+for (const statusCode of statusCodes) {
   if (statusCode < 400) continue;
   const key = createMethodName(statusCode);
   methods[key] = function (message, ...info) {

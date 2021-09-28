@@ -29,6 +29,21 @@ it('reads the authorization header', async function () {
   assert.strictEqual(body, 'Hello admin mike!');
 });
 
+it('returns an error if auth is invalid', async function () {
+  const { getBody, res } = inject(app, {
+    url: '/admin/dashboard',
+    headers: {
+      authorization: 'lisa'
+    }
+  });
+
+  const body = await getBody();
+
+  assert.strictEqual(res.getHeader('content-type'), 'application/json');
+  assert.strictEqual(body.error.statusCode, 401);
+  assert.strictEqual(body.error.message, 'Unauthorized');
+});
+
 it('reads the body of a request', async function () {
   const { getBody, req, res } = inject(app, {
     method: 'POST',

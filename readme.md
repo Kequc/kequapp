@@ -30,19 +30,19 @@ Routes are defined using the `route()` method.
 
 Method is optional default is `'GET'`, pathname is optional default is `'/'`, followed by any number of functions which define the request lifecycle.
 
-Optionally each middleware function can return an object as a result. That object gets merged through all middleware as the `context` parameter.
+Any function can return a `payload`. Doing so halts further execution of the request lifecycle and triggers the renderer immediately. This is similar to interrupting the request by throwing an error.
 
-The final function which is run is the handle. The handle returns the `payload` that is handed off to the renderer.
+The final function which is run hands execution over to the renderer whether or not a `payload` is returned.
 
 ```javascript
-// middleware may populate context
-function loggedIn ({ req }) {
-  return {
-    auth: req.headers.authorization
-  };
+function loggedIn ({ req, context, errors }) {
+  if (req.headers.authorization !== 'mike') {
+    throw errors.Unauthorized();
+  }
+
+  context.auth = req.headers.authorization;
 }
 
-// handlers return payload for renderer
 app.route('/user', () => {
   return 'User list';
 });
@@ -102,7 +102,7 @@ app.branch('/admin')
 
 Default renderers are included for `text/plain`, and `application/json`. Renderers are chosen based on the `content-type` header set by your application. The above example would cause all routes of the application to render `application/json`.
 
-You can override renderers or add your own by defining `renderers` during instantiation. This is the final step of a request's lifecycle and should explicitly finalize the response.
+You can override renderers or add your own by defining `renderers`. These act as the final step of a request's lifecycle and should explicitly finalize the response.
 
 ```javascript
 const app = createApp({
@@ -115,6 +115,24 @@ const app = createApp({
 });
 ```
 
+## Halting execution
+
+A consideration is that if the `res` stream is no longer writable all processing halts. This is useful for example if instead of rendering output or throwing an error you want to redirect the user to another page.
+
+```javascript
+function membersOnly ({ req, res }) {
+  // must be authenticated
+  if (!req.headers.authorization) {
+    res.statusCode = 302;
+    res.setHeader('Location', '/login');
+    // halt processing the request
+    res.end();
+  }
+}
+
+const membersBranch = app.branch('/members', membersOnly);
+```
+
 ### Parameters
 
 The following parameters are made available to middleware and handlers.
@@ -124,12 +142,12 @@ The following parameters are made available to middleware and handlers.
 | `req` | The node `req` parameter. |
 | `res` | The node `res` parameter. |
 | `errors` | Http error creation helper. |
-| `method` | Method provided by the client in lowercase. |
+| `method` | Method provided by the client in uppercase. |
 | `pathname` | Pathname provided by the client. |
 | `getBody` | Function to extract params from the request body. |
 | `params` | Params extracted from the pathname. |
 | `query` | Params extracted from the querystring. |
-| `context` | Params returned from middleware functions. |
+| `context` | Params shared between middleware functions. |
 
 ### Body
 

@@ -1,12 +1,10 @@
 const parseBody = require('./parse-body.js');
-const errors = require('./errors.js');
 
 async function execute (rL, route, bundle) {
   const params = extractParams(route.pathname, bundle.pathname);
 
   bundle.res.setHeader('content-type', 'text/plain'); // default
   let _body;
-  let payload;
 
   async function getBody () {
     if (_body === undefined) {
@@ -22,19 +20,12 @@ async function execute (rL, route, bundle) {
   });
 
   for (const handle of route.handles) {
-    // construct context from middleware
+    const payload = await handle(bundle);
 
-    if (payload) {
-      if (typeof payload !== 'object') {
-        throw errors.InternalServerError('Unexpected middleware result', { type: typeof payload, payload });
-      }
-      Object.assign(bundle.context, payload);
+    if (payload !== undefined || bundle.res.writableEnded) {
+      return payload;
     }
-
-    payload = await handle(bundle);
   }
-
-  return payload;
 }
 
 module.exports = execute;

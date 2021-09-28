@@ -1,5 +1,5 @@
 const { URL } = require('url');
-const buildScope = require('./build-method-scope.js');
+const buildMethodScope = require('./build-method-scope.js');
 const errors = require('./errors.js');
 const execute = require('./execute.js');
 const findRenderer = require('./find-renderer.js');
@@ -19,7 +19,7 @@ function createApp (options = {}) {
     const url = new URL(req.url, `http://${req.headers.host}`);
 
     const bundle = {
-      method: req.method.toLowerCase(),
+      method: req.method.toUpperCase(),
       pathname: sanitizePathname(url.pathname),
       query: Object.fromEntries(url.searchParams),
       req,
@@ -39,7 +39,7 @@ function createApp (options = {}) {
     }
   }
 
-  Object.assign(rL, buildScope(rL, {
+  Object.assign(rL, buildMethodScope(rL, {
     pathname: '/',
     handles: []
   }));
@@ -50,15 +50,21 @@ function createApp (options = {}) {
   async function renderRoute (rL, bundle) {
     const route = findRoute(rL, bundle);
     const payload = await execute(rL, route, bundle);
-    const renderer = findRenderer(rL, bundle);
-    await renderer(payload, bundle);
+
+    if (!bundle.res.writableEnded) {
+      const renderer = findRenderer(rL, bundle);
+      await renderer(payload, bundle);
+    }
   }
 
   async function renderError (rL, error, bundle) {
     const { errorHandler } = rL._options;
     const payload = await errorHandler(error, bundle);
-    const renderer = findRenderer(rL, bundle);
-    await renderer(payload, bundle);
+
+    if (!bundle.res.writableEnded) {
+      const renderer = findRenderer(rL, bundle);
+      await renderer(payload, bundle);
+    }
   }
 
   return rL;

@@ -2,32 +2,33 @@ const { createApp } = require('../../index.js'); // 'kequserver'
 
 const app = createApp();
 
-app.route('/', ['get'], () => {
+app.route('/', () => {
   return 'Hello world!';
 });
 
-function loggedIn ({ req }) {
-  return {
-    auth: req.headers.authorization
-  };
+function loggedIn ({ req, context, errors }) {
+  if (req.headers.authorization !== 'mike') {
+    throw errors.Unauthorized();
+  }
+
+  context.auth = req.headers.authorization;
 }
 
 app.branch('/user')
-  .route(['get'], ({ query }) => {
+  .route(({ query }) => {
     return 'User list ' + JSON.stringify(query);
   })
-  .route('/:id', ['get'], ({ params }) => {
+  .route('/:id', ({ params }) => {
     return `userId: ${params.id}!`;
+  })
+  .route('POST', async ({ getBody }) => {
+    const body = await getBody();
+    return `User creation ${body.name}!`;
   });
 
 app.branch('/admin', loggedIn)
-  .route('/dashboard', ['get'], ({ context }) => {
+  .route('/dashboard', ({ context }) => {
     return `Hello admin ${context.auth}!`;
   });
-
-app.route('/user', ['post'], async ({ getBody }) => {
-  const body = await getBody();
-  return `User creation ${body.name}!`;
-});
 
 module.exports = app;
