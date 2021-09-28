@@ -3,19 +3,19 @@ Kequserver
 
 This is the development branch of an experimental request listener for basic nodejs servers. It's intended to be versatile and non-intrusive.
 
-### Setup
+### Basic Setup
 
 ```
 npm i kequserver
 ```
 
 ```javascript
-const { createApp } = require('kequserver');
 const { createServer } = require('http');
+const { createApp } = require('kequserver');
 
 const app = createApp();
 
-app.route('/', ['get'], () => {
+app.route('/', () => {
   return 'Hello world!';
 });
 
@@ -28,28 +28,30 @@ createServer(app).listen(4000, () => {
 
 Routes are defined using the `route()` method.
 
-Pathname is optional, followed by an array of incoming method names you would like the route to listen for. Followed by any number of functions which define the request lifecycle.
+Method is optional default is `'GET'`, pathname is optional default is `'/'`, followed by any number of functions which define the request lifecycle.
 
 Optionally each middleware function can return an object as a result. That object gets merged through all middleware as the `context` parameter.
 
-The final function which is run is the handle. The handle returns the `payload` that should be handed off to the renderer.
+The final function which is run is the handle. The handle returns the `payload` that is handed off to the renderer.
 
 ```javascript
+// middleware may populate context
 function loggedIn ({ req }) {
   return {
     auth: req.headers.authorization
   };
 }
 
-app.route('/user', ['get'], () => {
+// handlers return payload for renderer
+app.route('/user', () => {
   return 'User list';
 });
 
-app.route('/user/:id', ['get'], ({ params }) => {
+app.route('/user/:id', ({ params }) => {
   return `userId: ${params.id}!`;
 });
 
-app.route('/admin/dashboard', ['get'], loggedIn, ({ context }) => {
+app.route('/admin/dashboard', loggedIn, ({ context }) => {
   return `Hello admin ${context.auth}!`;
 });
 ```
@@ -58,19 +60,20 @@ app.route('/admin/dashboard', ['get'], loggedIn, ({ context }) => {
 
 Branches are defined using the `branch()` method.
 
-Pathname prefix is optional, followed by any number of functions. It returns a branch of the application which will adopt all middleware and a pathname prefix. By itself this does not create a route, it will be used in conjunction with routes.
+Pathname prefix is optional default is `'/'`, followed by any number of middleware functions. It returns a branch of the application which will adopt all middleware and use a pathname prefix. By itself this does not create a route, it will be used in conjunction with routes.
 
 ```javascript
+// same as above example
 app.branch('/user')
-  .route(['get'], () => {
+  .route(() => {
     return 'User list';
   })
-  .route('/:id', ['get'], ({ params }) => {
+  .route('/:id', ({ params }) => {
     return `userId: ${params.id}!`;
   });
 
 app.branch('/admin', loggedIn)
-  .route('/dashboard', ['get'], ({ context }) => {
+  .route('/dashboard', ({ context }) => {
     return `Hello admin ${context.auth}!`;
   });
 ```
@@ -79,21 +82,27 @@ app.branch('/admin', loggedIn)
 
 Middleware is added to the current branch using the `middleware()` method.
 
-Pathname prefix is optional, followed by any number of functions which define the middleware you would like to use. This affects all routes in the current branch, forcing routes to start with a given prefix and run the given middleware.
+Pathname prefix is optional default is `'/'`, followed by any number of functions which define the middleware you would like to use. This affects all routes in the current branch, forcing routes to start with a given prefix and run the given middleware.
 
-Often useful at the base of an application to perform tasks for all routes.
+Often useful at the base of an application to interact with all routes.
 
 ```javascript
 app.middleware(({ res }) => {
   res.setHeader('content-type', 'application/json');
 });
+
+app.branch('/admin')
+  .middleware(loggedIn)
+  .route('/dashboard', ({ context }) => {
+    return { welcomeMessage: `Hello admin ${context.auth}!` };
+  });
 ```
 
 ### Renderers
 
-Default renderers are included for `text/plain`, and `application/json`. Renderers are chosen based on the `content-type` header. The above example would cause all routes of the application to return `application/json` rendered responses.
+Default renderers are included for `text/plain`, and `application/json`. Renderers are chosen based on the `content-type` header set by your application. The above example would cause all routes of the application to render `application/json`.
 
-You can override renderers or add your own using `renderers` during instantiation. This is the final step of a request's lifecycle and should explicitly finalize the response.
+You can override renderers or add your own by defining `renderers` during instantiation. This is the final step of a request's lifecycle and should explicitly finalize the response.
 
 ```javascript
 const app = createApp({
@@ -108,7 +117,7 @@ const app = createApp({
 
 ### Parameters
 
-The following parameters are made available always when possible.
+The following parameters are made available to middleware and handlers.
 
 | parameter | description |
 | - | - |
@@ -124,10 +133,10 @@ The following parameters are made available always when possible.
 
 ### Body
 
-Node delivers the body of a request in chunks. It is not always necessary to wait for the request to finish before we begin processing it. Therefore a helper `getBody()` method is provided which you can use to await body parameters from the completed request.
+Node delivers the body of a request in chunks. It is not always necessary to wait for the request to finish before we begin processing it. Therefore a helper method `getBody()` is provided which you can use to await body parameters from the completed request.
 
 ```javascript
-app.route('/user', ['post'], async ({ getBody }) => {
+app.route('POST', '/user', async ({ getBody }) => {
   const body = await getBody();
   return `User creation ${body.name}!`;
 });
@@ -154,8 +163,10 @@ app.route('/login', ({ res }) => {
 
 Error generation is available using the `errors` parameter. Any thrown error will be caught by the error handler and will use a `500` status code, this helper utility enables you to utilise all status codes `400` and above.
 
+These methods will create a new error with the correct stacktrace there is no need to use `new`.
+
 ```javascript
-app.route('/throw-error', ['get'], ({ errors }) => {
+app.route('/throw-error', ({ errors }) => {
   throw errors.StatusCode(404);
   throw errors.StatusCode(404, 'Custom message', { extra: 'info' });
   // same as
@@ -166,7 +177,7 @@ app.route('/throw-error', ['get'], ({ errors }) => {
 
 ### Error Handling
 
-The default error handler returns json containing helpful information for debugging. It can be overridden using `errorHandler` during instantiation. The returned value will be sent to the renderer again for processing.
+The default error handler returns json containing helpful information for debugging. It can be overridden by defining an `errorHandler` during instantiation. The returned value will be sent to the renderer again for processing.
 
 Errors thrown inside of the error handler or within the renderer chosen to parse the error handler's payload will cause a fatal exception.
 
@@ -189,11 +200,11 @@ const app = createApp({
 
 It is possible to test your application without spinning up a server using the `inject()` tool. The first parameter is your app. The options you provide are used largely to populate the request. The returned `req` and `res` objects are from the npm `mock-req` and `mock-res` modules respectively.
 
+It also returns `getBody()` which is a utility you may use to wait for your application to respond. Alternatively you can inspect what your application is doing making use of the `req`, and `res` objects in realtime.
+
 ```javascript
 const inject = require('kequserver/inject');
 ```
-
-It also returns `getBody()` which is a utility you may use to wait for your application to respond. Alternatively you can inspect what your application is doing making use of the `req`, and `res` objects in realtime.
 
 ```javascript
 it('returns the expected result', async function () {
