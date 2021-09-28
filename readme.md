@@ -115,7 +115,7 @@ const app = createApp({
 });
 ```
 
-## Halting execution
+### Halt Execution
 
 A consideration is that if the `res` stream is no longer writable all processing halts. This is useful for example if instead of rendering output or throwing an error you want to redirect the user to another page.
 
@@ -125,8 +125,8 @@ function membersOnly ({ req, res }) {
   if (!req.headers.authorization) {
     res.statusCode = 302;
     res.setHeader('Location', '/login');
-    // halt processing the request
     res.end();
+    // halt processing the request
   }
 }
 
