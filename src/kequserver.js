@@ -15,24 +15,39 @@ const DEFAULT_OPTIONS = {
 
 function createApp (options = {}) {
   async function rL (req, res) {
-    const { logger } = rL._options;
+    const { logger, errorHandler } = rL._options;
     const url = new URL(req.url, `http://${req.headers.host}`);
+    const method = req.method.toUpperCase();
+    const pathname = sanitizePathname(url.pathname);
+    const query = Object.fromEntries(url.searchParams);
 
     const bundle = {
-      method: req.method.toUpperCase(),
-      pathname: sanitizePathname(url.pathname),
-      query: Object.fromEntries(url.searchParams),
+      method,
+      pathname,
+      query,
       req,
       res,
       errors
     };
 
+    async function render (payload) {
+      if (!res.writableEnded) {
+        const renderer = findRenderer(rL, bundle);
+        await renderer(payload, bundle);
+      }
+    }
+
     try {
-      await renderRoute(rL, bundle);
-      logger.debug(res.statusCode, `[${bundle.method}]`, bundle.pathname);
+      const route = findRoute(rL, bundle);
+      const payload = await execute(rL, route, bundle);
+      await render(payload);
+
+      logger.debug(res.statusCode, method, pathname);
     } catch (error) {
-      await renderError(rL, error, bundle);
-      logger.debug(res.statusCode, `[${bundle.method}]`, bundle.pathname);
+      const payload = await errorHandler(error, bundle);
+      await render(payload);
+
+      logger.debug(res.statusCode, method, pathname);
       if (res.statusCode === 500) {
         logger.error(error);
       }
@@ -54,23 +69,3 @@ module.exports = {
   createApp,
   errors
 };
-
-async function renderRoute (rL, bundle) {
-  const route = findRoute(rL, bundle);
-  const payload = await execute(rL, route, bundle);
-
-  if (!bundle.res.writableEnded) {
-    const renderer = findRenderer(rL, bundle);
-    await renderer(payload, bundle);
-  }
-}
-
-async function renderError (rL, error, bundle) {
-  const { errorHandler } = rL._options;
-  const payload = await errorHandler(error, bundle);
-
-  if (!bundle.res.writableEnded) {
-    const renderer = findRenderer(rL, bundle);
-    await renderer(payload, bundle);
-  }
-}
