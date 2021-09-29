@@ -1,5 +1,4 @@
-Kequserver
-===
+# Kequserver
 
 This is the development branch of an experimental request listener for basic nodejs servers. It's intended to be versatile and non-intrusive.
 
@@ -16,11 +15,11 @@ const { createApp } = require('kequserver');
 const app = createApp();
 
 app.route('/', () => {
-  return 'Hello world!';
+    return 'Hello world!';
 });
 
 createServer(app).listen(4000, () => {
-  console.log('Server running on port 4000');
+    console.log('Server running on port 4000');
 });
 ```
 
@@ -33,23 +32,23 @@ Method is optional default is `'GET'`, pathname is optional default is `'/'`, fo
 Any handler can return a `payload`. Doing so halts further execution of the request lifecycle and triggers the renderer immediately. This is similar to interrupting the request by throwing an error or finalizing the response.
 
 ```javascript
-function loggedIn ({ req, context, errors }) {
-  if (req.headers.authorization !== 'mike') {
-    throw errors.Unauthorized();
-  }
-  context.auth = req.headers.authorization;
+function loggedIn({ req, context, errors }) {
+    if (req.headers.authorization !== 'mike') {
+        throw errors.Unauthorized();
+    }
+    context.auth = req.headers.authorization;
 }
 
 app.route('/user', () => {
-  return 'User list';
+    return 'User list';
 });
 
 app.route('/user/:id', ({ params }) => {
-  return `userId: ${params.id}!`;
+    return `userId: ${params.id}!`;
 });
 
 app.route('/admin/dashboard', loggedIn, ({ context }) => {
-  return `Hello admin ${context.auth}!`;
+    return `Hello admin ${context.auth}!`;
 });
 ```
 
@@ -61,18 +60,18 @@ Pathname prefix is optional default is `'/'`, followed by any number of handlers
 
 ```javascript
 // same as above example
-app.branch('/user')
-  .route(() => {
-    return 'User list';
-  })
-  .route('/:id', ({ params }) => {
-    return `userId: ${params.id}!`;
-  });
+app
+    .branch('/user')
+    .route(() => {
+        return 'User list';
+    })
+    .route('/:id', ({ params }) => {
+        return `userId: ${params.id}!`;
+    });
 
-app.branch('/admin', loggedIn)
-  .route('/dashboard', ({ context }) => {
+app.branch('/admin', loggedIn).route('/dashboard', ({ context }) => {
     return `Hello admin ${context.auth}!`;
-  });
+});
 ```
 
 ### Middleware
@@ -85,16 +84,16 @@ Often useful at the base of an application to interact with all routes.
 
 ```javascript
 app.middleware(({ res }) => {
-  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
 });
 
 app.branch('/admin')
-  .middleware(loggedIn)
-  .route('/dashboard', ({ context }) => {
-    return {
-      myJson: `Hello admin ${context.auth}!`
-    };
-  });
+    .middleware(loggedIn)
+    .route('/dashboard', ({ context }) => {
+        return {
+            myJson: `Hello admin ${context.auth}!`
+        };
+    });
 ```
 
 ### Renderers
@@ -105,12 +104,12 @@ You can override renderers or add your own by defining `renderers`. These act as
 
 ```javascript
 const app = createApp({
-  renderers: {
-    'text/html': (payload, { res }) => {
-      const html = myMarkupRenderer(payload);
-      res.end(html);
+    renderers: {
+        'text/html': (payload, { res }) => {
+            const html = myMarkupRenderer(payload);
+            res.end(html);
+        }
     }
-  }
 });
 ```
 
@@ -119,14 +118,13 @@ const app = createApp({
 A consideration is that if the `res` stream is no longer writable all processing halts. This is useful for example if instead of rendering output or throwing an error you want to redirect the user to another page.
 
 ```javascript
-function membersOnly ({ req, res }) {
-  // must be authenticated
-  if (!req.headers.authorization) {
-    res.statusCode = 302;
-    res.setHeader('Location', '/login');
-    res.end();
-    // halt processing the request
-  }
+function membersOnly({ req, res }) {
+    // must be authenticated
+    if (!req.headers.authorization) {
+        res.statusCode = 302;
+        res.setHeader('Location', '/login');
+        res.end(); // halts processing the request
+    }
 }
 
 const membersBranch = app.branch('/members', membersOnly);
@@ -136,17 +134,17 @@ const membersBranch = app.branch('/members', membersOnly);
 
 The following parameters are made available to handlers and renderers.
 
-| parameter | description |
-| - | - |
-| `req` | The node `req` parameter. |
-| `res` | The node `res` parameter. |
-| `method` | Method provided by the client in uppercase. |
-| `pathname` | Pathname provided by the client. |
-| `context` | Params shared between middleware functions. |
-| `params` | Params extracted from the pathname. |
-| `query` | Params extracted from the querystring. |
-| `getBody` | Function to extract params from the request body. |
-| `errors` | Http error creation helper. |
+| parameter  | description                                       |
+| ---------- | ------------------------------------------------- |
+| `req`      | The node `req` parameter.                         |
+| `res`      | The node `res` parameter.                         |
+| `url`      | URL object representing the requested resource.   |
+| `pathname` | Pathname provided by the client.                  |
+| `context`  | Params shared between handler functions.          |
+| `params`   | Params extracted from the pathname.               |
+| `query`    | Params extracted from the querystring.            |
+| `getBody`  | Function to extract params from the request body. |
+| `errors`   | Http error creation helper.                       |
 
 ### Body
 
@@ -154,8 +152,8 @@ Node delivers the body of a request in chunks. It is not always necessary to wai
 
 ```javascript
 app.route('POST', '/user', async ({ getBody }) => {
-  const body = await getBody();
-  return `User creation ${body.name}!`;
+    const body = await getBody();
+    return `User creation ${body.name}!`;
 });
 ```
 
@@ -167,30 +165,28 @@ I recommend use of an external library.
 const cookie = require('cookie'); // npm i cookie
 
 app.middleware(({ req }) => {
-  const cookies = cookie.parse(req.headers.cookie);
-  // cookies ~= { myCookie: 'hello' }
+    const cookies = cookie.parse(req.headers.cookie);
+    // cookies ~= { myCookie: 'hello' }
 });
 
 app.route('/login', ({ res }) => {
-  res.setHeader('Set-Cookie', [
-    cookie.serialize('myCookie', 'hello')
-  ]);
+    res.setHeader('Set-Cookie', [cookie.serialize('myCookie', 'hello')]);
 });
 ```
 
 ### Errors
 
-Error generation is available using the `errors` parameter. Any thrown error will be caught by the error handler and will use a `500` status code, this helper utility enables you to utilise all status codes `400` and above.
+Error generation is available using the `errors` parameter. Any thrown error will be caught by the error handler and will use a `500` status code, this helper utility enables you to utilize all status codes `400` and above.
 
 These methods will create a new error with the correct stacktrace there is no need to use `new`.
 
 ```javascript
 app.route('/throw-error', ({ errors }) => {
-  throw errors.StatusCode(404);
-  throw errors.StatusCode(404, 'Custom message', { extra: 'info' });
-  // same as
-  throw errors.NotFound();
-  throw errors.NotFound('Custom message', { extra: 'info' });
+    throw errors.StatusCode(404);
+    throw errors.StatusCode(404, 'Custom message', { extra: 'info' });
+    // same as
+    throw errors.NotFound();
+    throw errors.NotFound('Custom message', { extra: 'info' });
 });
 ```
 
@@ -204,14 +200,14 @@ This example sends a very basic response.
 
 ```javascript
 const app = createApp({
-  errorHandler: (error, { res }) => {
-    const statusCode = error.statusCode || 500;
+    errorHandler: (error, { res }) => {
+        const statusCode = error.statusCode || 500;
 
-    res.statusCode = statusCode;
-    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        res.statusCode = statusCode;
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
 
-    return `${statusCode} ${error.message}`;
-  }
+        return `${statusCode} ${error.message}`;
+    }
 });
 ```
 
@@ -227,28 +223,28 @@ const inject = require('kequserver/inject');
 
 ```javascript
 it('returns the expected result', async function () {
-  const { getBody, res } = inject(app, {
-    url: '/user/21'
-  });
+    const { getBody, res } = inject(app, {
+        url: '/user/21'
+    });
 
-  const body = await getBody();
+    const body = await getBody();
 
-  assert.strictEqual(res.getHeader('Content-Type'), 'text/plain; charset=utf-8');
-  assert.strictEqual(body, 'userId: 21!');
+    assert.strictEqual(res.getHeader('Content-Type'), 'text/plain; charset=utf-8');
+    assert.strictEqual(body, 'userId: 21!');
 });
 
 it('reads the authorization header', async function () {
-  const { getBody, res } = inject(app, {
-    url: '/admin/dashboard',
-    headers: {
-      Authorization: 'mike'
-    }
-  });
+    const { getBody, res } = inject(app, {
+        url: '/admin/dashboard',
+        headers: {
+            Authorization: 'mike',
+        },
+    });
 
-  const body = await getBody();
+    const body = await getBody();
 
-  assert.strictEqual(res.getHeader('Content-Type'), 'text/plain; charset=utf-8');
-  assert.strictEqual(body, 'Hello admin mike!');
+    assert.strictEqual(res.getHeader('Content-Type'), 'text/plain; charset=utf-8');
+    assert.strictEqual(body, 'Hello admin mike!');
 });
 ```
 
@@ -256,33 +252,33 @@ Optionally a `body` parameter can be provided as a convenience instead of writin
 
 ```javascript
 it('reads the body of a request', async function () {
-  const { getBody, req, res } = inject(app, {
-    method: 'POST',
-    url: '/user',
-    headers: {
-      'Content-Type': 'application/json; charset=utf-8'
-    }
-  });
+    const { getBody, req, res } = inject(app, {
+        method: 'POST',
+        url: '/user',
+        headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+        },
+    });
 
-  req.end('{ "name": "april" }');
+    req.end('{ "name": "april" }');
 
-  const body = await getBody();
+    const body = await getBody();
 
-  assert.strictEqual(body, 'User creation april!');
+    assert.strictEqual(body, 'User creation april!');
 });
 
 it('reads the body of a request', async function () {
-  const { getBody, res } = inject(app, {
-    method: 'POST',
-    url: '/user',
-    headers: {
-      'Content-Type': 'application/json; charset=utf-8'
-    },
-    body: '{ "name": "april" }'
-  });
+    const { getBody, res } = inject(app, {
+        method: 'POST',
+        url: '/user',
+        headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+        },
+        body: '{ "name": "april" }',
+    });
 
-  const body = await getBody();
+    const body = await getBody();
 
-  assert.strictEqual(body, 'User creation april!');
+    assert.strictEqual(body, 'User creation april!');
 });
 ```

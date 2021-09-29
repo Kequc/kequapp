@@ -43,53 +43,53 @@ const { STATUS_CODES } = require('http');
 // 511 NetworkAuthenticationRequired
 
 const statusCodes = Object.keys(STATUS_CODES).map(statusCode => parseInt(statusCode, 10));
-const methods = {
-  StatusCode
+const errors = {
+    StatusCode
 };
 
 function StatusCode (statusCode, message, ...info) {
-  if (!STATUS_CODES[statusCode]) {
-    return _buildError(StatusCode, 500, message, ...info);
-  }
-  return _buildError(StatusCode, statusCode, message, ...info);
+    if (!STATUS_CODES[statusCode]) {
+        return _buildError(StatusCode, 500, message, ...info);
+    }
+    return _buildError(StatusCode, statusCode, message, ...info);
 }
 
 for (const statusCode of statusCodes) {
-  if (statusCode < 400) continue;
-  const key = createMethodName(statusCode);
-  methods[key] = function (message, ...info) {
-    return _buildError(methods[key], statusCode, message, ...info);
-  };
+    if (statusCode < 400) continue;
+    const key = createMethodName(statusCode);
+    errors[key] = function (message, ...info) {
+        return _buildError(errors[key], statusCode, message, ...info);
+    };
 }
 
-module.exports = methods;
+module.exports = errors;
 
 function _buildError (parent, statusCode, message, ...info) {
-  const error = new Error(message || STATUS_CODES[statusCode]);
-  error.statusCode = statusCode;
-  error.info = info.map(normalize);
-  Error.captureStackTrace(error, parent);
-  return error;
+    const error = new Error(message || STATUS_CODES[statusCode]);
+    error.statusCode = statusCode;
+    error.info = info.map(normalize);
+    Error.captureStackTrace(error, parent);
+    return error;
 }
 
 function createMethodName (statusCode) {
-  const message = STATUS_CODES[statusCode];
-  return message.replace('\'', '').split(/[\s-]+/).map(word => word.charAt(0).toUpperCase() + word.substr(1)).join('');
+    const message = STATUS_CODES[statusCode];
+    return message.replace('\'', '').split(/[\s-]+/).map(word => word.charAt(0).toUpperCase() + word.substr(1)).join('');
 }
 
 function normalize (value) {
-  if (typeof value !== 'object' || value === null) return value;
-  if (value instanceof Date) return value;
-  if (value instanceof Error) return {
-    message: value.message,
-    name: value.name,
-    stack: value.stack.split(/\r?\n/)
-  };
-  if (Array.isArray(value)) return value.map(normalize);
+    if (typeof value !== 'object' || value === null) return value;
+    if (value instanceof Date) return value;
+    if (value instanceof Error) return {
+        message: value.message,
+        name: value.name,
+        stack: value.stack.split(/\r?\n/)
+    };
+    if (Array.isArray(value)) return value.map(normalize);
 
-  const result = {};
-  for (const key of Object.keys(value)) {
-    result[key] = normalize(value[key]);
-  }
-  return result;
+    const result = {};
+    for (const key of Object.keys(value)) {
+        result[key] = normalize(value[key]);
+    }
+    return result;
 }
