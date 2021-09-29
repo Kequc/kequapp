@@ -56,6 +56,5 @@ function createApp (options = {}) {
 }
 
 module.exports = {
-  createApp,
-  errors
+  createApp
 };

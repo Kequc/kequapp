@@ -28,18 +28,15 @@ createServer(app).listen(4000, () => {
 
 Routes are defined using the `route()` method.
 
-Method is optional default is `'GET'`, pathname is optional default is `'/'`, followed by any number of functions which define the request lifecycle.
+Method is optional default is `'GET'`, pathname is optional default is `'/'`, followed by any number of handlers which define the request lifecycle.
 
-Any function can return a `payload`. Doing so halts further execution of the request lifecycle and triggers the renderer immediately. This is similar to interrupting the request by throwing an error.
-
-The final function which is run hands execution over to the renderer whether or not a `payload` is returned.
+Any handler can return a `payload`. Doing so halts further execution of the request lifecycle and triggers the renderer immediately. This is similar to interrupting the request by throwing an error or finalizing the response.
 
 ```javascript
 function loggedIn ({ req, context, errors }) {
   if (req.headers.authorization !== 'mike') {
     throw errors.Unauthorized();
   }
-
   context.auth = req.headers.authorization;
 }
 
@@ -60,7 +57,7 @@ app.route('/admin/dashboard', loggedIn, ({ context }) => {
 
 Branches are defined using the `branch()` method.
 
-Pathname prefix is optional default is `'/'`, followed by any number of middleware functions. It returns a branch of the application which will adopt all middleware and use a pathname prefix. By itself this does not create a route, it will be used in conjunction with routes.
+Pathname prefix is optional default is `'/'`, followed by any number of handlers. It returns a branch of the application which will adopt all handlers and use a pathname prefix. By itself this does not create a route, it will be used in conjunction with routes.
 
 ```javascript
 // same as above example
@@ -80,9 +77,9 @@ app.branch('/admin', loggedIn)
 
 ### Middleware
 
-Middleware is added to the current branch using the `middleware()` method.
+Handlers are added to the current branch using the `middleware()` method.
 
-Pathname prefix is optional default is `'/'`, followed by any number of functions which define the middleware you would like to use. This affects all routes in the current branch, forcing routes to start with a given prefix and run the given middleware.
+Pathname prefix is optional default is `'/'`, followed by any number of handlers you would like to use. This affects all routes in the current branch.
 
 Often useful at the base of an application to interact with all routes.
 
@@ -137,19 +134,19 @@ const membersBranch = app.branch('/members', membersOnly);
 
 ### Parameters
 
-The following parameters are made available to middleware and handlers.
+The following parameters are made available to handlers and renderers.
 
 | parameter | description |
 | - | - |
 | `req` | The node `req` parameter. |
 | `res` | The node `res` parameter. |
-| `errors` | Http error creation helper. |
 | `method` | Method provided by the client in uppercase. |
 | `pathname` | Pathname provided by the client. |
-| `getBody` | Function to extract params from the request body. |
+| `context` | Params shared between middleware functions. |
 | `params` | Params extracted from the pathname. |
 | `query` | Params extracted from the querystring. |
-| `context` | Params shared between middleware functions. |
+| `getBody` | Function to extract params from the request body. |
+| `errors` | Http error creation helper. |
 
 ### Body
 
@@ -199,7 +196,7 @@ app.route('/throw-error', ({ errors }) => {
 
 ### Error Handling
 
-The default error handler returns json containing helpful information for debugging. It can be overridden by defining an `errorHandler` during instantiation. The returned value will be sent to the renderer again for processing.
+The default error handler returns json containing helpful information for debugging. It can be overridden by defining a `errorHandler` during instantiation. The returned value will be sent to the renderer again for processing.
 
 Errors thrown inside of the error handler or within the renderer chosen to parse the error handler's payload will cause a fatal exception.
 

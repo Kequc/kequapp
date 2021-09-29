@@ -1,6 +1,6 @@
 const errors = require('./util/errors.js');
 
-function findRoute (routes, method, pathname) {
+function findRoute (routes, { method, pathname }) {
   let result = routes.find(routeMatch(method, pathname));
 
   if (!result && method === 'HEAD') {
@@ -10,7 +10,7 @@ function findRoute (routes, method, pathname) {
   if (!result) {
     throw errors.NotFound(`Not Found: ${pathname}`, {
       request: { method, pathname },
-      routes: routes.map(formatRoute)
+      routes: [...routes].sort(sortRoutes).map(formatRoute)
     });
   }
 
@@ -40,6 +40,10 @@ function comparePathnames (srcPathname, reqPathname) {
   return true;
 }
 
-function formatRoute (route) {
-  return `${route.method} ${route.pathname}`;
+function sortRoutes (a, b) {
+  return (a.pathname + a.method).localeCompare(b.pathname + b.method);
+}
+
+function formatRoute ({ method, pathname }) {
+  return `${method} ${pathname}`;
 }

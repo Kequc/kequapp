@@ -8,7 +8,7 @@ const DEFAULT_RENDERERS = {
   'text/html': textRenderer
 };
 
-async function render (payload, bundle, config) {
+async function render (config, payload, bundle) {
   if (!bundle.res.writableEnded) {
     const renderer = findRenderer(config.renderers, bundle);
     await renderer(payload, bundle);

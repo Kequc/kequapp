@@ -1,27 +1,27 @@
 const findRoute = require('./find-route.js');
-const extractParams = require('./util/extract-params.js');
 const render = require('./render.js');
 
 async function processor (routes, config, bundle) {
   const { logger, errorHandler } = config;
+  const { res, method, pathname } = bundle;
 
   try {
-    const route = findRoute(routes, bundle.method, bundle.pathname);
-    const params = extractParams(route.pathname, bundle.pathname);
-    Object.assign(bundle.params, params);
-
+    const route = findRoute(routes, bundle);
+    Object.assign(bundle.params, extractParams(route.pathname, pathname));
     const payload = await lifecycle(route, bundle);
 
-    logger.debug(bundle.res.statusCode, bundle.method, bundle.pathname);
-
-    await render(payload, bundle, config);
+    await render(config, payload, bundle);
+    logger.debug(res.statusCode, method, pathname);
+    // tada!
   } catch (error) {
     const payload = await errorHandler(error, bundle);
 
-    logger.debug(bundle.res.statusCode, bundle.method, bundle.pathname);
-    if (bundle.res.statusCode === 500) logger.error(error);
+    await render(config, payload, bundle);
+    logger.debug(res.statusCode, method, pathname);
 
-    await render(payload, bundle, config);
+    if (res.statusCode === 500) {
+      logger.error(error);
+    }
   }
 }
 
@@ -35,4 +35,16 @@ async function lifecycle (route, bundle) {
       return payload;
     }
   }
+}
+
+function extractParams (srcPathname, reqPathname) {
+  const params = {};
+  const srcParts = srcPathname.split('/');
+  const reqParts = reqPathname.split('/');
+  for (let i = 0; i < srcParts.length; i++) {
+    if (srcParts[i].startsWith(':')) {
+      params[srcParts[i].substr(1)] = reqParts[i];
+    }
+  }
+  return params;
 }
