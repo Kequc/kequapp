@@ -2,8 +2,6 @@ const assert = require('assert');
 const inject = require('../../inject.js'); // 'kequserver/inject'
 const app = require('./app.js');
 
-app._options.logger = util.log();
-
 it('returns the expected result', async function () {
   const { getBody, res } = inject(app, {
     url: '/user/21'

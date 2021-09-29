@@ -1,14 +1,16 @@
-function findRoute (rL, { method, pathname, errors }) {
-  let result = rL._routes.find(routeMatch(method, pathname));
+const errors = require('./util/errors.js');
+
+function findRoute (routes, method, pathname) {
+  let result = routes.find(routeMatch(method, pathname));
 
   if (!result && method === 'HEAD') {
-    result = rL._routes.find(routeMatch('GET', pathname));
+    result = routes.find(routeMatch('GET', pathname));
   }
 
   if (!result) {
     throw errors.NotFound(`Not Found: ${pathname}`, {
       request: { method, pathname },
-      routes: rL._routes.map(formatRoute)
+      routes: routes.map(formatRoute)
     });
   }
 
@@ -39,5 +41,5 @@ function comparePathnames (srcPathname, reqPathname) {
 }
 
 function formatRoute (route) {
-  return `[${route.method}] ${route.pathname}`;
+  return `${route.method} ${route.pathname}`;
 }

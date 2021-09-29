@@ -1,10 +1,9 @@
 const { URL } = require('url');
-const buildMethodScope = require('./build-method-scope.js');
-const errors = require('./errors.js');
-const execute = require('./execute.js');
-const findRenderer = require('./find-renderer.js');
-const findRoute = require('./find-route.js');
+const errors = require('./util/errors.js');
 const { sanitizePathname } = require('./util/sanitize.js');
+const buildMethodScope = require('./util/build-method-scope.js');
+const streamReader = require('./util/stream-reader.js');
+const processor = require('./processor.js');
 
 const DEFAULT_OPTIONS = {
   logger: console,
@@ -14,55 +13,46 @@ const DEFAULT_OPTIONS = {
 };
 
 function createApp (options = {}) {
-  async function rL (req, res) {
-    const { logger, errorHandler } = rL._options;
-    const url = new URL(req.url, `http://${req.headers.host}`);
+  const routes = [];
+  const config = Object.assign({}, DEFAULT_OPTIONS, options);
+
+  function app (req, res) {
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8'); // default
+
     const method = req.method.toUpperCase();
+    const url = new URL(req.url, `http://${req.headers.host}`);
     const pathname = sanitizePathname(url.pathname);
     const query = Object.fromEntries(url.searchParams);
 
-    const bundle = {
-      method,
-      pathname,
-      query,
+    let _body;
+
+    async function getBody () {
+      if (_body === undefined) {
+        const { maxPayloadSize } = config;
+        _body = await streamReader(req, maxPayloadSize);
+      }
+      return _body;
+    }
+
+    processor(routes, config, {
       req,
       res,
+      method,
+      pathname,
+      context: {},
+      params: {},
+      query,
+      getBody,
       errors
-    };
-
-    async function render (payload) {
-      if (!res.writableEnded) {
-        const renderer = findRenderer(rL, bundle);
-        await renderer(payload, bundle);
-      }
-    }
-
-    try {
-      const route = findRoute(rL, bundle);
-      const payload = await execute(rL, route, bundle);
-      await render(payload);
-
-      logger.debug(res.statusCode, method, pathname);
-    } catch (error) {
-      const payload = await errorHandler(error, bundle);
-      await render(payload);
-
-      logger.debug(res.statusCode, method, pathname);
-      if (res.statusCode === 500) {
-        logger.error(error);
-      }
-    }
+    });
   }
 
-  Object.assign(rL, buildMethodScope(rL, {
+  Object.assign(app, buildMethodScope(routes, {
     pathname: '/',
     handles: []
   }));
 
-  rL._routes = [];
-  rL._options = Object.assign({}, DEFAULT_OPTIONS, options);
-
-  return rL;
+  return app;
 }
 
 module.exports = {

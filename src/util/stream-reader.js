@@ -1,8 +1,8 @@
 const { StringDecoder } = require('string_decoder');
+const errors = require('./errors.js');
 const { extractContentType } = require('./sanitize.js');
-const errors = require('../errors.js');
 
-async function streamReader (stream, rawContentType, maxPayloadSize) {
+async function streamReader (stream, maxPayloadSize) {
   return await new Promise(function (resolve, reject) {
     const decoder = new StringDecoder('utf-8');
     let buffer = '';
@@ -17,8 +17,7 @@ async function streamReader (stream, rawContentType, maxPayloadSize) {
 
     function handleEnd () {
       buffer += decoder.end();
-      const contentType = guessContentType(stream, rawContentType);
-      switch (contentType) {
+      switch (guessContentType(stream)) {
       case 'application/x-www-form-urlencoded':
         resolve(parseUrlEncoded(buffer));
         break;
@@ -46,12 +45,11 @@ async function streamReader (stream, rawContentType, maxPayloadSize) {
 
 module.exports = streamReader;
 
-function guessContentType (stream, rawContentType) {
-  if (rawContentType !== undefined) {
-    return extractContentType(rawContentType);
-  }
+function guessContentType (stream) {
   if (stream.getHeader) {
     return extractContentType(stream.getHeader('Content-Type'));
+  } else if (stream.headers) {
+    return extractContentType(stream.headers['content-type']);
   }
 }
 

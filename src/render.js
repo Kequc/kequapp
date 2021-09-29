@@ -8,8 +8,16 @@ const DEFAULT_RENDERERS = {
   'text/html': textRenderer
 };
 
-function findRenderer (rL, { res, errors }) {
-  const { renderers } = rL._options;
+async function render (payload, bundle, config) {
+  if (!bundle.res.writableEnded) {
+    const renderer = findRenderer(config.renderers, bundle);
+    await renderer(payload, bundle);
+  }
+}
+
+module.exports = render;
+
+function findRenderer (renderers, { res, errors }) {
   const contentType = extractContentType(res.getHeader('Content-Type'));
   const renderer = renderers[contentType] || DEFAULT_RENDERERS[contentType] || null;
 
@@ -19,5 +27,3 @@ function findRenderer (rL, { res, errors }) {
 
   return renderer;
 }
-
-module.exports = findRenderer;

@@ -1,17 +1,17 @@
 const path = require('path');
-const { sanitizePathname } = require('./util/sanitize.js');
+const { sanitizePathname } = require('./sanitize.js');
 
-function buildMethodScope (rL, parent) {
+function buildMethodScope (routes, parent) {
   const scope = {};
-  scope.route = buildRoute(rL, parent, scope);
-  scope.branch = buildBranch(rL, parent);
+  scope.route = buildRoute(routes, parent, scope);
+  scope.branch = buildBranch(routes, parent);
   scope.middleware = buildMiddleware(parent, scope);
   return scope;
 }
 
 module.exports = buildMethodScope;
 
-function buildBranch (rL, parent) {
+function buildBranch (routes, parent) {
   return function branch (...handles) {
     const pathname = extractPathname(handles);
     const newParent = branchMerge(parent, {
@@ -19,7 +19,7 @@ function buildBranch (rL, parent) {
       handles
     });
 
-    return buildMethodScope(rL, newParent);
+    return buildMethodScope(routes, newParent);
   };
 }
 
@@ -36,7 +36,7 @@ function buildMiddleware (parent, scope) {
   };
 }
 
-function buildRoute (rL, parent, scope) {
+function buildRoute (routes, parent, scope) {
   return function route (...handles) {
     const method = extractMethod(handles);
     const pathname = extractPathname(handles);
@@ -48,7 +48,7 @@ function buildRoute (rL, parent, scope) {
       method
     });
 
-    rL._routes.push(route);
+    routes.push(route);
 
     return scope;
   };

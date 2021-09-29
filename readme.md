@@ -94,7 +94,9 @@ app.middleware(({ res }) => {
 app.branch('/admin')
   .middleware(loggedIn)
   .route('/dashboard', ({ context }) => {
-    return { welcomeMessage: `Hello admin ${context.auth}!` };
+    return {
+      myJson: `Hello admin ${context.auth}!`
+    };
   });
 ```
 
@@ -173,7 +175,9 @@ app.middleware(({ req }) => {
 });
 
 app.route('/login', ({ res }) => {
-  res.setHeader('set-cookie', cookie.serialize('myCookie', 'hello'));
+  res.setHeader('Set-Cookie', [
+    cookie.serialize('myCookie', 'hello')
+  ]);
 });
 ```
 
