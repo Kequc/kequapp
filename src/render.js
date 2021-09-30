@@ -19,7 +19,7 @@ module.exports = render;
 
 function findRenderer (renderers, { res, errors }) {
     const contentType = sanitizeContentType(res.getHeader('Content-Type'));
-    const renderer = renderers[contentType] || DEFAULT_RENDERERS[contentType] || null;
+    const renderer = renderers[contentType] || DEFAULT_RENDERERS[contentType];
 
     if (typeof renderer !== 'function') {
         throw errors.InternalServerError('Renderer not found', { contentType });
