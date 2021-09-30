@@ -1,4 +1,8 @@
 const { URL } = require('url');
+
+const renderFile = require('./helpers/render-file.js');
+const staticAssets = require('./helpers/static-assets.js');
+
 const errorHandler = require('./defaults/error-handler.js');
 const buildMethodScope = require('./util/build-method-scope.js');
 const errors = require('./util/errors.js');
@@ -17,6 +21,7 @@ function createApp (options = {}) {
     const config = Object.assign({}, DEFAULT_OPTIONS, options);
 
     function app (req, res, logger = config.logger) {
+        res.statusCode = 200; // default
         res.setHeader('Content-Type', 'text/plain; charset=utf-8'); // default
 
         const url = new URL(req.url, `${req.headers.protocol}://${req.headers.host}`);
@@ -53,5 +58,7 @@ function createApp (options = {}) {
 }
 
 module.exports = {
-    createApp
+    createApp,
+    renderFile,
+    staticAssets
 };

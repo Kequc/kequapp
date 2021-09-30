@@ -35,6 +35,8 @@ function comparePathnames (srcPathname, reqPathname) {
     const reqParts = reqPathname.split('/').filter(part => !!part);
     if (srcParts.length !== reqParts.length) return false;
     for (let i = 0; i < srcParts.length; i++) {
+        if (srcParts[i].startsWith('**')) return true;
+        if (srcParts[i].startsWith('*')) continue;
         if (srcParts[i].startsWith(':')) continue;
         if (srcParts[i] === reqParts[i]) continue;
         return false;

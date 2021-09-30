@@ -34,6 +34,14 @@ function extractParams (srcPathname, reqPathname) {
     const srcParts = srcPathname.split('/');
     const reqParts = reqPathname.split('/');
     for (let i = 0; i < srcParts.length; i++) {
+        if (srcParts[i].startsWith('**')) {
+            params.wildcards = [...(params.wildcards || []), ...srcParts.slice(i)];
+            return params;
+        }
+        if (srcParts[i].startsWith('*')) {
+            params.wildcards = [...(params.wildcards || []), srcParts[i]];
+            return params;
+        }
         if (srcParts[i].startsWith(':')) {
             params[srcParts[i].substr(1)] = reqParts[i];
         }

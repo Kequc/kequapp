@@ -143,7 +143,7 @@ The following parameters are made available to handlers and renderers.
 | `params`   | Params extracted from the pathname.               |
 | `query`    | Params extracted from the querystring.            |
 | `getBody`  | Function to extract params from the request body. |
-| `logger`   | Logger specified during instantiation.            |
+| `logger`   | Logger specified during setup.                    |
 | `errors`   | Http error creation helper.                       |
 
 ### Body
@@ -208,6 +208,30 @@ const app = createApp({
 
         return `${statusCode} ${error.message}`;
     }
+});
+```
+
+### Static Files
+
+A rudimentary static asset utility can be used to easily deliver files relative to your project's directory. This utility makes use of the `wildcards` parameter as specified in your route to build a valid path.
+
+By default the `./public` directory is used.
+
+```javascript
+const { staticAssets } = require('kequserver');
+
+app.route('/assets/**', staticAssets({
+    dir: './my-assets-dir'
+}));
+```
+
+If more control is needed a similar helper is available.
+
+```javascript
+const { renderFile } = require('kequserver');
+
+app.route('/static-db.json', async function ({ req, res }) {
+    await renderFile(req, res, './db/my-db.json');
 });
 ```
 
