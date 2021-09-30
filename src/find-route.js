@@ -1,6 +1,4 @@
-const errors = require('./util/errors.js');
-
-function findRoute (routes, { req, pathname }) {
+function findRoute (routes, { req, pathname, errors }) {
     let result = routes.find(routeMatch(req.method, pathname));
 
     if (!result && req.method === 'HEAD') {

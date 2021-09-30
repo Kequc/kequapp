@@ -28,8 +28,7 @@ function createApp (options = {}) {
 
         async function getBody () {
             if (_body === undefined) {
-                const { maxPayloadSize } = config;
-                _body = await streamReader(req, maxPayloadSize);
+                _body = await streamReader(req, config.maxPayloadSize);
             }
             return _body;
         }
