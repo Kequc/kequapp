@@ -43,7 +43,7 @@ function createApp (options = {}) {
             query,
             getBody,
             logger,
-            errors,
+            errors
         });
     }
 
