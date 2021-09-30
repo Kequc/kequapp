@@ -144,6 +144,7 @@ The following parameters are made available to handlers and renderers.
 | `params`   | Params extracted from the pathname.               |
 | `query`    | Params extracted from the querystring.            |
 | `getBody`  | Function to extract params from the request body. |
+| `logger`   | Logger specified during instantiation.            |
 | `errors`   | Http error creation helper.                       |
 
 ### Body
@@ -213,7 +214,7 @@ const app = createApp({
 
 ### Unit Tests
 
-It is possible to test your application without spinning up a server using the `inject()` tool. The first parameter is your app. The options you provide are used largely to populate the request. The returned `req` and `res` objects are from the npm `mock-req` and `mock-res` modules respectively.
+It is possible to test your application without spinning up a server using the `inject()` tool. The first parameter is your app, followed by a logger for your app separate from the one used in development. The options you provide are largely used to populate the request. Returned `req` and `res` objects are from the npm `mock-req` and `mock-res` modules respectively.
 
 It also returns `getBody()` which is a utility you may use to wait for your application to respond. Alternatively you can inspect what your application is doing making use of the `req`, and `res` objects in realtime.
 
@@ -223,7 +224,7 @@ const inject = require('kequserver/inject');
 
 ```javascript
 it('returns the expected result', async function () {
-    const { getBody, res } = inject(app, {
+    const { getBody, res } = inject(app, logger, {
         url: '/user/21'
     });
 
@@ -234,11 +235,11 @@ it('returns the expected result', async function () {
 });
 
 it('reads the authorization header', async function () {
-    const { getBody, res } = inject(app, {
+    const { getBody, res } = inject(app, logger, {
         url: '/admin/dashboard',
         headers: {
-            Authorization: 'mike',
-        },
+            Authorization: 'mike'
+        }
     });
 
     const body = await getBody();
@@ -248,19 +249,18 @@ it('reads the authorization header', async function () {
 });
 ```
 
-Optionally a `body` parameter can be provided as a convenience instead of writing to the stream, the following two examples are the same.
+Optionally a `body` parameter can be provided as a convenience instead of writing to the stream. The request is finalized automatically unless you set `body` to `true`. The following two examples are the same.
 
 ```javascript
 it('reads the body of a request', async function () {
-    const { getBody, req, res } = inject(app, {
+    const { getBody, res } = inject(app, logger, {
         method: 'POST',
         url: '/user',
         headers: {
-            'Content-Type': 'application/json; charset=utf-8',
+            'Content-Type': 'application/json; charset=utf-8'
         },
+        body: '{ "name": "april" }'
     });
-
-    req.end('{ "name": "april" }');
 
     const body = await getBody();
 
@@ -268,14 +268,16 @@ it('reads the body of a request', async function () {
 });
 
 it('reads the body of a request', async function () {
-    const { getBody, res } = inject(app, {
+    const { getBody, req, res } = inject(app, logger, {
         method: 'POST',
         url: '/user',
         headers: {
-            'Content-Type': 'application/json; charset=utf-8',
+            'Content-Type': 'application/json; charset=utf-8'
         },
-        body: '{ "name": "april" }',
+        body: true
     });
+
+    req.end('{ "name": "april" }');
 
     const body = await getBody();
 

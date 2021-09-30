@@ -1,11 +1,9 @@
 const assert = require('assert');
-const inject = require('../../inject.js'); // 'kequserver/inject'
-const appFactory = require('./app.js');
+const inject = require('../../src/inject.js'); // 'kequserver/inject'
+const app = require('./app.js');
 
-const app = appFactory({ logger: util.log() });
-
-it('returns the expected result', async function () {
-    const { getBody, res } = inject(app, {
+it('reads parameters from the url', async function () {
+    const { getBody, res } = inject(app, util.log(), {
         url: '/user/21'
     });
 
@@ -16,7 +14,7 @@ it('returns the expected result', async function () {
 });
 
 it('reads query parameters', async function () {
-    const { getBody, res } = inject(app, {
+    const { getBody, res } = inject(app, util.log(), {
         url: '/user?name=tony&age=21'
     });
 
@@ -27,7 +25,7 @@ it('reads query parameters', async function () {
 });
 
 it('reads the authorization header', async function () {
-    const { getBody, res } = inject(app, {
+    const { getBody, res } = inject(app, util.log(), {
         url: '/admin/dashboard',
         headers: {
             Authorization: 'mike'
@@ -41,7 +39,7 @@ it('reads the authorization header', async function () {
 });
 
 it('returns an error if auth is invalid', async function () {
-    const { getBody, res } = inject(app, {
+    const { getBody, res } = inject(app, util.log(), {
         url: '/admin/dashboard',
         headers: {
             Authorization: 'lisa'
@@ -56,12 +54,13 @@ it('returns an error if auth is invalid', async function () {
 });
 
 it('reads the body of a request', async function () {
-    const { getBody, req, res } = inject(app, {
+    const { getBody, req, res } = inject(app, util.log(), {
         method: 'POST',
         url: '/user',
         headers: {
             'Content-Type': 'application/json; charset=utf-8'
-        }
+        },
+        body: true
     });
 
     req.end('{ "name": "april" }');

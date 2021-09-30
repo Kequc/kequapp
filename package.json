@@ -1,7 +1,7 @@
 {
   "name": "kequserver",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "./src/index.js",
   "scripts": {
     "start": "node ./examples/basic/server.js",
     "test": "kequtest"

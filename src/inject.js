@@ -1,30 +1,25 @@
 const { URLSearchParams } = require('url');
 const MockReq = require('mock-req');
 const MockRes = require('mock-res');
-const streamReader = require('./src/util/stream-reader.js');
+const streamReader = require('./util/stream-reader.js');
 
-const AUTO_END = ['GET', 'HEAD', 'DELETE'];
-
-function inject (app, options) {
+function inject (app, logger, options) {
     const _options = Object.assign({}, options);
-    let _end;
     let _body;
 
     if (_options.search) {
         _options.search = new URLSearchParams(_options.search).toString();
     }
 
-    if (options.body) {
-        _end = options.body;
-        delete _options.body;
-    }
+    const _end = options.body;
+    delete _options.body;
 
     const req = new MockReq(_options);
     const res = new MockRes();
 
-    app(req, res);
+    app(req, res, logger);
 
-    if (_end !== undefined && !AUTO_END.includes(req.method)) {
+    if (_end !== true) {
         req.end(_end);
     }
 

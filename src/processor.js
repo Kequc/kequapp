@@ -2,8 +2,8 @@ const findRoute = require('./find-route.js');
 const render = require('./render.js');
 
 async function processor (routes, config, bundle) {
-    const { logger, errorHandler } = config;
-    const { req, res, pathname } = bundle;
+    const { errorHandler } = config;
+    const { req, res, pathname, logger } = bundle;
 
     try {
         const route = findRoute(routes, bundle);
