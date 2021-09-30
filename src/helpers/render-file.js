@@ -20,12 +20,12 @@ const MIME_TYPES = {
     '.wasm': 'application/wasm'
 };
 
-async function renderFile (method, res, pathname) {
+async function renderFile (method, res, pathname, contentType) {
     const location = path.join(process.cwd(), pathname);
 
     try {
         const content = await fs.readFile(location);
-        res.setHeader('Content-Type', getContentType(pathname));
+        res.setHeader('Content-Type', contentType || getContentType(pathname));
         res.setHeader('Content-Length', content.length);
         if (method === 'HEAD') {
             res.end();
