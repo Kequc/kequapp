@@ -35,11 +35,13 @@ function extractParams (srcPathname, reqPathname) {
     const reqParts = reqPathname.split('/');
     for (let i = 0; i < srcParts.length; i++) {
         if (srcParts[i].startsWith('**')) {
-            params.wildcards = [...(params.wildcards || []), ...srcParts.slice(i)];
+            params.wildcards = params.wildcards || [];
+            params.wildcards.push(srcParts.slice(i).join('/'));
             return params;
         }
         if (srcParts[i].startsWith('*')) {
-            params.wildcards = [...(params.wildcards || []), srcParts[i]];
+            params.wildcards = params.wildcards || [];
+            params.wildcards.push(srcParts[i]);
             return params;
         }
         if (srcParts[i].startsWith(':')) {

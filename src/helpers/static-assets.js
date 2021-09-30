@@ -9,7 +9,8 @@ function buildStaticAssets (options = {}) {
     const config = Object.assign({}, DEFAULT_OPTIONS, options);
 
     return async function staticAssets ({ req, res, params }) {
-        const pathname = path.join(config.dir, ...params.wildcards);
+        const wildcards = params.wildcards || [];
+        const pathname = path.join(config.dir, wildcards[wildcards.length - 1]);
         await renderFile(req, res, pathname);
     };
 }
