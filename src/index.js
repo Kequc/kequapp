@@ -2,7 +2,6 @@ const { URL } = require('url');
 const errorHandler = require('./defaults/error-handler.js');
 const buildMethodScope = require('./util/build-method-scope.js');
 const errors = require('./util/errors.js');
-const { sanitizePathname } = require('./util/sanitize.js');
 const streamReader = require('./util/stream-reader.js');
 const processor = require('./processor.js');
 
@@ -21,7 +20,6 @@ function createApp (options = {}) {
         res.setHeader('Content-Type', 'text/plain; charset=utf-8'); // default
 
         const url = new URL(req.url, `${req.headers.protocol}://${req.headers.host}`);
-        const pathname = sanitizePathname(url.pathname);
         const query = Object.fromEntries(url.searchParams);
 
         let _body;
@@ -37,7 +35,6 @@ function createApp (options = {}) {
             req,
             res,
             url,
-            pathname,
             context: {},
             params: {},
             query,

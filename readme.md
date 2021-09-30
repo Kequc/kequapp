@@ -138,8 +138,7 @@ The following parameters are made available to handlers and renderers.
 | ---------- | ------------------------------------------------- |
 | `req`      | The node `req` parameter.                         |
 | `res`      | The node `res` parameter.                         |
-| `url`      | URL object representing the requested resource.   |
-| `pathname` | Pathname provided by the client.                  |
+| `url`      | Url requested by the client.                      |
 | `context`  | Params shared between handler functions.          |
 | `params`   | Params extracted from the pathname.               |
 | `query`    | Params extracted from the querystring.            |

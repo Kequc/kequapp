@@ -1,13 +1,17 @@
-function findRoute (routes, { req, pathname, errors }) {
-    let result = routes.find(routeMatch(req.method, pathname));
+const errors = require('./util/errors.js');
 
-    if (!result && req.method === 'HEAD') {
+function findRoute (routes, method, pathname) {
+    // exactly the route
+    let result = routes.find(routeMatch(method, pathname));
+
+    // maybe it's a head request
+    if (!result && method === 'HEAD') {
         result = routes.find(routeMatch('GET', pathname));
     }
 
     if (!result) {
         throw errors.NotFound(`Not Found: ${pathname}`, {
-            request: { method: req.method, pathname },
+            request: { method, pathname },
             routes: [...routes].sort(routeSorter).map(formatRoute)
         });
     }

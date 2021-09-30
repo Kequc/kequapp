@@ -1,12 +1,14 @@
+const { sanitizePathname } = require('./util/sanitize.js');
 const findRoute = require('./find-route.js');
 const render = require('./render.js');
 
 async function processor (routes, config, bundle) {
     const { errorHandler } = config;
-    const { req, res, pathname, logger } = bundle;
-
+    const { req, res, url, logger } = bundle;
+    const pathname = sanitizePathname(url.pathname);
+    
     try {
-        const route = findRoute(routes, bundle);
+        const route = findRoute(routes, req.method, pathname);
         const params = extractParams(route.pathname, pathname);
         Object.assign(bundle.params, params);
         const payload = await lifecycle(route, bundle);
