@@ -60,7 +60,7 @@ it('reads the body of a request', async function () {
         headers: {
             'Content-Type': 'application/json; charset=utf-8'
         },
-        body: true
+        body: null
     });
 
     req.end('{ "name": "april" }');
