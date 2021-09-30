@@ -249,7 +249,7 @@ it('reads the authorization header', async function () {
 });
 ```
 
-Optionally a `body` parameter can be provided as a convenience instead of writing to the stream. The request is finalized automatically unless you set `body` to `true`. The following two examples are the same.
+Optionally a `body` parameter can be provided as a convenience instead of writing to the stream. The request is finalized automatically on all requests initiated with `inject()` unless you set `body` to `true`. The following two examples are the same.
 
 ```javascript
 it('reads the body of a request', async function () {
