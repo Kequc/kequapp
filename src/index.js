@@ -17,7 +17,7 @@ function createApp (options = {}) {
     const routes = [];
     const config = Object.assign({}, DEFAULT_OPTIONS, options);
 
-    function app (req, res, logger) {
+    function app (req, res, logger = config.logger) {
         res.setHeader('Content-Type', 'text/plain; charset=utf-8'); // default
 
         const url = new URL(req.url, `${req.headers.protocol}://${req.headers.host}`);
@@ -43,7 +43,7 @@ function createApp (options = {}) {
             params: {},
             query,
             getBody,
-            logger: logger || config.logger,
+            logger,
             errors,
         });
     }
