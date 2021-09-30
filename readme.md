@@ -213,14 +213,14 @@ const app = createApp({
 
 ### Static Files
 
-A rudimentary `staticAssets()` helper can be used to easily deliver files relative to your project directory. This utility makes use of the `wildcards` parameter as defined by your route to build a valid path.
+A rudimentary `staticFiles()` handler can be used to deliver files relative to your project directory. This utility makes use of the `wildcards` parameter as defined by your route to build a valid path.
 
 By default the `./public` directory is used.
 
 ```javascript
-const { staticAssets } = require('kequserver');
+const { staticFiles } = require('kequserver');
 
-app.route('/assets/**', staticAssets({
+app.route('/assets/**', staticFiles({
     dir: './my-assets-dir'
 }));
 ```
@@ -230,8 +230,9 @@ If more control is needed a similar `renderFile()` helper is available.
 ```javascript
 const { renderFile } = require('kequserver');
 
-app.route('/static-db.json', async function ({ req, res }) {
-    await renderFile(req, res, './db/my-db.json');
+app.route('/db.json', async function ({ req, res }) {
+    const pathname = './db/my-db.json';
+    await renderFile(req.method, res, pathname);
 });
 ```
 

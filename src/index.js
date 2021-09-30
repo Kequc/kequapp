@@ -1,9 +1,8 @@
 const { URL } = require('url');
 
-const renderFile = require('./helpers/render-file.js');
-const staticAssets = require('./helpers/static-assets.js');
-
 const errorHandler = require('./defaults/error-handler.js');
+const renderFile = require('./helpers/render-file.js');
+const staticFiles = require('./helpers/static-files.js');
 const buildMethodScope = require('./util/build-method-scope.js');
 const errors = require('./util/errors.js');
 const streamReader = require('./util/stream-reader.js');
@@ -60,5 +59,5 @@ function createApp (options = {}) {
 module.exports = {
     createApp,
     renderFile,
-    staticAssets
+    staticFiles
 };

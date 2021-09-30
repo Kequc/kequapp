@@ -20,12 +20,11 @@ const MIME_TYPES = {
     '.wasm': 'application/wasm'
 };
 
-async function renderFile (req, res, pathname) {
-    const method = req.method;
-    const fullPathname = path.join(process.cwd(), pathname);
+async function renderFile (method, res, pathname) {
+    const location = path.join(process.cwd(), pathname);
 
     try {
-        const content = await fs.readFile(pathname);
+        const content = await fs.readFile(location);
         res.setHeader('Content-Type', getContentType(pathname));
         res.setHeader('Content-Length', content.length);
         if (method === 'HEAD') {
@@ -36,7 +35,7 @@ async function renderFile (req, res, pathname) {
     } catch (error) {
         throw errors.NotFound(`Not Found: ${pathname}`, {
             request: { method, pathname },
-            fullPathname
+            location
         });
     }
 }
