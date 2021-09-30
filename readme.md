@@ -213,7 +213,7 @@ const app = createApp({
 
 ### Static Files
 
-A rudimentary static asset utility can be used to easily deliver files relative to your project's directory. This utility makes use of the `wildcards` parameter as specified in your route to build a valid path.
+A rudimentary `staticAssets()` helper can be used to easily deliver files relative to your project directory. This utility makes use of the `wildcards` parameter as defined by your route to build a valid path.
 
 By default the `./public` directory is used.
 
@@ -225,7 +225,7 @@ app.route('/assets/**', staticAssets({
 }));
 ```
 
-If more control is needed a similar helper is available.
+If more control is needed a similar `renderFile()` helper is available.
 
 ```javascript
 const { renderFile } = require('kequserver');
