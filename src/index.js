@@ -1,7 +1,7 @@
 const { URL } = require('url');
 
 const errorHandler = require('./defaults/error-handler.js');
-const renderFile = require('./helpers/render-file.js');
+const sendFile = require('./helpers/send-file.js');
 const staticFiles = require('./helpers/static-files.js');
 const buildMethodScope = require('./util/build-method-scope.js');
 const errors = require('./util/errors.js');
@@ -58,6 +58,6 @@ function createApp (options = {}) {
 
 module.exports = {
     createApp,
-    renderFile,
+    sendFile,
     staticFiles
 };

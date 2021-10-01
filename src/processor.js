@@ -34,14 +34,14 @@ function extractParams (srcPathname, reqPathname) {
     const srcParts = srcPathname.split('/');
     const reqParts = reqPathname.split('/');
     for (let i = 0; i < srcParts.length; i++) {
-        if (srcParts[i].startsWith('**')) {
+        if (srcParts[i] === '**') {
             params.wildcards = params.wildcards || [];
-            params.wildcards.push(srcParts.slice(i).join('/'));
+            params.wildcards.push(reqParts.slice(i).join('/'));
             return params;
         }
-        if (srcParts[i].startsWith('*')) {
+        if (srcParts[i] === '*') {
             params.wildcards = params.wildcards || [];
-            params.wildcards.push(srcParts[i]);
+            params.wildcards.push(reqParts[i]);
             return params;
         }
         if (srcParts[i].startsWith(':')) {

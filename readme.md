@@ -221,18 +221,19 @@ By default the `./public` directory is used.
 const { staticFiles } = require('kequserver');
 
 app.route('/assets/**', staticFiles({
-    dir: './my-assets-dir'
+    dir: './my-assets-dir',
+    exclude: ['./my-assets-dir/private']
 }));
 ```
 
-If more control is needed a similar `renderFile()` helper is available.
+If more control is needed a similar `sendFile()` helper is available.
 
 ```javascript
-const { renderFile } = require('kequserver');
+const { sendFile } = require('kequserver');
 
 app.route('/db.json', async function ({ req, res }) {
     const pathname = './db/my-db.json';
-    await renderFile(req.method, res, pathname);
+    await sendFile(req.method, res, pathname);
 });
 ```
 

@@ -19,7 +19,7 @@ function inject (app, logger, options) {
 
     app(req, res, logger);
 
-    if (_end !== null) {
+    if (_end !== null && !req.writableEnded) {
         req.end(_end);
     }
 

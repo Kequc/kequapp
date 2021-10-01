@@ -33,15 +33,14 @@ function routeMatch (method, pathname) {
 function comparePathnames (srcPathname, reqPathname) {
     const srcParts = srcPathname.split('/').filter(part => !!part);
     const reqParts = reqPathname.split('/').filter(part => !!part);
-    if (srcParts.length !== reqParts.length) return false;
     for (let i = 0; i < srcParts.length; i++) {
-        if (srcParts[i].startsWith('**')) return true;
-        if (srcParts[i].startsWith('*')) continue;
+        if (srcParts[i] === '**') return true;
+        if (srcParts[i] === '*') continue;
         if (srcParts[i].startsWith(':')) continue;
         if (srcParts[i] === reqParts[i]) continue;
         return false;
     }
-    return true;
+    return srcParts.length === reqParts.length;
 }
 
 function routeSorter (a, b) {

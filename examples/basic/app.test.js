@@ -70,3 +70,15 @@ it('reads the body of a request', async function () {
     assert.strictEqual(res.getHeader('Content-Type'), 'text/plain; charset=utf-8');
     assert.strictEqual(body, 'User creation april!');
 });
+
+it('throws an error when trying to access missing route', async function () {
+    const { getBody, res } = inject(app, util.log(), {
+        url: '/users/how-are-ya'
+    });
+
+    const body = await getBody();
+
+    assert.strictEqual(res.getHeader('Content-Type'), 'application/json; charset=utf-8');
+    assert.strictEqual(body.error.statusCode, 404);
+    assert.strictEqual(body.error.message, 'Not Found: /users/how-are-ya');
+});
