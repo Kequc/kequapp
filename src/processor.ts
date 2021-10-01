@@ -29,7 +29,7 @@ async function processor (routes: ServerRoute[], config: ServerConfig, bundle: S
     }
 }
 
-module.exports = processor;
+export default processor;
 
 function extractParams (srcPathname: string, reqPathname: string) {
     const params: DataObject = {};
