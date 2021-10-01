@@ -1,12 +1,14 @@
+import { ServerBundle } from "index";
+
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
-function errorHandler (error, { res }) {
+function errorHandler (error: ServerError, { res }: ServerBundle) {
     const statusCode = error.statusCode || 500;
 
     res.statusCode = statusCode;
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
 
-    const result = {
+    const result: DataObject = {
         error: {
             statusCode,
             message: error.message
@@ -14,11 +16,11 @@ function errorHandler (error, { res }) {
     };
 
     if (NODE_ENV !== 'production') {
-        result.error.stack = error.stack.split(/\r?\n/);
+        result.error.stack = error.stack?.split(/\r?\n/);
         result.error.info = error.info;
     }
 
     return result;
 }
 
-module.exports = errorHandler;
+export default errorHandler;

@@ -1,15 +1,24 @@
-const path = require('path');
-const sendFile = require('./send-file.js');
+import { ServerBundle } from 'index';
+import path from 'path';
+import sendFile from './send-file';
 
-const DEFAULT_OPTIONS = {
+type StaticFilesOptions = {
+    dir?: string;
+    exclude?: string[];
+};
+
+const DEFAULT_OPTIONS: {
+    dir: string,
+    exclude: string[]
+} = {
     dir: './public',
     exclude: []
 };
 
-function staticFiles (options = {}) {
+function staticFiles (options: StaticFilesOptions = {}) {
     const config = setupConfig(options);
 
-    return async function ({ req, res, params, errors }) {
+    return async function ({ req, res, params, errors }: ServerBundle) {
         const wildcards = params.wildcards || [];
         const asset = path.join(config.dir, wildcards[wildcards.length - 1]);
 
@@ -21,7 +30,7 @@ function staticFiles (options = {}) {
     };
 }
 
-module.exports = staticFiles;
+export default staticFiles;
 
 function isExcluded (values, asset) {
     for (const value of values) {
@@ -36,9 +45,8 @@ function setupConfig (options) {
     if (options.dir) {
         if (typeof options.dir !== 'string') {
             throw new Error('staticFiles options.dir must be a string');
-        } else {
-            config.dir = options.dir;
         }
+        config.dir = options.dir;
     }
 
     if (options.exclude) {
@@ -48,9 +56,8 @@ function setupConfig (options) {
         for (const value of options.exclude) {
             if (typeof value !== 'string') {
                 throw new Error('staticFiles options.exclude value must be a string');
-            } else {
-                config.exclude.push(path.join(value));
             }
+            config.exclude.push(path.join(value));
         }
     }
 

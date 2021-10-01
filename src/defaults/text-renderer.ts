@@ -1,4 +1,7 @@
-function textRenderer (payload, { req, res, errors }) {
+import { ServerBundle } from 'index';
+import { ErrorsHelper } from 'util/errors';
+
+function textRenderer (payload: any, { req, res, errors }: ServerBundle) {
     const text = generateText(payload, errors);
 
     res.setHeader('Content-Length', text.length);
@@ -10,9 +13,9 @@ function textRenderer (payload, { req, res, errors }) {
     }
 }
 
-module.exports = textRenderer;
+export default textRenderer;
 
-function generateText (payload, errors) {
+function generateText (payload: any, errors: ErrorsHelper) {
     try {
         return String(payload);
     } catch (error) {

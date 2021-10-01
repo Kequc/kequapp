@@ -1,6 +1,9 @@
+import { ServerBundle } from 'index';
+import { ErrorsHelper } from 'util/errors';
+
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
-function jsonRenderer (payload, { req, res, errors }) {
+function jsonRenderer (payload: any, { req, res, errors }: ServerBundle) {
     const json = generateJson(payload, errors);
 
     res.setHeader('Content-Length', json.length);
@@ -12,9 +15,9 @@ function jsonRenderer (payload, { req, res, errors }) {
     }
 }
 
-module.exports = jsonRenderer;
+export default jsonRenderer;
 
-function generateJson (payload, errors) {
+function generateJson (payload: any, errors: ErrorsHelper) {
     try {
         if (NODE_ENV === 'production') {
             return JSON.stringify(payload);

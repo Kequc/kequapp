@@ -1,4 +1,4 @@
-const { createApp, staticFiles } = require('../../src/index.js'); // 'kequserver'
+import { createApp, staticFiles } from '../../src/index.js'; // 'kequserver'
 
 const app = createApp();
 
@@ -11,4 +11,4 @@ app.route('/assets/**', staticFiles({
     exclude: ['./examples/file-server/assets/private.txt']
 }));
 
-module.exports = app;
+export default app;

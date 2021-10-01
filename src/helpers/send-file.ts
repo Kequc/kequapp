@@ -1,6 +1,7 @@
-const path = require('path');
-const fs = require('fs');
-const errors = require('../util/errors.js');
+import { ServerResponse } from 'http';
+import path from 'path';
+import fs from 'fs';
+import errors from '../util/errors';
 
 const MIME_TYPES = {
     '.html': 'text/html',
@@ -21,9 +22,9 @@ const MIME_TYPES = {
     '.wasm': 'application/wasm'
 };
 
-async function sendFile (method, res, asset) {
-    const location = path.join(process.cwd(), asset);
-    const ext = path.extname(asset).toLowerCase();
+async function sendFile (method: string | undefined, res: ServerResponse, asset: string) {
+    const location: string = path.join(process.cwd(), asset);
+    const ext: string = path.extname(asset).toLowerCase();
     let contentLength = 0;
 
     try {
@@ -67,4 +68,4 @@ async function sendFile (method, res, asset) {
     }
 }
 
-module.exports = sendFile;
+export default sendFile;

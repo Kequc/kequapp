@@ -1,4 +1,4 @@
-const { createApp } = require('../../src/index.js'); // 'kequserver'
+import { createApp } from '../../src/index'; // 'kequserver'
 
 const app = createApp();
 
@@ -30,4 +30,4 @@ app.branch('/admin', loggedIn)
         return `Hello admin ${context.auth}!`;
     });
 
-module.exports = app;
+export default app;

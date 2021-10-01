@@ -1,12 +1,14 @@
-const { sanitizePathname } = require('./util/sanitize.js');
-const findRoute = require('./find-route.js');
-const render = require('./render.js');
+import { sanitizePathname } from './util/sanitize';
+import findRoute from './find-route';
+import render from './render';
+import { ServerRoute } from './util/build-method-scope';
+import { ServerConfig, ServerBundle } from './index';
 
-async function processor (routes, config, bundle) {
+async function processor (routes: ServerRoute[], config: ServerConfig, bundle: ServerBundle) {
     const { errorHandler } = config;
     const { req, res, url, logger } = bundle;
     const pathname = sanitizePathname(url.pathname);
-    
+
     try {
         const route = findRoute(routes, req.method, pathname);
         const params = extractParams(route.pathname, pathname);
@@ -15,7 +17,7 @@ async function processor (routes, config, bundle) {
 
         await render(config, payload, bundle);
         logger.debug(res.statusCode, req.method, pathname);
-    } catch (error) {
+    } catch (error: any) {
         const payload = await errorHandler(error, bundle);
 
         await render(config, payload, bundle);
@@ -29,8 +31,8 @@ async function processor (routes, config, bundle) {
 
 module.exports = processor;
 
-function extractParams (srcPathname, reqPathname) {
-    const params = {};
+function extractParams (srcPathname: string, reqPathname: string) {
+    const params: DataObject = {};
     const srcParts = srcPathname.split('/');
     const reqParts = reqPathname.split('/');
     for (let i = 0; i < srcParts.length; i++) {
@@ -51,7 +53,7 @@ function extractParams (srcPathname, reqPathname) {
     return params;
 }
 
-async function lifecycle (route, bundle) {
+async function lifecycle (route: ServerRoute, bundle: ServerBundle) {
     for (const handle of route.handles) {
         const payload = await handle(bundle);
         if (payload !== undefined || bundle.res.writableEnded) {

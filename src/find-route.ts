@@ -1,8 +1,9 @@
-const errors = require('./util/errors.js');
+import { ServerRoute } from 'util/build-method-scope.js';
+import errors from './util/errors.js';
 
-function findRoute (routes, method, pathname) {
+function findRoute (routes: ServerRoute[], method: string | undefined, pathname: string) {
     // exactly the route
-    let result = routes.find(routeMatch(method, pathname));
+    let result: ServerRoute | undefined = routes.find(routeMatch(method || 'GET', pathname));
 
     // maybe it's a head request
     if (!result && method === 'HEAD') {
@@ -19,10 +20,10 @@ function findRoute (routes, method, pathname) {
     return result;
 }
 
-module.exports = findRoute;
+export default findRoute;
 
-function routeMatch (method, pathname) {
-    return function (route) {
+function routeMatch (method: string, pathname: string) {
+    return function (route: ServerRoute) {
         if (route.method !== method) {
             return false;
         }
@@ -30,7 +31,7 @@ function routeMatch (method, pathname) {
     };
 }
 
-function comparePathnames (srcPathname, reqPathname) {
+function comparePathnames (srcPathname: string, reqPathname: string) {
     const srcParts = srcPathname.split('/').filter(part => !!part);
     const reqParts = reqPathname.split('/').filter(part => !!part);
     for (let i = 0; i < srcParts.length; i++) {
@@ -43,10 +44,10 @@ function comparePathnames (srcPathname, reqPathname) {
     return srcParts.length === reqParts.length;
 }
 
-function routeSorter (a, b) {
+function routeSorter (a: ServerRoute, b: ServerRoute) {
     return (a.pathname + a.method).localeCompare(b.pathname + b.method);
 }
 
-function formatRoute ({ method, pathname }) {
+function formatRoute ({ method, pathname }: { method: string, pathname: string }) {
     return `${method} ${pathname}`;
 }
