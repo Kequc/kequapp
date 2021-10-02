@@ -1,9 +1,9 @@
-import { ServerBundle } from 'index';
-import { ErrorsHelper } from 'util/errors';
+import { ErrorsHelper } from '../../types/errors';
+import { Bundle } from '../../types/main';
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
-function jsonRenderer (payload: any, { req, res, errors }: ServerBundle) {
+function jsonRenderer (payload: any, { req, res, errors }: Bundle) {
     const json = generateJson(payload, errors);
 
     res.setHeader('Content-Length', json.length);

@@ -1,9 +1,10 @@
-import { ServerRoute } from 'util/build-method-scope.js';
-import errors from './util/errors.js';
+import errors from './errors';
 
-function findRoute (routes: ServerRoute[], method: string | undefined, pathname: string) {
+import { Route } from '../../types/route-scope';
+
+function findRoute (routes: Route[], method: string | undefined, pathname: string) {
     // exactly the route
-    let result: ServerRoute | undefined = routes.find(routeMatch(method || 'GET', pathname));
+    let result: Route | undefined = routes.find(routeMatch(method || 'GET', pathname));
 
     // maybe it's a head request
     if (!result && method === 'HEAD') {
@@ -23,7 +24,7 @@ function findRoute (routes: ServerRoute[], method: string | undefined, pathname:
 export default findRoute;
 
 function routeMatch (method: string, pathname: string) {
-    return function (route: ServerRoute) {
+    return function (route: Route) {
         if (route.method !== method) {
             return false;
         }
@@ -44,7 +45,7 @@ function comparePathnames (srcPathname: string, reqPathname: string) {
     return srcParts.length === reqParts.length;
 }
 
-function routeSorter (a: ServerRoute, b: ServerRoute) {
+function routeSorter (a: Route, b: Route) {
     return (a.pathname + a.method).localeCompare(b.pathname + b.method);
 }
 

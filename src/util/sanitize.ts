@@ -5,3 +5,7 @@ export function sanitizePathname (pathname = '') {
     }
     return result;
 }
+
+export function sanitizeContentType (contentType = '') {
+    return contentType.split(';')[0].toLowerCase().trim();
+}

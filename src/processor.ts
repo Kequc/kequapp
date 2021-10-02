@@ -1,10 +1,11 @@
+import findRoute from './util/find-route';
 import { sanitizePathname } from './util/sanitize';
-import findRoute from './find-route';
 import render from './render';
-import { ServerRoute } from './util/build-method-scope';
-import { ServerConfig, ServerBundle } from './index';
 
-async function processor (routes: ServerRoute[], config: ServerConfig, bundle: ServerBundle) {
+import { Route } from '../types/route-scope';
+import { Bundle, Config, BundleParams } from '../types/main';
+
+async function processor (routes: Route[], config: Config, bundle: Bundle) {
     const { errorHandler } = config;
     const { req, res, url, logger } = bundle;
     const pathname = sanitizePathname(url.pathname);
@@ -32,7 +33,7 @@ async function processor (routes: ServerRoute[], config: ServerConfig, bundle: S
 export default processor;
 
 function extractParams (srcPathname: string, reqPathname: string) {
-    const params: DataObject = {};
+    const params: BundleParams = {};
     const srcParts = srcPathname.split('/');
     const reqParts = reqPathname.split('/');
     for (let i = 0; i < srcParts.length; i++) {
@@ -53,7 +54,7 @@ function extractParams (srcPathname: string, reqPathname: string) {
     return params;
 }
 
-async function lifecycle (route: ServerRoute, bundle: ServerBundle) {
+async function lifecycle (route: Route, bundle: Bundle) {
     for (const handle of route.handles) {
         const payload = await handle(bundle);
         if (payload !== undefined || bundle.res.writableEnded) {

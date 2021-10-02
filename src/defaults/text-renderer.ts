@@ -1,7 +1,7 @@
-import { ServerBundle } from 'index';
-import { ErrorsHelper } from 'util/errors';
+import { ErrorsHelper } from '../../types/errors';
+import { Bundle } from '../../types/main';
 
-function textRenderer (payload: any, { req, res, errors }: ServerBundle) {
+function textRenderer (payload: any, { req, res, errors }: Bundle) {
     const text = generateText(payload, errors);
 
     res.setHeader('Content-Length', text.length);

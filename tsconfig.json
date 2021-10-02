@@ -15,7 +15,6 @@
     "strictNullChecks": true,
     "alwaysStrict": true,
     "moduleResolution": "node",
-    "baseUrl": "./src",
     "esModuleInterop": true
   }
 }

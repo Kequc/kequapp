@@ -1,8 +1,7 @@
 {
   "name": "kequserver",
   "version": "1.0.0",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/main.js",
   "scripts": {
     "prepublish": "npm run build",
     "build": "tsc",

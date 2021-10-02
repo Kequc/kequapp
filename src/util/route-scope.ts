@@ -1,35 +1,8 @@
-import { ServerBundle } from 'index';
 import path from 'path';
 
-export type MethodScope = {
-    route: (...handles: HandlesInputRoute) => MethodScope;
-    branch: (...handles: HandlesInput) => MethodScope;
-    middleware: (...handles: HandlesInput) => MethodScope;
-};
+import { Handle, HandlesInput, HandlesInputRoute, Route, RouteBuilder, RouteScope } from '../../types/route-scope';
 
-type ServerRouteBuilder = {
-    pathname: string;
-    handles: ServerHandle[];
-};
-
-export type ServerRoute = ServerRouteBuilder & {
-    method: string;
-};
-
-export type ServerHandle = (bundle: ServerBundle) => any;
-
-type HandlesInput = [
-    pathname: string | ServerHandle,
-    ...handles: ServerHandle[]
-];
-
-type HandlesInputRoute = [
-    method: string | ServerHandle,
-    pathname?: string | ServerHandle,
-    ...handles: ServerHandle[]
-];
-
-function buildMethodScope (routes: ServerRoute[], parent: ServerRouteBuilder) {
+function routeScope (routes: Route[], parent: RouteBuilder) {
     const scope: any = {
         route: undefined,
         branch: undefined,
@@ -38,13 +11,13 @@ function buildMethodScope (routes: ServerRoute[], parent: ServerRouteBuilder) {
     scope.route = buildRoute(routes, parent, scope);
     scope.branch = buildBranch(routes, parent);
     scope.middleware = buildMiddleware(parent, scope);
-    return scope as MethodScope;
+    return scope as RouteScope;
 }
 
-export default buildMethodScope;
+export default routeScope;
 
-function buildBranch (routes: ServerRoute[], parent: ServerRouteBuilder) {
-    return function branch (...handles: HandlesInput): MethodScope {
+function buildBranch (routes: Route[], parent: RouteBuilder) {
+    return function branch (...handles: HandlesInput): RouteScope {
         const pathname = extractPathname(handles);
 
         if (handles.find(handle => typeof handle !== 'function')) {
@@ -53,15 +26,15 @@ function buildBranch (routes: ServerRoute[], parent: ServerRouteBuilder) {
 
         const newParent = routeMerge(parent, {
             pathname,
-            handles: handles as ServerHandle[]
+            handles: handles as Handle[]
         });
 
-        return buildMethodScope(routes, newParent);
+        return routeScope(routes, newParent);
     };
 }
 
-function buildMiddleware (parent: ServerRouteBuilder, scope: MethodScope) {
-    return function middleware (...handles: HandlesInput): MethodScope {
+function buildMiddleware (parent: RouteBuilder, scope: RouteScope) {
+    return function middleware (...handles: HandlesInput): RouteScope {
         const pathname = extractPathname(handles);
 
         if (handles.find(handle => typeof handle !== 'function')) {
@@ -70,15 +43,15 @@ function buildMiddleware (parent: ServerRouteBuilder, scope: MethodScope) {
 
         Object.assign(parent, routeMerge(parent, {
             pathname,
-            handles: handles as ServerHandle[]
+            handles: handles as Handle[]
         }));
 
         return scope;
     };
 }
 
-function buildRoute (routes: ServerRoute[], parent: ServerRouteBuilder, scope: MethodScope) {
-    return function route (...handles: HandlesInputRoute): MethodScope {
+function buildRoute (routes: Route[], parent: RouteBuilder, scope: RouteScope) {
+    return function route (...handles: HandlesInputRoute): RouteScope {
         const method = extractMethod(handles);
         const pathname = extractPathname(handles);
 
@@ -89,12 +62,12 @@ function buildRoute (routes: ServerRoute[], parent: ServerRouteBuilder, scope: M
             throw new Error('Handle must be a function')
         }
 
-        const route: ServerRoute = Object.assign({ method }, routeMerge(parent, {
+        const route: Route = Object.assign({ method }, routeMerge(parent, {
             pathname,
-            handles: handles as ServerHandle[]
+            handles: handles as Handle[]
         }));
 
-        routes.push(route as ServerRoute);
+        routes.push(route as Route);
 
         return scope;
     };
@@ -114,7 +87,7 @@ function extractPathname (handles: HandlesInput | HandlesInputRoute): string {
     return handles.shift() as string;
 }
 
-function routeMerge (parent: ServerRouteBuilder, child: ServerRouteBuilder): ServerRouteBuilder {
+function routeMerge (parent: RouteBuilder, child: RouteBuilder): RouteBuilder {
     return {
         pathname: path.join(parent.pathname, child.pathname),
         handles: parent.handles.concat(child.handles)

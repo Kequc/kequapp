@@ -1,4 +1,4 @@
-import { createApp } from '../../src/index'; // 'kequserver'
+import { createApp } from '../../src/main'; // 'kequserver'
 
 const app = createApp();
 

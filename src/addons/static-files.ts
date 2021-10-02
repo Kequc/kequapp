@@ -1,11 +1,8 @@
-import { ServerBundle } from 'index';
 import path from 'path';
 import sendFile from './send-file';
 
-type StaticFilesOptions = {
-    dir?: string;
-    exclude?: string[];
-};
+import { StaticFilesOptions } from '../../types/body-parser';
+import { Bundle } from '../../types/main';
 
 const DEFAULT_OPTIONS: {
     dir: string,
@@ -18,7 +15,7 @@ const DEFAULT_OPTIONS: {
 function staticFiles (options: StaticFilesOptions = {}) {
     const config = setupConfig(options);
 
-    return async function ({ req, res, params, errors }: ServerBundle) {
+    return async function ({ req, res, params, errors }: Bundle) {
         const wildcards = params.wildcards || [];
         const asset = path.join(config.dir, wildcards[wildcards.length - 1]);
 

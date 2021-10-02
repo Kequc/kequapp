@@ -1,14 +1,24 @@
-import { ServerBundle } from "index";
+import { ServerError } from '../../types/errors';
+import { Bundle } from '../../types/main';
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
-function errorHandler (error: ServerError, { res }: ServerBundle) {
+type ErrorResult = {
+    error: {
+        statusCode: number,
+        message: string,
+        stack?: any,
+        info?: any
+    }
+};
+
+function errorHandler (error: ServerError, { res }: Bundle) {
     const statusCode = error.statusCode || 500;
 
     res.statusCode = statusCode;
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
 
-    const result: DataObject = {
+    const result: ErrorResult = {
         error: {
             statusCode,
             message: error.message

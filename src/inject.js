@@ -1,7 +1,7 @@
 const { URLSearchParams } = require('url');
 const MockReq = require('mock-req');
 const MockRes = require('mock-res');
-const streamReader = require('./util/stream-reader.js');
+const streamReader = require('./body-parser/stream-reader.js');
 
 function inject (app, logger, options) {
     const _options = Object.assign({}, options);

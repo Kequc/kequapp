@@ -1,5 +1,14 @@
-function parseMultipart (buffer: Buffer, boundary: string) {
-    const parts: FileData[] = [];
+import errors from "../util/errors";
+
+import { RawBodyPart } from "../../types/body-parser";
+
+function multipart (buffer: Buffer, contentType?: string) {
+    const boundary = getParts(contentType).boundary;
+    if (!boundary) {
+        throw errors.UnprocessableEntity('Multipart request requires boundary', { contentType });
+    }
+
+    const parts: RawBodyPart[] = [];
     const start = readUntilBoundary(buffer, boundary, 0);
     let currentIndex = start.endIndex;
 
@@ -17,14 +26,24 @@ function parseMultipart (buffer: Buffer, boundary: string) {
         parts.push({
             filename: parseFilename(headers.contentDisposition),
             contentType: parseContentType(headers.contentType),
-            data: Buffer.from(body.data)
+            data: [Buffer.from(body.data)]
         });
     }
 
     return parts;
 }
 
-export default parseMultipart;
+export default multipart;
+
+function getParts (contentType = '') {
+    const parts = contentType.split(';').slice(1);
+    const result: { [key: string]: string } = {};
+    for (const part of parts) {
+        const [key, ...values] = part.split('=');
+        result[key.toLowerCase().trim()] = values.join('=').trim();
+    }
+    return result;
+}
 
 function readHeaders (buffer: Buffer, startIndex: number) {
     let line = '';
@@ -125,8 +144,8 @@ function parseContentType (contentType: string): string | undefined {
     return contentType.split(":")[1]?.split(";")[0]?.trim() || undefined;
 }
 
-function parseAssignment (assignment: string): DataObject {
-    const result = {};
+function parseAssignment (assignment: string) {
+    const result: { [key: string]: string } = {};
     const parts = assignment.split('='); // format a=b or a="b"
 
     if (parts.length == 2) {
