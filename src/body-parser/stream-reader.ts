@@ -19,7 +19,7 @@ async function streamReader (stream: IncomingMessage | ServerResponse, maxPayloa
             const contentType = getContentType(stream);
             resolve({
                 contentType,
-                data: [Buffer.concat(chunks)]
+                data: Buffer.concat(chunks)
             });
         }
 

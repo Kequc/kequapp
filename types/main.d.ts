@@ -1,5 +1,5 @@
 import { IncomingMessage, RequestListener, ServerResponse } from 'http';
-import { JsonData } from './body-parser';
+import { BodyOptions } from './body-parser';
 import { ErrorsHelper } from './errors';
 import { RouteScope } from './route-scope';
 
@@ -12,7 +12,7 @@ export type Bundle = {
     context: BundleContext;
     params: BundleParams;
     query: BundleQuery;
-    getBody: () => Promise<JsonData>;
+    getBody: (options?: BodyOptions) => Promise<any>;
     logger: Console;
     errors: ErrorsHelper;
 };

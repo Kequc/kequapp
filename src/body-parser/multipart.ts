@@ -26,7 +26,7 @@ function multipart (buffer: Buffer, contentType?: string) {
         parts.push({
             filename: parseFilename(headers.contentDisposition),
             contentType: parseContentType(headers.contentType),
-            data: [Buffer.from(body.data)]
+            data: Buffer.from(body.data)
         });
     }
 

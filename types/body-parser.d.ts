@@ -6,15 +6,16 @@ export type StaticFilesOptions = {
 export type RawBodyPart = {
     filename?: string;
     contentType?: string;
-    data: Buffer[];
+    data: Buffer;
 };
 
 export type BodyPart = {
     filename?: string;
     contentType?: string;
-    data: JsonData[];
+    data: any[];
 };
 
-export type JsonData = {
-    [key: string]: any;
+export type BodyOptions = {
+    full?: boolean;
+    parse?: boolean;
 };

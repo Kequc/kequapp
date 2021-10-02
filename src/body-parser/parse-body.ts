@@ -2,39 +2,44 @@ import errors from '../util/errors';
 import { sanitizeContentType } from '../util/sanitize';
 import multipart from './multipart';
 
-import { JsonData, RawBodyPart } from '../../types/body-parser';
+import { BodyPart, RawBodyPart } from '../../types/body-parser';
 
-function parseBody (body: RawBodyPart): JsonData {
+enum ContentType {
+    URL_ENCODED = 'application/x-www-form-urlencoded',
+    JSON = 'application/json',
+    MULTIPART = 'multipart/form-data'
+}
+
+export function parseBody (body: BodyPart): BodyPart {
     return {
         ...body,
         data: parseBuffer(body)
     };
 }
 
-export default parseBody;
+export function parseMultipart(raw: RawBodyPart) {
+    if (sanitizeContentType(raw.contentType) === 'multipart/form-body') {
+        return multipart(raw.data, raw.contentType).map(parseMultipart);
+    }
+    return raw;
+}
 
-function parseBuffer ({ data, contentType }: RawBodyPart): JsonData {
+function parseBuffer ({ data, contentType }: BodyPart): any {
     switch (sanitizeContentType(contentType)) {
-    case 'application/x-www-form-urlencoded':
+    case ContentType.URL_ENCODED:
         return data.map(parseUrlEncoded);
-    case 'application/json':
+    case ContentType.JSON:
         return data.map(parseJson);
-    case 'multipart/form-data':
-        return data.map(part => multipart(part).map(parseBuffer));
+    case ContentType.MULTIPART:
+        return data.map(parseBuffer);
     default:
         return data;
     }
 }
 
-function parseUrlEncoded (buffer: Buffer): JsonData {
-    const body = toString(buffer);
-
-    if (body === undefined) {
-        throw errors.UnprocessableEntity('Invalid request body');
-    }
-
+function parseUrlEncoded (buffer: Buffer): any {
     try {
-        const params = new URLSearchParams(body);
+        const params = new URLSearchParams(toString(buffer)!);
         const result: { [key: string]: any } = {};
 
         for (const key of params.keys()) {
@@ -48,25 +53,17 @@ function parseUrlEncoded (buffer: Buffer): JsonData {
         return result;
     } catch (error) {
         throw errors.UnprocessableEntity('Unable to process request', {
-            error,
-            body
+            error
         });
     }
 }
 
-function parseJson (buffer: Buffer): JsonData {
-    const body = toString(buffer);
-
-    if (body === undefined) {
-        throw errors.UnprocessableEntity('Invalid request body');
-    }
-
+function parseJson (buffer: Buffer): any {
     try {
-        return JSON.parse(body);
+        return JSON.parse(toString(buffer)!);
     } catch (error) {
         throw errors.UnprocessableEntity('Unable to process request', {
-            error,
-            body
+            error
         });
     }
 }

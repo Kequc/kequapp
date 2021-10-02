@@ -1,36 +1,32 @@
 import { IncomingMessage } from 'http';
-import parseBody from './parse-body';
+import { parseBody, parseMultipart } from './parse-body';
 import streamReader from './stream-reader';
 
 import { Config } from '../../types/main';
-import { JsonData, RawBodyPart } from '../../types/body-parser';
-
-type Options = {
-    multipart?: boolean;
-    parse?: boolean;
-};
+import { BodyOptions, BodyPart } from '../../types/body-parser';
 
 const DEFAULT_OPTIONS = {
-    multipart: false,
+    full: false,
     parse: true
 };
 
 function buildGetBody (req: IncomingMessage, config: Config) {
-    let body: RawBodyPart;
+    let body: BodyPart;
 
-    return async function getBody (options: Options = {}): Promise<JsonData> {
+    return async function getBody (options?: BodyOptions): Promise<any> {
         if (body === undefined) {
-            body = await streamReader(req, config.maxPayloadSize);
+            const raw = await streamReader(req, config.maxPayloadSize);
+            body = parseMultipart(raw);
         }
 
         const _options = Object.assign({}, DEFAULT_OPTIONS, options);
 
         if (_options.parse) {
-            const parsed = parseBody(body);
-            return _options.multipart ? parsed : parsed.data[0];
+            const result = parseBody(body);
+            return _options.full ? result : result.data[0];
         }
 
-        return _options.multipart ? body : body.data[0];
+        return _options.full ? body : body.data[0];
     }
 }
 
