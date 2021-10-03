@@ -1,11 +1,20 @@
-import errors from "../util/errors";
+import errors from '../util/errors';
+import { headerAttributes } from '../util/sanitize';
 
-import { RawBodyPart } from "../../types/body-parser";
+import { RawBodyPart } from '../../types/body-parser';
 
 function multipart (buffer: Buffer, contentType?: string) {
-    const boundary = getParts(contentType).boundary;
+    if (!contentType?.startsWith('multipart/')) {
+        throw errors.UnprocessableEntity('Unable to process request', {
+            contentType
+        });
+    }
+
+    const boundary = headerAttributes(contentType).boundary;
     if (!boundary) {
-        throw errors.UnprocessableEntity('Multipart request requires boundary', { contentType });
+        throw errors.UnprocessableEntity('Multipart request requires boundary attribute', {
+            contentType
+        });
     }
 
     const parts: RawBodyPart[] = [];
@@ -16,7 +25,7 @@ function multipart (buffer: Buffer, contentType?: string) {
         const headers = readHeaders(buffer, currentIndex);
         currentIndex = headers.endIndex;
 
-        if (!headers.found) {
+        if (Object.entries(headers.found).length < 1) {
             break;
         }
 
@@ -24,8 +33,8 @@ function multipart (buffer: Buffer, contentType?: string) {
         currentIndex = body.endIndex;
 
         parts.push({
-            filename: parseFilename(headers.contentDisposition),
-            contentType: parseContentType(headers.contentType),
+            contentType: headers.found['content-type'],
+            contentDisposition: headers.found['content-disposition'],
             data: Buffer.from(body.data)
         });
     }
@@ -35,21 +44,9 @@ function multipart (buffer: Buffer, contentType?: string) {
 
 export default multipart;
 
-function getParts (contentType = '') {
-    const parts = contentType.split(';').slice(1);
-    const result: { [key: string]: string } = {};
-    for (const part of parts) {
-        const [key, ...values] = part.split('=');
-        result[key.toLowerCase().trim()] = values.join('=').trim();
-    }
-    return result;
-}
-
 function readHeaders (buffer: Buffer, startIndex: number) {
+    const found: { [key: string]: string } = {};
     let line = '';
-    let contentDisposition = '';
-    let contentType = '';
-    let found = false;
     let index = startIndex;
 
     for (; index < buffer.length; index++) {
@@ -60,33 +57,23 @@ function readHeaders (buffer: Buffer, startIndex: number) {
         }
 
         if (newLineDetected) {
-            const key = line.split(':')[0].trim().toLowerCase()
+            const parts = line.split(':');
+            const key = parts[0].trim().toLowerCase();
+            const value = parts[1]?.trim() || undefined;
 
             if (key === '') {
                 break;
             }
 
-            found = true;
-            switch (key) {
-            case 'content-disposition':
-                contentDisposition = line;
-                break;
-            case 'content-type':
-                contentType = line;
-                break;
-            default:
-                break;
-            }
+            if (value) found[key] = value
             line = '';
         }
     }
 
     return {
-        contentDisposition,
-        contentType,
-        endIndex: index + 1,
-        found
-    }
+        found,
+        endIndex: index + 1
+    };
 }
 
 function readUntilBoundary (buffer: Buffer, boundary: string, startIndex: number) {
@@ -129,34 +116,4 @@ function getByte (buffer: Buffer, index: number): [number, boolean, boolean] {
     const newLineChar = byte === 0x0a || byte === 0x0d ? true : false;
 
     return [byte, newLineDetected, newLineChar];
-}
-
-function parseFilename (contentDisposition: string): string | undefined {
-    const filenames = contentDisposition
-        .split(';')
-        .map(parseAssignment)
-        .filter(({ filename }) => !!filename);
-
-    return filenames[0]?.filename || undefined;
-}
-
-function parseContentType (contentType: string): string | undefined {
-    return contentType.split(":")[1]?.split(";")[0]?.trim() || undefined;
-}
-
-function parseAssignment (assignment: string) {
-    const result: { [key: string]: string } = {};
-    const parts = assignment.split('='); // format a=b or a="b"
-
-    if (parts.length == 2) {
-        const key = parts[0].trim();
-        const value = parts[1].trim();
-        try {
-            result[key] = JSON.parse(value);
-        } catch (error) {
-            result[key] = value;
-        }
-    }
-
-    return result;
 }

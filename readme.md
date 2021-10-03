@@ -157,6 +157,50 @@ app.route('POST', '/user', async ({ getBody }) => {
 });
 ```
 
+By default `getBody()` will try to parse the request as best it can and provide you a simple result. There are several formatting options for the data retrieved from `getBody()` these are accessed by providing a `RequestFormat` option.
+
+```javascript
+const { BodyFormat } = require('kequserver');
+```
+
+```javascript
+app.route('POST', '/user', async ({ getBody }) => {
+    const [body, files] = await getBody(BodyFormat.MULTIPART);
+    return `User creation ${body.name}!`;
+});
+```
+
+The following `BodyFormat` options are available.
+
+| option             | description                                            |
+| ------------------ | ------------------------------------------------------ |
+| `PARSED` (default) | Body is processed by it's `contentType`.               |
+| `RAW`              | The body is returned as it arrived in a single buffer. |
+| `MULTIPART`        | Parts without filenames are separated and processed into a body, the rest are returned as buffers. |
+| `PARSED_MULTIPART` | Each part is processed by it's `contentType`.          |
+| `RAW_MULTIPART`    | Each part is returned as a separate buffer.            |
+
+Files are returned with their headers unaltered. To easily extract the filename or the field name from the header use the `headerAttributes()` helper method.
+
+```javascript
+const { headerAttributes } = require('kequserver');
+```
+
+```javascript
+app.route('POST', '/gallery/:id', async ({ getBody, params }) => {
+    const [body, files] = await getBody(BodyFormat.MULTIPART);
+
+    for (const file of files) {
+        // part.contentType ~= 'image/png'
+        // part.contentDisposition ~= 'form-data; filename="my-cat.png"'
+        // part.data ~= Buffer<...>
+        const { filename, name } = headerAttributes(part.contentDisposition);
+    }
+
+    return `Images added to ${params.id}!`;
+});
+```
+
 ### Cookies
 
 I recommend use of an external library.

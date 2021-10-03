@@ -1,9 +1,11 @@
 import { IncomingMessage, RequestListener, ServerResponse } from 'http';
-import { BodyOptions } from './body-parser';
+import { BodyFormat } from '../src/body-parser/get-body';
 import { ErrorsHelper } from './errors';
 import { RouteScope } from './route-scope';
 
-export interface IKequserver extends RequestListener, RouteScope {}
+export interface IKequserver extends RequestListener, RouteScope {
+    (req: IncomingMessage, res: ServerResponse, override?: ConfigInput): void;
+}
 
 export type Bundle = {
     req: IncomingMessage;
@@ -12,7 +14,7 @@ export type Bundle = {
     context: BundleContext;
     params: BundleParams;
     query: BundleQuery;
-    getBody: (options?: BodyOptions) => Promise<any>;
+    getBody: (format?: BodyFormat) => Promise<any>;
     logger: Console;
     errors: ErrorsHelper;
 };
@@ -33,14 +35,14 @@ export type ConfigInput = {
     logger?: Console;
     renderers?: ConfigRenderers;
     errorHandler?: ConfigErrorHandler;
-    mayPayloadSize?: number | null;
+    mayPayloadSize?: number;
 };
 
 export type Config = {
     logger: Console;
     renderers: ConfigRenderers;
     errorHandler: ConfigErrorHandler
-    maxPayloadSize: number | null;
+    maxPayloadSize?: number;
 };
 
 export type ConfigErrorHandler = (error: any, bundle: Bundle) => any;

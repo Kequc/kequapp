@@ -3,7 +3,7 @@ import errors from '../util/errors';
 
 import { RawBodyPart } from '../../types/body-parser';
 
-async function streamReader (stream: IncomingMessage | ServerResponse, maxPayloadSize: number| null) {
+async function streamReader (stream: IncomingMessage | ServerResponse, maxPayloadSize?: number) {
     return await new Promise<RawBodyPart>(function (resolve, reject) {
         const chunks: Buffer[] = [];
 
@@ -16,11 +16,9 @@ async function streamReader (stream: IncomingMessage | ServerResponse, maxPayloa
         }
 
         function handleEnd () {
-            const contentType = getContentType(stream);
-            resolve({
-                contentType,
-                data: Buffer.concat(chunks)
-            });
+            const contentType = getContentType(stream).trim();
+            const data = Buffer.concat(chunks);
+            resolve({ contentType, data });
         }
 
         function abortStream (error: Error) {
@@ -31,7 +29,7 @@ async function streamReader (stream: IncomingMessage | ServerResponse, maxPayloa
         }
 
         function verifyPayload () {
-            if (maxPayloadSize !== null) {
+            if (maxPayloadSize) {
                 const payloadSize = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
 
                 if (payloadSize > maxPayloadSize) {
@@ -44,10 +42,11 @@ async function streamReader (stream: IncomingMessage | ServerResponse, maxPayloa
 
 export default streamReader;
 
-function getContentType (stream: IncomingMessage | ServerResponse): string | undefined {
+function getContentType (stream: IncomingMessage | ServerResponse): string {
     if ('getHeader' in stream) {
-        return stream.getHeader('Content-Type') as string || undefined;
+        return stream.getHeader('Content-Type') as string || '';
     } else if ('headers' in stream) {
-        return stream.headers['content-type'] as string || undefined;
+        return stream.headers['content-type'] as string || '';
     }
+    return '';
 }

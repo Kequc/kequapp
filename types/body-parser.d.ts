@@ -4,18 +4,17 @@ export type StaticFilesOptions = {
 };
 
 export type RawBodyPart = {
-    filename?: string;
     contentType?: string;
+    contentDisposition?: string;
     data: Buffer;
 };
 
 export type BodyPart = {
-    filename?: string;
     contentType?: string;
-    data: any[];
+    contentDisposition?: string;
+    data: any;
 };
 
-export type BodyOptions = {
-    full?: boolean;
-    parse?: boolean;
+export type BodyJson = {
+    [key: string]: any;
 };
