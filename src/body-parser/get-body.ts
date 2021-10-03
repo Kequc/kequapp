@@ -2,9 +2,9 @@ import { IncomingMessage } from 'http';
 import multipart from './multipart';
 import parseBody from './parse-body';
 import streamReader from './stream-reader';
+import { headerAttributes } from '../util/sanitize';
 
 import { BodyJson, RawBodyPart } from '../../types/body-parser';
-import { headerAttributes } from '../main';
 
 export enum BodyFormat {
     PARSED,
@@ -40,40 +40,28 @@ function getBody (req: IncomingMessage, maxPayloadSize?: number) {
 export default getBody;
 
 function parseMultipart (parts: RawBodyPart[]): [BodyJson, RawBodyPart[]] {
-    const body: RawBodyPart[] = [];
+    const body: BodyJson = {};
+    const visited: { [key: string]: number } = {};
     const files: RawBodyPart[] = [];
 
     for (const part of parts) {
         const attributes = headerAttributes(part.contentDisposition);
 
         if (attributes.filename === undefined) {
-            body.push(part);
+            const key = attributes.name || 'undefined';
+            visited[key] = visited[key] || 0;
+            visited[key]++;
+            if (visited[key] === 2) body[key] = [body[key]];
+    
+            if (visited[key] > 1) {
+                body[key].push(parseBody(part).data);
+            } else {
+                body[key] = parseBody(part).data;
+            }
         } else {
             files.push(part);
         }
     }
 
-    return [multipartBody(body), files];
-}
-
-function multipartBody (parts: RawBodyPart[]): BodyJson {
-    const result: BodyJson = {};
-    const visited: { [key: string]: number } = {};
-
-    for (const part of parts) {
-        const attributes = headerAttributes(part.contentDisposition);
-
-        const key = attributes.name || 'undefined';
-        visited[key] = visited[key] || 0;
-        visited[key]++;
-        if (visited[key] === 2) result[key] = [result[key]];
-
-        if (visited[key] > 1) {
-            result[key].push(parseBody(part).data);
-        } else {
-            result[key] = parseBody(part).data;
-        }
-    }
-
-    return result;
+    return [body, files];
 }
