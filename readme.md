@@ -157,7 +157,7 @@ app.route('POST', '/user', async ({ getBody }) => {
 });
 ```
 
-By default `getBody()` will try to parse the request as best it can and provide you a simple result. There are several formatting options for the data retrieved from `getBody()` these are accessed by providing a `RequestFormat` option.
+By default `getBody()` will try to parse the request as best it can and provide you a simple result. There are several formatting options for the data retrieved from `getBody()` these are accessed by providing a `BodyFormat` option.
 
 ```javascript
 const { BodyFormat } = require('kequserver');
