@@ -2,8 +2,10 @@ const assert = require('assert');
 const inject = require('../../src/inject.js'); // 'kequserver/inject'
 const app = require('./app.js');
 
+const logger = util.log();
+
 it('can access the root', async function () {
-    const { getBody, res } = inject(app, util.log(), {
+    const { getBody, res } = inject(app, { logger }, {
         url: '/'
     });
 
@@ -15,7 +17,7 @@ it('can access the root', async function () {
 });
 
 it('can open an image', async function () {
-    const { getBody, res } = inject(app, util.log(), {
+    const { getBody, res } = inject(app, { logger }, {
         url: '/assets/cat.gif'
     });
 
@@ -27,7 +29,7 @@ it('can open an image', async function () {
 });
 
 it('returns only head when requested', async function () {
-    const { getBody, res } = inject(app, util.log(), {
+    const { getBody, res } = inject(app, { logger }, {
         method: 'HEAD',
         url: '/assets/cat.gif'
     });
@@ -40,7 +42,7 @@ it('returns only head when requested', async function () {
 });
 
 it('can open a css file', async function () {
-    const { getBody, res } = inject(app, util.log(), {
+    const { getBody, res } = inject(app, { logger }, {
         url: '/assets/css/test.css'
     });
 
@@ -53,7 +55,7 @@ it('can open a css file', async function () {
 });
 
 it('throws an error when trying to access root directory', async function () {
-    const { getBody, res } = inject(app, util.log(), {
+    const { getBody, res } = inject(app, { logger }, {
         url: '/assets'
     });
 
@@ -65,7 +67,7 @@ it('throws an error when trying to access root directory', async function () {
 });
 
 it('throws an error when trying to access nested directory', async function () {
-    const { getBody, res } = inject(app, util.log(), {
+    const { getBody, res } = inject(app, { logger }, {
         url: '/assets/css'
     });
 
@@ -77,7 +79,7 @@ it('throws an error when trying to access nested directory', async function () {
 });
 
 it('throws an error when trying to access missing file', async function () {
-    const { getBody, res } = inject(app, util.log(), {
+    const { getBody, res } = inject(app, { logger }, {
         url: '/assets/does-not-exist.exe'
     });
 
@@ -89,7 +91,7 @@ it('throws an error when trying to access missing file', async function () {
 });
 
 it('throws an error when trying to access excluded file', async function () {
-    const { getBody, res } = inject(app, util.log(), {
+    const { getBody, res } = inject(app, { logger }, {
         url: '/assets/private.txt'
     });
 

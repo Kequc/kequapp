@@ -283,7 +283,7 @@ app.route('/db.json', async function ({ req, res }) {
 
 ### Unit Tests
 
-It is possible to test your application without spinning up a server using the `inject()` tool. The first parameter is your app, followed by a logger for your app separate from the one used in development. The options you provide are largely used to populate the request. Returned `req` and `res` objects are from the npm `mock-req` and `mock-res` modules respectively.
+It is possible to test your application without spinning up a server using the `inject()` tool. The first parameter is your app, then a config override for your app, followed by options largely used to populate the request. Returned `req` and `res` objects are from the npm `mock-req` and `mock-res` modules respectively.
 
 It also returns `getBody()` which is a utility you may use to wait for your application to respond. Alternatively you can inspect what your application is doing making use of the `req`, and `res` objects in realtime.
 
@@ -293,7 +293,7 @@ const inject = require('kequserver/inject');
 
 ```javascript
 it('returns the expected result', async function () {
-    const { getBody, res } = inject(app, logger, {
+    const { getBody, res } = inject(app, { logger }, {
         url: '/user/21'
     });
 
@@ -304,7 +304,7 @@ it('returns the expected result', async function () {
 });
 
 it('reads the authorization header', async function () {
-    const { getBody, res } = inject(app, logger, {
+    const { getBody, res } = inject(app, { logger }, {
         url: '/admin/dashboard',
         headers: {
             Authorization: 'mike'
@@ -324,7 +324,7 @@ The following two examples are the same.
 
 ```javascript
 it('reads the body of a request', async function () {
-    const { getBody, res } = inject(app, logger, {
+    const { getBody, res } = inject(app, { logger }, {
         method: 'POST',
         url: '/user',
         headers: {
@@ -339,7 +339,7 @@ it('reads the body of a request', async function () {
 });
 
 it('reads the body of a request', async function () {
-    const { getBody, req, res } = inject(app, logger, {
+    const { getBody, req, res } = inject(app, { logger }, {
         method: 'POST',
         url: '/user',
         headers: {

@@ -2,8 +2,10 @@ const assert = require('assert');
 const inject = require('../../src/inject.js'); // 'kequserver/inject'
 const app = require('./app.js');
 
+const logger = util.log();
+
 it('reads parameters from the url', async function () {
-    const { getBody, res } = inject(app, util.log(), {
+    const { getBody, res } = inject(app, { logger }, {
         url: '/user/21'
     });
 
@@ -14,7 +16,7 @@ it('reads parameters from the url', async function () {
 });
 
 it('reads query parameters', async function () {
-    const { getBody, res } = inject(app, util.log(), {
+    const { getBody, res } = inject(app, { logger }, {
         url: '/user?name=tony&age=21'
     });
 
@@ -25,7 +27,7 @@ it('reads query parameters', async function () {
 });
 
 it('reads the authorization header', async function () {
-    const { getBody, res } = inject(app, util.log(), {
+    const { getBody, res } = inject(app, { logger }, {
         url: '/admin/dashboard',
         headers: {
             Authorization: 'mike'
@@ -39,7 +41,7 @@ it('reads the authorization header', async function () {
 });
 
 it('returns an error if auth is invalid', async function () {
-    const { getBody, res } = inject(app, util.log(), {
+    const { getBody, res } = inject(app, { logger }, {
         url: '/admin/dashboard',
         headers: {
             Authorization: 'lisa'
@@ -54,7 +56,7 @@ it('returns an error if auth is invalid', async function () {
 });
 
 it('reads the body of a request', async function () {
-    const { getBody, req, res } = inject(app, util.log(), {
+    const { getBody, req, res } = inject(app, { logger }, {
         method: 'POST',
         url: '/user',
         headers: {
@@ -72,7 +74,7 @@ it('reads the body of a request', async function () {
 });
 
 it('throws an error when trying to access missing route', async function () {
-    const { getBody, res } = inject(app, util.log(), {
+    const { getBody, res } = inject(app, { logger }, {
         url: '/users/how-are-ya'
     });
 
