@@ -8,60 +8,68 @@ import { BodyJson, BodyPart } from '../../types/body-parser';
 import { IGetBody } from '../../types/main';
 
 export enum BodyFormat {
-    PARSED,
-    MULTIPART,
+    DEFAULT,
     RAW,
-    RAW_MULTIPART,
-    PARSED_MULTIPART
+    MULTIPART,
+    RAW_MULTIPART
 }
 
 function getBody (req: IncomingMessage, maxPayloadSize?: number): IGetBody {
-    let body: BodyPart;
+    let _body: BodyPart;
 
     return async function (format) {
-        if (body === undefined) {
-            body = await streamReader(req, maxPayloadSize);
+        if (_body === undefined) {
+            _body = await streamReader(req, maxPayloadSize);
         }
 
+        const isMultipart = _body.headers['content-type']?.startsWith('multipart/') || false;
+
         switch (format) {
-        case BodyFormat.MULTIPART:
-            return reduceMultipart(multipart(body.data, body.headers['content-type']));
         case BodyFormat.RAW:
-            return { ...body };
+            return { ..._body };
+        case BodyFormat.MULTIPART:
+            if (isMultipart) {
+                return parseMultipart(_body);
+            } else {
+                return [parseBody(_body).data, []];
+            }
         case BodyFormat.RAW_MULTIPART:
-            return {
-                ...body,
-                data: multipart(body.data, body.headers['content-type'])
-            };
-        case BodyFormat.PARSED_MULTIPART:
-            return {
-                ...body,
-                data: multipart(body.data, body.headers['content-type']).map(parseBody)
-            };
+            if (isMultipart) {
+                return multipart(_body.data, _body.headers['content-type']);
+            } else {
+                return [{ ..._body }];
+            }
         default:
-            return parseBody(body).data;
+            if (isMultipart) {
+                return parseMultipart(_body)[0];
+            } else {
+                return parseBody(_body).data;
+            }
         }
     }
 }
 
 export default getBody;
 
-function reduceMultipart (parts: BodyPart[]): [BodyJson, BodyPart[]] {
+function parseMultipart (_body: BodyPart): [BodyJson, BodyPart[]] {
+    const parts = multipart(_body.data, _body.headers['content-type']);
     const body: BodyJson = {};
-    const visited: { [key: string]: number } = {};
     const files: BodyPart[] = [];
+    const visited: { [key: string]: number } = {};
 
     for (const part of parts) {
         if (part.filename === undefined) {
             const key = part.name || 'undefined';
+            const value = parseBody(part).data;
+
             visited[key] = visited[key] || 0;
             visited[key]++;
             if (visited[key] === 2) body[key] = [body[key]];
     
             if (visited[key] > 1) {
-                body[key].push(parseBody(part).data);
+                body[key].push(value);
             } else {
-                body[key] = parseBody(part).data;
+                body[key] = value;
             }
         } else {
             files.push(part);

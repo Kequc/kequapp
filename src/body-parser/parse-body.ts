@@ -23,11 +23,13 @@ export default parseBody;
 
 function getData (body: BodyPart): any {
     const contentType = body.headers['content-type'] || 'text/plain';
+
     for (const key of Object.keys(PARSERS)) {
         if (contentType.startsWith(key)) {
             return PARSERS[key](body.data, contentType);
         }
     }
+
     return body.data;
 }
 

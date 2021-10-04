@@ -183,13 +183,12 @@ app.route('POST', '/user', async ({ getBody }) => {
 
 The following `BodyFormat` options are available.
 
-| option             | description                                            |
-| ------------------ | ------------------------------------------------------ |
-| `PARSED` (default) | Body is processed by it's `contentType`.               |
-| `RAW`              | The body is returned as it arrived in a single buffer. |
-| `MULTIPART`        | Parts without filenames are separated and processed into a body, the rest are returned as buffers. |
-| `PARSED_MULTIPART` | Each part is processed by it's `contentType`.          |
-| `RAW_MULTIPART`    | Each part is returned as a separate buffer.            |
+| option          | description                                            |
+| --------------- | ------------------------------------------------------ |
+| `DEFAULT`       | Body is processed by it's `contentType`.               |
+| `RAW`           | The body is returned as it arrived in a single buffer. |
+| `MULTIPART`     | Parts without filenames are separated and processed into a body, the rest are returned as buffers. |
+| `RAW_MULTIPART` | Each part is returned as a separate buffer.            |
 
 ### Cookies
 
