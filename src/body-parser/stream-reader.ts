@@ -16,9 +16,10 @@ async function streamReader (stream: IncomingMessage | ServerResponse, maxPayloa
         }
 
         function handleEnd () {
-            const contentType = getContentType(stream).trim();
+            const contentType = getHeader(stream, 'Content-Type').trim();
+            const contentDisposition = getHeader(stream, 'Content-Disposition').trim();
             const data = Buffer.concat(chunks);
-            resolve({ contentType, data });
+            resolve({ contentType, contentDisposition, data });
         }
 
         function abortStream (error: Error) {
@@ -42,11 +43,11 @@ async function streamReader (stream: IncomingMessage | ServerResponse, maxPayloa
 
 export default streamReader;
 
-function getContentType (stream: IncomingMessage | ServerResponse): string {
+function getHeader (stream: IncomingMessage | ServerResponse, name: string): string {
     if ('getHeader' in stream) {
-        return stream.getHeader('Content-Type') as string || '';
+        return stream.getHeader(name) as string || '';
     } else if ('headers' in stream) {
-        return stream.headers['content-type'] as string || '';
+        return stream.headers[name.toLowerCase()] as string || '';
     }
     return '';
 }

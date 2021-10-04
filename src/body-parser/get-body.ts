@@ -25,13 +25,19 @@ function getBody (req: IncomingMessage, maxPayloadSize?: number): IGetBody {
 
         switch (format) {
         case BodyFormat.MULTIPART:
-            return parseMultipart(multipart(_body.data, _body.contentType));
+            return reduceMultipart(multipart(_body.data, _body.contentType));
         case BodyFormat.RAW:
-            return _body;
+            return { ..._body };
         case BodyFormat.RAW_MULTIPART:
-            return multipart(_body.data, _body.contentType);
+            return {
+                ..._body,
+                parts: multipart(_body.data, _body.contentType)
+            };
         case BodyFormat.PARSED_MULTIPART:
-            return multipart(_body.data, _body.contentType).map(parseBody);
+            return {
+                ..._body,
+                parts: multipart(_body.data, _body.contentType).map(parseBody)
+            };
         default:
             return parseBody(_body).data;
         }
@@ -40,7 +46,7 @@ function getBody (req: IncomingMessage, maxPayloadSize?: number): IGetBody {
 
 export default getBody;
 
-function parseMultipart (parts: RawBodyPart[]): [BodyJson, RawBodyPart[]] {
+function reduceMultipart (parts: RawBodyPart[]): [BodyJson, RawBodyPart[]] {
     const body: BodyJson = {};
     const visited: { [key: string]: number } = {};
     const files: RawBodyPart[] = [];
