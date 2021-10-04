@@ -7,6 +7,10 @@ export interface IKequserver extends RequestListener, RouteScope {
     (req: IncomingMessage, res: ServerResponse, override?: ConfigInput): void;
 }
 
+export interface IGetBody {
+    (format?: BodyFormat): Promise<any>;
+}
+
 export type Bundle = {
     req: IncomingMessage;
     res: ServerResponse;
@@ -14,7 +18,7 @@ export type Bundle = {
     context: BundleContext;
     params: BundleParams;
     query: BundleQuery;
-    getBody: (format?: BodyFormat) => Promise<any>;
+    getBody: IGetBody;
     logger: Logger;
     errors: ErrorsHelper;
 };

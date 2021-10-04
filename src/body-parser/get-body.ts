@@ -5,6 +5,7 @@ import streamReader from './stream-reader';
 import { headerAttributes } from '../util/sanitize';
 
 import { BodyJson, RawBodyPart } from '../../types/body-parser';
+import { IGetBody } from '../../types/main';
 
 export enum BodyFormat {
     PARSED,
@@ -14,10 +15,10 @@ export enum BodyFormat {
     PARSED_MULTIPART
 }
 
-function getBody (req: IncomingMessage, maxPayloadSize?: number) {
+function getBody (req: IncomingMessage, maxPayloadSize?: number): IGetBody {
     let _body: RawBodyPart;
 
-    return async function (format?: BodyFormat): Promise<any> {
+    return async function (format) {
         if (_body === undefined) {
             _body = await streamReader(req, maxPayloadSize);
         }
