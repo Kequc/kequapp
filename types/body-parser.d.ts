@@ -3,15 +3,10 @@ export type StaticFilesOptions = {
     exclude?: string[];
 };
 
-export type RawBodyPart = {
-    contentType?: string;
-    contentDisposition?: string;
-    data: Buffer;
-};
-
 export type BodyPart = {
-    contentType?: string;
-    contentDisposition?: string;
+    headers: { [key: string]: string };
+    name?: string;
+    filename?: string;
     data: any;
 };
 

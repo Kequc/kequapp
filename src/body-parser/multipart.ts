@@ -1,7 +1,7 @@
 import errors from '../util/errors';
 import { headerAttributes } from '../util/sanitize';
 
-import { RawBodyPart } from '../../types/body-parser';
+import { BodyPart } from '../../types/body-parser';
 
 function multipart (buffer: Buffer, contentType?: string) {
     if (!contentType?.startsWith('multipart/')) {
@@ -17,7 +17,7 @@ function multipart (buffer: Buffer, contentType?: string) {
         });
     }
 
-    const parts: RawBodyPart[] = [];
+    const parts: BodyPart[] = [];
     const start = readUntilBoundary(buffer, boundary, 0);
     let currentIndex = start.endIndex;
 
@@ -29,12 +29,14 @@ function multipart (buffer: Buffer, contentType?: string) {
             break;
         }
 
+        const attributes = headerAttributes(headers.found['content-disposition']);
         const body = readUntilBoundary(buffer, boundary, currentIndex);
         currentIndex = body.endIndex;
 
         parts.push({
-            contentType: headers.found['content-type'],
-            contentDisposition: headers.found['content-disposition'],
+            headers: headers.found,
+            name: attributes.name,
+            filename: attributes.filename,
             data: Buffer.from(body.data)
         });
     }

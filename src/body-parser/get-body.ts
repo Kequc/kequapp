@@ -4,7 +4,7 @@ import parseBody from './parse-body';
 import streamReader from './stream-reader';
 import { headerAttributes } from '../util/sanitize';
 
-import { BodyJson, RawBodyPart } from '../../types/body-parser';
+import { BodyJson, BodyPart } from '../../types/body-parser';
 import { IGetBody } from '../../types/main';
 
 export enum BodyFormat {
@@ -16,7 +16,7 @@ export enum BodyFormat {
 }
 
 function getBody (req: IncomingMessage, maxPayloadSize?: number): IGetBody {
-    let _body: RawBodyPart;
+    let _body: BodyPart;
 
     return async function (format) {
         if (_body === undefined) {
@@ -25,18 +25,18 @@ function getBody (req: IncomingMessage, maxPayloadSize?: number): IGetBody {
 
         switch (format) {
         case BodyFormat.MULTIPART:
-            return reduceMultipart(multipart(_body.data, _body.contentType));
+            return reduceMultipart(multipart(_body.data, _body.headers.contentType));
         case BodyFormat.RAW:
             return { ..._body };
         case BodyFormat.RAW_MULTIPART:
             return {
                 ..._body,
-                parts: multipart(_body.data, _body.contentType)
+                parts: multipart(_body.data, _body.headers.contentType)
             };
         case BodyFormat.PARSED_MULTIPART:
             return {
                 ..._body,
-                parts: multipart(_body.data, _body.contentType).map(parseBody)
+                parts: multipart(_body.data, _body.headers.contentType).map(parseBody)
             };
         default:
             return parseBody(_body).data;
@@ -46,16 +46,14 @@ function getBody (req: IncomingMessage, maxPayloadSize?: number): IGetBody {
 
 export default getBody;
 
-function reduceMultipart (parts: RawBodyPart[]): [BodyJson, RawBodyPart[]] {
+function reduceMultipart (parts: BodyPart[]): [BodyJson, BodyPart[]] {
     const body: BodyJson = {};
     const visited: { [key: string]: number } = {};
-    const files: RawBodyPart[] = [];
+    const files: BodyPart[] = [];
 
     for (const part of parts) {
-        const attributes = headerAttributes(part.contentDisposition);
-
-        if (attributes.filename === undefined) {
-            const key = attributes.name || 'undefined';
+        if (part.filename === undefined) {
+            const key = part.name || 'undefined';
             visited[key] = visited[key] || 0;
             visited[key]++;
             if (visited[key] === 2) body[key] = [body[key]];

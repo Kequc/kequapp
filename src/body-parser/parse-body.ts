@@ -2,7 +2,7 @@ import errors from '../util/errors';
 import { sanitizeContentType } from '../util/sanitize';
 import multipart from './multipart';
 
-import { BodyPart, RawBodyPart } from '../../types/body-parser';
+import { BodyPart } from '../../types/body-parser';
 
 const PARSERS = {
     'text/': parseText,
@@ -11,12 +11,12 @@ const PARSERS = {
     'multipart/': multipart
 };
 
-function parseBody (body: RawBodyPart): BodyPart {
+function parseBody (body: BodyPart): BodyPart {
     try {
         return { ...body, data: getData(body) };
     } catch (error) {
         throw errors.UnprocessableEntity('Unable to process request', {
-            contentType: body.contentType,
+            contentType: body.headers['content-type'],
             error
         });
     }
@@ -24,8 +24,8 @@ function parseBody (body: RawBodyPart): BodyPart {
 
 export default parseBody;
 
-function getData (body: RawBodyPart): any {
-    const contentType = body.contentType || 'text/plain';
+function getData (body: BodyPart): any {
+    const contentType = body.headers['content-type'] || 'text/plain';
     for (const key of Object.keys(PARSERS)) {
         if (contentType.startsWith(key)) {
             return PARSERS[key](body.data, contentType);

@@ -1,10 +1,10 @@
 import { IncomingMessage, ServerResponse } from 'http';
 import errors from '../util/errors';
 
-import { RawBodyPart } from '../../types/body-parser';
+import { BodyPart } from '../../types/body-parser';
 
 async function streamReader (stream: IncomingMessage | ServerResponse, maxPayloadSize?: number) {
-    return await new Promise<RawBodyPart>(function (resolve, reject) {
+    return await new Promise<BodyPart>(function (resolve, reject) {
         const chunks: Buffer[] = [];
 
         stream.on('data', handleData);
@@ -16,10 +16,13 @@ async function streamReader (stream: IncomingMessage | ServerResponse, maxPayloa
         }
 
         function handleEnd () {
-            const contentType = getHeader(stream, 'Content-Type').trim();
-            const contentDisposition = getHeader(stream, 'Content-Disposition').trim();
-            const data = Buffer.concat(chunks);
-            resolve({ contentType, contentDisposition, data });
+            resolve({
+                headers: {
+                    'content-type': getHeader(stream, 'Content-Type'),
+                    'content-disposition': getHeader(stream, 'Content-Disposition'),
+                },
+                data: Buffer.concat(chunks)
+            });
         }
 
         function abortStream (error: Error) {
@@ -45,9 +48,9 @@ export default streamReader;
 
 function getHeader (stream: IncomingMessage | ServerResponse, name: string): string {
     if ('getHeader' in stream) {
-        return stream.getHeader(name) as string || '';
+        return String(stream.getHeader(name) || '').trim();
     } else if ('headers' in stream) {
-        return stream.headers[name.toLowerCase()] as string || '';
+        return String(stream.headers[name.toLowerCase()] || '').trim();
     }
     return '';
 }
