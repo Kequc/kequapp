@@ -13,8 +13,7 @@ const PARSERS = {
 
 function parseBody (body: RawBodyPart): BodyPart {
     try {
-        const data = getData(body);
-        return Object.assign({}, body, { data });
+        return { ...body, data: getData(body) };
     } catch (error) {
         throw errors.UnprocessableEntity('Unable to process request', {
             contentType: body.contentType,
@@ -29,7 +28,7 @@ function getData (body: RawBodyPart): any {
     const contentType = body.contentType || 'text/plain';
     for (const key of Object.keys(PARSERS)) {
         if (contentType.startsWith(key)) {
-            return PARSERS[key](body.data);
+            return PARSERS[key](body.data, contentType);
         }
     }
     return body.data;
