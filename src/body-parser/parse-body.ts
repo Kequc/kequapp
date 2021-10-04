@@ -1,14 +1,11 @@
 import errors from '../util/errors';
-import { sanitizeContentType } from '../util/sanitize';
-import multipart from './multipart';
 
 import { BodyPart } from '../../types/body-parser';
 
 const PARSERS = {
     'text/': parseText,
     'application/x-www-form-urlencoded': parseUrlEncoded,
-    'application/json': parseJson,
-    'multipart/': multipart
+    'application/json': parseJson
 };
 
 function parseBody (body: BodyPart): BodyPart {

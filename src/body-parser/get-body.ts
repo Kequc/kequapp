@@ -16,30 +16,30 @@ export enum BodyFormat {
 }
 
 function getBody (req: IncomingMessage, maxPayloadSize?: number): IGetBody {
-    let _body: BodyPart;
+    let body: BodyPart;
 
     return async function (format) {
-        if (_body === undefined) {
-            _body = await streamReader(req, maxPayloadSize);
+        if (body === undefined) {
+            body = await streamReader(req, maxPayloadSize);
         }
 
         switch (format) {
         case BodyFormat.MULTIPART:
-            return reduceMultipart(multipart(_body.data, _body.headers.contentType));
+            return reduceMultipart(multipart(body.data, body.headers['content-type']));
         case BodyFormat.RAW:
-            return { ..._body };
+            return { ...body };
         case BodyFormat.RAW_MULTIPART:
             return {
-                ..._body,
-                parts: multipart(_body.data, _body.headers.contentType)
+                ...body,
+                data: multipart(body.data, body.headers['content-type'])
             };
         case BodyFormat.PARSED_MULTIPART:
             return {
-                ..._body,
-                parts: multipart(_body.data, _body.headers.contentType).map(parseBody)
+                ...body,
+                data: multipart(body.data, body.headers['content-type']).map(parseBody)
             };
         default:
-            return parseBody(_body).data;
+            return parseBody(body).data;
         }
     }
 }
