@@ -1,4 +1,6 @@
-export function validateCreateAppConfig (config) {
+import { ConfigInput } from '../../types/main';
+
+export function validateCreateAppConfig (config: ConfigInput) {
     if (typeof config !== 'object' || config === null) {
         throw new Error('Config must be an object');
     }

@@ -35,7 +35,7 @@ export type ConfigInput = {
     logger?: Console;
     renderers?: ConfigRenderers;
     errorHandler?: ConfigErrorHandler;
-    mayPayloadSize?: number;
+    maxPayloadSize?: number;
 };
 
 export type Config = {
