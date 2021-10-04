@@ -15,7 +15,7 @@ export type Bundle = {
     params: BundleParams;
     query: BundleQuery;
     getBody: (format?: BodyFormat) => Promise<any>;
-    logger: Console;
+    logger: Logger;
     errors: ErrorsHelper;
 };
 
@@ -32,17 +32,25 @@ export type BundleQuery = {
 };
 
 export type ConfigInput = {
-    logger?: Console;
+    logger?: Logger;
     renderers?: ConfigRenderers;
     errorHandler?: ConfigErrorHandler;
     maxPayloadSize?: number;
 };
 
 export type Config = {
-    logger: Console;
+    logger: Logger;
     renderers: ConfigRenderers;
     errorHandler: ConfigErrorHandler
     maxPayloadSize?: number;
+};
+
+export type Logger = {
+    log: (...params: any) => any;
+    error: (...params: any) => any;
+    warn: (...params: any) => any;
+    debug: (...params: any) => any;
+    info: (...params: any) => any;
 };
 
 export type ConfigErrorHandler = (error: any, bundle: Bundle) => any;
