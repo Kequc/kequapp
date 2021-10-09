@@ -1,6 +1,6 @@
-const assert = require('assert');
-const inject = require('../../src/inject.js'); // 'kequserver/inject'
-const app = require('./app.js');
+import assert from 'assert';
+import inject from '../../src/inject'; // 'kequserver/inject'
+import app from './app';
 
 const logger = util.log();
 
@@ -96,6 +96,7 @@ it('throws an error when trying to access excluded file', async function () {
     });
 
     const body = await getBody();
+    console.log(body);
 
     assert.strictEqual(res.getHeader('Content-Type'), 'application/json; charset=utf-8');
     assert.strictEqual(res.statusCode, 404);

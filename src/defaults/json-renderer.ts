@@ -3,7 +3,8 @@ import { Bundle } from '../../types/main';
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
-function jsonRenderer (payload: any, { req, res, errors }: Bundle) {
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+function jsonRenderer (payload: any, { req, res, errors }: Bundle): void {
     const json = generateJson(payload, errors);
 
     res.setHeader('Content-Length', json.length);

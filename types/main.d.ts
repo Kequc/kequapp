@@ -63,4 +63,4 @@ export type ConfigRenderers = {
     [key: string]: Renderer;
 };
 
-export type Renderer = (payload: any, bundle: Bundle) => void;
+export type Renderer = (payload: any, bundle: Bundle) => Promise<void> | void;

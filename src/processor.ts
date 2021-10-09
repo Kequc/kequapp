@@ -5,7 +5,7 @@ import render from './render';
 import { Route } from '../types/route-scope';
 import { Bundle, Config, BundleParams } from '../types/main';
 
-async function processor (routes: Route[], config: Config, bundle: Bundle) {
+async function processor (routes: Route[], config: Config, bundle: Bundle): Promise<void> {
     const { errorHandler } = config;
     const { req, res, url, logger } = bundle;
     const pathname = sanitizePathname(url.pathname);

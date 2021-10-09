@@ -1,6 +1,6 @@
-const assert = require('assert');
-const inject = require('../../src/inject.js'); // 'kequserver/inject'
-const app = require('./app.js');
+import assert from 'assert';
+import inject from '../../src/inject'; // 'kequserver/inject'
+import app from './app';
 
 const logger = util.log();
 

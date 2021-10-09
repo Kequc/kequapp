@@ -10,7 +10,7 @@ const DEFAULT_RENDERERS = {
     'text/html': textRenderer
 };
 
-async function render (config: Config, payload: any, bundle: Bundle) {
+async function render (config: Config, payload: unknown, bundle: Bundle): Promise<void> {
     if (!bundle.res.writableEnded) {
         const renderer = findRenderer(config.renderers, bundle);
         await renderer(payload, bundle);

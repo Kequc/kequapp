@@ -1,3 +1,4 @@
+import { BodyJson } from '../../types/body-parser';
 import { ServerError } from '../../types/errors';
 import { Bundle } from '../../types/main';
 
@@ -12,7 +13,7 @@ type ErrorResult = {
     }
 };
 
-function errorHandler (error: ServerError, { res }: Bundle) {
+function errorHandler (error: ServerError, { res }: Bundle): BodyJson {
     const statusCode = error.statusCode || 500;
 
     res.statusCode = statusCode;

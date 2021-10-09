@@ -22,7 +22,7 @@ const MIME_TYPES = {
     '.wasm': 'application/wasm'
 };
 
-async function sendFile (method: string | undefined, res: ServerResponse, asset: string) {
+async function sendFile (method: string | undefined, res: ServerResponse, asset: string): Promise<void> {
     const location: string = path.join(process.cwd(), asset);
     const ext: string = path.extname(asset).toLowerCase();
     let contentLength = 0;

@@ -12,7 +12,7 @@ const DEFAULT_OPTIONS: {
     exclude: []
 };
 
-function staticFiles (options: StaticFilesOptions = {}) {
+function staticFiles (options: StaticFilesOptions = {}): (bundle: Bundle) => Promise<void> {
     const config = setupConfig(options);
 
     return async function ({ req, res, params, errors }: Bundle) {
@@ -29,14 +29,14 @@ function staticFiles (options: StaticFilesOptions = {}) {
 
 export default staticFiles;
 
-function isExcluded (values, asset) {
+function isExcluded (values: string[], asset: string) {
     for (const value of values) {
         if (asset.startsWith(value)) return true;
     }
     return false;
 }
 
-function setupConfig (options) {
+function setupConfig (options: StaticFilesOptions) {
     const config = Object.assign({}, DEFAULT_OPTIONS);
 
     if (options.dir) {

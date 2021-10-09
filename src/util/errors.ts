@@ -24,6 +24,7 @@ for (const statusCode of statusCodes) {
 
 export default errors as ErrorsHelper;
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 function _buildError (parent: Function, statusCode: number, message?: string, ...info: any[]) {
     const error = new Error(message || STATUS_CODES[statusCode]) as ServerError;
     error.statusCode = statusCode;

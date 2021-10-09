@@ -2,7 +2,7 @@ import errors from './errors';
 
 import { Route } from '../../types/route-scope';
 
-function findRoute (routes: Route[], method: string | undefined, pathname: string) {
+function findRoute (routes: Route[], method: string | undefined, pathname: string): Route {
     // exactly the route
     let result: Route | undefined = routes.find(routeMatch(method || 'GET', pathname));
 

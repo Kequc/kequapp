@@ -3,7 +3,7 @@ import { headerAttributes } from '../util/sanitize';
 
 import { BodyPart } from '../../types/body-parser';
 
-function multipart (buffer: Buffer, contentType?: string) {
+function multipart (buffer: Buffer, contentType?: string): BodyPart[] {
     if (!contentType?.startsWith('multipart/')) {
         throw errors.UnprocessableEntity('Unable to process request', {
             contentType
@@ -67,7 +67,7 @@ function readHeaders (buffer: Buffer, startIndex: number) {
                 break;
             }
 
-            if (value) found[key] = value
+            if (value) found[key] = value;
             line = '';
         }
     }

@@ -2,7 +2,6 @@ import { IncomingMessage } from 'http';
 import multipart from './multipart';
 import parseBody from './parse-body';
 import streamReader from './stream-reader';
-import { headerAttributes } from '../util/sanitize';
 
 import { BodyJson, BodyPart } from '../../types/body-parser';
 import { IGetBody } from '../../types/main';
@@ -46,7 +45,7 @@ function getBody (req: IncomingMessage, maxPayloadSize?: number): IGetBody {
                 return parseBody(_body).data;
             }
         }
-    }
+    };
 }
 
 export default getBody;

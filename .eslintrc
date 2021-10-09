@@ -1,13 +1,16 @@
 {
+  "root": true,
   "env": {
-    "node": true,
-    "es6": true
+    "es6": true,
+    "node": true
   },
-  "extends": "eslint:recommended",
-  "parserOptions": {
-    "sourceType": "module",
-    "ecmaVersion": 8
-  },
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "@typescript-eslint"
+  ],
+  "extends": [
+    "eslint:recommended"
+  ],
   "rules": {
     "indent": ["error", 4],
     "linebreak-style": ["error", "unix"],
@@ -17,7 +20,18 @@
   },
   "overrides": [
     {
-      "files": ["*.test.js"],
+      "files": ["*.ts"],
+      "extends": [
+        "plugin:@typescript-eslint/recommended"
+      ],
+      "rules": {
+        "@typescript-eslint/no-non-null-assertion": "off",
+        "@typescript-eslint/no-empty-function": "off",
+        "@typescript-eslint/no-explicit-any": "off"
+      }
+    },
+    {
+      "files": ["*.test.ts"],
       "globals": {
         "describe": "readonly",
         "it": "readonly",

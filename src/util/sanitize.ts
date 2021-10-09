@@ -1,4 +1,4 @@
-export function sanitizePathname (pathname = '') {
+export function sanitizePathname (pathname = ''): string {
     const result = pathname.replace(/[\\/]+$/, '');
     if (result[0] !== '/') {
         return '/' + result;
@@ -6,12 +6,12 @@ export function sanitizePathname (pathname = '') {
     return result;
 }
 
-export function sanitizeContentType (contentType = '') {
+export function sanitizeContentType (contentType = ''): string {
     return contentType.split(';')[0].toLowerCase().trim();
 }
 
 
-export function headerAttributes (header = '') {
+export function headerAttributes (header = ''): { [key: string]: string } {
     const result: { [key: string]: string } = {};
     const parts = header.split('='); // format a=b or a="b"
 

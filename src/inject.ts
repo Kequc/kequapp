@@ -1,15 +1,26 @@
+import { ClientRequest, ServerResponse } from 'http';
 import MockReq from 'mock-req';
 import MockRes from 'mock-res';
 import getBody from './body-parser/get-body';
 
-import { ConfigInput, IKequserver } from '../types/main';
+import { ConfigInput, IGetBody, IKequserver } from '../types/main';
 
 type OptionsInput = {
+    method?: string;
+    url?: string;
+    headers?: { [key: string]: string };
+    rawHeaders?: { [key: string]: string };
     search?: string;
-    body?: string;
+    body?: unknown;
 };
 
-function inject (app: IKequserver, override: ConfigInput | undefined, options: OptionsInput) {
+type InjectResponse = {
+    req: ClientRequest;
+    res: ServerResponse;
+    getBody: IGetBody;
+};
+
+function inject (app: IKequserver, override: ConfigInput | undefined, options: OptionsInput): InjectResponse {
     const _options = Object.assign({}, options);
 
     if (_options.search) {
@@ -31,8 +42,8 @@ function inject (app: IKequserver, override: ConfigInput | undefined, options: O
     return {
         req,
         res,
-        getBody: getBody(req, override?.mayPayloadSize)
+        getBody: getBody(req, override?.maxPayloadSize)
     };
 }
 
-module.exports = inject;
+export default inject;

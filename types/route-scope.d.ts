@@ -15,7 +15,7 @@ export type Route = RouteBuilder & {
     method: string;
 };
 
-export type Handle = (bundle: Bundle) => any;
+export type Handle = (bundle: Bundle) => Promise<any> | any;
 
 export type HandlesInput = [
     pathname: string | Handle,

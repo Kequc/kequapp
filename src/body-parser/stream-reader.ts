@@ -3,8 +3,8 @@ import errors from '../util/errors';
 
 import { BodyPart } from '../../types/body-parser';
 
-async function streamReader (stream: IncomingMessage | ServerResponse, maxPayloadSize?: number) {
-    return await new Promise<BodyPart>(function (resolve, reject) {
+function streamReader (stream: IncomingMessage | ServerResponse, maxPayloadSize?: number): Promise<BodyPart> {
+    return new Promise<BodyPart>(function (resolve, reject) {
         const chunks: Buffer[] = [];
 
         stream.on('data', handleData);

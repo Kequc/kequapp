@@ -2,7 +2,7 @@ import path from 'path';
 
 import { Handle, HandlesInput, HandlesInputRoute, Route, RouteBuilder, RouteScope } from '../../types/route-scope';
 
-function routeScope (routes: Route[], parent: RouteBuilder) {
+function routeScope (routes: Route[], parent: RouteBuilder): RouteScope {
     const scope: any = {
         route: undefined,
         branch: undefined,
@@ -21,7 +21,7 @@ function buildBranch (routes: Route[], parent: RouteBuilder) {
         const pathname = extractPathname(handles);
 
         if (handles.find(handle => typeof handle !== 'function')) {
-            throw new Error('Handle must be a function')
+            throw new Error('Handle must be a function');
         }
 
         const newParent = routeMerge(parent, {
@@ -38,7 +38,7 @@ function buildMiddleware (parent: RouteBuilder, scope: RouteScope) {
         const pathname = extractPathname(handles);
 
         if (handles.find(handle => typeof handle !== 'function')) {
-            throw new Error('Handle must be a function')
+            throw new Error('Handle must be a function');
         }
 
         Object.assign(parent, routeMerge(parent, {
@@ -59,7 +59,7 @@ function buildRoute (routes: Route[], parent: RouteBuilder, scope: RouteScope) {
             throw new Error('Route must have at least one handle');
         }
         if (handles.find(handle => typeof handle !== 'function')) {
-            throw new Error('Handle must be a function')
+            throw new Error('Handle must be a function');
         }
 
         const route: Route = Object.assign({ method }, routeMerge(parent, {

@@ -1,7 +1,8 @@
 import { ErrorsHelper } from '../../types/errors';
 import { Bundle } from '../../types/main';
 
-function textRenderer (payload: any, { req, res, errors }: Bundle) {
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+function textRenderer (payload: any, { req, res, errors }: Bundle): void {
     const text = generateText(payload, errors);
 
     res.setHeader('Content-Length', text.length);
