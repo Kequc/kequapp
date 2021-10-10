@@ -42,7 +42,7 @@ function inject (app: IKequserver, override: ConfigInput | undefined, options: O
     return {
         req,
         res,
-        getBody: getBody(req, override?.maxPayloadSize)
+        getBody: getBody(res, override?.maxPayloadSize)
     };
 }
 

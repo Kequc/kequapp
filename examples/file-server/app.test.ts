@@ -96,7 +96,6 @@ it('throws an error when trying to access excluded file', async function () {
     });
 
     const body = await getBody();
-    console.log(body);
 
     assert.strictEqual(res.getHeader('Content-Type'), 'application/json; charset=utf-8');
     assert.strictEqual(res.statusCode, 404);
