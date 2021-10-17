@@ -12,7 +12,7 @@ Content-Disposition: form-data; name="age"
 
 23
 --------------------------d74496d66958873e
-Content-Disposition: form-data; name="secret"; filename="secret.txt"
+Content-Disposition: form-data; name="secret"; filename="secrets.txt"
 Content-Type: text/plain
 
 contents of the file
@@ -36,10 +36,10 @@ contents of the file
         data: result[1]?.data
     }, {
         headers: {
-            'content-disposition': 'form-data; name="secret"'
+            'content-disposition': 'form-data; name="secret"; filename="secrets.txt"'
         },
         name: 'secret',
-        filename: 'secret.txt',
+        filename: 'secrets.txt',
         data: result[2]?.data
     }]);
     assert.strictEqual(result[0].data.toString(), 'April');

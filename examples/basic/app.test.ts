@@ -93,7 +93,7 @@ Content-Disposition: form-data; name="age"
 
 23
 --------------------------d74496d66958873e
-Content-Disposition: form-data; name="secret"; filename="secret.txt"
+Content-Disposition: form-data; name="secret"; filename="secrets.txt"
 Content-Type: text/plain
 
 contents of the file
@@ -102,7 +102,7 @@ contents of the file
     const body = await getBody();
 
     assert.strictEqual(res.getHeader('Content-Type'), 'text/plain; charset=utf-8');
-    assert.strictEqual(body, 'April is 23 and contents of the file!');
+    assert.strictEqual(body, 'April is 23 and secrets.txt has contents of the file!');
 });
 
 it('reads the body of a request using shorthand', async function () {
