@@ -2,7 +2,7 @@ import assert from 'assert';
 import inject from '../../src/inject'; // 'kequserver/inject'
 import app from './app';
 
-const logger = util.log();
+const logger = util.logger();
 
 it('can access the root', async function () {
     const { getBody, res } = inject(app, { logger }, {
@@ -54,7 +54,7 @@ it('can open a css file', async function () {
     assert.strictEqual(body, 'body {\n    margin: 0;\n}\n');
 });
 
-it('throws an error when trying to access root directory', async function () {
+it('throws error accessing root directory', async function () {
     const { getBody, res } = inject(app, { logger }, {
         url: '/assets'
     });
@@ -66,7 +66,7 @@ it('throws an error when trying to access root directory', async function () {
     assert.strictEqual(body.error.message, 'Not Found');
 });
 
-it('throws an error when trying to access nested directory', async function () {
+it('throws error accessing nested directory', async function () {
     const { getBody, res } = inject(app, { logger }, {
         url: '/assets/css'
     });
@@ -78,7 +78,7 @@ it('throws an error when trying to access nested directory', async function () {
     assert.strictEqual(body.error.message, 'Not Found');
 });
 
-it('throws an error when trying to access missing file', async function () {
+it('throws error accessing missing file', async function () {
     const { getBody, res } = inject(app, { logger }, {
         url: '/assets/does-not-exist.exe'
     });
@@ -90,7 +90,7 @@ it('throws an error when trying to access missing file', async function () {
     assert.strictEqual(body.error.message, 'Not Found');
 });
 
-it('throws an error when trying to access excluded file', async function () {
+it('throws error accessing excluded file', async function () {
     const { getBody, res } = inject(app, { logger }, {
         url: '/assets/private.txt'
     });

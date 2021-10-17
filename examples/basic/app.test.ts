@@ -1,8 +1,9 @@
 import assert from 'assert';
 import inject from '../../src/inject'; // 'kequserver/inject'
+import { BodyFormat } from '../../src/main';
 import app from './app';
 
-const logger = util.log();
+const logger = util.logger();
 
 it('reads parameters from the url', async function () {
     const { getBody, res } = inject(app, { logger }, {
@@ -66,6 +67,53 @@ it('reads the body of a request', async function () {
     });
 
     req.end('{ "name": "april" }');
+
+    const body = await getBody();
+
+    assert.strictEqual(res.getHeader('Content-Type'), 'text/plain; charset=utf-8');
+    assert.strictEqual(body, 'User creation april!');
+});
+
+it('reads the body of a multipart request', async function () {
+    const { getBody, req, res } = inject(app, { logger }, {
+        method: 'POST',
+        url: '/user/secrets',
+        headers: {
+            'Content-Type': 'multipart/form-data; charset=utf-8; boundary=------------------------d74496d66958873e'
+        },
+        body: null
+    });
+
+    req.end(`--------------------------d74496d66958873e
+Content-Disposition: form-data; name="name"
+
+April
+--------------------------d74496d66958873e
+Content-Disposition: form-data; name="age"
+
+23
+--------------------------d74496d66958873e
+Content-Disposition: form-data; name="secret"; filename="secret.txt"
+Content-Type: text/plain
+
+contents of the file
+--------------------------d74496d66958873e--`);
+
+    const body = await getBody();
+
+    assert.strictEqual(res.getHeader('Content-Type'), 'text/plain; charset=utf-8');
+    assert.strictEqual(body, 'April is 23 and contents of the file!');
+});
+
+it('reads the body of a request using shorthand', async function () {
+    const { getBody, res } = inject(app, { logger }, {
+        method: 'POST',
+        url: '/user',
+        headers: {
+            'Content-Type': 'application/json; charset=utf-8'
+        },
+        body: '{ "name": "april" }'
+    });
 
     const body = await getBody();
 

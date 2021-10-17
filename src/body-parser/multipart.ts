@@ -1,5 +1,5 @@
 import errors from '../util/errors';
-import { headerAttributes } from '../util/sanitize';
+import headerAttributes from '../util/header-attributes';
 
 import { BodyPart } from '../../types/body-parser';
 
@@ -12,6 +12,7 @@ function multipart (buffer: Buffer, contentType?: string): BodyPart[] {
 
     const boundary = headerAttributes(contentType).boundary;
     if (!boundary) {
+        console.log(headerAttributes(contentType));
         throw errors.UnprocessableEntity('Multipart request requires boundary attribute', {
             contentType
         });

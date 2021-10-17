@@ -1,4 +1,4 @@
-import { createApp } from '../../src/main'; // 'kequserver'
+import { BodyFormat, createApp } from '../../src/main'; // 'kequserver'
 
 const app = createApp();
 
@@ -19,6 +19,11 @@ app.branch('/user')
     })
     .route('/:id', ({ params }) => {
         return `userId: ${params.id}!`;
+    })
+    .route('POST', '/secrets', async ({ getBody }) => {
+        const [body, files] = await getBody(BodyFormat.MULTIPART);
+        console.log({ body, files });
+        return `${body.name} is ${body.age} and ${files[0].filename} has ${files[0].data}!`;
     })
     .route('POST', async ({ getBody }) => {
         const body = await getBody();
