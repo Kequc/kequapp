@@ -3,7 +3,7 @@ import MockReq from 'mock-req';
 import MockRes from 'mock-res';
 import getBody from './body-parser/get-body';
 
-import { ConfigInput, IGetBody, IKequserver } from '../types/main';
+import { ConfigInput, IGetBody, IKequapp } from '../types/main';
 
 type OptionsInput = {
     method?: string;
@@ -20,7 +20,7 @@ type InjectResponse = {
     getBody: IGetBody;
 };
 
-function inject (app: IKequserver, override: ConfigInput | undefined, options: OptionsInput): InjectResponse {
+function inject (app: IKequapp, override: ConfigInput | undefined, options: OptionsInput): InjectResponse {
     const _options = Object.assign({}, options);
 
     if (_options.search) {

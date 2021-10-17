@@ -1,4 +1,4 @@
-import { BodyFormat, createApp } from '../../src/main'; // 'kequserver'
+import { BodyFormat, createApp } from '../../src/main'; // 'kequapp'
 
 const app = createApp();
 

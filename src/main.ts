@@ -9,7 +9,7 @@ import routeScope from './util/route-scope';
 import { validateCreateAppConfig } from './util/validate';
 import processor from './processor';
 
-import { Config, ConfigInput, IKequserver } from '../types/main';
+import { Config, ConfigInput, IKequapp } from '../types/main';
 
 const DEFAULT_OPTIONS: Config = {
     logger: console,
@@ -18,7 +18,7 @@ const DEFAULT_OPTIONS: Config = {
     maxPayloadSize: undefined // maybe 1e6
 };
 
-function createApp (options: ConfigInput = {}): IKequserver {
+function createApp (options: ConfigInput = {}): IKequapp {
     validateCreateAppConfig(options);
     const _routes = [];
     const _config = Object.assign({}, DEFAULT_OPTIONS, options);
@@ -49,7 +49,7 @@ function createApp (options: ConfigInput = {}): IKequserver {
         handles: []
     }));
 
-    return app as IKequserver;
+    return app as IKequapp;
 }
 
 export {

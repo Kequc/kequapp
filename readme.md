@@ -1,16 +1,16 @@
-# Kequserver
+# Kequapp
 
 This is the development branch of an experimental request listener for basic nodejs servers. It's intended to be versatile and non-intrusive.
 
 ### Basic Setup
 
 ```
-npm i kequserver
+npm i kequapp
 ```
 
 ```javascript
 const { createServer } = require('http');
-const { createApp } = require('kequserver');
+const { createApp } = require('kequapp');
 
 const app = createApp();
 
@@ -160,7 +160,7 @@ app.route('POST', '/user', async ({ getBody }) => {
 By default `getBody()` will try to parse the request as best it can and provide you a simple result. There are several formatting options for the data retrieved from `getBody()` these are accessed by providing a `BodyFormat` option.
 
 ```javascript
-const { BodyFormat } = require('kequserver');
+const { BodyFormat } = require('kequapp');
 ```
 
 ```javascript
@@ -251,7 +251,7 @@ A rudimentary `staticFiles()` handler can be used to deliver files relative to y
 By default the `./public` directory is used.
 
 ```javascript
-const { staticFiles } = require('kequserver');
+const { staticFiles } = require('kequapp');
 
 app.route('/assets/**', staticFiles({
     dir: './my-assets-dir',
@@ -262,7 +262,7 @@ app.route('/assets/**', staticFiles({
 If more control is needed a similar `sendFile()` helper is available.
 
 ```javascript
-const { sendFile } = require('kequserver');
+const { sendFile } = require('kequapp');
 
 app.route('/db.json', async function ({ req, res }) {
     const pathname = './db/my-db.json';
@@ -277,7 +277,7 @@ It is possible to test your application without spinning up a server using the `
 It also returns `getBody()` which is a utility you may use to wait for your application to respond. Alternatively you can inspect what your application is doing making use of the `req`, and `res` objects in realtime.
 
 ```javascript
-const inject = require('kequserver/inject');
+const inject = require('kequapp/inject');
 ```
 
 ```javascript

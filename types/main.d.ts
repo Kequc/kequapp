@@ -3,7 +3,7 @@ import { BodyFormat } from '../src/body-parser/get-body';
 import { ErrorsHelper } from './errors';
 import { RouteScope } from './route-scope';
 
-export interface IKequserver extends RequestListener, RouteScope {
+export interface IKequapp extends RequestListener, RouteScope {
     (req: IncomingMessage, res: ServerResponse, override?: ConfigInput): void;
 }
 

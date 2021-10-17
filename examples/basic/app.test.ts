@@ -1,5 +1,5 @@
 import assert from 'assert';
-import inject from '../../src/inject'; // 'kequserver/inject'
+import inject from '../../src/inject'; // 'kequapp/inject'
 import { BodyFormat } from '../../src/main';
 import app from './app';
 

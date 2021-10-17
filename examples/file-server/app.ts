@@ -1,4 +1,4 @@
-import { createApp, staticFiles } from '../../src/main'; // 'kequserver'
+import { createApp, staticFiles } from '../../src/main'; // 'kequapp'
 
 const app = createApp();
 
