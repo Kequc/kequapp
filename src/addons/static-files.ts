@@ -2,7 +2,7 @@ import path from 'path';
 import sendFile from './send-file';
 
 import { StaticFilesOptions } from '../../types/body-parser';
-import { Bundle } from '../../types/main';
+import { Bundle, Ex } from '../../types/main';
 
 const DEFAULT_OPTIONS: {
     dir: string,
@@ -15,12 +15,12 @@ const DEFAULT_OPTIONS: {
 function staticFiles (options: StaticFilesOptions = {}): (bundle: Bundle) => Promise<void> {
     const config = setupConfig(options);
 
-    return async function ({ req, res, params, errors }: Bundle) {
+    return async function ({ req, res, params }: Bundle) {
         const wildcards = params.wildcards || [];
         const asset = path.join(config.dir, wildcards[wildcards.length - 1]);
 
         if (isExcluded(config.exclude, asset)) {
-            throw errors.NotFound();
+            throw Ex.NotFound();
         } else {
             await sendFile(req.method, res, asset);
         }

@@ -1,6 +1,7 @@
 import jsonRenderer from './defaults/json-renderer';
 import textRenderer from './defaults/text-renderer';
 import { sanitizeContentType } from './util/sanitize';
+import Ex from './util/ex';
 
 import { Bundle, Config, ConfigRenderers } from '../types/main';
 
@@ -19,13 +20,13 @@ async function render (config: Config, payload: unknown, bundle: Bundle): Promis
 
 export default render;
 
-function findRenderer (renderers: ConfigRenderers, { res, errors }) {
+function findRenderer (renderers: ConfigRenderers, { res }) {
     const contentType = res.getHeader('Content-Type');
     const key = sanitizeContentType(contentType);
     const renderer = renderers[key] || DEFAULT_RENDERERS[key];
 
     if (typeof renderer !== 'function') {
-        throw errors.InternalServerError('Renderer not found', { contentType });
+        throw Ex.InternalServerError('Renderer not found', { contentType });
     }
 
     return renderer;

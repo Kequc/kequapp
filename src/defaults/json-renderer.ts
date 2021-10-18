@@ -1,11 +1,12 @@
-import { ErrorsHelper } from '../../types/errors';
+import Ex from '../util/ex';
+
 import { Bundle } from '../../types/main';
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-function jsonRenderer (payload: any, { req, res, errors }: Bundle): void {
-    const json = generateJson(payload, errors);
+function jsonRenderer (payload: any, { req, res }: Bundle): void {
+    const json = generateJson(payload);
 
     res.setHeader('Content-Length', json.length);
 
@@ -18,7 +19,7 @@ function jsonRenderer (payload: any, { req, res, errors }: Bundle): void {
 
 export default jsonRenderer;
 
-function generateJson (payload: any, errors: ErrorsHelper) {
+function generateJson (payload: any) {
     try {
         if (NODE_ENV === 'production') {
             return JSON.stringify(payload);
@@ -26,6 +27,6 @@ function generateJson (payload: any, errors: ErrorsHelper) {
             return JSON.stringify(payload, null, 2);
         }
     } catch (error) {
-        throw errors.InternalServerError('Invalid json response', { payload, error });
+        throw Ex.InternalServerError('Invalid json response', { payload, error });
     }
 }

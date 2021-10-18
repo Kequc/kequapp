@@ -1,4 +1,4 @@
-import errors from '../util/errors';
+import Ex from '../util/ex';
 import headerAttributes from '../util/header-attributes';
 
 import { RawPart } from '../../types/body-parser';
@@ -7,7 +7,7 @@ const NEW_LINE = [0x0d, 0x0a];
 
 function multipart (buffer: Buffer, contentType?: string): RawPart[] {
     if (!contentType?.startsWith('multipart/')) {
-        throw errors.UnprocessableEntity('Unable to process request', {
+        throw Ex.UnprocessableEntity('Unable to process request', {
             contentType
         });
     }
@@ -52,24 +52,27 @@ function multipart (buffer: Buffer, contentType?: string): RawPart[] {
             if (!isBody || line.length < boundary.length) {
                 line += String.fromCharCode(byte);
             }
-        } else if (!isBody && i > 0 && buffer[i - 1] === NEW_LINE[0]) {
+        } else if (i > 0 && buffer[i - 1] === NEW_LINE[0]) {
             // new line detected
-            if (line === '') {
-                // two new lines detected
-                reset();
-                isBody = true;
-                continue;
-            } else {
-                addHeader();
-                reset();
+            if (!isBody) {
+                if (line === '') {
+                    // two new lines detected
+                    reset();
+                    isBody = true;
+                    continue;
+                } else {
+                    addHeader();
+                    reset();
+                }
             }
+            line = '';
         }
 
         if (isBody) {
             bytes.push(byte);
         }
 
-        if (boundary === line) {
+        if (line === boundary) {
             // boundary detected
             addPart();
             reset();
@@ -85,7 +88,7 @@ export default multipart;
 function getBoundary (contentType: string) {
     const boundary = headerAttributes(contentType).boundary;
     if (!boundary) {
-        throw errors.UnprocessableEntity('Multipart request requires boundary attribute', {
+        throw Ex.UnprocessableEntity('Multipart request requires boundary attribute', {
             contentType
         });
     }

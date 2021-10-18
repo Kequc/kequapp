@@ -1,4 +1,4 @@
-import errors from './errors';
+import Ex from './ex';
 
 import { Route } from '../../types/route-scope';
 
@@ -12,7 +12,7 @@ function findRoute (routes: Route[], method: string | undefined, pathname: strin
     }
 
     if (!result) {
-        throw errors.NotFound(`Not Found: ${pathname}`, {
+        throw Ex.NotFound(`Not Found: ${pathname}`, {
             request: { method, pathname },
             routes: [...routes].sort(routeSorter).map(formatRoute)
         });

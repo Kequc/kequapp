@@ -3,7 +3,7 @@ export type ServerError = Error & {
     info: any;
 };
 
-export type ErrorsHelper = {
+export type ExHelper = {
     StatusCode: (statusCode: number, message?: string, ...info: any[]) => Error;
     BadRequest: ServerErrorHelper;                      // 400
     Unauthorized: ServerErrorHelper;                    // 401

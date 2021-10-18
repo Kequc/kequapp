@@ -32,9 +32,9 @@ Method is optional default is `'GET'`, pathname is optional default is `'/'`, fo
 Any handler can return a `payload`. Doing so halts further execution of the request lifecycle and triggers the renderer immediately. This is similar to interrupting the request by throwing an error or finalizing the response.
 
 ```javascript
-function loggedIn({ req, context, errors }) {
+function loggedIn({ req, context }) {
     if (req.headers.authorization !== 'mike') {
-        throw errors.Unauthorized();
+        throw Ex.Unauthorized();
     }
     context.auth = req.headers.authorization;
 }
@@ -144,7 +144,6 @@ The following parameters are made available to handlers and renderers.
 | `query`    | Params extracted from the querystring.            |
 | `getBody`  | Function to extract params from the request body. |
 | `logger`   | Logger specified during setup.                    |
-| `errors`   | Http error creation helper.                       |
 
 ### Body
 
@@ -209,17 +208,19 @@ app.route('/login', ({ res }) => {
 
 ### Errors
 
-Error generation is available using the `errors` parameter. Any thrown error will be caught by the error handler and will use a `500` status code, this helper utility enables you to utilize all status codes `400` and above.
+Error generation is available importing the `Ex` helper. Any thrown error will be caught by the error handler and will use a `500` status code, this helper utility enables you to utilize all status codes `400` and above.
 
 These methods will create a new error with the correct stacktrace there is no need to use `new`.
 
 ```javascript
-app.route('/throw-error', ({ errors }) => {
-    throw errors.StatusCode(404);
-    throw errors.StatusCode(404, 'Custom message', { extra: 'info' });
+const { Ex } = require('kequapp');
+
+app.route('/throw-error', () => {
+    throw Ex.StatusCode(404);
+    throw Ex.StatusCode(404, 'Custom message', { extra: 'info' });
     // same as
-    throw errors.NotFound();
-    throw errors.NotFound('Custom message', { extra: 'info' });
+    throw Ex.NotFound();
+    throw Ex.NotFound('Custom message', { extra: 'info' });
 });
 ```
 

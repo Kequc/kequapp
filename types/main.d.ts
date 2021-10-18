@@ -1,6 +1,5 @@
 import { IncomingMessage, RequestListener, ServerResponse } from 'http';
 import { BodyFormat } from '../src/body-parser/get-body';
-import { ErrorsHelper } from './errors';
 import { RouteScope } from './route-scope';
 
 export interface IKequapp extends RequestListener, RouteScope {
@@ -20,7 +19,6 @@ export type Bundle = {
     query: BundleQuery;
     getBody: IGetBody;
     logger: Logger;
-    errors: ErrorsHelper;
 };
 
 export type BundleContext = {

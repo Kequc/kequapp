@@ -1,5 +1,5 @@
 import { IncomingMessage, ServerResponse } from 'http';
-import errors from '../util/errors';
+import { Ex } from '../main';
 
 import { RawPart } from '../../types/body-parser';
 
@@ -37,7 +37,7 @@ function streamReader (stream: IncomingMessage | ServerResponse, maxPayloadSize?
                 const payloadSize = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
 
                 if (payloadSize > maxPayloadSize) {
-                    abortStream(errors.PayloadTooLarge());
+                    abortStream(Ex.PayloadTooLarge());
                 }
             }
         }

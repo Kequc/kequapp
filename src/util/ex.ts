@@ -1,9 +1,9 @@
 import { STATUS_CODES } from 'http';
 
-import { ErrorsHelper, ServerError } from '../../types/errors';
+import { ExHelper, ServerError } from '../../types/ex';
 
 const statusCodes = Object.keys(STATUS_CODES).map(statusCode => parseInt(statusCode, 10));
-const errors: any = {
+const Ex: any = {
     StatusCode,
 };
 
@@ -17,12 +17,12 @@ function StatusCode (statusCode: number, message?: string, ...info: any[]) {
 for (const statusCode of statusCodes) {
     if (statusCode < 400) continue;
     const key = createMethodName(statusCode);
-    errors[key] = function (message?: string, ...info: any[]) {
-        return _buildError(errors[key], statusCode, message, ...info);
+    Ex[key] = function (message?: string, ...info: any[]) {
+        return _buildError(Ex[key], statusCode, message, ...info);
     };
 }
 
-export default errors as ErrorsHelper;
+export default Ex as ExHelper;
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 function _buildError (parent: Function, statusCode: number, message?: string, ...info: any[]) {

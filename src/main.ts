@@ -4,7 +4,7 @@ import sendFile from './addons/send-file';
 import staticFiles from './addons/static-files';
 import getBody, { BodyFormat } from './body-parser/get-body';
 import errorHandler from './defaults/error-handler';
-import errors from './util/errors';
+import Ex from './util/ex';
 import routeScope from './util/route-scope';
 import { validateCreateAppConfig } from './util/validate';
 import processor from './processor';
@@ -39,8 +39,7 @@ function createApp (options: ConfigInput = {}): IKequapp {
             params: {},
             query: Object.fromEntries(url.searchParams),
             getBody: getBody(req, config.maxPayloadSize),
-            logger: config.logger,
-            errors
+            logger: config.logger
         });
     }
 
@@ -56,5 +55,6 @@ export {
     createApp,
     sendFile,
     staticFiles,
-    BodyFormat
+    BodyFormat,
+    Ex
 };

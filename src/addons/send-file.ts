@@ -1,7 +1,7 @@
 import { ServerResponse } from 'http';
 import path from 'path';
 import fs from 'fs';
-import errors from '../util/errors';
+import Ex from '../util/ex';
 
 const MIME_TYPES = {
     '.html': 'text/html',
@@ -32,7 +32,7 @@ async function sendFile (method: string | undefined, res: ServerResponse, asset:
         if (!fileInfo.isFile()) throw new Error('Not a file');
         contentLength = fileInfo.size;
     } catch (error) {
-        throw errors.NotFound(undefined, {
+        throw Ex.NotFound(undefined, {
             method,
             location,
             ext,
@@ -59,7 +59,7 @@ async function sendFile (method: string | undefined, res: ServerResponse, asset:
             });
         });
     } catch (error) {
-        throw errors.InternalServerError(undefined, {
+        throw Ex.InternalServerError(undefined, {
             method,
             location,
             ext,

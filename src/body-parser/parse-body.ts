@@ -1,4 +1,4 @@
-import errors from '../util/errors';
+import Ex from '../util/ex';
 
 import { RawPart } from '../../types/body-parser';
 
@@ -12,7 +12,7 @@ function parseBody (body: RawPart): RawPart {
     try {
         return { ...body, data: getData(body) };
     } catch (error) {
-        throw errors.UnprocessableEntity('Unable to process request', {
+        throw Ex.UnprocessableEntity('Unable to process request', {
             contentType: body.headers['content-type'],
             error
         });

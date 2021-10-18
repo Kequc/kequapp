@@ -1,4 +1,4 @@
-import { BodyFormat, createApp } from '../../src/main'; // 'kequapp'
+import { BodyFormat, createApp, Ex } from '../../src/main'; // 'kequapp'
 
 const app = createApp();
 
@@ -6,9 +6,9 @@ app.route('/', () => {
     return 'Hello world!';
 });
 
-function loggedIn ({ req, context, errors }) {
+function loggedIn ({ req, context }) {
     if (req.headers.authorization !== 'mike') {
-        throw errors.Unauthorized();
+        throw Ex.Unauthorized();
     }
     context.auth = req.headers.authorization;
 }
