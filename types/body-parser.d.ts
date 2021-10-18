@@ -1,3 +1,9 @@
+import { BodyFormat } from '../src/main';
+
+export interface IGetBody {
+    (format?: BodyFormat): Promise<BodyJson>;
+}
+
 export type StaticFilesOptions = {
     dir?: string;
     exclude?: string[];
@@ -9,7 +15,6 @@ export type RawPart = {
 };
 
 export type BodyPart = RawPart & {
-    name?: string;
     filename?: string;
 };
 

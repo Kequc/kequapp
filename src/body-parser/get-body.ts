@@ -3,15 +3,13 @@ import multipart from './multipart';
 import parseBody from './parse-body';
 import streamReader from './stream-reader';
 
-import { BodyJson, RawPart, BodyPart } from '../../types/body-parser';
-import { IGetBody } from '../../types/main';
+import { BodyJson, RawPart, IGetBody } from '../../types/body-parser';
 import headerAttributes from '../util/header-attributes';
 
 export enum BodyFormat {
     DEFAULT,
     RAW,
-    MULTIPART,
-    RAW_MULTIPART
+    RAW_MULTIPART,
 }
 
 function getBody (req: IncomingMessage, maxPayloadSize?: number): IGetBody {
@@ -27,21 +25,15 @@ function getBody (req: IncomingMessage, maxPayloadSize?: number): IGetBody {
         switch (format) {
         case BodyFormat.RAW:
             return { ..._body };
-        case BodyFormat.MULTIPART:
-            if (isMultipart) {
-                return parseMultipart(_body);
-            } else {
-                return [parseBody(_body).data, []];
-            }
         case BodyFormat.RAW_MULTIPART:
             if (isMultipart) {
                 return multipart(_body.data, _body.headers['content-type']);
             } else {
-                return [{ ..._body }];
+                return { ..._body };
             }
         default:
             if (isMultipart) {
-                return parseMultipart(_body)[0];
+                return parseMultipart(_body);
             } else {
                 return parseBody(_body).data;
             }
@@ -51,32 +43,29 @@ function getBody (req: IncomingMessage, maxPayloadSize?: number): IGetBody {
 
 export default getBody;
 
-function parseMultipart (_body: RawPart): [BodyJson, BodyPart[]] {
+function parseMultipart (_body: RawPart): BodyJson {
     const parts = multipart(_body.data, _body.headers['content-type']);
     const body: BodyJson = {};
-    const files: BodyPart[] = [];
     const visited: { [key: string]: number } = {};
 
     for (const part of parts) {
-        const attributes = headerAttributes(part.headers['content-disposition']);
-        // TODO
-        if (part.filename === undefined) {
-            const key = part.name || 'undefined';
-            const value = parseBody(part).data;
+        const { filename, name } = headerAttributes(part.headers['content-disposition']);
+        const isFile = Buffer.isBuffer(part.data);
 
-            visited[key] = visited[key] || 0;
-            visited[key]++;
-            if (visited[key] === 2) body[key] = [body[key]];
-    
-            if (visited[key] > 1) {
-                body[key].push(value);
-            } else {
-                body[key] = value;
-            }
+        const key = name || 'undefined';
+        const body = parseBody(part);
+        const value = isFile ? { ...body, filename } : body.data;
+
+        visited[key] = visited[key] || 0;
+        visited[key]++;
+        if (visited[key] === 2) body[key] = [body[key]];
+
+        if (visited[key] > 1) {
+            body[key].push(value);
         } else {
-            files.push(part);
+            body[key] = value;
         }
     }
 
-    return [body, files];
+    return body;
 }

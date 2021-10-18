@@ -1,13 +1,9 @@
 import { IncomingMessage, RequestListener, ServerResponse } from 'http';
-import { BodyFormat } from '../src/body-parser/get-body';
+import { IGetBody } from './body-parser';
 import { RouteScope } from './route-scope';
 
 export interface IKequapp extends RequestListener, RouteScope {
     (req: IncomingMessage, res: ServerResponse, override?: ConfigInput): void;
-}
-
-export interface IGetBody {
-    (format?: BodyFormat): Promise<any>;
 }
 
 export type Bundle = {

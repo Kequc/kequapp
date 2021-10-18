@@ -1,6 +1,6 @@
 import Ex from '../util/ex';
 
-import { RawPart } from '../../types/body-parser';
+import { BodyPart, RawPart } from '../../types/body-parser';
 
 const PARSERS = {
     'text/': parseText,
@@ -8,12 +8,14 @@ const PARSERS = {
     'application/json': parseJson
 };
 
-function parseBody (body: RawPart): RawPart {
+function parseBody (body: RawPart): BodyPart {
+    const contentType = body.headers['content-type'] || 'text/plain';
+
     try {
-        return { ...body, data: getData(body) };
+        return { ...body, data: getData(body.data, contentType) };
     } catch (error) {
         throw Ex.UnprocessableEntity('Unable to process request', {
-            contentType: body.headers['content-type'],
+            contentType,
             error
         });
     }
@@ -21,20 +23,17 @@ function parseBody (body: RawPart): RawPart {
 
 export default parseBody;
 
-function getData (body: RawPart): any {
-    const contentType = body.headers['content-type'] || 'text/plain';
-
+function getData (data: Buffer, contentType: string): any {
     for (const key of Object.keys(PARSERS)) {
         if (contentType.startsWith(key)) {
-            return PARSERS[key](body.data, contentType);
+            return PARSERS[key](data, contentType);
         }
     }
-
-    return body.data;
+    return data;
 }
 
-function parseUrlEncoded (buffer: Buffer): any {
-    const params = new URLSearchParams(parseText(buffer));
+function parseUrlEncoded (data: Buffer): any {
+    const params = new URLSearchParams(parseText(data));
     const result: { [key: string]: any } = {};
 
     for (const key of params.keys()) {
@@ -48,10 +47,10 @@ function parseUrlEncoded (buffer: Buffer): any {
     return result;
 }
 
-function parseJson (buffer: Buffer): any {
-    return JSON.parse(parseText(buffer));
+function parseJson (data: Buffer): any {
+    return JSON.parse(parseText(data));
 }
 
-function parseText (buffer: Buffer) {
-    return buffer.toString();
+function parseText (data: Buffer) {
+    return data.toString();
 }

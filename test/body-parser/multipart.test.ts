@@ -24,22 +24,17 @@ contents of the file
         headers: {
             'content-disposition': 'form-data; name="name"'
         },
-        name: 'name',
-        filename: undefined,
         data: result[0]?.data
     }, {
         headers: {
             'content-disposition': 'form-data; name="age"'
         },
-        name: 'age',
-        filename: undefined,
         data: result[1]?.data
     }, {
         headers: {
-            'content-disposition': 'form-data; name="secret"; filename="secrets.txt"'
+            'content-disposition': 'form-data; name="secret"; filename="secrets.txt"',
+            'content-type': 'text/plain'
         },
-        name: 'secret',
-        filename: 'secrets.txt',
         data: result[2]?.data
     }]);
     assert.strictEqual(result[0].data.toString(), 'April');

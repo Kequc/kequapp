@@ -23,45 +23,27 @@ createServer(app).listen(4000, () => {
 });
 ```
 
-### Route
+### Routing
 
-Routes are defined using the `route()` method.
+Routes are defined using the `route()` method. Method is optional default is `'GET'`, path is optional default is `'/'`, followed by any number of handlers which define the request lifecycle.
 
-Method is optional default is `'GET'`, pathname is optional default is `'/'`, followed by any number of handlers which define the request lifecycle.
+Branches are defined using the `branch()` method. Path prefix is optional default is `'/'`, followed by any number of handlers. It returns a branch of the application which will adopt all handlers and use the given path prefix. By itself this does not create a route, it will be used in conjunction with routes.
 
-Any handler can return a `payload`. Doing so halts further execution of the request lifecycle and triggers the renderer immediately. This is similar to interrupting the request by throwing an error or finalizing the response.
+Handlers are added to the current branch using the `middleware()` method. Path prefix is optional default is `'/'`, followed by any number of handlers you would like to use. This affects all routes in the current branch. Often useful on the `app` instance to interact with all routes.
 
 ```javascript
-function loggedIn({ req, context }) {
+function loggedIn ({ req, context }) {
     if (req.headers.authorization !== 'mike') {
         throw Ex.Unauthorized();
     }
     context.auth = req.headers.authorization;
 }
 
-app.route('/user', () => {
-    return 'User list';
-});
+function json ({ res }) {
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+}
 
-app.route('/user/:id', ({ params }) => {
-    return `userId: ${params.id}!`;
-});
-
-app.route('/admin/dashboard', loggedIn, ({ context }) => {
-    return `Hello admin ${context.auth}!`;
-});
-```
-
-### Branch
-
-Branches are defined using the `branch()` method.
-
-Pathname prefix is optional default is `'/'`, followed by any number of handlers. It returns a branch of the application which will adopt all handlers and use a pathname prefix. By itself this does not create a route, it will be used in conjunction with routes.
-
-```javascript
-// same as above example
-app
-    .branch('/user')
+app.branch('/user')
     .route(() => {
         return 'User list';
     })
@@ -69,27 +51,9 @@ app
         return `userId: ${params.id}!`;
     });
 
-app.branch('/admin', loggedIn).route('/dashboard', ({ context }) => {
-    return `Hello admin ${context.auth}!`;
-});
-```
-
-### Middleware
-
-Handlers are added to the current branch using the `middleware()` method.
-
-Pathname prefix is optional default is `'/'`, followed by any number of handlers you would like to use. This affects all routes in the current branch.
-
-Often useful at the base of an application to interact with all routes.
-
-```javascript
-app.middleware(({ res }) => {
-    res.setHeader('Content-Type', 'application/json; charset=utf-8');
-});
-
 app.branch('/admin')
     .middleware(loggedIn)
-    .route('/dashboard', ({ context }) => {
+    .route('/dashboard', json, ({ context }) => {
         return {
             myJson: `Hello admin ${context.auth}!`
         };
@@ -115,7 +79,9 @@ const app = createApp({
 
 ### Halt Execution
 
-A consideration is that if the `res` stream is no longer writable all processing halts. This is useful for example if instead of rendering output or throwing an error you want to redirect the user to another page.
+Any handler can return a `payload`. Doing so halts further execution of the request lifecycle and triggers rendering immediately. This is similar to interrupting the request by throwing an error or finalizing the response.
+
+If the `res` stream is no longer writable all processing halts. This is useful for example if instead of rendering output or throwing an error you want to redirect the user to another page.
 
 ```javascript
 function membersOnly({ req, res }) {
@@ -152,6 +118,19 @@ Node delivers the body of a request in chunks. It is not always necessary to wai
 ```javascript
 app.route('POST', '/user', async ({ getBody }) => {
     const body = await getBody();
+
+    // body ~= {
+    //     name: 'april',
+    //     avatar: {
+    //         headers: {
+    //             'content-disposition': 'form-data; name="avatar" filename="my-cat.png"'
+    //             'content-type': 'image/png',
+    //         },
+    //         filename: 'my-cat.png',
+    //         data: Buffer<...>
+    //     }
+    // }
+
     return `User creation ${body.name}!`;
 });
 ```
@@ -164,30 +143,33 @@ const { BodyFormat } = require('kequapp');
 
 ```javascript
 app.route('POST', '/user', async ({ getBody }) => {
-    const [body, files] = await getBody(BodyFormat.MULTIPART);
+    const body = await getBody(BodyFormat.RAW_MULTIPART);
 
-    // files ~= [{
+    // body ~= [{
     //     headers: {
-    //         'content-type': 'image/png;',
-    //         'content-disposition': 'form-data; name="avatar" filename="my-cat.png"'
+    //         'content-disposition': 'form-data; name="name"'
+    //         'content-type': 'text/plain',
     //     },
-    //     name: 'avatar',
-    //     filename: 'my-cat.png',
+    //     data: Buffer<...>
+    // }, {
+    //     headers: {
+    //         'content-disposition': 'form-data; name="avatar" filename="my-cat.png"'
+    //         'content-type': 'image/png',
+    //     },
     //     data: Buffer<...>
     // }]
 
-    return `User creation ${body.name}!`;
+    return `User creation ${body[0].data.toString()}!`;
 });
 ```
 
 The following `BodyFormat` options are available.
 
-| option          | description                                            |
-| --------------- | ------------------------------------------------------ |
-| `DEFAULT`       | Body is processed by it's `contentType`.               |
-| `RAW`           | The body is returned as it arrived in a single buffer. |
-| `MULTIPART`     | Parts without filenames are separated and processed into a body, the rest are returned as buffers. |
-| `RAW_MULTIPART` | Each part is returned as a separate buffer.            |
+| option          | description                                                  |
+| --------------- | ------------------------------------------------------------ |
+| `DEFAULT`       | Body is processed by it's content type.                      |
+| `RAW`           | The body is returned as it arrived in a single buffer.       |
+| `RAW_MULTIPART` | Each part is returned as a separate buffer.                  |
 
 ### Cookies
 
@@ -234,7 +216,7 @@ This example sends a very basic response.
 
 ```javascript
 const app = createApp({
-    errorHandler: (error, { res }) => {
+    errorHandler (error, { res }) {
         const statusCode = error.statusCode || 500;
 
         res.statusCode = statusCode;
