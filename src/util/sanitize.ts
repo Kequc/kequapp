@@ -7,5 +7,5 @@ export function sanitizePathname (pathname = ''): string {
 }
 
 export function sanitizeContentType (contentType = ''): string {
-    return contentType.split(';')[0].toLowerCase().trim();
+    return contentType.split(';')[0].toLowerCase().trim() || 'text/plain';
 }

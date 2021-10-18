@@ -2,13 +2,15 @@ import { IncomingMessage } from 'http';
 import multipart from './multipart';
 import parseBody from './parse-body';
 import streamReader from './stream-reader';
-
-import { BodyJson, RawPart, IGetBody } from '../../types/body-parser';
 import headerAttributes from '../util/header-attributes';
+import { sanitizeContentType } from '../util/sanitize';
+
+import { BodyJson, RawPart, IGetBody, BodyPart } from '../../types/body-parser';
 
 export enum BodyFormat {
     DEFAULT,
     RAW,
+    MULTIPART,
     RAW_MULTIPART,
 }
 
@@ -25,6 +27,12 @@ function getBody (req: IncomingMessage, maxPayloadSize?: number): IGetBody {
         switch (format) {
         case BodyFormat.RAW:
             return { ..._body };
+        case BodyFormat.MULTIPART:
+            if (isMultipart) {
+                return parseMultipart(_body);
+            } else {
+                return [parseBody(_body).data, []];
+            }
         case BodyFormat.RAW_MULTIPART:
             if (isMultipart) {
                 return multipart(_body.data, _body.headers['content-type']);
@@ -33,7 +41,7 @@ function getBody (req: IncomingMessage, maxPayloadSize?: number): IGetBody {
             }
         default:
             if (isMultipart) {
-                return parseMultipart(_body);
+                return parseMultipart(_body)[0];
             } else {
                 return parseBody(_body).data;
             }
@@ -46,19 +54,31 @@ export default getBody;
 function parseMultipart (_body: RawPart): BodyJson {
     const parts = multipart(_body.data, _body.headers['content-type']);
     const result: BodyJson = {};
+    const files: BodyPart[] = [];
     const visited: { [key: string]: number } = {};
 
     for (const part of parts) {
         const { filename, name } = headerAttributes(part.headers['content-disposition']);
+        const mimeType = sanitizeContentType(part.headers['content-type']);
 
         const key = name || 'undefined';
-        const body = parseBody(part);
-        const isFile = filename || Buffer.isBuffer(body.data);
-        const value = isFile ? { ...body, filename } : body.data;
+        const isFile = filename || !mimeType.startsWith('text/');
+
+        if (isFile) {
+            files.push({
+                ...part,
+                mimeType,
+                name,
+                filename
+            });
+            continue;
+        }
+
+        const value = part.data.toString();
 
         visited[key] = visited[key] || 0;
         visited[key]++;
-        if (visited[key] === 2) body[key] = [body[key]];
+        if (visited[key] === 2) result[key] = [result[key]];
 
         if (visited[key] > 1) {
             result[key].push(value);
@@ -67,5 +87,5 @@ function parseMultipart (_body: RawPart): BodyJson {
         }
     }
 
-    return result;
+    return [result, files];
 }

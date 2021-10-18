@@ -32,6 +32,10 @@ Branches are defined using the `branch()` method. Path prefix is optional defaul
 Handlers are added to the current branch using the `middleware()` method. Path prefix is optional default is `'/'`, followed by any number of handlers you would like to use. This affects all routes in the current branch. Often useful on the `app` instance to interact with all routes.
 
 ```javascript
+function json ({ res }) {
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+}
+
 function loggedIn ({ req, context }) {
     if (req.headers.authorization !== 'mike') {
         throw Ex.Unauthorized();
@@ -39,25 +43,18 @@ function loggedIn ({ req, context }) {
     context.auth = req.headers.authorization;
 }
 
-function json ({ res }) {
-    res.setHeader('Content-Type', 'application/json; charset=utf-8');
-}
-
 app.branch('/user')
+    .middleware(json)
     .route(() => {
-        return 'User list';
+        return { result: [] };
     })
     .route('/:id', ({ params }) => {
-        return `userId: ${params.id}!`;
+        return { userId: params.id };
     });
 
-app.branch('/admin')
-    .middleware(loggedIn)
-    .route('/dashboard', json, ({ context }) => {
-        return {
-            myJson: `Hello admin ${context.auth}!`
-        };
-    });
+app.route('/admin/dashboard', loggedIn, ({ context }) => {
+    return `Hello admin ${context.auth}!`;
+});
 ```
 
 ### Renderers
@@ -120,15 +117,7 @@ app.route('POST', '/user', async ({ getBody }) => {
     const body = await getBody();
 
     // body ~= {
-    //     name: 'april',
-    //     avatar: {
-    //         headers: {
-    //             'content-disposition': 'form-data; name="avatar" filename="my-cat.png"'
-    //             'content-type': 'image/png',
-    //         },
-    //         filename: 'my-cat.png',
-    //         data: Buffer<...>
-    //     }
+    //     name: 'april'
     // }
 
     return `User creation ${body.name}!`;
@@ -143,23 +132,23 @@ const { BodyFormat } = require('kequapp');
 
 ```javascript
 app.route('POST', '/user', async ({ getBody }) => {
-    const body = await getBody(BodyFormat.RAW_MULTIPART);
+    const [body, files] = await getBody(BodyFormat.MULTIPART);
 
-    // body ~= [{
-    //     headers: {
-    //         'content-disposition': 'form-data; name="name"'
-    //         'content-type': 'text/plain',
-    //     },
-    //     data: Buffer<...>
-    // }, {
+    // body ~= {
+    //     name: 'april'
+    // }
+    // files ~= [{
     //     headers: {
     //         'content-disposition': 'form-data; name="avatar" filename="my-cat.png"'
-    //         'content-type': 'image/png',
+    //         'content-type': 'image/png;',
     //     },
-    //     data: Buffer<...>
+    //     mimeType: 'image/png',
+    //     name: 'avatar',
+    //     filename: 'my-cat.png',
+    //     data: Buffer <...>
     // }]
 
-    return `User creation ${body[0].data.toString()}!`;
+    return `User creation ${body.name}!`;
 });
 ```
 
@@ -169,6 +158,7 @@ The following `BodyFormat` options are available.
 | --------------- | ------------------------------------------------------------ |
 | `DEFAULT`       | Body is processed by it's content type.                      |
 | `RAW`           | The body is returned as it arrived in a single buffer.       |
+| `MULTIPART`     | Body and files are returned separately.                      |
 | `RAW_MULTIPART` | Each part is returned as a separate buffer.                  |
 
 ### Cookies
@@ -177,7 +167,9 @@ I recommend use of an external library.
 
 ```javascript
 const cookie = require('cookie'); // npm i cookie
+```
 
+```javascript
 app.middleware(({ req }) => {
     const cookies = cookie.parse(req.headers.cookie);
     // cookies ~= { myCookie: 'hello' }
@@ -188,7 +180,7 @@ app.route('/login', ({ res }) => {
 });
 ```
 
-### Errors
+### Exceptions
 
 Error generation is available importing the `Ex` helper. Any thrown error will be caught by the error handler and will use a `500` status code, this helper utility enables you to utilize all status codes `400` and above.
 
@@ -196,7 +188,9 @@ These methods will create a new error with the correct stacktrace there is no ne
 
 ```javascript
 const { Ex } = require('kequapp');
+```
 
+```javascript
 app.route('/throw-error', () => {
     throw Ex.StatusCode(404);
     throw Ex.StatusCode(404, 'Custom message', { extra: 'info' });
@@ -206,7 +200,7 @@ app.route('/throw-error', () => {
 });
 ```
 
-### Error Handling
+### Exception Handling
 
 The default error handler returns json containing helpful information for debugging. It can be overridden by defining a `errorHandler` during instantiation. The returned value will be sent to the renderer again for processing.
 
