@@ -53,7 +53,7 @@ function parseMultipart (_body: RawPart): BodyJson {
 
         const key = name || 'undefined';
         const body = parseBody(part);
-        const isFile = Buffer.isBuffer(body.data);
+        const isFile = filename || Buffer.isBuffer(body.data);
         const value = isFile ? { ...body, filename } : body.data;
 
         visited[key] = visited[key] || 0;

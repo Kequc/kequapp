@@ -22,8 +22,7 @@ app.branch('/user')
     })
     .route('POST', '/secrets', async ({ getBody }) => {
         const body = await getBody();
-        console.log(body);
-        return `${body.name} is ${body.age} and ${body.secret}!`;
+        return `${body.name} is ${body.age} and ${body.secret.filename} has ${body.secret.data}!`;
     })
     .route('POST', async ({ getBody }) => {
         const body = await getBody();
