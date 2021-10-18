@@ -15,7 +15,7 @@ export type RawPart = {
 };
 
 export type BodyPart = RawPart & {
-    mimeType?: string;
+    mime?: string;
     name?: string;
     filename?: string;
 };

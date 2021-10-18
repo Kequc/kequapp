@@ -59,18 +59,13 @@ function parseMultipart (_body: RawPart): BodyJson {
 
     for (const part of parts) {
         const { filename, name } = headerAttributes(part.headers['content-disposition']);
-        const mimeType = sanitizeContentType(part.headers['content-type']);
+        const mime = sanitizeContentType(part.headers['content-type']);
 
         const key = name || 'undefined';
-        const isFile = filename || !mimeType.startsWith('text/');
+        const isFile = filename || !mime.startsWith('text/');
 
         if (isFile) {
-            files.push({
-                ...part,
-                mimeType,
-                name,
-                filename
-            });
+            files.push({ ...part, mime, name, filename });
             continue;
         }
 

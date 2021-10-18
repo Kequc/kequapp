@@ -142,7 +142,7 @@ app.route('POST', '/user', async ({ getBody }) => {
     //         'content-disposition': 'form-data; name="avatar" filename="my-cat.png"'
     //         'content-type': 'image/png;',
     //     },
-    //     mimeType: 'image/png',
+    //     mime: 'image/png',
     //     name: 'avatar',
     //     filename: 'my-cat.png',
     //     data: Buffer <...>
