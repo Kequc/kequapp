@@ -1,8 +1,9 @@
 import path from 'path';
 import sendFile from './send-file';
+import Ex from '../util/ex';
 
 import { StaticFilesOptions } from '../../types/body-parser';
-import { Bundle, Ex } from '../../types/main';
+import { Bundle } from '../../types/main';
 
 const DEFAULT_OPTIONS: {
     dir: string,

@@ -45,15 +45,15 @@ export default getBody;
 
 function parseMultipart (_body: RawPart): BodyJson {
     const parts = multipart(_body.data, _body.headers['content-type']);
-    const body: BodyJson = {};
+    const result: BodyJson = {};
     const visited: { [key: string]: number } = {};
 
     for (const part of parts) {
         const { filename, name } = headerAttributes(part.headers['content-disposition']);
-        const isFile = Buffer.isBuffer(part.data);
 
         const key = name || 'undefined';
         const body = parseBody(part);
+        const isFile = Buffer.isBuffer(body.data);
         const value = isFile ? { ...body, filename } : body.data;
 
         visited[key] = visited[key] || 0;
@@ -61,11 +61,11 @@ function parseMultipart (_body: RawPart): BodyJson {
         if (visited[key] === 2) body[key] = [body[key]];
 
         if (visited[key] > 1) {
-            body[key].push(value);
+            result[key].push(value);
         } else {
-            body[key] = value;
+            result[key] = value;
         }
     }
 
-    return body;
+    return result;
 }

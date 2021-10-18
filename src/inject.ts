@@ -3,7 +3,8 @@ import MockReq from 'mock-req';
 import MockRes from 'mock-res';
 import getBody from './body-parser/get-body';
 
-import { ConfigInput, IGetBody, IKequapp } from '../types/main';
+import { ConfigInput, IKequapp } from '../types/main';
+import { IGetBody } from '../types/body-parser';
 
 type OptionsInput = {
     method?: string;
