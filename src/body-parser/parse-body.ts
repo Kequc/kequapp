@@ -1,6 +1,6 @@
 import errors from '../util/errors';
 
-import { BodyPart } from '../../types/body-parser';
+import { RawPart } from '../../types/body-parser';
 
 const PARSERS = {
     'text/': parseText,
@@ -8,7 +8,7 @@ const PARSERS = {
     'application/json': parseJson
 };
 
-function parseBody (body: BodyPart): BodyPart {
+function parseBody (body: RawPart): RawPart {
     try {
         return { ...body, data: getData(body) };
     } catch (error) {
@@ -21,7 +21,7 @@ function parseBody (body: BodyPart): BodyPart {
 
 export default parseBody;
 
-function getData (body: BodyPart): any {
+function getData (body: RawPart): any {
     const contentType = body.headers['content-type'] || 'text/plain';
 
     for (const key of Object.keys(PARSERS)) {

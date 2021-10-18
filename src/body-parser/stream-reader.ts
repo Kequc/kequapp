@@ -1,10 +1,10 @@
 import { IncomingMessage, ServerResponse } from 'http';
 import errors from '../util/errors';
 
-import { BodyPart } from '../../types/body-parser';
+import { RawPart } from '../../types/body-parser';
 
-function streamReader (stream: IncomingMessage | ServerResponse, maxPayloadSize?: number): Promise<BodyPart> {
-    return new Promise<BodyPart>(function (resolve, reject) {
+function streamReader (stream: IncomingMessage | ServerResponse, maxPayloadSize?: number): Promise<RawPart> {
+    return new Promise<RawPart>(function (resolve, reject) {
         const chunks: Buffer[] = [];
 
         stream.on('data', handleData);

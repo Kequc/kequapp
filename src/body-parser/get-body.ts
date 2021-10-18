@@ -3,8 +3,9 @@ import multipart from './multipart';
 import parseBody from './parse-body';
 import streamReader from './stream-reader';
 
-import { BodyJson, BodyPart } from '../../types/body-parser';
+import { BodyJson, RawPart, BodyPart } from '../../types/body-parser';
 import { IGetBody } from '../../types/main';
+import headerAttributes from '../util/header-attributes';
 
 export enum BodyFormat {
     DEFAULT,
@@ -14,7 +15,7 @@ export enum BodyFormat {
 }
 
 function getBody (req: IncomingMessage, maxPayloadSize?: number): IGetBody {
-    let _body: BodyPart;
+    let _body: RawPart;
 
     return async function (format) {
         if (_body === undefined) {
@@ -50,13 +51,15 @@ function getBody (req: IncomingMessage, maxPayloadSize?: number): IGetBody {
 
 export default getBody;
 
-function parseMultipart (_body: BodyPart): [BodyJson, BodyPart[]] {
+function parseMultipart (_body: RawPart): [BodyJson, BodyPart[]] {
     const parts = multipart(_body.data, _body.headers['content-type']);
     const body: BodyJson = {};
     const files: BodyPart[] = [];
     const visited: { [key: string]: number } = {};
 
     for (const part of parts) {
+        const attributes = headerAttributes(part.headers['content-disposition']);
+        // TODO
         if (part.filename === undefined) {
             const key = part.name || 'undefined';
             const value = parseBody(part).data;
