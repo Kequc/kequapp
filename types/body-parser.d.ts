@@ -1,7 +1,10 @@
 import { BodyFormat } from '../src/main';
 
 export interface IGetBody {
-    (format?: BodyFormat): Promise<any>;
+    (format?: BodyFormat.DEFAULT): Promise<BodyJson>;
+    (format: BodyFormat.RAW): Promise<RawPart>;
+    (format: BodyFormat.MULTIPART): Promise<[BodyJson, BodyPart[]]>;
+    (format: BodyFormat.RAW_MULTIPART): Promise<RawPart[]>;
 }
 
 export type StaticFilesOptions = {

@@ -11,13 +11,13 @@ export enum BodyFormat {
     DEFAULT,
     RAW,
     MULTIPART,
-    RAW_MULTIPART,
+    RAW_MULTIPART
 }
 
 function getBody (req: IncomingMessage, maxPayloadSize?: number): IGetBody {
     let _body: RawPart;
 
-    return async function (format) {
+    return async function (format?: BodyFormat) {
         if (_body === undefined) {
             _body = await streamReader(req, maxPayloadSize);
         }
@@ -60,8 +60,6 @@ function parseMultipart (_body: RawPart): BodyJson {
     for (const part of parts) {
         const { filename, name } = headerAttributes(part.headers['content-disposition']);
         const mime = sanitizeContentType(part.headers['content-type']);
-
-        const key = name || 'undefined';
         const isFile = filename || !mime.startsWith('text/');
 
         if (isFile) {
@@ -69,7 +67,8 @@ function parseMultipart (_body: RawPart): BodyJson {
             continue;
         }
 
-        const value = part.data.toString();
+        const key = name || 'undefined';
+        const value = parseBody(part).data;
 
         visited[key] = visited[key] || 0;
         visited[key]++;

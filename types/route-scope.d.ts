@@ -1,9 +1,9 @@
 import { Bundle } from './main';
 
 export type RouteScope = {
-    route: (...handles: HandlesInputRoute) => RouteScope;
-    branch: (...handles: HandlesInput) => RouteScope;
-    middleware: (...handles: HandlesInput) => RouteScope;
+    route: IRouteScopeRoute;
+    branch: IRouteScopeBranch;
+    middleware: IRouteScopeMiddleware;
 };
 
 export type RouteBuilder = {
@@ -17,13 +17,19 @@ export type Route = RouteBuilder & {
 
 export type Handle = (bundle: Bundle) => Promise<any> | any;
 
-export type HandlesInput = [
-    pathname: string | Handle,
-    ...handles: Handle[]
-];
+export interface IRouteScopeRoute {
+    (method: string, pathname: string, ...handles: Handle[]): RouteScope;
+    (method: string, ...handles: Handle[]): RouteScope;
+    (pathname: string, ...handles: Handle[]): RouteScope;
+    (...handles: Handle[]): RouteScope;
+}
 
-export type HandlesInputRoute = [
-    method: string | Handle,
-    pathname?: string | Handle,
-    ...handles: Handle[]
-];
+export interface IRouteScopeBranch {
+    (pathname: string, ...handles: Handle[]): RouteScope;
+    (...handles: Handle[]): RouteScope;
+}
+
+export interface IRouteScopeMiddleware {
+    (pathname: string, ...handles: Handle[]): RouteScope;
+    (...handles: Handle[]): RouteScope;
+}

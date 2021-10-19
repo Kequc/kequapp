@@ -25,11 +25,11 @@ createServer(app).listen(4000, () => {
 
 ### Routing
 
-Routes are defined using the `route()` method. Method is optional default is `'GET'`, path is optional default is `'/'`, followed by any number of handlers which define the request lifecycle.
+Routes are defined using `route()`. Method is optional default is `'GET'`, path is optional default is `'/'`, followed by any number of handlers which define the request lifecycle.
 
-Branches are defined using the `branch()` method. Path prefix is optional default is `'/'`, followed by any number of handlers. It returns a branch of the application which will adopt all handlers and use the given path prefix. By itself this does not create a route, it will be used in conjunction with routes.
+Branches are defined using `branch()`. Path prefix is optional default is `'/'`, followed by any number of handlers. It returns a branch of the application which will adopt all handlers and use the given path prefix. By itself this does not create a route, it will be used in conjunction with routes.
 
-Handlers are added to the current branch using the `middleware()` method. Path prefix is optional default is `'/'`, followed by any number of handlers you would like to use. This affects all routes in the current branch. Often useful on the `app` instance to interact with all routes.
+Handlers are added to the current branch using `middleware()`. Path prefix is optional default is `'/'`, followed by any number of handlers you would like to use. This affects all routes in the current branch. Often useful on the `app` instance to interact with all routes.
 
 ```javascript
 function json ({ res }) {
@@ -114,25 +114,7 @@ Node delivers the body of a request in chunks. It is not always necessary to wai
 
 ```javascript
 app.route('POST', '/user', async ({ getBody }) => {
-    const body = await getBody();
-
-    // body ~= {
-    //     name: 'april'
-    // }
-
-    return `User creation ${body.name}!`;
-});
-```
-
-By default `getBody()` will try to parse the request as best it can and provide you a simple result. There are several formatting options for the data retrieved from `getBody()` these are accessed by providing a `BodyFormat` option.
-
-```javascript
-const { BodyFormat } = require('kequapp');
-```
-
-```javascript
-app.route('POST', '/user', async ({ getBody }) => {
-    const [body, files] = await getBody(BodyFormat.MULTIPART);
+    const [body, files] = await getBody();
 
     // body ~= {
     //     name: 'april'
@@ -149,6 +131,39 @@ app.route('POST', '/user', async ({ getBody }) => {
     // }]
 
     return `User creation ${body.name}!`;
+});
+```
+
+By default `getBody()` will try to parse the request as best it can and provide you a simple result. There are several formatting options for the data retrieved from `getBody()` these are accessed by providing a `BodyFormat` option.
+
+```javascript
+const { BodyFormat } = require('kequapp');
+```
+
+```javascript
+app.route('POST', '/user', async ({ getBody }) => {
+    const parts = await getBody(BodyFormat.RAW);
+
+    // parts ~= [{
+    //     headers: {
+    //         'content-disposition': 'form-data; name="name"'
+    //     },
+    //     mime: 'text/plain',
+    //     name: 'name',
+    //     filename: undefined,
+    //     data: Buffer <...>
+    // }, {
+    //     headers: {
+    //         'content-disposition': 'form-data; name="avatar" filename="my-cat.png"'
+    //         'content-type': 'image/png;',
+    //     },
+    //     mime: 'image/png',
+    //     name: 'avatar',
+    //     filename: 'my-cat.png',
+    //     data: Buffer <...>
+    // }]
+
+    return `User creation ${parts[0].data.toString()}!`;
 });
 ```
 
@@ -229,7 +244,9 @@ By default the `./public` directory is used.
 
 ```javascript
 const { staticFiles } = require('kequapp');
+```
 
+```javascript
 app.route('/assets/**', staticFiles({
     dir: './my-assets-dir',
     exclude: ['./my-assets-dir/private']
@@ -240,7 +257,9 @@ If more control is needed a similar `sendFile()` helper is available.
 
 ```javascript
 const { sendFile } = require('kequapp');
+```
 
+```javascript
 app.route('/db.json', async function ({ req, res }) {
     const pathname = './db/my-db.json';
     await sendFile(req.method, res, pathname);
