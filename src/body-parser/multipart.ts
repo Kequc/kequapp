@@ -3,7 +3,8 @@ import headerAttributes from '../util/header-attributes';
 
 import { RawPart } from '../../types/body-parser';
 
-const CRLF = [0x0d, 0x0a];
+const CR = 0x0d;
+const LF = 0x0a;
 
 function multipart (buffer: Buffer, contentType?: string): RawPart[] {
     if (!contentType?.startsWith('multipart/')) {
@@ -12,7 +13,8 @@ function multipart (buffer: Buffer, contentType?: string): RawPart[] {
         });
     }
 
-    const boundary = getBoundary(contentType);
+    const boundary = extractBoundary(contentType);
+    const crs = findCrs(buffer);
     const result: RawPart[] = [];
 
     let headers: { [key: string]: string } = {};
@@ -26,34 +28,34 @@ function multipart (buffer: Buffer, contentType?: string): RawPart[] {
         if (key && value) headers[key] = value;
     }
 
-    function addPart (boundaryAt: number) {
-        const dataEnd = boundaryAt - crlfLength(buffer, boundaryAt-2);
+    function addPart (nextBoundary: number) {
+        const dataEnd = nextBoundary - (crs.includes(nextBoundary-2) ? 2 : 1);
         result.push({
             headers,
             data: buffer.slice(i, dataEnd)
         });
+        headers = {};
     }
 
     while (i > -1) {
         // until two new lines
-        while (i > -1 && !CRLF.includes(buffer[i])) {
+        while (i > -1 && !crs.includes(i) && buffer[i] !== LF) {
             const nextLine = findNextLine(buffer, i);
             if (nextLine > -1) addHeader(nextLine);
 
             i = nextLine;
         }
 
-        if (i <= -1) break;
-        i += crlfLength(buffer, i);
-        if ((i + 2) >= buffer.length) break;
+        if (i < 0) break;
+        i += (crs.includes(i) ? 2 : 1);
+        if (i >= buffer.length) break;
 
         // data start
-        const boundaryAt = buffer.indexOf(boundary, i);
-        if (boundaryAt <= -1) break;
-        addPart(boundaryAt);
+        const nextBoundary = buffer.indexOf(boundary, i);
+        if (nextBoundary < 0) break;
+        addPart(nextBoundary);
 
-        i = findNextLine(buffer, boundaryAt);
-        headers = {};
+        i = findNextLine(buffer, nextBoundary);
     }
 
     return result;
@@ -61,7 +63,7 @@ function multipart (buffer: Buffer, contentType?: string): RawPart[] {
 
 export default multipart;
 
-function getBoundary (contentType: string) {
+function extractBoundary (contentType: string) {
     const boundary = headerAttributes(contentType).boundary;
     if (!boundary) {
         throw Ex.UnprocessableEntity('Multipart request requires boundary attribute', {
@@ -72,14 +74,17 @@ function getBoundary (contentType: string) {
 }
 
 function findNextLine (buffer: Buffer, from: number) {
-    const ii = CRLF.map(char => buffer.indexOf(char, from)).filter(i => i > -1);
-    if (ii.length < 1) return -1;
-    const i = Math.min(...ii);
-    if ((i + 2) >= buffer.length) return -1;
-    return i + crlfLength(buffer, i);
+    const i = buffer.indexOf(LF, from) + 1;
+    if (i < 1 || i >= buffer.length) return -1;
+    return i;
 }
 
-function crlfLength (buffer: Buffer, from: number) {
-    const isCrlf = buffer[from] === CRLF[0] && buffer[from + 1] === CRLF[1];
-    return isCrlf ? 2 : 1;
+function findCrs (buffer: Buffer) {
+    const result: number[] = [];
+    let cr = buffer.indexOf(CR);
+    while (cr > -1) {
+        result.push(cr);
+        cr = buffer.indexOf(CR, cr);
+    }
+    return result;
 }
