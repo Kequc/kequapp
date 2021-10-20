@@ -14,7 +14,6 @@ function multipart (buffer: Buffer, contentType?: string): RawPart[] {
     }
 
     const boundary = extractBoundary(contentType);
-    const crs = findCrs(buffer);
     const result: RawPart[] = [];
 
     let headers: { [key: string]: string } = {};
@@ -29,7 +28,7 @@ function multipart (buffer: Buffer, contentType?: string): RawPart[] {
     }
 
     function addPart (nextBoundary: number) {
-        const dataEnd = nextBoundary - (crs.includes(nextBoundary-2) ? 2 : 1);
+        const dataEnd = nextBoundary - (buffer[nextBoundary-2] === CR ? 2 : 1);
         result.push({
             headers,
             data: buffer.slice(i, dataEnd)
@@ -39,7 +38,7 @@ function multipart (buffer: Buffer, contentType?: string): RawPart[] {
 
     while (i > -1) {
         // until two new lines
-        while (i > -1 && !crs.includes(i) && buffer[i] !== LF) {
+        while (i > -1 && buffer[i] !== CR && buffer[i] !== LF) {
             const nextLine = findNextLine(buffer, i);
             if (nextLine > -1) addHeader(nextLine);
 
@@ -47,7 +46,7 @@ function multipart (buffer: Buffer, contentType?: string): RawPart[] {
         }
 
         if (i < 0) break;
-        i += (crs.includes(i) ? 2 : 1);
+        i += (buffer[i] === CR ? 2 : 1);
         if (i >= buffer.length) break;
 
         // data start
@@ -77,14 +76,4 @@ function findNextLine (buffer: Buffer, from: number) {
     const i = buffer.indexOf(LF, from) + 1;
     if (i < 1 || i >= buffer.length) return -1;
     return i;
-}
-
-function findCrs (buffer: Buffer) {
-    const result: number[] = [];
-    let cr = buffer.indexOf(CR);
-    while (cr > -1) {
-        result.push(cr);
-        cr = buffer.indexOf(CR, cr);
-    }
-    return result;
 }
