@@ -157,7 +157,7 @@ app.route('POST', '/user', async ({ getBody }) => {
 });
 ```
 
-By passing `raw` the body is processed as minimally as possible, returning a single buffer as it arrived. When combined with `multipart`, an array is returned with all parts as separate buffers.
+By passing `raw` the body is processed as minimally as possible, returning a single buffer as it arrived. When combined with `multipart`, an array is returned with all parts as separate buffers with respective headers.
 
 ```javascript
 app.route('POST', '/user', async ({ getBody }) => {
