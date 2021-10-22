@@ -1,5 +1,5 @@
 import assert from 'assert';
-import splitMultipart from '../../src/body-parser/split-multipart';
+import splitMultipart from '../../src/body/split-multipart';
 
 it('reads buffer', function () {
     const part = {
