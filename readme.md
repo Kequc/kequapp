@@ -246,7 +246,7 @@ app.route('/login', ({ res }) => {
 
 Error generation is available by importing the `Ex` utility. Any thrown error will be caught by the error handler and return a `500` status code, this utility enables you to easily utilize all status codes `400` and above.
 
-These methods create an error with the correct stacktrace there is no need to use `new`.
+These methods create errors with correct stacktraces there is no need to use `new`.
 
 ```javascript
 const { Ex } = require('kequapp');
