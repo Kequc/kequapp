@@ -27,7 +27,6 @@ export interface IRouteScopeBranch {
     (...handles: Handle[]): RouteScope;
 }
 export interface IRouteScopeMiddleware {
-    (pathname: string, ...handles: Handle[]): RouteScope;
     (...handles: Handle[]): RouteScope;
 }
 
@@ -65,14 +64,12 @@ function buildBranch (routes: Route[], parent: RouteBuilder): IRouteScopeBranch 
 
 function buildMiddleware (parent: RouteBuilder, scope: RouteScope): IRouteScopeMiddleware {
     return function middleware (...handles: unknown[]) {
-        const pathname = extractPathname(handles);
-
         if (handles.find(handle => typeof handle !== 'function')) {
             throw new Error('Handle must be a function');
         }
 
         Object.assign(parent, routeMerge(parent, {
-            pathname,
+            pathname: '/',
             handles: handles as Handle[]
         }));
 

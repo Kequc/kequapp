@@ -31,7 +31,7 @@ Routes are defined using `route()`. Method is optional default is `'GET'`, path 
 
 Branches are defined using `branch()`. Path prefix is optional default is `'/'`, followed by any number of handlers. It returns a branch of the application which will adopt all handlers and use the given path prefix. By itself this does not create a route, it will be used in conjunction with routes.
 
-Handlers are added to the current branch using `middleware()`. Path prefix is optional default is `'/'`, followed by any number of handlers you would like to use. This affects all routes in the current branch. Often useful on the `app` instance itself to augment all routes.
+Handlers are added to the current branch using `middleware()`. Provide any number of handlers you would like that will affect all route and branch siblings. This is most useful on the `app` instance itself.
 
 ```javascript
 const { Ex } = require('kequapp');
