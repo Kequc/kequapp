@@ -1,11 +1,11 @@
 import headerAttributes from '../../util/header-attributes';
 import { sanitizeContentType } from '../../util/sanitize';
-import { BodyPart, RawPart } from '../get-body';
+import { FilePart, RawPart } from '../get-body';
 import { BodyJson } from '../parse-body';
 
-function parseMultipart (parts: RawPart[]): [BodyJson, BodyPart[]] {
+function parseMultipart (parts: RawPart[]): [BodyJson, FilePart[]] {
     const result: BodyJson = {};
-    const files: BodyPart[] = [];
+    const files: FilePart[] = [];
     const visited: { [key: string]: number } = {};
 
     for (const part of parts) {

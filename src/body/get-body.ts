@@ -9,7 +9,7 @@ import normalizeBody from './normalize-body';
 export interface IGetBody {
     (format: BodyOptions & { raw: true, multipart: true }): Promise<RawPart[]>;
     (format: BodyOptions & { raw: true }): Promise<Buffer>;
-    (format: BodyOptions & { multipart: true }): Promise<[BodyJson, BodyPart[]]>;
+    (format: BodyOptions & { multipart: true }): Promise<[BodyJson, FilePart[]]>;
     (format?: BodyOptions): Promise<BodyJson>;
 }
 
@@ -32,7 +32,7 @@ export type RawPart = {
     data: Buffer;
 };
 
-export type BodyPart = RawPart & {
+export type FilePart = RawPart & {
     mime?: string;
     name?: string;
     filename?: string;
