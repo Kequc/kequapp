@@ -37,6 +37,13 @@ export type BundleQuery = {
     [key: string]: any;
 };
 
+export type Config = {
+    logger: Logger;
+    renderers: ConfigRenderers;
+    errorHandler: ConfigErrorHandler
+    maxPayloadSize?: number;
+};
+
 export type ConfigInput = {
     logger?: Logger;
     renderers?: ConfigRenderers;
@@ -44,12 +51,7 @@ export type ConfigInput = {
     maxPayloadSize?: number;
 };
 
-export type Config = {
-    logger: Logger;
-    renderers: ConfigRenderers;
-    errorHandler: ConfigErrorHandler
-    maxPayloadSize?: number;
-};
+export type ConfigErrorHandler = (error: any, bundle: Bundle) => any;
 
 export type Logger = {
     log: (...params: any) => any;
@@ -59,13 +61,11 @@ export type Logger = {
     info: (...params: any) => any;
 };
 
-export type ConfigErrorHandler = (error: any, bundle: Bundle) => any;
+export type Renderer = (payload: any, bundle: Bundle) => Promise<void> | void;
 
 export type ConfigRenderers = {
     [key: string]: Renderer;
 };
-
-export type Renderer = (payload: any, bundle: Bundle) => Promise<void> | void;
 
 
 const DEFAULT_OPTIONS: Config = {
@@ -81,9 +81,11 @@ function createApp (options: ConfigInput = {}): IKequapp {
     const _routes = [];
     const _config = { ...DEFAULT_OPTIONS, ...options };
 
-    function app (req: IncomingMessage, res: ServerResponse, _override: ConfigInput) {
+    function app (req: IncomingMessage, res: ServerResponse, _override: ConfigInput = {}) {
         const config = { ..._config, ..._override };
+
         const url = new URL(req.url || '/', `${req.headers.protocol}://${req.headers.host}`);
+        const query = Object.fromEntries(url.searchParams);
 
         res.statusCode = 200; // default
         res.setHeader('Content-Type', 'text/plain; charset=utf-8'); // default
@@ -94,7 +96,7 @@ function createApp (options: ConfigInput = {}): IKequapp {
             url,
             context: {},
             params: {},
-            query: Object.fromEntries(url.searchParams),
+            query,
             getBody: createGetBody(req, config.maxPayloadSize),
             logger: config.logger
         });

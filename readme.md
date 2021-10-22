@@ -253,7 +253,7 @@ app.route('/login', ({ res }) => {
 
 ### Exceptions
 
-Error generation is available importing the `Ex` utility. Any thrown error will be caught by the error handler and return a `500` status code, this utility enables you to easily utilize all status codes `400` and above.
+Error generation is available by importing the `Ex` utility. Any thrown error will be caught by the error handler and return a `500` status code, this utility enables you to easily utilize all status codes `400` and above.
 
 These methods will create a new error with the correct stacktrace there is no need to use `new`.
 
@@ -324,11 +324,14 @@ app.route('/db.json', async function ({ req, res }) {
 
 ### Unit Tests
 
-It is possible to test your application without spinning up a server using the `inject()` tool. The first parameter is your app, then a config override for your app, followed by options largely used to populate the request. Returned `req` and `res` objects are from the npm `mock-req` and `mock-res` modules respectively.
+It is possible to test your application without spinning up a server using the `inject()` tool. The first parameter is your app, then a config override for your app, followed by options largely used to populate the request.
 
-It also returns `getResponse()` which is a utility you may use to wait for your application to respond. Alternatively you can inspect what your application is doing making use of the `req`, and `res` objects in realtime.
+Returned `req` and `res` objects are from the npm `mock-req` and `mock-res` modules respectively. Ensure you have both [`mock-req`](https://www.npmjs.com/package/mock-req) and [`mock-res`](https://www.npmjs.com/package/mock-res) installed in your project.
+
+It also returns `getResponse()` which is a utility you may use to wait for your application to respond. Alternatively you can inspect what your application is doing in realtime using the `req`, and `res` objects.
 
 ```javascript
+const assert = require('assert');
 const { inject } = require('kequapp/test');
 ```
 
