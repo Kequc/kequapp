@@ -1,6 +1,8 @@
 # Kequapp
 
-This is the development branch of a request listener for nodejs web apps. It's intended to be versatile and non-intrusive to make working with node's server capabilities easier without changing built in functionality.
+This is the development branch of a request listener for nodejs web apps.
+
+It's intended to be versatile, non-intrusive, and make working with node's server capabilities easier without changing built in functionality.
 
 ### Simple Setup
 
@@ -155,7 +157,7 @@ app.route('POST', '/user', async ({ getBody }) => {
 });
 ```
 
-By passing `raw` the body is processed as minimally as possible, returning a single buffer as it arrived. When it is combined with `multipart`, an array is returned with all parts as separate buffers.
+By passing `raw` the body is processed as minimally as possible, returning a single buffer as it arrived. When combined with `multipart`, an array is returned with all parts as separate buffers.
 
 ```javascript
 app.route('POST', '/user', async ({ getBody }) => {
@@ -244,7 +246,7 @@ app.route('/login', ({ res }) => {
 
 Error generation is available by importing the `Ex` utility. Any thrown error will be caught by the error handler and return a `500` status code, this utility enables you to easily utilize all status codes `400` and above.
 
-The methods will create a new error with the correct stacktrace there is no need to use `new`.
+These methods create an error with the correct stacktrace there is no need to use `new`.
 
 ```javascript
 const { Ex } = require('kequapp');
@@ -262,7 +264,7 @@ app.route('/throw-error', () => {
 
 ### Exception Handling
 
-The default error handler returns a json formatted response containing helpful information for debugging. It can be overridden by defining a `errorHandler` during instantiation. The returned value will be sent to the renderer again for processing.
+The default error handler returns a json formatted response containing helpful information for debugging. It can be overridden by defining an `errorHandler` during instantiation. The returned value will be sent to the renderer again for processing.
 
 Errors thrown inside of the error handler or within the renderer chosen to parse the error handler's payload will cause a fatal exception.
 
