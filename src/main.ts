@@ -52,9 +52,9 @@ function createApp (options: ConfigInput = {}): IKequapp {
 }
 
 export {
+    Ex,
     createApp,
     sendFile,
     staticFiles,
-    BodyFormat,
-    Ex
+    BodyFormat
 };

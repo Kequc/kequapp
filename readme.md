@@ -114,7 +114,11 @@ Node delivers the body of a request in chunks. It is not always necessary to wai
 
 ```javascript
 app.route('POST', '/user', async ({ getBody }) => {
-    const [body, files] = await getBody();
+    const [body, files] = await getBody({ multipart: true });
+
+    // ## files received are ignored by default
+    // const body = await getBody();
+    // ##
 
     // body ~= {
     //     name: 'april'
@@ -176,9 +180,62 @@ The following `BodyFormat` options are available.
 | `MULTIPART`     | Body and files are returned separately.                      |
 | `RAW_MULTIPART` | Each part is returned as a separate buffer.                  |
 
+### Body Normalization
+
+The `getBody()` helper method allows you to specify which fields should be `arrays` and which fields are `required`. This is because the server only knows a field should be an array if it receives more than one. Required ensures that the field is not `null` or `undefined`. More control is offered using `validate()`.
+
+```javascript
+function validate (result) {
+    if (result.ownedPets.length > 99) {
+        return 'Too many pets';
+    }
+    if (result.ownedPets.length < 1) {
+        return 'Not enough pets';
+    }
+}
+
+app.route('POST', '/user', async ({ getBody }) => {
+    const body = await getBody({
+        arrays: ['ownedPets'],
+        required: ['name'],
+        validate
+    });
+
+    // body ~= {
+    //     ownedPets: ['cat'],
+    //     name: 'april'
+    // }
+});
+```
+
+Post processing may be applied using `postProcess()`.
+
+```javascript
+function postProcess (result) {
+    return {
+        ...result,
+        name: result.name.trim(),
+        eyeColor: 'blue'
+    };
+}
+
+app.route('POST', '/user', async ({ getBody }) => {
+    const body = await getBody({
+        required: ['name'],
+        postProcess
+    });
+
+    // body ~= {
+    //     ownedPets: 'cat',
+    //     name: 'april',
+    //     eyeColor: 'blue'
+    // }
+});
+```
+
 ### Cookies
 
-I recommend use of an external library.
+I recommend using an external library.
 
 ```javascript
 const cookie = require('cookie'); // npm i cookie

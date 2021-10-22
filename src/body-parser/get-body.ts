@@ -3,14 +3,17 @@ import createParseBody, { parseUrlEncoded, parseJson } from './parse-body';
 import parseMultipart from './parse-multipart';
 import splitMultipart from './split-multipart';
 import streamReader from './stream-reader';
+import verifyBody, { BodyOptions } from './verify-body';
 
 import { BodyJson, BodyPart, RawPart } from '../../types/body-parser';
 
 export interface IGetBody {
-    (format?: BodyFormat.DEFAULT): Promise<BodyJson>;
     (format: BodyFormat.RAW): Promise<RawPart>;
     (format: BodyFormat.MULTIPART): Promise<[BodyJson, BodyPart[]]>;
     (format: BodyFormat.RAW_MULTIPART): Promise<RawPart[]>;
+    (format: BodyOptions & { multipart: true }): Promise<[BodyJson, BodyPart[]]>;
+    (format: BodyOptions): Promise<BodyJson>;
+    (format?: BodyFormat.DEFAULT): Promise<BodyJson>;
 }
 
 export enum BodyFormat {
@@ -28,7 +31,7 @@ const parseBody = createParseBody({
 function createGetBody (req: IncomingMessage, maxPayloadSize?: number): IGetBody {
     let _body: RawPart;
 
-    return async function (format?: BodyFormat) {
+    return async function (format?: BodyFormat | BodyOptions): Promise<any> {
         if (_body === undefined) {
             _body = await streamReader(req, maxPayloadSize);
         }
@@ -37,26 +40,20 @@ function createGetBody (req: IncomingMessage, maxPayloadSize?: number): IGetBody
             return clone(_body);
         }
 
-        const isMultipart = _body.headers['content-type']?.startsWith('multipart/');
-        if (isMultipart) {
-            const parts = splitMultipart(_body);
-            switch (format) {
-            case BodyFormat.MULTIPART:
-                return parseMultipart(parts);
-            case BodyFormat.RAW_MULTIPART:
-                return parts;
-            default:
-                return parseMultipart(parts)[0];
-            }
+        const isMultipartRequest = _body.headers['content-type']?.startsWith('multipart/');
+
+        if (format === BodyFormat.RAW_MULTIPART) {
+            return isMultipartRequest ? splitMultipart(_body) : [clone(_body)];
         }
 
-        switch (format) {
-        case BodyFormat.MULTIPART:
-            return [parseBody(_body), []];
-        case BodyFormat.RAW_MULTIPART:
-            return [clone(_body)];
-        default:
-            return parseBody(_body);
+        if (isMultipartRequest) {
+            const [result, files] = parseMultipart(splitMultipart(_body));
+            const body = verifyBody(result, format);
+            return returnMultipart(format) ? [body, files] : body;
+        } else {
+            const result = parseBody(_body);
+            const body = verifyBody(result, format);
+            return returnMultipart(format) ? [body, []] : body;
         }
     };
 }
@@ -65,4 +62,12 @@ export default createGetBody;
 
 function clone (body: RawPart): RawPart {
     return { ...body, headers: { ...body.headers } };
+}
+
+function returnMultipart (format?: BodyFormat | BodyOptions): boolean {
+    if (typeof format === 'number') {
+        return format === BodyFormat.MULTIPART;
+    }
+    if (format && format.multipart === true) return true;
+    return false;
 }

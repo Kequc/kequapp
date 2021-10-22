@@ -24,7 +24,6 @@ export function parseJson (body: RawPart): BodyJson {
 type Parser = (body: RawPart) => any;
 
 function createParseBody (parsers: { [key: string]: Parser }, _default?: Parser): Parser {
-    console.log(parsers);
     return function (body: RawPart) {
         const contentType = body.headers['content-type'] || 'text/plain';
 
