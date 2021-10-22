@@ -1,7 +1,8 @@
 import { ClientRequest, ServerResponse } from 'http';
 import MockReq from 'mock-req';
 import MockRes from 'mock-res';
-import createGetResponse, { IGetResponse, ResponseFormat } from './body-parser/get-response';
+import createGetResponse, { IGetResponse } from './body-parser/get-response';
+import { validateCreateAppConfig } from './util/validate';
 
 import { ConfigInput, IKequapp } from '../types/main';
 
@@ -21,6 +22,8 @@ type InjectResponse = {
 };
 
 function inject (app: IKequapp, override: ConfigInput | undefined, options: OptionsInput): InjectResponse {
+    if (override) validateCreateAppConfig(override);
+
     const _options = Object.assign({}, options);
 
     if (_options.search) {
@@ -47,6 +50,5 @@ function inject (app: IKequapp, override: ConfigInput | undefined, options: Opti
 }
 
 export {
-    inject,
-    ResponseFormat
+    inject
 };

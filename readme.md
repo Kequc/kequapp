@@ -74,23 +74,24 @@ const app = createApp({
 });
 ```
 
-### Halt Execution
+### Halting Execution
 
-Any handler can return a `payload`. Doing so halts further execution of the request lifecycle and triggers rendering immediately. This is similar to interrupting the request by throwing an error or finalizing the response.
+Any handler can return a `payload`. Doing so halts further execution of the request lifecycle and triggers rendering immediately. This is similar to interrupting the request by throwing an error or by finalizing the response.
 
-If the `res` stream is no longer writable all processing halts. This is useful for example if instead of rendering output or throwing an error you want to redirect the user to another page.
+If the `res` stream has been finalized all processing halts. This is useful for example if instead of rendering output or throwing an error you want to redirect the user to another page.
 
 ```javascript
-function membersOnly({ req, res }) {
-    // must be authenticated
+function members({ req, res }) {
+    // must be authenticated!
     if (!req.headers.authorization) {
         res.statusCode = 302;
         res.setHeader('Location', '/login');
-        res.end(); // halts processing the request
+        // finalize response
+        res.end();
     }
 }
 
-const membersBranch = app.branch('/members', membersOnly);
+const membersBranch = app.branch('/members', members);
 ```
 
 ### Parameters
@@ -110,23 +111,35 @@ The following parameters are made available to handlers and renderers.
 
 ### Body
 
-Node delivers the body of a request in chunks. It is not always necessary to wait for the request to finish before we begin processing it. Therefore a helper method `getBody()` is provided which you can use to await body parameters from the completed request.
+Node delivers the body of a request in chunks. It is not always necessary to wait for the request to finish before we begin processing it. Therefore a helper method `getBody()` is provided which you may use to await body parameters from the completed request.
+
+```javascript
+app.route('POST', '/user', async ({ getBody }) => {
+    const body = await getBody();
+
+    // body ~= {
+    //     name: 'april'
+    // }
+
+    return `User creation ${body.name}!`;
+});
+```
+
+### Multipart/Raw Body
+
+By passing `multipart` the function will return both a `body` and `files`.
 
 ```javascript
 app.route('POST', '/user', async ({ getBody }) => {
     const [body, files] = await getBody({ multipart: true });
-
-    // ## files received are ignored by default
-    // const body = await getBody();
-    // ##
 
     // body ~= {
     //     name: 'april'
     // }
     // files ~= [{
     //     headers: {
-    //         'content-disposition': 'form-data; name="avatar" filename="my-cat.png"'
-    //         'content-type': 'image/png;',
+    //         'content-disposition': 'form-data; name="avatar" filename="my-cat.png"',
+    //         'content-type': 'image/png;'
     //     },
     //     mime: 'image/png',
     //     name: 'avatar',
@@ -138,32 +151,22 @@ app.route('POST', '/user', async ({ getBody }) => {
 });
 ```
 
-By default `getBody()` will try to parse the request as best it can and provide you a simple result. There are several formatting options for the data retrieved from `getBody()` these are accessed by providing a `BodyFormat` option.
-
-```javascript
-const { BodyFormat } = require('kequapp');
-```
+By passing `raw` the body is processed as minimally as possible, returning a single buffer as it arrived. When it is combined with `multipart`, an array is returned with all request "parts" in separate buffers.
 
 ```javascript
 app.route('POST', '/user', async ({ getBody }) => {
-    const parts = await getBody(BodyFormat.RAW);
+    const parts = await getBody({ multipart: true, raw: true });
 
     // parts ~= [{
     //     headers: {
     //         'content-disposition': 'form-data; name="name"'
     //     },
-    //     mime: 'text/plain',
-    //     name: 'name',
-    //     filename: undefined,
     //     data: Buffer <...>
     // }, {
     //     headers: {
-    //         'content-disposition': 'form-data; name="avatar" filename="my-cat.png"'
-    //         'content-type': 'image/png;',
+    //         'content-disposition': 'form-data; name="avatar" filename="my-cat.png"',
+    //         'content-type': 'image/png;'
     //     },
-    //     mime: 'image/png',
-    //     name: 'avatar',
-    //     filename: 'my-cat.png',
     //     data: Buffer <...>
     // }]
 
@@ -171,18 +174,11 @@ app.route('POST', '/user', async ({ getBody }) => {
 });
 ```
 
-The following `BodyFormat` options are available.
-
-| option          | description                                                  |
-| --------------- | ------------------------------------------------------------ |
-| `DEFAULT`       | Body is processed by it's content type.                      |
-| `RAW`           | The body is returned as it arrived in a single buffer.       |
-| `MULTIPART`     | Body and files are returned separately.                      |
-| `RAW_MULTIPART` | Each part is returned as a separate buffer.                  |
-
 ### Body Normalization
 
-The `getBody()` helper method allows you to specify which fields should be `arrays` and which fields are `required`. This is because the server only knows a field should be an array if it receives more than one. Required ensures that the field is not `null` or `undefined`. More control is offered using `validate()`.
+The `getBody()` helper method allows you to specify which fields should be an `array` and which fields are `required`. This is because the server only knows a field should be an array if it receives more than one. Required ensures that the field is not `null` or `undefined`. More control is offered using `validate()`.
+
+Note these options are ignored when the `raw` option is used.
 
 ```javascript
 function validate (result) {
@@ -190,13 +186,13 @@ function validate (result) {
         return 'Too many pets';
     }
     if (result.ownedPets.length < 1) {
-        return 'Not enough pets';
+        return 'Not enough pets!';
     }
 }
 
 app.route('POST', '/user', async ({ getBody }) => {
     const body = await getBody({
-        arrays: ['ownedPets'],
+        array: ['ownedPets'],
         required: ['name'],
         validate
     });
@@ -242,19 +238,22 @@ const cookie = require('cookie'); // npm i cookie
 ```
 
 ```javascript
-app.middleware(({ req }) => {
+app.middleware(({ req, context }) => {
     const cookies = cookie.parse(req.headers.cookie);
     // cookies ~= { myCookie: 'hello' }
+    context.cookies = cookies;
 });
 
 app.route('/login', ({ res }) => {
-    res.setHeader('Set-Cookie', [cookie.serialize('myCookie', 'hello')]);
+    res.setHeader('Set-Cookie', [
+        cookie.serialize('myCookie', 'hello')
+    ]);
 });
 ```
 
 ### Exceptions
 
-Error generation is available importing the `Ex` helper. Any thrown error will be caught by the error handler and will use a `500` status code, this helper utility enables you to utilize all status codes `400` and above.
+Error generation is available importing the `Ex` utility. Any thrown error will be caught by the error handler and return a `500` status code, this utility enables you to easily utilize all status codes `400` and above.
 
 These methods will create a new error with the correct stacktrace there is no need to use `new`.
 
@@ -274,11 +273,11 @@ app.route('/throw-error', () => {
 
 ### Exception Handling
 
-The default error handler returns json containing helpful information for debugging. It can be overridden by defining a `errorHandler` during instantiation. The returned value will be sent to the renderer again for processing.
+The default error handler returns a json response containing helpful information for debugging. It can be overridden by defining a `errorHandler` during instantiation. The returned value will be sent to the renderer again for processing.
 
 Errors thrown inside of the error handler or within the renderer chosen to parse the error handler's payload will cause a fatal exception.
 
-This example sends a very basic response.
+This example sends a very basic custom response.
 
 ```javascript
 const app = createApp({
@@ -297,7 +296,7 @@ const app = createApp({
 
 A rudimentary `staticFiles()` handler can be used to deliver files relative to your project directory. This utility makes use of the `wildcards` parameter as defined by your route to build a valid path.
 
-By default the `./public` directory is used.
+By default the `/public` directory is used.
 
 ```javascript
 const { staticFiles } = require('kequapp');
@@ -305,8 +304,8 @@ const { staticFiles } = require('kequapp');
 
 ```javascript
 app.route('/assets/**', staticFiles({
-    dir: './my-assets-dir',
-    exclude: ['./my-assets-dir/private']
+    dir: '/my-assets-dir',
+    exclude: ['/my-assets-dir/private']
 }));
 ```
 
@@ -318,7 +317,7 @@ const { sendFile } = require('kequapp');
 
 ```javascript
 app.route('/db.json', async function ({ req, res }) {
-    const pathname = './db/my-db.json';
+    const pathname = '/db/my-db.json';
     await sendFile(req.method, res, pathname);
 });
 ```

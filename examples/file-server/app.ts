@@ -7,8 +7,8 @@ app.route('/', () => {
 });
 
 app.route('/assets/**', staticFiles({
-    dir: './examples/file-server/assets',
-    exclude: ['./examples/file-server/assets/private.txt']
+    dir: '/examples/file-server/assets',
+    exclude: ['/examples/file-server/assets/private.txt']
 }));
 
 export default app;

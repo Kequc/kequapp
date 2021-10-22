@@ -2,7 +2,7 @@ import { IncomingMessage, ServerResponse } from 'http';
 import { URL } from 'url';
 import sendFile from './addons/send-file';
 import staticFiles from './addons/static-files';
-import createGetBody, { BodyFormat } from './body-parser/get-body';
+import createGetBody from './body-parser/get-body';
 import errorHandler from './defaults/error-handler';
 import Ex from './util/ex';
 import routeScope from './util/route-scope';
@@ -20,11 +20,11 @@ const DEFAULT_OPTIONS: Config = {
 
 function createApp (options: ConfigInput = {}): IKequapp {
     validateCreateAppConfig(options);
+
     const _routes = [];
     const _config = Object.assign({}, DEFAULT_OPTIONS, options);
 
-    function app (req: IncomingMessage, res: ServerResponse, _override?: ConfigInput) {
-        if (_override) validateCreateAppConfig(_override);
+    function app (req: IncomingMessage, res: ServerResponse, _override: ConfigInput) {
         const config = Object.assign({}, _config, _override);
         const url = new URL(req.url || '/', `${req.headers.protocol}://${req.headers.host}`);
 
@@ -55,6 +55,5 @@ export {
     Ex,
     createApp,
     sendFile,
-    staticFiles,
-    BodyFormat
+    staticFiles
 };

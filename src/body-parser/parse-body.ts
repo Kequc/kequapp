@@ -33,7 +33,9 @@ function createParseBody (parsers: { [key: string]: Parser }, _default?: Parser)
                     return parsers[key](body);
                 }
             }
+
             if (_default) return _default(body);
+
             throw new Error('Unrecognized content type');
         } catch (error) {
             throw Ex.BadRequest('Unable to process request', {

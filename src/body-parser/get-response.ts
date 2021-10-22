@@ -5,14 +5,13 @@ import streamReader from './stream-reader';
 import { RawPart } from '../../types/body-parser';
 
 export interface IGetResponse {
-    (format?: ResponseFormat.DEFAULT): Promise<any>;
-    (format: ResponseFormat.RAW): Promise<RawPart>;
+    (format: ResponseOptions & { raw: true }): Promise<Buffer>;
+    (format?: ResponseOptions): Promise<any>;
 }
 
-export enum ResponseFormat {
-    DEFAULT,
-    RAW
-}
+export type ResponseOptions = {
+    raw?: boolean;
+};
 
 const parseBody = createParseBody({
     'text/': ({ data }) => data.toString(),
@@ -22,13 +21,13 @@ const parseBody = createParseBody({
 function createGetResponse (res: ServerResponse): IGetResponse {
     let _body: RawPart;
 
-    return async function (format?: ResponseFormat) {
+    return async function (options: ResponseOptions = {}) {
         if (_body === undefined) {
             _body = await streamReader(res);
         }
 
-        if (format === ResponseFormat.RAW) {
-            return clone(_body);
+        if (options.raw === true) {
+            return _body.data;
         }
 
         return parseBody(_body);
@@ -36,7 +35,3 @@ function createGetResponse (res: ServerResponse): IGetResponse {
 }
 
 export default createGetResponse;
-
-function clone (body: RawPart): RawPart {
-    return { ...body, headers: { ...body.headers } };
-}

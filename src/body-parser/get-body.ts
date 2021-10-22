@@ -3,25 +3,25 @@ import createParseBody, { parseUrlEncoded, parseJson } from './parse-body';
 import parseMultipart from './parse-multipart';
 import splitMultipart from './split-multipart';
 import streamReader from './stream-reader';
-import verifyBody, { BodyOptions } from './verify-body';
+import normalizeBody from './normalize-body';
 
 import { BodyJson, BodyPart, RawPart } from '../../types/body-parser';
 
 export interface IGetBody {
-    (format: BodyFormat.RAW): Promise<RawPart>;
-    (format: BodyFormat.MULTIPART): Promise<[BodyJson, BodyPart[]]>;
-    (format: BodyFormat.RAW_MULTIPART): Promise<RawPart[]>;
+    (format: BodyOptions & { raw: true, multipart: true }): Promise<RawPart[]>;
+    (format: BodyOptions & { raw: true }): Promise<Buffer>;
     (format: BodyOptions & { multipart: true }): Promise<[BodyJson, BodyPart[]]>;
-    (format: BodyOptions): Promise<BodyJson>;
-    (format?: BodyFormat.DEFAULT): Promise<BodyJson>;
+    (format?: BodyOptions): Promise<BodyJson>;
 }
 
-export enum BodyFormat {
-    DEFAULT,
-    RAW,
-    MULTIPART,
-    RAW_MULTIPART
-}
+export type BodyOptions = {
+    raw?: boolean;
+    multipart?: boolean;
+    array?: string[];
+    required?: string[];
+    validate?: (body: BodyJson) => string | void;
+    postProcess?: (body: BodyJson) => BodyJson;
+};
 
 const parseBody = createParseBody({
     'application/x-www-form-urlencoded': parseUrlEncoded,
@@ -31,30 +31,28 @@ const parseBody = createParseBody({
 function createGetBody (req: IncomingMessage, maxPayloadSize?: number): IGetBody {
     let _body: RawPart;
 
-    return async function (format?: BodyFormat | BodyOptions): Promise<any> {
+    return async function (options: BodyOptions = {}): Promise<any> {
         if (_body === undefined) {
             _body = await streamReader(req, maxPayloadSize);
         }
 
-        if (format === BodyFormat.RAW) {
-            return clone(_body);
-        }
-
         const isMultipartRequest = _body.headers['content-type']?.startsWith('multipart/');
 
-        if (format === BodyFormat.RAW_MULTIPART) {
+        if (options.raw === true && options.multipart === true) {
             return isMultipartRequest ? splitMultipart(_body) : [clone(_body)];
+        } else if (options.raw === true) {
+            return _body.data;
         }
 
         if (isMultipartRequest) {
             const [result, files] = parseMultipart(splitMultipart(_body));
-            const body = verifyBody(result, format);
-            return returnMultipart(format) ? [body, files] : body;
-        } else {
-            const result = parseBody(_body);
-            const body = verifyBody(result, format);
-            return returnMultipart(format) ? [body, []] : body;
+            const body = normalizeBody(result, options);
+            return options.multipart === true ? [body, files] : body;
         }
+
+        const result = parseBody(_body);
+        const body = normalizeBody(result, options);
+        return options.multipart === true ? [body, []] : body;
     };
 }
 
@@ -62,12 +60,4 @@ export default createGetBody;
 
 function clone (body: RawPart): RawPart {
     return { ...body, headers: { ...body.headers } };
-}
-
-function returnMultipart (format?: BodyFormat | BodyOptions): boolean {
-    if (typeof format === 'number') {
-        return format === BodyFormat.MULTIPART;
-    }
-    if (format && format.multipart === true) return true;
-    return false;
 }
