@@ -1,8 +1,8 @@
 # Kequapp
 
-This is the development branch of an experimental request listener for basic nodejs servers. It's intended to be versatile and non-intrusive.
+This is the development branch of a request listener for nodejs web apps. It's intended to be versatile and non-intrusive to make working with node's server capabilities easier without changing built in functionality.
 
-### Basic Setup
+### Simple Setup
 
 ```
 npm i kequapp
@@ -29,7 +29,11 @@ Routes are defined using `route()`. Method is optional default is `'GET'`, path 
 
 Branches are defined using `branch()`. Path prefix is optional default is `'/'`, followed by any number of handlers. It returns a branch of the application which will adopt all handlers and use the given path prefix. By itself this does not create a route, it will be used in conjunction with routes.
 
-Handlers are added to the current branch using `middleware()`. Path prefix is optional default is `'/'`, followed by any number of handlers you would like to use. This affects all routes in the current branch. Often useful on the `app` instance to interact with all routes.
+Handlers are added to the current branch using `middleware()`. Path prefix is optional default is `'/'`, followed by any number of handlers you would like to use. This affects all routes in the current branch. Often useful on the `app` instance itself to augment all routes.
+
+```javascript
+const { Ex } = require('kequapp');
+```
 
 ```javascript
 function json ({ res }) {
@@ -59,7 +63,7 @@ app.route('/admin/dashboard', loggedIn, ({ context }) => {
 
 ### Renderers
 
-Default renderers are included for `text/plain`, and `application/json`. Renderers are chosen based on the `Content-Type` header set by your application. The above example would cause all routes of the application to render `application/json`.
+Default renderers are included for `text/plain`, and `application/json`. Renderers are chosen based on the `Content-Type` header set by your application. The above example would cause all routes of the `/user` branch to trigger the `application/json` renderer.
 
 You can override renderers or add your own by defining `renderers`. These act as the final step of a request's lifecycle and should explicitly finalize the response.
 
@@ -76,9 +80,9 @@ const app = createApp({
 
 ### Halting Execution
 
-Any handler can return a `payload`. Doing so halts further execution of the request lifecycle and triggers rendering immediately. This is similar to interrupting the request by throwing an error or by finalizing the response.
+Any handler can return a `payload`. Doing this halts further execution of the request and triggers rendering immediately. This is similar to interrupting the request by throwing an error or by finalizing the response.
 
-If the `res` stream has been finalized all processing halts. This is useful for example if instead of rendering output or throwing an error you want to redirect the user to another page.
+All processing halts if the response has been finalized. This is useful for example instead of rendering output you want to redirect the user to another page.
 
 ```javascript
 function members({ req, res }) {
@@ -100,8 +104,8 @@ The following parameters are made available to handlers and renderers.
 
 | parameter  | description                                       |
 | ---------- | ------------------------------------------------- |
-| `req`      | The node `req` parameter.                         |
-| `res`      | The node `res` parameter.                         |
+| `req`      | The node `req` object.                            |
+| `res`      | The node `res` object.                            |
 | `url`      | Url requested by the client.                      |
 | `context`  | Params shared between handler functions.          |
 | `params`   | Params extracted from the pathname.               |
@@ -151,11 +155,11 @@ app.route('POST', '/user', async ({ getBody }) => {
 });
 ```
 
-By passing `raw` the body is processed as minimally as possible, returning a single buffer as it arrived. When it is combined with `multipart`, an array is returned with all request "parts" in separate buffers.
+By passing `raw` the body is processed as minimally as possible, returning a single buffer as it arrived. When it is combined with `multipart`, an array is returned with all parts as separate buffers.
 
 ```javascript
 app.route('POST', '/user', async ({ getBody }) => {
-    const parts = await getBody({ multipart: true, raw: true });
+    const parts = await getBody({ raw: true, multipart: true });
 
     // parts ~= [{
     //     headers: {
@@ -176,7 +180,7 @@ app.route('POST', '/user', async ({ getBody }) => {
 
 ### Body Normalization
 
-The `getBody()` helper method allows you to specify which fields should be an `array` and which fields are `required`. This is because the server only knows a field should be an array if it receives more than one. Required ensures that the field is not `null` or `undefined`. More control is offered using `validate()`.
+The `getBody()` helper method allows you to specify which fields should be an `array` and which fields are `required`. This is because the server only knows a field should be an array if it received more than one. Required ensures that the field is not `null` or `undefined`. More control is offered using `validate()`. Post processing may be applied using `postProcess()`.
 
 Note these options are ignored when the `raw` option is used.
 
@@ -190,23 +194,6 @@ function validate (result) {
     }
 }
 
-app.route('POST', '/user', async ({ getBody }) => {
-    const body = await getBody({
-        array: ['ownedPets'],
-        required: ['name'],
-        validate
-    });
-
-    // body ~= {
-    //     ownedPets: ['cat'],
-    //     name: 'april'
-    // }
-});
-```
-
-Post processing may be applied using `postProcess()`.
-
-```javascript
 function postProcess (result) {
     return {
         ...result,
@@ -217,12 +204,14 @@ function postProcess (result) {
 
 app.route('POST', '/user', async ({ getBody }) => {
     const body = await getBody({
+        array: ['ownedPets'],
         required: ['name'],
+        validate,
         postProcess
     });
 
     // body ~= {
-    //     ownedPets: 'cat',
+    //     ownedPets: ['cat'],
     //     name: 'april',
     //     eyeColor: 'blue'
     // }
@@ -231,7 +220,7 @@ app.route('POST', '/user', async ({ getBody }) => {
 
 ### Cookies
 
-I recommend using an external library.
+I recommend use of an external library for this.
 
 ```javascript
 const cookie = require('cookie'); // npm i cookie
@@ -255,7 +244,7 @@ app.route('/login', ({ res }) => {
 
 Error generation is available by importing the `Ex` utility. Any thrown error will be caught by the error handler and return a `500` status code, this utility enables you to easily utilize all status codes `400` and above.
 
-These methods will create a new error with the correct stacktrace there is no need to use `new`.
+The methods will create a new error with the correct stacktrace there is no need to use `new`.
 
 ```javascript
 const { Ex } = require('kequapp');
@@ -273,7 +262,7 @@ app.route('/throw-error', () => {
 
 ### Exception Handling
 
-The default error handler returns a json response containing helpful information for debugging. It can be overridden by defining a `errorHandler` during instantiation. The returned value will be sent to the renderer again for processing.
+The default error handler returns a json formatted response containing helpful information for debugging. It can be overridden by defining a `errorHandler` during instantiation. The returned value will be sent to the renderer again for processing.
 
 Errors thrown inside of the error handler or within the renderer chosen to parse the error handler's payload will cause a fatal exception.
 
@@ -328,7 +317,7 @@ It is possible to test your application without spinning up a server using the `
 
 Returned `req` and `res` objects are from the npm `mock-req` and `mock-res` modules respectively. Ensure you have both [`mock-req`](https://www.npmjs.com/package/mock-req) and [`mock-res`](https://www.npmjs.com/package/mock-res) installed in your project.
 
-It also returns `getResponse()` which is a utility you may use to wait for your application to respond. Alternatively you can inspect what your application is doing in realtime using the `req`, and `res` objects.
+It also returns `getResponse()` which is a utility you may use to wait for your application to respond. Alternatively you may inspect what your application is doing in realtime using the `req`, and `res` objects manually.
 
 ```javascript
 const assert = require('assert');
@@ -336,17 +325,6 @@ const { inject } = require('kequapp/test');
 ```
 
 ```javascript
-it('returns the expected result', async function () {
-    const { getResponse, res } = inject(app, { logger }, {
-        url: '/user/21'
-    });
-
-    const body = await getResponse();
-
-    assert.strictEqual(res.getHeader('Content-Type'), 'text/plain; charset=utf-8');
-    assert.strictEqual(body, 'userId: 21!');
-});
-
 it('reads the authorization header', async function () {
     const { getResponse, res } = inject(app, { logger }, {
         url: '/admin/dashboard',
@@ -362,7 +340,7 @@ it('reads the authorization header', async function () {
 });
 ```
 
-A `body` parameter can optionally be provided as an easy way of finalizing the request. All requests are automatically finalized when they are initiated with `inject()` unless you set `body` to `null`. Doing so will allow you to write to the stream manually.
+A `body` parameter can optionally be provided for ease of use. All requests are automatically finalized when they are initiated with `inject()` unless you set `body` to `null`. Doing so will allow you to write to the stream.
 
 The following two examples are the same.
 

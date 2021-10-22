@@ -1,7 +1,7 @@
 {
   "name": "kequapp",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.0.1",
+  "description": "Versatile, non-intrusive, tiny webapp framework",
   "main": "dist/main.js",
   "types": "dist/main.d.ts",
   "scripts": {
@@ -24,7 +24,18 @@
   },
   "author": "Nathan Lunde-Berry",
   "license": "ISC",
-  "keywords": [],
+  "keywords": [
+    "kequapp",
+    "framework",
+    "web",
+    "http",
+    "rest",
+    "server",
+    "createApp",
+    "ClientRequest",
+    "ServerResponse",
+    "api"
+  ],
   "devDependencies": {
     "@types/node": "^16.10.2",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
