@@ -1,4 +1,4 @@
-import { BodyJson } from '../body/get-body';
+import { BodyJson } from '../body/create-get-body';
 import { ServerError } from '../util/ex';
 import { Bundle } from '../main';
 

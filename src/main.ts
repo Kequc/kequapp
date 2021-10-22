@@ -2,7 +2,7 @@ import { IncomingMessage, RequestListener, ServerResponse } from 'http';
 import { URL } from 'url';
 import sendFile from './addons/send-file';
 import staticFiles from './addons/static-files';
-import createGetBody, { IGetBody } from './body/get-body';
+import createGetBody, { IGetBody } from './body/create-get-body';
 import errorHandler from './defaults/error-handler';
 import Ex from './util/ex';
 import routeScope, { RouteScope } from './util/route-scope';

@@ -1,4 +1,4 @@
-import { BodyJson, FilePart, RawPart } from '../get-body';
+import { BodyJson, FilePart, RawPart } from '../create-get-body';
 import headerAttributes from '../../util/header-attributes';
 import { sanitizeContentType } from '../../util/sanitize';
 

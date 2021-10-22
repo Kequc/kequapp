@@ -1,4 +1,4 @@
-import { BodyJson, BodyOptions } from './get-body';
+import { BodyJson, BodyOptions } from './create-get-body';
 import Ex from '../util/ex';
 
 function normalizeBody (body: BodyJson, options: BodyOptions): BodyJson {

@@ -1,7 +1,7 @@
 import { ClientRequest, ServerResponse } from 'http';
 import MockReq from 'mock-req';
 import MockRes from 'mock-res';
-import createGetResponse, { IGetResponse } from './body/get-response';
+import createGetResponse, { IGetResponse } from './body/create-get-response';
 import { validateCreateAppConfig } from './util/validate';
 
 import { ConfigInput, IKequapp } from './main';
