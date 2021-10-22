@@ -6,14 +6,16 @@ import { RawPart } from '../../types/body-parser';
 const CR = 0x0d;
 const LF = 0x0a;
 
-function multipart (buffer: Buffer, contentType?: string): RawPart[] {
+function splitMultipart (body: RawPart): RawPart[] {
+    const contentType = body.headers['content-type'];
     if (!contentType?.startsWith('multipart/')) {
-        throw Ex.UnprocessableEntity('Unable to process request', {
+        throw Ex.BadRequest('Unable to process request', {
             contentType
         });
     }
 
     const boundary = extractBoundary(contentType);
+    const buffer = body.data;
     const result: RawPart[] = [];
 
     let headers: { [key: string]: string } = {};
@@ -60,12 +62,12 @@ function multipart (buffer: Buffer, contentType?: string): RawPart[] {
     return result;
 }
 
-export default multipart;
+export default splitMultipart;
 
 function extractBoundary (contentType: string) {
     const boundary = headerAttributes(contentType).boundary;
     if (!boundary) {
-        throw Ex.UnprocessableEntity('Multipart request requires boundary attribute', {
+        throw Ex.BadRequest('Multipart request requires boundary attribute', {
             contentType
         });
     }

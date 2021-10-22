@@ -5,11 +5,11 @@ import app from './app';
 const logger = util.logger();
 
 it('can access the root', async function () {
-    const { getBody, res } = inject(app, { logger }, {
+    const { getResponse, res } = inject(app, { logger }, {
         url: '/'
     });
 
-    const body = await getBody();
+    const body = await getResponse();
 
     assert.strictEqual(res.getHeader('Content-Type'), 'text/plain; charset=utf-8');
     assert.strictEqual(res.getHeader('Content-Length'), body.length);
@@ -17,11 +17,11 @@ it('can access the root', async function () {
 });
 
 it('can open an image', async function () {
-    const { getBody, res } = inject(app, { logger }, {
+    const { getResponse, res } = inject(app, { logger }, {
         url: '/assets/cat.gif'
     });
 
-    const body = await getBody();
+    const body = await getResponse();
 
     assert.strictEqual(res.getHeader('Content-Type'), 'image/gif; charset=utf-8');
     assert.ok(res.getHeader('Content-Length') > 0);
@@ -29,12 +29,12 @@ it('can open an image', async function () {
 });
 
 it('returns only head when requested', async function () {
-    const { getBody, res } = inject(app, { logger }, {
+    const { getResponse, res } = inject(app, { logger }, {
         method: 'HEAD',
         url: '/assets/cat.gif'
     });
 
-    const body = await getBody();
+    const body = await getResponse();
 
     assert.strictEqual(res.getHeader('Content-Type'), 'image/gif; charset=utf-8');
     assert.ok(res.getHeader('Content-Length') > 0);
@@ -42,11 +42,11 @@ it('returns only head when requested', async function () {
 });
 
 it('can open a css file', async function () {
-    const { getBody, res } = inject(app, { logger }, {
+    const { getResponse, res } = inject(app, { logger }, {
         url: '/assets/css/test.css'
     });
 
-    const body = await getBody();
+    const body = await getResponse();
 
     assert.strictEqual(res.getHeader('Content-Type'), 'text/css; charset=utf-8');
     assert.ok(res.getHeader('Content-Length') > 0);
@@ -55,11 +55,11 @@ it('can open a css file', async function () {
 });
 
 it('throws error accessing root directory', async function () {
-    const { getBody, res } = inject(app, { logger }, {
+    const { getResponse, res } = inject(app, { logger }, {
         url: '/assets'
     });
 
-    const body = await getBody();
+    const body = await getResponse();
 
     assert.strictEqual(res.getHeader('Content-Type'), 'application/json; charset=utf-8');
     assert.strictEqual(res.statusCode, 404);
@@ -67,11 +67,11 @@ it('throws error accessing root directory', async function () {
 });
 
 it('throws error accessing nested directory', async function () {
-    const { getBody, res } = inject(app, { logger }, {
+    const { getResponse, res } = inject(app, { logger }, {
         url: '/assets/css'
     });
 
-    const body = await getBody();
+    const body = await getResponse();
 
     assert.strictEqual(res.getHeader('Content-Type'), 'application/json; charset=utf-8');
     assert.strictEqual(body.error.statusCode, 404);
@@ -79,11 +79,11 @@ it('throws error accessing nested directory', async function () {
 });
 
 it('throws error accessing missing file', async function () {
-    const { getBody, res } = inject(app, { logger }, {
+    const { getResponse, res } = inject(app, { logger }, {
         url: '/assets/does-not-exist.exe'
     });
 
-    const body = await getBody();
+    const body = await getResponse();
 
     assert.strictEqual(res.getHeader('Content-Type'), 'application/json; charset=utf-8');
     assert.strictEqual(res.statusCode, 404);
@@ -91,11 +91,11 @@ it('throws error accessing missing file', async function () {
 });
 
 it('throws error accessing excluded file', async function () {
-    const { getBody, res } = inject(app, { logger }, {
+    const { getResponse, res } = inject(app, { logger }, {
         url: '/assets/private.txt'
     });
 
-    const body = await getBody();
+    const body = await getResponse();
 
     assert.strictEqual(res.getHeader('Content-Type'), 'application/json; charset=utf-8');
     assert.strictEqual(res.statusCode, 404);

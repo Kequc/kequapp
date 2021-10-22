@@ -1,5 +1,5 @@
 import { IncomingMessage, RequestListener, ServerResponse } from 'http';
-import { IGetBody } from './body-parser';
+import { IGetBody } from '../src/body-parser/get-body';
 import { RouteScope } from './route-scope';
 
 export interface IKequapp extends RequestListener, RouteScope {

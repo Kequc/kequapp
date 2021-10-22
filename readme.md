@@ -270,7 +270,7 @@ app.route('/db.json', async function ({ req, res }) {
 
 It is possible to test your application without spinning up a server using the `inject()` tool. The first parameter is your app, then a config override for your app, followed by options largely used to populate the request. Returned `req` and `res` objects are from the npm `mock-req` and `mock-res` modules respectively.
 
-It also returns `getBody()` which is a utility you may use to wait for your application to respond. Alternatively you can inspect what your application is doing making use of the `req`, and `res` objects in realtime.
+It also returns `getResponse()` which is a utility you may use to wait for your application to respond. Alternatively you can inspect what your application is doing making use of the `req`, and `res` objects in realtime.
 
 ```javascript
 const inject = require('kequapp/inject');
@@ -278,25 +278,25 @@ const inject = require('kequapp/inject');
 
 ```javascript
 it('returns the expected result', async function () {
-    const { getBody, res } = inject(app, { logger }, {
+    const { getResponse, res } = inject(app, { logger }, {
         url: '/user/21'
     });
 
-    const body = await getBody();
+    const body = await getResponse();
 
     assert.strictEqual(res.getHeader('Content-Type'), 'text/plain; charset=utf-8');
     assert.strictEqual(body, 'userId: 21!');
 });
 
 it('reads the authorization header', async function () {
-    const { getBody, res } = inject(app, { logger }, {
+    const { getResponse, res } = inject(app, { logger }, {
         url: '/admin/dashboard',
         headers: {
             Authorization: 'mike'
         }
     });
 
-    const body = await getBody();
+    const body = await getResponse();
 
     assert.strictEqual(res.getHeader('Content-Type'), 'text/plain; charset=utf-8');
     assert.strictEqual(body, 'Hello admin mike!');
@@ -309,7 +309,7 @@ The following two examples are the same.
 
 ```javascript
 it('reads the body of a request', async function () {
-    const { getBody, res } = inject(app, { logger }, {
+    const { getResponse, res } = inject(app, { logger }, {
         method: 'POST',
         url: '/user',
         headers: {
@@ -318,13 +318,13 @@ it('reads the body of a request', async function () {
         body: '{ "name": "april" }'
     });
 
-    const body = await getBody();
+    const body = await getResponse();
 
     assert.strictEqual(body, 'User creation april!');
 });
 
 it('reads the body of a request', async function () {
-    const { getBody, req, res } = inject(app, { logger }, {
+    const { getResponse, req, res } = inject(app, { logger }, {
         method: 'POST',
         url: '/user',
         headers: {
@@ -335,7 +335,7 @@ it('reads the body of a request', async function () {
 
     req.end('{ "name": "april" }');
 
-    const body = await getBody();
+    const body = await getResponse();
 
     assert.strictEqual(body, 'User creation april!');
 });

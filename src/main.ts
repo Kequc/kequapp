@@ -2,7 +2,7 @@ import { IncomingMessage, ServerResponse } from 'http';
 import { URL } from 'url';
 import sendFile from './addons/send-file';
 import staticFiles from './addons/static-files';
-import getBody, { BodyFormat } from './body-parser/get-body';
+import createGetBody from './body-parser/get-body';
 import errorHandler from './defaults/error-handler';
 import Ex from './util/ex';
 import routeScope from './util/route-scope';
@@ -10,6 +10,13 @@ import { validateCreateAppConfig } from './util/validate';
 import processor from './processor';
 
 import { Config, ConfigInput, IKequapp } from '../types/main';
+
+enum BodyFormat {
+    DEFAULT,
+    RAW,
+    MULTIPART,
+    RAW_MULTIPART
+}
 
 const DEFAULT_OPTIONS: Config = {
     logger: console,
@@ -38,7 +45,7 @@ function createApp (options: ConfigInput = {}): IKequapp {
             context: {},
             params: {},
             query: Object.fromEntries(url.searchParams),
-            getBody: getBody(req, config.maxPayloadSize),
+            getBody: createGetBody(req, config.maxPayloadSize),
             logger: config.logger
         });
     }

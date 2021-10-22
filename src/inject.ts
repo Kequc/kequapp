@@ -1,10 +1,9 @@
 import { ClientRequest, ServerResponse } from 'http';
 import MockReq from 'mock-req';
 import MockRes from 'mock-res';
-import getBody from './body-parser/get-body';
+import createGetResponse, { IGetResponse } from './body-parser/get-response';
 
 import { ConfigInput, IKequapp } from '../types/main';
-import { IGetBody } from '../types/body-parser';
 
 type OptionsInput = {
     method?: string;
@@ -18,7 +17,7 @@ type OptionsInput = {
 type InjectResponse = {
     req: ClientRequest;
     res: ServerResponse;
-    getBody: IGetBody;
+    getResponse: IGetResponse;
 };
 
 function inject (app: IKequapp, override: ConfigInput | undefined, options: OptionsInput): InjectResponse {
@@ -43,7 +42,7 @@ function inject (app: IKequapp, override: ConfigInput | undefined, options: Opti
     return {
         req,
         res,
-        getBody: getBody(res, override?.maxPayloadSize)
+        getResponse: createGetResponse(res)
     };
 }
 

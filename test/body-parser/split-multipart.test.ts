@@ -1,9 +1,12 @@
 import assert from 'assert';
-import multipart from '../../src/body-parser/multipart';
+import splitMultipart from '../../src/body-parser/split-multipart';
 
 it('reads buffer', function () {
-    const contentType = 'multipart/form-data; boundary=------------------------d74496d66958873e';
-    const buffer = Buffer.from(`--------------------------d74496d66958873e
+    const part = {
+        headers: {
+            'content-type': 'multipart/form-data; boundary=------------------------d74496d66958873e'
+        },
+        data: Buffer.from(`--------------------------d74496d66958873e
 Content-Disposition: form-data; name="name"
 
 April
@@ -16,9 +19,10 @@ Content-Disposition: form-data; name="secret"; filename="secrets.txt"
 Content-Type: text/plain
 
 contents of the file
---------------------------d74496d66958873e--`);
+--------------------------d74496d66958873e--`)
+    };
 
-    const result = multipart(buffer, contentType);
+    const result = splitMultipart(part);
 
     assert.deepStrictEqual(result, [{
         headers: {
