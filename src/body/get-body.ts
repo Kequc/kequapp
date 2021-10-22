@@ -1,7 +1,7 @@
 import { IncomingMessage } from 'http';
+import parseMultipart from './multipart/parse-multipart';
+import splitMultipart from './multipart/split-multipart';
 import createParseBody, { parseUrlEncoded, parseJson, BodyJson } from './parse-body';
-import parseMultipart from './parse-multipart';
-import splitMultipart from './split-multipart';
 import streamReader from './stream-reader';
 import normalizeBody from './normalize-body';
 
