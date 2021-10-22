@@ -1,13 +1,17 @@
 import { ServerResponse } from 'http';
 import createParseBody, { parseJson } from './parse-body';
 import streamReader from './stream-reader';
-import { BodyFormat } from '../main';
 
 import { RawPart } from '../../types/body-parser';
 
 export interface IGetResponse {
-    (format?: BodyFormat.DEFAULT): Promise<any>;
-    (format: BodyFormat.RAW): Promise<RawPart>;
+    (format?: ResponseFormat.DEFAULT): Promise<any>;
+    (format: ResponseFormat.RAW): Promise<RawPart>;
+}
+
+export enum ResponseFormat {
+    DEFAULT,
+    RAW
 }
 
 const parseBody = createParseBody({
@@ -18,12 +22,12 @@ const parseBody = createParseBody({
 function createGetResponse (res: ServerResponse): IGetResponse {
     let _body: RawPart;
 
-    return async function (format?: BodyFormat) {
+    return async function (format?: ResponseFormat) {
         if (_body === undefined) {
             _body = await streamReader(res);
         }
 
-        if (format === BodyFormat.RAW) {
+        if (format === ResponseFormat.RAW) {
             return clone(_body);
         }
 

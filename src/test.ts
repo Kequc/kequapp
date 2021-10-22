@@ -1,7 +1,7 @@
 import { ClientRequest, ServerResponse } from 'http';
 import MockReq from 'mock-req';
 import MockRes from 'mock-res';
-import createGetResponse, { IGetResponse } from './body-parser/get-response';
+import createGetResponse, { IGetResponse, ResponseFormat } from './body-parser/get-response';
 
 import { ConfigInput, IKequapp } from '../types/main';
 
@@ -46,4 +46,7 @@ function inject (app: IKequapp, override: ConfigInput | undefined, options: Opti
     };
 }
 
-export default inject;
+export {
+    inject,
+    ResponseFormat
+};

@@ -273,7 +273,7 @@ It is possible to test your application without spinning up a server using the `
 It also returns `getResponse()` which is a utility you may use to wait for your application to respond. Alternatively you can inspect what your application is doing making use of the `req`, and `res` objects in realtime.
 
 ```javascript
-const inject = require('kequapp/inject');
+const { inject } = require('kequapp/test');
 ```
 
 ```javascript

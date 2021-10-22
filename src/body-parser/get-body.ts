@@ -3,7 +3,6 @@ import createParseBody, { parseUrlEncoded, parseJson } from './parse-body';
 import parseMultipart from './parse-multipart';
 import splitMultipart from './split-multipart';
 import streamReader from './stream-reader';
-import { BodyFormat } from '../main';
 
 import { BodyJson, BodyPart, RawPart } from '../../types/body-parser';
 
@@ -14,7 +13,12 @@ export interface IGetBody {
     (format: BodyFormat.RAW_MULTIPART): Promise<RawPart[]>;
 }
 
-console.log({ parseUrlEncoded, parseJson });
+export enum BodyFormat {
+    DEFAULT,
+    RAW,
+    MULTIPART,
+    RAW_MULTIPART
+}
 
 const parseBody = createParseBody({
     'application/x-www-form-urlencoded': parseUrlEncoded,
