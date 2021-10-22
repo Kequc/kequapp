@@ -1,7 +1,6 @@
-import { Ex } from '../main';
 import { BodyOptions } from './get-body';
-
-import { BodyJson } from '../../types/main';
+import { BodyJson } from './parse-body';
+import Ex from '../util/ex';
 
 function normalizeBody (body: BodyJson, options: BodyOptions): BodyJson {
     const result = { ...body };

@@ -3,7 +3,7 @@ import sendFile from './send-file';
 import { StaticFilesOptions } from '../body-parser/get-body';
 import Ex from '../util/ex';
 
-import { Bundle } from '../../types/main';
+import { Bundle } from '../main';
 
 const DEFAULT_OPTIONS: {
     dir: string,

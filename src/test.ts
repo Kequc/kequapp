@@ -4,7 +4,7 @@ import MockRes from 'mock-res';
 import createGetResponse, { IGetResponse } from './body-parser/get-response';
 import { validateCreateAppConfig } from './util/validate';
 
-import { ConfigInput, IKequapp } from '../types/main';
+import { ConfigInput, IKequapp } from './main';
 
 
 type OptionsInput = {

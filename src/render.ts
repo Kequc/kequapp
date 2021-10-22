@@ -3,7 +3,7 @@ import textRenderer from './defaults/text-renderer';
 import { sanitizeContentType } from './util/sanitize';
 import Ex from './util/ex';
 
-import { Bundle, Config, ConfigRenderers } from '../types/main';
+import { Bundle, Config, ConfigRenderers } from './main';
 
 const DEFAULT_RENDERERS = {
     'application/json': jsonRenderer,

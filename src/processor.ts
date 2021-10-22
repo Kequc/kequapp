@@ -3,7 +3,7 @@ import { Route } from './util/route-scope';
 import { sanitizePathname } from './util/sanitize';
 import render from './render';
 
-import { Bundle, Config, BundleParams } from '../types/main';
+import { Bundle, Config, BundleParams } from './main';
 
 async function processor (routes: Route[], config: Config, bundle: Bundle): Promise<void> {
     const { errorHandler } = config;

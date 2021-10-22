@@ -1,6 +1,6 @@
 import path from 'path';
 
-import { Bundle } from '../../types/main';
+import { Bundle } from '../main';
 
 
 export type RouteScope = {

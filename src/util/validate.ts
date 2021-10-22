@@ -1,4 +1,4 @@
-import { ConfigInput } from '../../types/main';
+import { ConfigInput } from '../main';
 
 export function validateCreateAppConfig (config: ConfigInput): void {
     if (typeof config !== 'object' || config === null) {

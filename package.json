@@ -1,17 +1,30 @@
 {
   "name": "kequapp",
   "version": "1.0.0",
+  "description": "",
   "main": "dist/main.js",
+  "types": "dist/main.d.ts",
   "scripts": {
     "prepublish": "npm run build",
-    "build": "tsc",
+    "build": "rm -rf dist && tsc",
     "start": "ts-node ./examples/basic/server.ts",
     "test": "kequtest --ts"
   },
-  "keywords": [],
-  "author": "",
+  "files": [
+    "dist",
+    "types.d.ts"
+  ],
+  "bugs": {
+    "url": "https://github.com/Kequc/kequtest/issues"
+  },
+  "homepage": "https://github.com/Kequc/kequtest#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/Kequc/kequtest.git"
+  },
+  "author": "Nathan Lunde-Berry",
   "license": "ISC",
-  "description": "",
+  "keywords": [],
   "devDependencies": {
     "@types/node": "^16.10.2",
     "@typescript-eslint/eslint-plugin": "^4.33.0",

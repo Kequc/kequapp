@@ -1,12 +1,9 @@
 import { IncomingMessage } from 'http';
-import createParseBody, { parseUrlEncoded, parseJson } from './parse-body';
+import createParseBody, { parseUrlEncoded, parseJson, BodyJson } from './parse-body';
 import parseMultipart from './parse-multipart';
 import splitMultipart from './split-multipart';
 import streamReader from './stream-reader';
 import normalizeBody from './normalize-body';
-
-import { BodyJson } from '../../types/main';
-
 
 export interface IGetBody {
     (format: BodyOptions & { raw: true, multipart: true }): Promise<RawPart[]>;

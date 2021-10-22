@@ -1,15 +1,72 @@
-import { IncomingMessage, ServerResponse } from 'http';
+import { IncomingMessage, RequestListener, ServerResponse } from 'http';
 import { URL } from 'url';
 import sendFile from './addons/send-file';
 import staticFiles from './addons/static-files';
-import createGetBody from './body-parser/get-body';
+import createGetBody, { IGetBody } from './body-parser/get-body';
 import errorHandler from './defaults/error-handler';
 import Ex from './util/ex';
-import routeScope from './util/route-scope';
+import routeScope, { RouteScope } from './util/route-scope';
 import { validateCreateAppConfig } from './util/validate';
 import processor from './processor';
 
-import { Config, ConfigInput, IKequapp } from '../types/main';
+
+export interface IKequapp extends RequestListener, RouteScope {
+    (req: IncomingMessage, res: ServerResponse, override?: ConfigInput): void;
+}
+
+export type Bundle = {
+    req: IncomingMessage;
+    res: ServerResponse;
+    url: URL;
+    context: BundleContext;
+    params: BundleParams;
+    query: BundleQuery;
+    getBody: IGetBody;
+    logger: Logger;
+};
+
+export type BundleContext = {
+    [key: string]: any;
+};
+
+export type BundleParams = {
+    [key: string]: any;
+};
+
+export type BundleQuery = {
+    [key: string]: any;
+};
+
+export type ConfigInput = {
+    logger?: Logger;
+    renderers?: ConfigRenderers;
+    errorHandler?: ConfigErrorHandler;
+    maxPayloadSize?: number;
+};
+
+export type Config = {
+    logger: Logger;
+    renderers: ConfigRenderers;
+    errorHandler: ConfigErrorHandler
+    maxPayloadSize?: number;
+};
+
+export type Logger = {
+    log: (...params: any) => any;
+    error: (...params: any) => any;
+    warn: (...params: any) => any;
+    debug: (...params: any) => any;
+    info: (...params: any) => any;
+};
+
+export type ConfigErrorHandler = (error: any, bundle: Bundle) => any;
+
+export type ConfigRenderers = {
+    [key: string]: Renderer;
+};
+
+export type Renderer = (payload: any, bundle: Bundle) => Promise<void> | void;
+
 
 const DEFAULT_OPTIONS: Config = {
     logger: console,
