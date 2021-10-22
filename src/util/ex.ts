@@ -5,7 +5,6 @@ export type ServerError = Error & {
     statusCode: number;
     info: any;
 };
-
 type ServerErrorHelper = (message?: string, ...info: any[]) => Error;
 type ExHelper = {
     StatusCode: (statusCode: number, message?: string, ...info: any[]) => Error;

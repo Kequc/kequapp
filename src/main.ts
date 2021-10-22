@@ -13,7 +13,6 @@ import processor from './processor';
 export interface IKequapp extends RequestListener, RouteScope {
     (req: IncomingMessage, res: ServerResponse, override?: ConfigInput): void;
 }
-
 export type Bundle = {
     req: IncomingMessage;
     res: ServerResponse;
@@ -24,35 +23,31 @@ export type Bundle = {
     getBody: IGetBody;
     logger: Logger;
 };
-
 export type BundleContext = {
     [key: string]: any;
 };
-
 export type BundleParams = {
     [key: string]: any;
 };
-
 export type BundleQuery = {
     [key: string]: any;
 };
-
 export type Config = {
     logger: Logger;
     renderers: ConfigRenderers;
     errorHandler: ConfigErrorHandler
     maxPayloadSize?: number;
 };
-
 export type ConfigInput = {
     logger?: Logger;
     renderers?: ConfigRenderers;
     errorHandler?: ConfigErrorHandler;
     maxPayloadSize?: number;
 };
-
+export type ConfigRenderers = {
+    [key: string]: Renderer;
+};
 export type ConfigErrorHandler = (error: any, bundle: Bundle) => any;
-
 export type Logger = {
     log: (...params: any) => any;
     error: (...params: any) => any;
@@ -60,12 +55,7 @@ export type Logger = {
     debug: (...params: any) => any;
     info: (...params: any) => any;
 };
-
 export type Renderer = (payload: any, bundle: Bundle) => Promise<void> | void;
-
-export type ConfigRenderers = {
-    [key: string]: Renderer;
-};
 
 
 const DEFAULT_OPTIONS: Config = {

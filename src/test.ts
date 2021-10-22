@@ -15,7 +15,6 @@ type OptionsInput = {
     search?: string;
     body?: unknown;
 };
-
 type InjectResponse = {
     req: ClientRequest;
     res: ServerResponse;

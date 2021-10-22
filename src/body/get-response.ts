@@ -8,7 +8,6 @@ export interface IGetResponse {
     (format: ResponseOptions & { raw: true }): Promise<Buffer>;
     (format?: ResponseOptions): Promise<any>;
 }
-
 export type ResponseOptions = {
     raw?: boolean;
 };
