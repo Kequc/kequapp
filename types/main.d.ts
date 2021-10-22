@@ -1,6 +1,6 @@
 import { IncomingMessage, RequestListener, ServerResponse } from 'http';
 import { IGetBody } from '../src/body-parser/get-body';
-import { RouteScope } from './route-scope';
+import { RouteScope } from '../src/util/route-scope';
 
 export interface IKequapp extends RequestListener, RouteScope {
     (req: IncomingMessage, res: ServerResponse, override?: ConfigInput): void;
@@ -58,3 +58,7 @@ export type ConfigRenderers = {
 };
 
 export type Renderer = (payload: any, bundle: Bundle) => Promise<void> | void;
+
+export type BodyJson = {
+    [key: string]: any;
+};

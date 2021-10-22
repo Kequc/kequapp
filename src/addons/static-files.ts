@@ -1,8 +1,8 @@
 import path from 'path';
 import sendFile from './send-file';
+import { StaticFilesOptions } from '../body-parser/get-body';
 import Ex from '../util/ex';
 
-import { StaticFilesOptions } from '../../types/body-parser';
 import { Bundle } from '../../types/main';
 
 const DEFAULT_OPTIONS: {
@@ -38,7 +38,7 @@ function isExcluded (values: string[], asset: string) {
 }
 
 function setupConfig (options: StaticFilesOptions) {
-    const config = Object.assign({}, DEFAULT_OPTIONS);
+    const config = { ...DEFAULT_OPTIONS };
 
     if (options.dir) {
         if (typeof options.dir !== 'string') {

@@ -1,8 +1,9 @@
-import { BodyJson } from '../../types/body-parser';
-import { ServerError } from '../../types/ex';
-import { Bundle } from '../../types/main';
+import { ServerError } from '../util/ex';
+
+import { BodyJson, Bundle } from '../../types/main';
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
+
 
 type ErrorResult = {
     error: {
@@ -12,6 +13,7 @@ type ErrorResult = {
         info?: any
     }
 };
+
 
 function errorHandler (error: ServerError, { res }: Bundle): BodyJson {
     const statusCode = error.statusCode || 500;

@@ -1,10 +1,10 @@
 import { Ex } from '../main';
 import { BodyOptions } from './get-body';
 
-import { BodyJson } from '../../types/body-parser';
+import { BodyJson } from '../../types/main';
 
 function normalizeBody (body: BodyJson, options: BodyOptions): BodyJson {
-    const result = Object.assign({}, body);
+    const result = { ...body };
 
     for (const key of options.required || []) {
         if (isEmpty(result[key])) {

@@ -1,8 +1,8 @@
 import findRoute from './util/find-route';
+import { Route } from './util/route-scope';
 import { sanitizePathname } from './util/sanitize';
 import render from './render';
 
-import { Route } from '../types/route-scope';
 import { Bundle, Config, BundleParams } from '../types/main';
 
 async function processor (routes: Route[], config: Config, bundle: Bundle): Promise<void> {

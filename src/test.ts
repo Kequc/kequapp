@@ -6,6 +6,7 @@ import { validateCreateAppConfig } from './util/validate';
 
 import { ConfigInput, IKequapp } from '../types/main';
 
+
 type OptionsInput = {
     method?: string;
     url?: string;
@@ -21,10 +22,11 @@ type InjectResponse = {
     getResponse: IGetResponse;
 };
 
+
 function inject (app: IKequapp, override: ConfigInput | undefined, options: OptionsInput): InjectResponse {
     if (override) validateCreateAppConfig(override);
 
-    const _options = Object.assign({}, options);
+    const _options = { ...options };
 
     if (_options.search) {
         _options.search = new URLSearchParams(_options.search).toString();

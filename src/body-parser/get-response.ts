@@ -1,8 +1,8 @@
 import { ServerResponse } from 'http';
+import { RawPart } from './get-body';
 import createParseBody, { parseJson } from './parse-body';
 import streamReader from './stream-reader';
 
-import { RawPart } from '../../types/body-parser';
 
 export interface IGetResponse {
     (format: ResponseOptions & { raw: true }): Promise<Buffer>;
@@ -12,6 +12,7 @@ export interface IGetResponse {
 export type ResponseOptions = {
     raw?: boolean;
 };
+
 
 const parseBody = createParseBody({
     'text/': ({ data }) => data.toString(),

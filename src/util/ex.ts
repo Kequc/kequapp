@@ -1,11 +1,12 @@
 import { STATUS_CODES } from 'http';
 
-type ServerError = Error & {
+
+export type ServerError = Error & {
     statusCode: number;
     info: any;
 };
-type ServerErrorHelper = (message?: string, ...info: any[]) => Error;
 
+type ServerErrorHelper = (message?: string, ...info: any[]) => Error;
 type ExHelper = {
     StatusCode: (statusCode: number, message?: string, ...info: any[]) => Error;
     BadRequest: ServerErrorHelper;                      // 400
@@ -50,6 +51,7 @@ type ExHelper = {
     NotExtended: ServerErrorHelper;                     // 510
     NetworkAuthenticationRequired: ServerErrorHelper;   // 511
 };
+
 
 const statusCodes = Object.keys(STATUS_CODES).map(statusCode => parseInt(statusCode, 10));
 const Ex: any = {

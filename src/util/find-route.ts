@@ -1,6 +1,5 @@
 import Ex from './ex';
-
-import { Route } from '../../types/route-scope';
+import { Route } from './route-scope';
 
 function findRoute (routes: Route[], method: string | undefined, pathname: string): Route {
     // exactly the route

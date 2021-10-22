@@ -5,7 +5,8 @@ import splitMultipart from './split-multipart';
 import streamReader from './stream-reader';
 import normalizeBody from './normalize-body';
 
-import { BodyJson, BodyPart, RawPart } from '../../types/body-parser';
+import { BodyJson } from '../../types/main';
+
 
 export interface IGetBody {
     (format: BodyOptions & { raw: true, multipart: true }): Promise<RawPart[]>;
@@ -22,6 +23,23 @@ export type BodyOptions = {
     validate?: (body: BodyJson) => string | void;
     postProcess?: (body: BodyJson) => BodyJson;
 };
+
+export type StaticFilesOptions = {
+    dir?: string;
+    exclude?: string[];
+};
+
+export type RawPart = {
+    headers: { [key: string]: string };
+    data: Buffer;
+};
+
+export type BodyPart = RawPart & {
+    mime?: string;
+    name?: string;
+    filename?: string;
+};
+
 
 const parseBody = createParseBody({
     'application/x-www-form-urlencoded': parseUrlEncoded,

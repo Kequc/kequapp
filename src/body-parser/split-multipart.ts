@@ -1,7 +1,6 @@
 import Ex from '../util/ex';
 import headerAttributes from '../util/header-attributes';
-
-import { RawPart } from '../../types/body-parser';
+import { RawPart } from './get-body';
 
 const CR = 0x0d;
 const LF = 0x0a;

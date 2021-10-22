@@ -22,10 +22,10 @@ function createApp (options: ConfigInput = {}): IKequapp {
     validateCreateAppConfig(options);
 
     const _routes = [];
-    const _config = Object.assign({}, DEFAULT_OPTIONS, options);
+    const _config = { ...DEFAULT_OPTIONS, ...options };
 
     function app (req: IncomingMessage, res: ServerResponse, _override: ConfigInput) {
-        const config = Object.assign({}, _config, _override);
+        const config = { ..._config, ..._override };
         const url = new URL(req.url || '/', `${req.headers.protocol}://${req.headers.host}`);
 
         res.statusCode = 200; // default

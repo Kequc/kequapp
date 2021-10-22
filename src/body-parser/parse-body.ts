@@ -1,6 +1,7 @@
 import Ex from '../util/ex';
+import { RawPart } from './get-body';
 
-import { BodyJson, RawPart } from '../../types/body-parser';
+import { BodyJson } from '../../types/main';
 
 export function parseUrlEncoded (body: RawPart): BodyJson {
     const params = new URLSearchParams(body.data.toString());
