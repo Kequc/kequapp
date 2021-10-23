@@ -62,6 +62,23 @@ describe('required', function () {
         });
     });
 
+    it('throws error on empty required parameter in array', function () {
+        const body = {
+            name: 'April',
+            age: '23',
+            ownedPets: ['hello', null]
+        };
+        const options = {
+            arrays: ['ownedPets'],
+            required: ['name', 'ownedPets', 'age']
+        };
+
+        assert.throws(() => normalizeBody(body, options), {
+            statusCode: 422,
+            message: 'Value ownedPets cannot be empty'
+        });
+    });
+
     it('throws error on only spaces in required parameter', function () {
         const body = {
             name: 'April',

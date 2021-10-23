@@ -32,12 +32,16 @@ function normalizeBody (body: BodyJson, options: BodyOptions): BodyJson {
 
     // required
     for (const key of required) {
-        if (isEmpty(result[key])) {
-            throw Ex.UnprocessableEntity(`Value ${key} cannot be empty`, {
-                body,
-                required
-            });
+        if (arrays.includes(key)) {
+            if (result[key].length > 0 && !result[key].some(isEmpty)) continue;
+        } else {
+            if (!isEmpty(result[key])) continue;
         }
+
+        throw Ex.UnprocessableEntity(`Value ${key} cannot be empty`, {
+            body,
+            required
+        });
     }
 
     // numbers
@@ -94,7 +98,6 @@ function isEmpty (value: unknown): boolean {
     if (value === null) return true;
     if (value === undefined) return true;
     if (typeof value === 'string' && value.trim() === '') return true;
-    if (Array.isArray(value) && value.length < 1) return true;
     return false;
 }
 
