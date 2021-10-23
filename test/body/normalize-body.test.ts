@@ -146,7 +146,7 @@ describe('arrays', function () {
         assert.deepStrictEqual(normalizeBody(body, options), {
             name: 'April',
             age: '23',
-            ownedPets: []
+            ownedPets: [null]
         });
     });
 

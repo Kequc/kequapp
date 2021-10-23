@@ -186,9 +186,9 @@ It is required to specify which body parameters are `arrays`.
 
 Otherwise the server only knows a field is an array when it receives more than one item, which creates ambiguity in the structure of the body. Fields that do not specify an array will return the first value.
 
-Additional normalization is available. Specifying `required` ensures that the field is not `null` or `undefined`. There are also `numbers` and `booleans`. Full control is offered using `validate()` and `postProcess()`.
+Additional normalization is available. Specifying `required` ensures that the field is not `null`, `undefined`, or an empty string. There are also `numbers` and `booleans`. Full control is offered using `validate()` and `postProcess()`.
 
-Note body normalization is ignored when `raw` is used or `skipNormalize` is passed.
+Note body normalization is ignored when `raw` or `skipNormalize` is used.
 
 ```javascript
 function validate (result) {
@@ -226,9 +226,9 @@ app.route('POST', '/user', async ({ getBody }) => {
 
 | parameter       | description                                  |
 | ----------      | -------------------------------------------- |
-| `skipNormalize` | Causes normalization to be skipped.          |
-| `arrays`        | Value returned is guaranteed to be an array. |
-| `required`      | Value is not `null`, `undefined`, or `''`.   |
+| `skipNormalize` | Skips normalization.                         |
+| `arrays`        | Value is returned as an array.               |
+| `required`      | Value is not `null`, `undefined`, or an empty string. |
 | `numbers`       | Value or values are converted to numbers.    |
 | `booleans`      | Value or values are converted to booleans.   |
 

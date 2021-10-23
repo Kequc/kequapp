@@ -17,7 +17,7 @@ function normalizeBody (body: BodyJson, options: BodyOptions): BodyJson {
     // arrays
     for (const key of arrays) {
         if (!Array.isArray(result[key])) {
-            result[key] = isEmpty(result[key]) ? [] : [result[key]];
+            result[key] = result[key] === undefined ? [] : [result[key]];
         }
     }
 
