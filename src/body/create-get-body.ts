@@ -15,6 +15,7 @@ export interface IGetBody {
 export type BodyOptions = {
     raw?: boolean;
     multipart?: boolean;
+    skipNormalize?: boolean;
     arrays?: string[];
     numbers?: string[];
     booleans?: string[];

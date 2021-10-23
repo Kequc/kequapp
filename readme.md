@@ -188,7 +188,7 @@ Otherwise the server only knows a field is an array when it receives more than o
 
 Additional normalization is available. Specifying `required` ensures that the field is not `null` or `undefined`. There are also `numbers` and `booleans`. Full control is offered using `validate()` and `postProcess()`.
 
-Note body normalization is ignored when `raw` is used.
+Note body normalization is ignored when `raw` is used or `skipNormalize` is passed.
 
 ```javascript
 function validate (result) {
@@ -224,12 +224,13 @@ app.route('POST', '/user', async ({ getBody }) => {
 });
 ```
 
-| parameter  | description                                         |
-| ---------- | --------------------------------------------------- |
-| `arrays`   | Value returned is guaranteed to be an array.        |
-| `required` | Value is not `null`, `undefined`, or `''`.          |
-| `numbers`  | Value or values are converted to numbers.           |
-| `booleans` | Value or values are converted to booleans.          |
+| parameter       | description                                  |
+| ----------      | -------------------------------------------- |
+| `skipNormalize` | Causes normalization to be skipped.          |
+| `arrays`        | Value returned is guaranteed to be an array. |
+| `required`      | Value is not `null`, `undefined`, or `''`.   |
+| `numbers`       | Value or values are converted to numbers.    |
+| `booleans`      | Value or values are converted to booleans.   |
 
 ### Cookies
 

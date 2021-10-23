@@ -2,6 +2,8 @@ import { BodyJson, BodyOptions } from './create-get-body';
 import Ex from '../util/ex';
 
 function normalizeBody (body: BodyJson, options: BodyOptions): BodyJson {
+    if (options.skipNormalize === true) return body;
+
     const result = { ...body };
     const {
         required = [],
@@ -12,16 +14,6 @@ function normalizeBody (body: BodyJson, options: BodyOptions): BodyJson {
         postProcess
     } = options;
 
-    // required
-    for (const key of required) {
-        if (isEmpty(result[key]) || result[key].trim() === '') {
-            throw Ex.UnprocessableEntity(`Missing required parameter: ${key}`, {
-                body,
-                required
-            });
-        }
-    }
-
     // arrays
     for (const key of arrays) {
         if (!Array.isArray(result[key])) {
@@ -29,9 +21,28 @@ function normalizeBody (body: BodyJson, options: BodyOptions): BodyJson {
         }
     }
 
+    // not arrays!
+    for (const key of Object.keys(result)) {
+        if (arrays.includes(key)) continue;
+
+        if (Array.isArray(result[key])) {
+            result[key] = result[key][0];
+        }
+    }
+
+    // required
+    for (const key of required) {
+        if (isEmpty(result[key])) {
+            throw Ex.UnprocessableEntity(`Value ${key} cannot be empty`, {
+                body,
+                required
+            });
+        }
+    }
+
     // numbers
     for (const key of numbers) {
-        if (isEmpty(result[key])) continue;
+        if (!(key in result)) continue;
 
         let success = true;
 
@@ -44,7 +55,7 @@ function normalizeBody (body: BodyJson, options: BodyOptions): BodyJson {
         }
 
         if (!success) {
-            throw Ex.UnprocessableEntity(`Unable to convert number: ${key}`, {
+            throw Ex.UnprocessableEntity(`Value ${key} must be a number`, {
                 body,
                 numbers
             });
@@ -57,13 +68,6 @@ function normalizeBody (body: BodyJson, options: BodyOptions): BodyJson {
             result[key] = result[key].map(toBoolean);
         } else {
             result[key] = toBoolean(result[key]);
-        }
-    }
-
-    // not arrays!
-    for (const key of Object.keys(result)) {
-        if (!arrays.includes(key) && Array.isArray(result[key])) {
-            result[key] = result[key][0];
         }
     }
 
@@ -87,7 +91,11 @@ function normalizeBody (body: BodyJson, options: BodyOptions): BodyJson {
 export default normalizeBody;
 
 function isEmpty (value: unknown): boolean {
-    return value === null || value === undefined;
+    if (value === null) return true;
+    if (value === undefined) return true;
+    if (typeof value === 'string' && value.trim() === '') return true;
+    if (Array.isArray(value) && value.length < 1) return true;
+    return false;
 }
 
 function toNumber (value: string): number {

@@ -26,7 +26,7 @@ describe('required', function () {
 
         assert.throws(() => normalizeBody(body, options), {
             statusCode: 422,
-            message: 'Missing required parameter: ownedPets'
+            message: 'Value ownedPets cannot be empty'
         });
     });
 
@@ -42,7 +42,7 @@ describe('required', function () {
 
         assert.throws(() => normalizeBody(body, options), {
             statusCode: 422,
-            message: 'Missing required parameter: ownedPets'
+            message: 'Value ownedPets cannot be empty'
         });
     });
 
@@ -58,7 +58,7 @@ describe('required', function () {
 
         assert.throws(() => normalizeBody(body, options), {
             statusCode: 422,
-            message: 'Missing required parameter: ownedPets'
+            message: 'Value ownedPets cannot be empty'
         });
     });
 
@@ -74,7 +74,25 @@ describe('required', function () {
 
         assert.throws(() => normalizeBody(body, options), {
             statusCode: 422,
-            message: 'Missing required parameter: ownedPets'
+            message: 'Value ownedPets cannot be empty'
+        });
+    });
+});
+
+describe('skipNormalize', function () {
+    it('skips normalization', function () {
+        const body = {
+            name: 'April',
+            age: '23'
+        };
+        const options = {
+            skipNormalize: true,
+            required: ['name', 'ownedPets', 'age']
+        };
+
+        assert.deepStrictEqual(normalizeBody(body, options), {
+            name: 'April',
+            age: '23'
         });
     });
 });
@@ -144,7 +162,7 @@ describe('arrays', function () {
 
         assert.throws(() => normalizeBody(body, options), {
             statusCode: 422,
-            message: 'Missing required parameter: ownedPets'
+            message: 'Value ownedPets cannot be empty'
         });
     });
 
@@ -198,18 +216,31 @@ describe('numbers', function () {
         });
     });
 
-    it('handles missing or null number parameter', function () {
+    it('handles missing number parameter', function () {
+        const body = {
+            name: 'April'
+        };
+        const options = {
+            numbers: ['age']
+        };
+
+        assert.deepStrictEqual(normalizeBody(body, options), {
+            name: 'April'
+        });
+    });
+
+    it('throws error null number parameter', function () {
         const body = {
             name: 'April',
             age: null
         };
         const options = {
-            numbers: ['headbands', 'age']
+            numbers: ['age']
         };
 
-        assert.deepStrictEqual(normalizeBody(body, options), {
-            name: 'April',
-            age: null
+        assert.throws(() => normalizeBody(body, options), {
+            statusCode: 422,
+            message: 'Value age must be a number'
         });
     });
 
@@ -224,7 +255,7 @@ describe('numbers', function () {
 
         assert.throws(() => normalizeBody(body, options), {
             statusCode: 422,
-            message: 'Unable to convert number: age'
+            message: 'Value age must be a number'
         });
     });
 
@@ -234,12 +265,13 @@ describe('numbers', function () {
             age: ['23', 'cat']
         };
         const options = {
+            arrays: ['age'],
             numbers: ['age']
         };
 
         assert.throws(() => normalizeBody(body, options), {
             statusCode: 422,
-            message: 'Unable to convert number: age'
+            message: 'Value age must be a number'
         });
     });
 });
