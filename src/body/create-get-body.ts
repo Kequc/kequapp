@@ -15,7 +15,9 @@ export interface IGetBody {
 export type BodyOptions = {
     raw?: boolean;
     multipart?: boolean;
-    array?: string[];
+    arrays?: string[];
+    numbers?: string[];
+    booleans?: string[];
     required?: string[];
     validate?: (body: BodyJson) => string | void;
     postProcess?: (body: BodyJson) => BodyJson;

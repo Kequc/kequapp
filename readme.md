@@ -31,7 +31,7 @@ Routes are defined using `route()`. Method is optional default is `'GET'`, path 
 
 Branches are defined using `branch()`. Path prefix is optional default is `'/'`, followed by any number of handlers. It returns a branch of the application which will adopt all handlers and use the given path prefix. By itself this does not create a route, it will be used in conjunction with routes.
 
-Handlers are added to the current branch using `middleware()`. Provide any number of handlers you would like that will affect all route and branch siblings. This is most useful on the `app` instance itself.
+Handlers are added to the current branch using `middleware()`. Provide any number of handlers that will affect all route and branch siblings. This is most useful on the `app` instance itself as it then runs on every request.
 
 ```javascript
 const { Ex } = require('kequapp');
@@ -124,7 +124,7 @@ app.route('POST', '/user', async ({ getBody }) => {
     const body = await getBody();
 
     // body ~= {
-    //     name: 'april'
+    //     name: 'April'
     // }
 
     return `User creation ${body.name}!`;
@@ -140,7 +140,7 @@ app.route('POST', '/user', async ({ getBody }) => {
     const [body, files] = await getBody({ multipart: true });
 
     // body ~= {
-    //     name: 'april'
+    //     name: 'April'
     // }
     // files ~= [{
     //     headers: {
@@ -182,9 +182,13 @@ app.route('POST', '/user', async ({ getBody }) => {
 
 ### Body Normalization
 
-The `getBody()` helper method allows you to specify which fields should be an `array` and which fields are `required`. This is because the server only knows a field should be an array if it received more than one. Required ensures that the field is not `null` or `undefined`. More control is offered using `validate()`. Post processing may be applied using `postProcess()`.
+It is required to specify which body parameters are `arrays`.
 
-Note these options are ignored when the `raw` option is used.
+Otherwise the server only knows a field is an array when it receives more than one item, which creates ambiguity in the structure of the body. Fields that do not specify an array will return the first value.
+
+Additional normalization is available. Specifying `required` ensures that the field is not `null` or `undefined`. There are also `numbers` and `booleans`. Full control is offered using `validate()` and `postProcess()`.
+
+Note body normalization is ignored when `raw` is used.
 
 ```javascript
 function validate (result) {
@@ -199,14 +203,14 @@ function validate (result) {
 function postProcess (result) {
     return {
         ...result,
-        name: result.name.trim(),
-        eyeColor: 'blue'
+        name: result.name.trim()
     };
 }
 
 app.route('POST', '/user', async ({ getBody }) => {
     const body = await getBody({
-        array: ['ownedPets'],
+        arrays: ['ownedPets'],
+        numbers: ['age'],
         required: ['name'],
         validate,
         postProcess
@@ -214,11 +218,18 @@ app.route('POST', '/user', async ({ getBody }) => {
 
     // body ~= {
     //     ownedPets: ['cat'],
-    //     name: 'april',
-    //     eyeColor: 'blue'
+    //     age: 23,
+    //     name: 'April'
     // }
 });
 ```
+
+| parameter  | description                                         |
+| ---------- | --------------------------------------------------- |
+| `arrays`   | Value returned is guaranteed to be an array.        |
+| `required` | Value is not `null`, `undefined`, or `''`.          |
+| `numbers`  | Value or values are converted to numbers.           |
+| `booleans` | Value or values are converted to booleans.          |
 
 ### Cookies
 
@@ -244,7 +255,7 @@ app.route('/login', ({ res }) => {
 
 ### Exceptions
 
-Error generation is available by importing the `Ex` utility. Any thrown error will be caught by the error handler and return a `500` status code, this utility enables you to easily utilize all status codes `400` and above.
+Error generation is available by importing the `Ex` utility. Any thrown error will be caught by the error handler and return a `500` status code, this utility enables you to utilize status codes `400` and above.
 
 These methods create errors with correct stacktraces there is no need to use `new`.
 
@@ -266,7 +277,7 @@ app.route('/throw-error', () => {
 
 The default error handler returns a json formatted response containing helpful information for debugging. It can be overridden by defining an `errorHandler` during instantiation. The returned value will be sent to the renderer again for processing.
 
-Errors thrown inside of the error handler or within the renderer chosen to parse the error handler's payload will cause a fatal exception.
+Errors thrown inside of the error handler or within the renderer it uses will cause a fatal exception.
 
 This example sends a very basic custom response.
 
@@ -342,7 +353,7 @@ it('reads the authorization header', async function () {
 });
 ```
 
-A `body` parameter can optionally be provided for ease of use. All requests are automatically finalized when they are initiated with `inject()` unless you set `body` to `null`. Doing so will allow you to write to the stream.
+A `body` parameter can be provided for the request. All requests are automatically finalized when using `inject()` unless you set `body` to `null`. Doing so will allow you to write to the stream.
 
 The following two examples are the same.
 
@@ -354,12 +365,12 @@ it('reads the body of a request', async function () {
         headers: {
             'Content-Type': 'application/json; charset=utf-8'
         },
-        body: '{ "name": "april" }'
+        body: '{ "name": "April" }'
     });
 
     const body = await getResponse();
 
-    assert.strictEqual(body, 'User creation april!');
+    assert.strictEqual(body, 'User creation April!');
 });
 
 it('reads the body of a request', async function () {
@@ -372,10 +383,10 @@ it('reads the body of a request', async function () {
         body: null
     });
 
-    req.end('{ "name": "april" }');
+    req.end('{ "name": "April" }');
 
     const body = await getResponse();
 
-    assert.strictEqual(body, 'User creation april!');
+    assert.strictEqual(body, 'User creation April!');
 });
 ```
