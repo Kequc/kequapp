@@ -1,3 +1,4 @@
+import 'kequtest';
 import assert from 'assert';
 import parseMultipart from '../../../src/body/multipart/parse-multipart';
 

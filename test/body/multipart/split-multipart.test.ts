@@ -1,3 +1,4 @@
+import 'kequtest';
 import assert from 'assert';
 import splitMultipart from '../../../src/body/multipart/split-multipart';
 

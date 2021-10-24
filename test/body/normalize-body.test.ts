@@ -1,3 +1,4 @@
+import 'kequtest';
 import assert from 'assert';
 import normalizeBody from '../../src/body/normalize-body';
 
