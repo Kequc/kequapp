@@ -5,7 +5,6 @@
   "main": "dist/main.js",
   "types": "dist/main.d.ts",
   "scripts": {
-    "prepublish": "npm run build",
     "build": "rm -rf dist && tsc",
     "start": "ts-node ./examples/basic/server.ts",
     "test": "kequtest --ts"
@@ -25,15 +24,14 @@
   "author": "Nathan Lunde-Berry",
   "license": "ISC",
   "keywords": [
-    "kequapp",
-    "framework",
-    "web",
-    "http",
-    "rest",
-    "server",
     "createApp",
     "ClientRequest",
     "ServerResponse",
+    "web",
+    "framework",
+    "http",
+    "rest",
+    "server",
     "api"
   ],
   "devDependencies": {

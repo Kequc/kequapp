@@ -46,8 +46,9 @@ function routeScope (routes: Route[], parent: RouteBuilder): RouteScope {
 export default routeScope;
 
 function buildBranch (routes: Route[], parent: RouteBuilder): IRouteScopeBranch {
-    return function branch (...handles: unknown[]) {
-        const pathname = extractPathname(handles);
+    return function branch (...params: unknown[]) {
+        const pathname = extractPathname(params);
+        const handles = params.flat(Infinity) as Handle[];
 
         if (handles.find(handle => typeof handle !== 'function')) {
             throw new Error('Handle must be a function');
@@ -55,7 +56,7 @@ function buildBranch (routes: Route[], parent: RouteBuilder): IRouteScopeBranch 
 
         const newParent = routeMerge(parent, {
             pathname,
-            handles: handles as Handle[]
+            handles
         });
 
         return routeScope(routes, newParent);
@@ -63,14 +64,16 @@ function buildBranch (routes: Route[], parent: RouteBuilder): IRouteScopeBranch 
 }
 
 function buildMiddleware (parent: RouteBuilder, scope: RouteScope): IRouteScopeMiddleware {
-    return function middleware (...handles: unknown[]) {
+    return function middleware (...params: unknown[]) {
+        const handles = params.flat(Infinity) as Handle[];
+
         if (handles.find(handle => typeof handle !== 'function')) {
             throw new Error('Handle must be a function');
         }
 
         Object.assign(parent, routeMerge(parent, {
             pathname: '/',
-            handles: handles as Handle[]
+            handles
         }));
 
         return scope;
@@ -78,9 +81,10 @@ function buildMiddleware (parent: RouteBuilder, scope: RouteScope): IRouteScopeM
 }
 
 function buildRoute (routes: Route[], parent: RouteBuilder, scope: RouteScope): IRouteScopeRoute {
-    return function route (...handles: unknown[]) {
-        const method = extractMethod(handles);
-        const pathname = extractPathname(handles);
+    return function route (...params: unknown[]) {
+        const method = extractMethod(params);
+        const pathname = extractPathname(params);
+        const handles = params.flat(Infinity) as Handle[];
 
         if (handles.length < 1) {
             throw new Error('Route must have at least one handle');
@@ -91,7 +95,7 @@ function buildRoute (routes: Route[], parent: RouteBuilder, scope: RouteScope): 
 
         const route: Route = Object.assign({ method }, routeMerge(parent, {
             pathname,
-            handles: handles as Handle[]
+            handles
         }));
 
         routes.push(route as Route);
@@ -100,18 +104,18 @@ function buildRoute (routes: Route[], parent: RouteBuilder, scope: RouteScope): 
     };
 }
 
-function extractMethod (handles: unknown[]): string {
-    if (typeof handles[0] !== 'string' || handles[0][0] === '/') {
+function extractMethod (params: unknown[]): string {
+    if (typeof params[0] !== 'string' || params[0][0] === '/') {
         return 'GET';
     }
-    return handles.shift() as string;
+    return params.shift() as string;
 }
 
-function extractPathname (handles: unknown[]): string {
-    if (typeof handles[0] !== 'string' || handles[0][0] !== '/') {
+function extractPathname (params: unknown[]): string {
+    if (typeof params[0] !== 'string' || params[0][0] !== '/') {
         return '/';
     }
-    return handles.shift() as string;
+    return params.shift() as string;
 }
 
 function routeMerge (parent: RouteBuilder, child: RouteBuilder): RouteBuilder {
