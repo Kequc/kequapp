@@ -14,11 +14,10 @@ const DEFAULT_OPTIONS: {
 };
 
 function staticFiles (options: StaticFilesOptions = {}): (bundle: Bundle) => Promise<void> {
-    const config = setupConfig(options);
+    const config = getConfig(options);
 
     return async function ({ req, res, params }: Bundle) {
-        const wildcards = params.wildcards || [];
-        const asset = path.join(config.dir, wildcards[wildcards.length - 1]);
+        const asset = path.join(config.dir, params['**'] || '/');
 
         if (isExcluded(config.exclude, asset)) {
             throw Ex.NotFound();
@@ -37,7 +36,7 @@ function isExcluded (values: string[], asset: string) {
     return false;
 }
 
-function setupConfig (options: StaticFilesOptions) {
+function getConfig (options: StaticFilesOptions) {
     const config = { ...DEFAULT_OPTIONS };
 
     if (options.dir) {

@@ -24,7 +24,7 @@ export function validateCreateAppConfig (config: ConfigInput): void {
 
         for (const key of Object.keys(config.renderers)) {
             if (typeof config.renderers[key] !== 'function') {
-                throw new Error('Method ' + key + ' missing on renderers');
+                throw new Error('Renderer ' + key + ' must be a function');
             }
         }
     }

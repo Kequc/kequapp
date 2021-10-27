@@ -25,7 +25,7 @@ function findRenderer (renderers: ConfigRenderers, { res }) {
     const key = sanitizeContentType(contentType);
     const renderer = renderers[key] || DEFAULT_RENDERERS[key];
 
-    if (typeof renderer !== 'function') {
+    if (!renderer) {
         throw Ex.InternalServerError('Renderer not found', { contentType });
     }
 

@@ -7,11 +7,12 @@ import errorHandler from './defaults/error-handler';
 import Ex from './util/ex';
 import routeScope, { RouteScope } from './util/route-scope';
 import { validateCreateAppConfig } from './util/validate';
-import processor from './processor';
+import processor, { listRoutes } from './processor';
 
 
 export interface IKequapp extends RequestListener, RouteScope {
     (req: IncomingMessage, res: ServerResponse, override?: ConfigInput): void;
+    list: () => string[];
 }
 export type Bundle = {
     req: IncomingMessage;
@@ -91,6 +92,12 @@ function createApp (options: ConfigInput = {}): IKequapp {
             logger: config.logger
         });
     }
+
+    function list () {
+        return listRoutes(_routes);
+    }
+
+    app.list = list;
 
     Object.assign(app, routeScope(_routes, {
         pathname: '/',

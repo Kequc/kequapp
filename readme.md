@@ -297,7 +297,7 @@ const app = createApp({
 
 ### Static Files
 
-A rudimentary `staticFiles()` handler can be used to deliver files relative to your project directory. This utility makes use of the `wildcards` parameter as defined by your route to build a valid path.
+A rudimentary `staticFiles()` handler can be used to deliver files relative to your project directory. This utility makes use of the `**` parameter as defined by your route to build a valid path.
 
 By default the `/public` directory is used.
 

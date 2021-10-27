@@ -1,8 +1,9 @@
 import findRoute from './util/find-route';
+import { extractParams } from './util/path-params';
 import { Route } from './util/route-scope';
 import { sanitizePathname } from './util/sanitize';
 import render from './render';
-import { Bundle, Config, BundleParams } from './main';
+import { Bundle, Config } from './main';
 
 async function processor (routes: Route[], config: Config, bundle: Bundle): Promise<void> {
     const { errorHandler } = config;
@@ -31,32 +32,6 @@ async function processor (routes: Route[], config: Config, bundle: Bundle): Prom
 
 export default processor;
 
-function extractParams (srcPathname: string, reqPathname: string) {
-    const params: BundleParams = {};
-    const srcParts = srcPathname.split('/');
-    const reqParts = reqPathname.split('/');
-
-    for (let i = 0; i < srcParts.length; i++) {
-        if (srcParts[i] === '**') {
-            params.wildcards = params.wildcards || [];
-            params.wildcards.push(reqParts.slice(i).join('/'));
-            return params;
-        }
-
-        if (srcParts[i] === '*') {
-            params.wildcards = params.wildcards || [];
-            params.wildcards.push(reqParts[i]);
-            return params;
-        }
-
-        if (srcParts[i].startsWith(':')) {
-            params[srcParts[i].substr(1)] = reqParts[i];
-        }
-    }
-
-    return params;
-}
-
 async function lifecycle (route: Route, bundle: Bundle) {
     for (const handle of route.handles) {
         const payload = await handle(bundle);
@@ -65,4 +40,16 @@ async function lifecycle (route: Route, bundle: Bundle) {
             return payload;
         }
     }
+}
+
+export function listRoutes (routes: Route[]): string[] {
+    return [...routes].sort(routeSorter).map(formatRoute);
+}
+
+function routeSorter (a: Route, b: Route) {
+    return (a.pathname + a.method).localeCompare(b.pathname + b.method);
+}
+
+function formatRoute ({ method, pathname }: { method: string, pathname: string }) {
+    return `${method} ${pathname}`;
 }
