@@ -9,7 +9,7 @@ const DEFAULT_OPTIONS: {
     dir: string,
     exclude: string[]
 } = {
-    dir: './public',
+    dir: '/public',
     exclude: []
 };
 
@@ -17,7 +17,7 @@ function staticFiles (options: StaticFilesOptions = {}): (bundle: Bundle) => Pro
     const config = getConfig(options);
 
     return async function ({ req, res, params }: Bundle) {
-        const asset = path.join(config.dir, params['**'] || '/');
+        const asset = path.join(config.dir, params['**']);
 
         if (isExcluded(config.exclude, asset)) {
             throw Ex.NotFound();

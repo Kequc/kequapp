@@ -29,7 +29,6 @@ export function extractParams (srcPathname: string, reqPathname: string): Bundle
         if (srcParts[i] === '*') {
             params['*'] = params['*'] || [];
             params['*'].push(reqParts[i]);
-            return params;
         }
 
         if (srcParts[i][0] === ':') {

@@ -48,17 +48,17 @@ function normalizeBody (body: BodyJson, options: BodyOptions): BodyJson {
     for (const key of numbers) {
         if (!(key in result)) continue;
 
-        let success = true;
+        let failed = false;
 
-        if (Array.isArray(result[key])) {
+        if (arrays.includes(key)) {
             result[key] = result[key].map(toNumber);
-            success = !result[key].some((value: number) => isNaN(value));
+            failed = result[key].some((value: number) => isNaN(value));
         } else {
             result[key] = toNumber(result[key]);
-            success = !isNaN(result[key]);
+            failed = isNaN(result[key]);
         }
 
-        if (!success) {
+        if (failed) {
             throw Ex.UnprocessableEntity(`Value ${key} must be a number`, {
                 body,
                 numbers
@@ -68,7 +68,7 @@ function normalizeBody (body: BodyJson, options: BodyOptions): BodyJson {
 
     // booleans
     for (const key of booleans) {
-        if (Array.isArray(result[key])) {
+        if (arrays.includes(key)) {
             result[key] = result[key].map(toBoolean);
         } else {
             result[key] = toBoolean(result[key]);
@@ -78,6 +78,7 @@ function normalizeBody (body: BodyJson, options: BodyOptions): BodyJson {
     // validate
     if (typeof validate === 'function') {
         const problem = validate(result);
+
         if (problem) {
             throw Ex.UnprocessableEntity(problem, {
                 body
@@ -85,11 +86,12 @@ function normalizeBody (body: BodyJson, options: BodyOptions): BodyJson {
         }
     }
 
-    // post process
     if (typeof postProcess === 'function') {
+        // post process
         return postProcess(result);
+    } else {
+        return result;
     }
-    return result;
 }
 
 export default normalizeBody;

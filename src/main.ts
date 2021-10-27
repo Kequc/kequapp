@@ -97,12 +97,12 @@ function createApp (options: ConfigInput = {}): IKequapp {
         return listRoutes(_routes);
     }
 
-    app.list = list;
-
     Object.assign(app, routeScope(_routes, {
         pathname: '/',
         handles: []
-    }));
+    }), {
+        list
+    });
 
     return app as IKequapp;
 }
