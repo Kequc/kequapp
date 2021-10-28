@@ -18,7 +18,7 @@ function jsonRenderer (payload: unknown, { req, res }: Bundle): void {
 
 export default jsonRenderer;
 
-function generateJson (payload: unknown) {
+function generateJson (payload: unknown): string {
     try {
         if (NODE_ENV === 'production') {
             return JSON.stringify(payload);

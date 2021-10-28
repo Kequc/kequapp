@@ -13,7 +13,7 @@ import { validateCreateAppConfig } from './utils/validate';
 
 export interface IKequapp extends RequestListener, Router {
     (req: IncomingMessage, res: ServerResponse, override?: ConfigInput): void;
-    list: () => string[];
+    list (): string[];
 }
 export type Bundle = {
     req: IncomingMessage;
@@ -54,11 +54,11 @@ export type ConfigRenderers = {
 };
 export type ConfigErrorHandler = (error: unknown, bundle: Bundle) => unknown;
 export type Logger = {
-    log: (...params: unknown[]) => unknown;
-    error: (...params: unknown[]) => unknown;
-    warn: (...params: unknown[]) => unknown;
-    debug: (...params: unknown[]) => unknown;
-    info: (...params: unknown[]) => unknown;
+    log (...params: unknown[]): void;
+    error (...params: unknown[]): void;
+    warn (...params: unknown[]): void;
+    debug (...params: unknown[]): void;
+    info (...params: unknown[]): void;
 };
 export type Renderer = (payload: unknown, bundle: Bundle) => Promise<void> | void;
 

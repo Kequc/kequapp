@@ -16,7 +16,7 @@ function textRenderer (payload: unknown, { req, res }: Bundle): void {
 
 export default textRenderer;
 
-function generateText (payload: unknown) {
+function generateText (payload: unknown): string {
     try {
         return String(payload);
     } catch (error) {

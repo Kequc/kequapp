@@ -1,6 +1,6 @@
 import jsonRenderer from './built-in/json-renderer';
 import textRenderer from './built-in/text-renderer';
-import { Bundle, Config, ConfigRenderers } from './main';
+import { Bundle, Config, ConfigRenderers, Renderer } from './main';
 import Ex from './utils/ex';
 import { sanitizeContentType } from './utils/sanitize';
 
@@ -20,7 +20,7 @@ async function render (config: Config, payload: unknown, bundle: Bundle): Promis
 
 export default render;
 
-function findRenderer (renderers: ConfigRenderers, contentType: string) {
+function findRenderer (renderers: ConfigRenderers, contentType: string): Renderer {
     const key = sanitizeContentType(contentType);
     const renderer = renderers[key] || DEFAULT_RENDERERS[key];
 

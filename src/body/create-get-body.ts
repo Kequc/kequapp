@@ -20,8 +20,8 @@ export type BodyOptions = {
     numbers?: string[];
     booleans?: string[];
     required?: string[];
-    validate?: (body: BodyJson) => string | void;
-    postProcess?: (body: BodyJson) => BodyJson;
+    validate? (body: BodyJson): string | void;
+    postProcess? (body: BodyJson): BodyJson;
 };
 export type StaticFilesOptions = {
     dir?: string;
