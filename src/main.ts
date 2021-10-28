@@ -84,7 +84,7 @@ function createApp (options: ConfigInput = {}): IKequapp {
         res.statusCode = 200; // default
         res.setHeader('Content-Type', 'text/plain; charset=utf-8'); // default
 
-        requestProcessor(_routes, config, {
+        requestProcessor(config, _routes, {
             req,
             res,
             url,
