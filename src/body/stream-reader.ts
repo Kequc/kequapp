@@ -1,6 +1,6 @@
 import { IncomingMessage, ServerResponse } from 'http';
 import { RawPart } from './create-get-body';
-import Ex from '../util/ex';
+import Ex from '../utils/ex';
 
 function streamReader (stream: IncomingMessage | ServerResponse, maxPayloadSize?: number): Promise<RawPart> {
     return new Promise<RawPart>(function (resolve, reject) {

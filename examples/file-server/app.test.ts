@@ -1,6 +1,6 @@
 import 'kequtest';
 import assert from 'assert';
-import { inject } from '../../src/test'; // 'kequapp/test'
+import { inject } from '../../src/inject'; // 'kequapp/inject'
 import app from './app';
 
 const logger = util.logger();

@@ -1,9 +1,9 @@
-import jsonRenderer from './defaults/json-renderer';
-import textRenderer from './defaults/text-renderer';
-import { sanitizeContentType } from './util/sanitize';
-import Ex from './util/ex';
-
+import jsonRenderer from './built-in/json-renderer';
+import textRenderer from './built-in/text-renderer';
 import { Bundle, Config, ConfigRenderers } from './main';
+import Ex from './utils/ex';
+import { sanitizeContentType } from './utils/sanitize';
+
 
 const DEFAULT_RENDERERS = {
     'application/json': jsonRenderer,

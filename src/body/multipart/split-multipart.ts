@@ -1,5 +1,5 @@
-import Ex from '../../util/ex';
-import headerAttributes from '../../util/header-attributes';
+import Ex from '../../utils/ex';
+import headerAttributes from '../../utils/header-attributes';
 import { RawPart } from '../create-get-body';
 
 const CR = 0x0d;

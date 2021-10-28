@@ -3,14 +3,14 @@ import { URL } from 'url';
 import sendFile from './addons/send-file';
 import staticFiles from './addons/static-files';
 import createGetBody, { IGetBody } from './body/create-get-body';
-import errorHandler from './defaults/error-handler';
-import Ex from './util/ex';
-import routeScope, { RouteScope } from './util/route-scope';
-import { validateCreateAppConfig } from './util/validate';
-import processor, { listRoutes } from './processor';
+import errorHandler from './built-in/error-handler';
+import requestProcessor, { listRoutes } from './request/request-processor';
+import routerScope, { RouterScope } from './request/router-scope';
+import Ex from './utils/ex';
+import { validateCreateAppConfig } from './utils/validate';
 
 
-export interface IKequapp extends RequestListener, RouteScope {
+export interface IKequapp extends RequestListener, RouterScope {
     (req: IncomingMessage, res: ServerResponse, override?: ConfigInput): void;
     list: () => string[];
 }
@@ -81,7 +81,7 @@ function createApp (options: ConfigInput = {}): IKequapp {
         res.statusCode = 200; // default
         res.setHeader('Content-Type', 'text/plain; charset=utf-8'); // default
 
-        processor(_routes, config, {
+        requestProcessor(_routes, config, {
             req,
             res,
             url,
@@ -97,7 +97,7 @@ function createApp (options: ConfigInput = {}): IKequapp {
         return listRoutes(_routes);
     }
 
-    Object.assign(app, routeScope(_routes, {
+    Object.assign(app, routerScope(_routes, {
         pathname: '/',
         handles: []
     }), {

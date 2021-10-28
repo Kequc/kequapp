@@ -1,5 +1,5 @@
 import { BodyJson, BodyOptions } from './create-get-body';
-import Ex from '../util/ex';
+import Ex from '../utils/ex';
 
 function normalizeBody (body: BodyJson, options: BodyOptions): BodyJson {
     if (options.skipNormalize === true) return body;

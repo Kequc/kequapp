@@ -1,9 +1,9 @@
-import findRoute from './util/find-route';
-import { extractParams } from './util/path-params';
-import { Route } from './util/route-scope';
-import { sanitizePathname } from './util/sanitize';
-import render from './render';
-import { Bundle, Config } from './main';
+import findRoute from './find-route';
+import { extractParams } from './path-params';
+import { Route } from './router-scope';
+import { Bundle, Config } from '../main';
+import render from '../render';
+import { sanitizePathname } from '../utils/sanitize';
 
 async function processor (routes: Route[], config: Config, bundle: Bundle): Promise<void> {
     const { errorHandler } = config;

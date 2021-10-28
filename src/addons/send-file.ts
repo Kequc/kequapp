@@ -1,7 +1,7 @@
+import fs from 'fs';
 import { ServerResponse } from 'http';
 import path from 'path';
-import fs from 'fs';
-import Ex from '../util/ex';
+import Ex from '../utils/ex';
 
 const MIME_TYPES = {
     '.html': 'text/html',

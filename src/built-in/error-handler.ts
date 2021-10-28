@@ -1,6 +1,6 @@
 import { BodyJson } from '../body/create-get-body';
-import { ServerError } from '../util/ex';
 import { Bundle } from '../main';
+import { ServerError } from '../utils/ex';
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 

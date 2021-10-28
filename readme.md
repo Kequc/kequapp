@@ -335,7 +335,7 @@ It also returns `getResponse()` which is a utility you may use to wait for your 
 
 ```javascript
 const assert = require('assert');
-const { inject } = require('kequapp/test');
+const { inject } = require('kequapp/inject');
 ```
 
 ```javascript

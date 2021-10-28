@@ -1,6 +1,6 @@
+import headerAttributes from '../../utils/header-attributes';
+import { sanitizeContentType } from '../../utils/sanitize';
 import { BodyJson, FilePart, RawPart } from '../create-get-body';
-import headerAttributes from '../../util/header-attributes';
-import { sanitizeContentType } from '../../util/sanitize';
 
 function parseMultipart (parts: RawPart[]): [BodyJson, FilePart[]] {
     const result: BodyJson = {};

@@ -1,6 +1,5 @@
-import Ex from '../util/ex';
-
 import { Bundle } from '../main';
+import Ex from '../utils/ex';
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 

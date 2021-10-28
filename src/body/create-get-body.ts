@@ -1,9 +1,9 @@
 import { IncomingMessage } from 'http';
 import parseMultipart from './multipart/parse-multipart';
 import splitMultipart from './multipart/split-multipart';
-import createParseBody, { parseUrlEncoded, parseJson } from './parse-body';
-import streamReader from './stream-reader';
 import normalizeBody from './normalize-body';
+import createParseBody, { parseJson, parseUrlEncoded } from './parse-body';
+import streamReader from './stream-reader';
 
 
 export interface IGetBody {
@@ -72,7 +72,7 @@ function createGetBody (req: IncomingMessage, maxPayloadSize?: number): IGetBody
         } else {
             const result = parseBody(_body);
             const body = normalizeBody(result, options);
-    
+
             if (options.multipart === true) return [body, []];
             return body;
         }
