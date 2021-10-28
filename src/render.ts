@@ -12,15 +12,15 @@ const DEFAULT_RENDERERS = {
 
 async function render (config: Config, payload: unknown, bundle: Bundle): Promise<void> {
     if (!bundle.res.writableEnded) {
-        const renderer = findRenderer(config.renderers, bundle);
+        const contentType = String(bundle.res.getHeader('Content-Type') || '');
+        const renderer = findRenderer(config.renderers, contentType);
         await renderer(payload, bundle);
     }
 }
 
 export default render;
 
-function findRenderer (renderers: ConfigRenderers, { res }) {
-    const contentType = res.getHeader('Content-Type');
+function findRenderer (renderers: ConfigRenderers, contentType: string) {
     const key = sanitizeContentType(contentType);
     const renderer = renderers[key] || DEFAULT_RENDERERS[key];
 
