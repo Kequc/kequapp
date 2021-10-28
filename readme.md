@@ -31,8 +31,6 @@ Routes are defined using `route()`. Method is optional default is `'GET'`, path 
 
 Branches are defined using `branch()`. Path prefix is optional default is `'/'`, followed by any number of handlers. It returns a branch of the application which will adopt all handlers and use the given path prefix. By itself this does not create a route, it will be used in conjunction with routes.
 
-Handlers are added to the current branch using `middleware()`. Provide any number of handlers that will affect siblings. This is most useful on the `app` instance to catch all requests.
-
 ```javascript
 const { Ex } = require('kequapp');
 ```
@@ -49,8 +47,7 @@ function loggedIn ({ req, context }) {
     context.auth = req.headers.authorization;
 }
 
-app.branch('/user')
-    .middleware(json)
+app.branch('/user', json)
     .route(() => {
         return { result: [] };
     })
@@ -241,16 +238,16 @@ const cookie = require('cookie'); // npm i cookie
 ```
 
 ```javascript
-app.middleware(({ req, context }) => {
+function withCookies ({ req, context }) {
     const cookies = cookie.parse(req.headers.cookie);
     // cookies ~= { myCookie: 'hello' }
     context.cookies = cookies;
-});
+}
+
+const cookiesBranch = app.branch(withCookies);
 
 app.route('/login', ({ res }) => {
-    res.setHeader('Set-Cookie', [
-        cookie.serialize('myCookie', 'hello')
-    ]);
+    res.setHeader('Set-Cookie', [cookie.serialize('myCookie', 'hello')]);
 });
 ```
 
@@ -373,7 +370,9 @@ it('reads the body of a request', async function () {
 
     assert.strictEqual(body, 'User creation April!');
 });
+```
 
+```javascript
 it('reads the body of a request', async function () {
     const { getResponse, req, res } = inject(app, { logger }, {
         method: 'POST',

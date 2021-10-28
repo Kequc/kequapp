@@ -5,7 +5,6 @@ import { Bundle } from '../main';
 export type Router = {
     route: IRouterRoute;
     branch: IRouterBranch;
-    middleware: IRouterMiddleware;
 };
 export type RouteBuilder = {
     pathname: string;
@@ -25,20 +24,15 @@ export interface IRouterBranch {
     (pathname: string, ...handles: Handle[]): Router;
     (...handles: Handle[]): Router;
 }
-export interface IRouterMiddleware {
-    (...handles: Handle[]): Router;
-}
 
 
 function createRouter (routes: Route[], parent: RouteBuilder): Router {
     const scope: any = {
         route: undefined,
         branch: undefined,
-        middleware: undefined
     };
     scope.route = buildRoute(routes, parent, scope);
     scope.branch = buildBranch(routes, parent);
-    scope.middleware = buildMiddleware(parent, scope);
     return scope as Router;
 }
 
@@ -59,23 +53,6 @@ function buildBranch (routes: Route[], parent: RouteBuilder): IRouterBranch {
         });
 
         return createRouter(routes, newParent);
-    };
-}
-
-function buildMiddleware (parent: RouteBuilder, scope: Router): IRouterMiddleware {
-    return function middleware (...params: unknown[]) {
-        const handles = params.flat(Infinity) as Handle[];
-
-        if (handles.find(handle => typeof handle !== 'function')) {
-            throw new Error('Handle must be a function');
-        }
-
-        Object.assign(parent, routeMerge(parent, {
-            pathname: '/',
-            handles
-        }));
-
-        return scope;
     };
 }
 
