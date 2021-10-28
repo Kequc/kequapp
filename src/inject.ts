@@ -9,8 +9,8 @@ import { validateCreateAppConfig } from './utils/validate';
 type OptionsInput = {
     method?: string;
     url?: string;
-    headers?: { [key: string]: string };
-    rawHeaders?: { [key: string]: string };
+    headers?: { [k: string]: string };
+    rawHeaders?: { [k: string]: string };
     search?: string;
     body?: unknown;
 };

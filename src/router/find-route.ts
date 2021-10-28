@@ -1,6 +1,6 @@
+import { Route } from './create-router';
+import listRoutes from './list-routes';
 import { comparePathnames } from './path-params';
-import { listRoutes } from './request-processor';
-import { Route } from './router-scope';
 import Ex from '../utils/ex';
 
 function findRoute (routes: Route[], method: string | undefined, pathname: string): Route {

@@ -3,7 +3,7 @@ import Ex from '../utils/ex';
 
 export function parseUrlEncoded (body: RawPart): BodyJson {
     const params = new URLSearchParams(body.data.toString());
-    const result: { [key: string]: any } = {};
+    const result: { [k: string]: unknown } = {};
 
     for (const key of params.keys()) {
         if (params.getAll(key).length > 1) {
@@ -22,7 +22,7 @@ export function parseJson (body: RawPart): BodyJson {
 
 type Parser = (body: RawPart) => any;
 
-function createParseBody (parsers: { [key: string]: Parser }, _default?: Parser): Parser {
+function createParseBody (parsers: { [k: string]: Parser }, _default?: Parser): Parser {
     return function (body: RawPart) {
         const contentType = body.headers['content-type'] || 'text/plain';
 

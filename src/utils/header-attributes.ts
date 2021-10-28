@@ -1,5 +1,5 @@
-function headerAttributes (header = ''): { [key: string]: string } {
-    const result: { [key: string]: string } = {};
+function headerAttributes (header = ''): { [k: string]: string } {
+    const result: { [k: string]: string } = {};
 
     let inQuotes = false;
     let isAssignment = false;

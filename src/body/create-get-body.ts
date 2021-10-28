@@ -28,7 +28,7 @@ export type StaticFilesOptions = {
     exclude?: string[];
 };
 export type RawPart = {
-    headers: { [key: string]: string };
+    headers: { [k: string]: string };
     data: Buffer;
 };
 export type FilePart = RawPart & {
@@ -37,7 +37,7 @@ export type FilePart = RawPart & {
     filename?: string;
 };
 export type BodyJson = {
-    [key: string]: any;
+    [k: string]: unknown;
 };
 
 

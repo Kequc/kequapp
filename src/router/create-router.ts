@@ -2,10 +2,10 @@ import path from 'path';
 import { Bundle } from '../main';
 
 
-export type RouterScope = {
-    route: IRouterScopeRoute;
-    branch: IRouterScopeBranch;
-    middleware: IRouterScopeMiddleware;
+export type Router = {
+    route: IRouterRoute;
+    branch: IRouterBranch;
+    middleware: IRouterMiddleware;
 };
 export type RouteBuilder = {
     pathname: string;
@@ -15,22 +15,22 @@ export type Route = RouteBuilder & {
     method: string;
 };
 export type Handle = (bundle: Bundle) => Promise<any> | any;
-export interface IRouterScopeRoute {
-    (method: string, pathname: string, ...handles: Handle[]): RouterScope;
-    (method: string, ...handles: Handle[]): RouterScope;
-    (pathname: string, ...handles: Handle[]): RouterScope;
-    (...handles: Handle[]): RouterScope;
+export interface IRouterRoute {
+    (method: string, pathname: string, ...handles: Handle[]): Router;
+    (method: string, ...handles: Handle[]): Router;
+    (pathname: string, ...handles: Handle[]): Router;
+    (...handles: Handle[]): Router;
 }
-export interface IRouterScopeBranch {
-    (pathname: string, ...handles: Handle[]): RouterScope;
-    (...handles: Handle[]): RouterScope;
+export interface IRouterBranch {
+    (pathname: string, ...handles: Handle[]): Router;
+    (...handles: Handle[]): Router;
 }
-export interface IRouterScopeMiddleware {
-    (...handles: Handle[]): RouterScope;
+export interface IRouterMiddleware {
+    (...handles: Handle[]): Router;
 }
 
 
-function routerScope (routes: Route[], parent: RouteBuilder): RouterScope {
+function createRouter (routes: Route[], parent: RouteBuilder): Router {
     const scope: any = {
         route: undefined,
         branch: undefined,
@@ -39,12 +39,12 @@ function routerScope (routes: Route[], parent: RouteBuilder): RouterScope {
     scope.route = buildRoute(routes, parent, scope);
     scope.branch = buildBranch(routes, parent);
     scope.middleware = buildMiddleware(parent, scope);
-    return scope as RouterScope;
+    return scope as Router;
 }
 
-export default routerScope;
+export default createRouter;
 
-function buildBranch (routes: Route[], parent: RouteBuilder): IRouterScopeBranch {
+function buildBranch (routes: Route[], parent: RouteBuilder): IRouterBranch {
     return function branch (...params: unknown[]) {
         const pathname = extractPathname(params);
         const handles = params.flat(Infinity) as Handle[];
@@ -58,11 +58,11 @@ function buildBranch (routes: Route[], parent: RouteBuilder): IRouterScopeBranch
             handles
         });
 
-        return routerScope(routes, newParent);
+        return createRouter(routes, newParent);
     };
 }
 
-function buildMiddleware (parent: RouteBuilder, scope: RouterScope): IRouterScopeMiddleware {
+function buildMiddleware (parent: RouteBuilder, scope: Router): IRouterMiddleware {
     return function middleware (...params: unknown[]) {
         const handles = params.flat(Infinity) as Handle[];
 
@@ -79,7 +79,7 @@ function buildMiddleware (parent: RouteBuilder, scope: RouterScope): IRouterScop
     };
 }
 
-function buildRoute (routes: Route[], parent: RouteBuilder, scope: RouterScope): IRouterScopeRoute {
+function buildRoute (routes: Route[], parent: RouteBuilder, scope: Router): IRouterRoute {
     return function route (...params: unknown[]) {
         const method = extractMethod(params);
         const pathname = extractPathname(params);

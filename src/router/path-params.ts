@@ -22,7 +22,7 @@ export function extractParams (srcPathname: string, reqPathname: string): Bundle
 
     for (let i = 0; i < srcParts.length; i++) {
         if (srcParts[i] === '**') {
-            params['**'] = '/' + reqParts.slice(i).join('/');
+            params['**'] = reqParts.slice(i);
             return params;
         }
 

@@ -4,7 +4,6 @@ import { Bundle, Config, ConfigRenderers } from './main';
 import Ex from './utils/ex';
 import { sanitizeContentType } from './utils/sanitize';
 
-
 const DEFAULT_RENDERERS = {
     'application/json': jsonRenderer,
     'text/plain': textRenderer,

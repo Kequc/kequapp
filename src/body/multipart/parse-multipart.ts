@@ -5,7 +5,7 @@ import { BodyJson, FilePart, RawPart } from '../create-get-body';
 function parseMultipart (parts: RawPart[]): [BodyJson, FilePart[]] {
     const result: BodyJson = {};
     const files: FilePart[] = [];
-    const visited: { [key: string]: number } = {};
+    const visited: { [k: string]: number } = {};
 
     for (const part of parts) {
         const { filename, name } = headerAttributes(part.headers['content-disposition']);

@@ -17,7 +17,7 @@ function splitMultipart (body: RawPart): RawPart[] {
     const buffer = body.data;
     const result: RawPart[] = [];
 
-    let headers: { [key: string]: string } = {};
+    let headers: { [k: string]: string } = {};
     let i = findNextLine(buffer, buffer.indexOf(boundary, 0));
 
     function addHeader (nextLine: number) {

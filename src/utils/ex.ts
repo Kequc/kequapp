@@ -3,11 +3,11 @@ import { STATUS_CODES } from 'http';
 
 export type ServerError = Error & {
     statusCode: number;
-    info: any;
+    info: unknown[];
 };
-type ServerErrorHelper = (message?: string, ...info: any[]) => Error;
+type ServerErrorHelper = (message?: string, ...info: unknown[]) => Error;
 type ExHelper = {
-    StatusCode: (statusCode: number, message?: string, ...info: any[]) => Error;
+    StatusCode: (statusCode: number, message?: string, ...info: unknown[]) => Error;
     BadRequest: ServerErrorHelper;                      // 400
     Unauthorized: ServerErrorHelper;                    // 401
     PaymentRequired: ServerErrorHelper;                 // 402
@@ -57,7 +57,7 @@ const Ex: any = {
     StatusCode,
 };
 
-function StatusCode (statusCode: number, message?: string, ...info: any[]) {
+function StatusCode (statusCode: number, message?: string, ...info: unknown[]) {
     if (!STATUS_CODES[statusCode]) {
         return _buildError(StatusCode, 500, message, ...info);
     }
@@ -67,7 +67,7 @@ function StatusCode (statusCode: number, message?: string, ...info: any[]) {
 for (const statusCode of statusCodes) {
     if (statusCode < 400) continue;
     const key = createMethodName(statusCode);
-    Ex[key] = function (message?: string, ...info: any[]) {
+    Ex[key] = function (message?: string, ...info: unknown[]) {
         return _buildError(Ex[key], statusCode, message, ...info);
     };
 }
@@ -75,7 +75,7 @@ for (const statusCode of statusCodes) {
 export default Ex as ExHelper;
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-function _buildError (parent: Function, statusCode: number, message?: string, ...info: any[]) {
+function _buildError (parent: Function, statusCode: number, message?: string, ...info: unknown[]) {
     const error = new Error(message || STATUS_CODES[statusCode]) as ServerError;
     error.statusCode = statusCode;
     error.info = info.map(normalize);
@@ -88,7 +88,7 @@ function createMethodName (statusCode: number) {
     return message.replace('\'', '').split(/[\s-]+/).map(word => word.charAt(0).toUpperCase() + word.substr(1)).join('');
 }
 
-function normalize (value: any) {
+function normalize (value: unknown) {
     if (typeof value !== 'object' || value === null) return value;
     if (value instanceof Date) return value;
     if (value instanceof Error) return {
