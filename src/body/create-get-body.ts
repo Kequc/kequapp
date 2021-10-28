@@ -37,7 +37,7 @@ export type FilePart = RawPart & {
     filename?: string;
 };
 export type BodyJson = {
-    [k: string]: unknown;
+    [k: string]: any;
 };
 
 
