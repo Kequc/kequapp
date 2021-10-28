@@ -2,8 +2,8 @@ import { ClientRequest, ServerResponse } from 'http';
 import MockReq from 'mock-req';
 import MockRes from 'mock-res';
 import createGetResponse, { IGetResponse } from './body/create-get-response';
-import { ConfigInput, IKequapp } from './main';
-import { validateCreateAppConfig } from './utils/validate';
+import { IKequapp } from './main';
+import { ConfigInput, validateConfig } from './utils/setup-config';
 
 
 type OptionsInput = {
@@ -22,7 +22,7 @@ type InjectResponse = {
 
 
 function inject (app: IKequapp, override: ConfigInput | undefined, options: OptionsInput): InjectResponse {
-    if (override) validateCreateAppConfig(override);
+    if (override) validateConfig(override);
 
     const _options = { ...options };
 

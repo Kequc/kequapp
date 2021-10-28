@@ -3,12 +3,11 @@ import { URL } from 'url';
 import sendFile from './addons/send-file';
 import staticFiles from './addons/static-files';
 import createGetBody, { IGetBody } from './body/create-get-body';
-import errorHandler from './built-in/error-handler';
 import createRouter, { Router } from './router/create-router';
 import listRoutes from './router/list-routes';
 import requestProcessor from './router/request-processor';
 import Ex from './utils/ex';
-import { validateCreateAppConfig } from './utils/validate';
+import setupConfig, { ConfigInput, Logger } from './utils/setup-config';
 
 
 export interface IKequapp extends RequestListener, Router {
@@ -37,44 +36,11 @@ export type BundleParams = {
 export type BundleQuery = {
     [k: string]: string | string[];
 };
-export type Config = {
-    logger: Logger;
-    renderers: ConfigRenderers;
-    errorHandler: ConfigErrorHandler
-    maxPayloadSize?: number;
-};
-export type ConfigInput = {
-    logger?: Logger;
-    renderers?: ConfigRenderers;
-    errorHandler?: ConfigErrorHandler;
-    maxPayloadSize?: number;
-};
-export type ConfigRenderers = {
-    [k: string]: Renderer;
-};
-export type ConfigErrorHandler = (error: unknown, bundle: Bundle) => unknown;
-export type Logger = {
-    log (...params: unknown[]): void;
-    error (...params: unknown[]): void;
-    warn (...params: unknown[]): void;
-    debug (...params: unknown[]): void;
-    info (...params: unknown[]): void;
-};
-export type Renderer = (payload: unknown, bundle: Bundle) => Promise<void> | void;
 
-
-const DEFAULT_OPTIONS: Config = {
-    logger: console,
-    renderers: {},
-    errorHandler,
-    maxPayloadSize: undefined // maybe 1e6
-};
 
 function createApp (options: ConfigInput = {}): IKequapp {
-    validateCreateAppConfig(options);
-
     const _routes = [];
-    const _config = { ...DEFAULT_OPTIONS, ...options };
+    const _config = setupConfig(options);
 
     function app (req: IncomingMessage, res: ServerResponse, _override: ConfigInput = {}) {
         const config = { ..._config, ..._override };
@@ -96,7 +62,7 @@ function createApp (options: ConfigInput = {}): IKequapp {
         });
     }
 
-    function list () {
+    function list (): string[] {
         return listRoutes(_routes);
     }
 

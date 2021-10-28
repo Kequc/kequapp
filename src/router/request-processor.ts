@@ -2,8 +2,9 @@ import { Route } from './create-router';
 import findRoute from './find-route';
 import { extractParams } from './path-params';
 import render from './render';
-import { Bundle, Config, Ex } from '../main';
+import { Bundle, Ex } from '../main';
 import { sanitizePathname } from '../utils/sanitize';
+import { Config } from '../utils/setup-config';
 
 async function requestProcessor (config: Config, routes: Route[], bundle: Bundle): Promise<void> {
     const { req, res, url, logger } = bundle;
