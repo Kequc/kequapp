@@ -1,5 +1,4 @@
 import { Route } from './create-router';
-import listRoutes from './list-routes';
 import { comparePathnames } from './path-params';
 import Ex from '../utils/ex';
 
@@ -31,4 +30,16 @@ function routeMatch (method: string, pathname: string) {
         }
         return comparePathnames(route.pathname, pathname);
     };
+}
+
+export function listRoutes (routes: Route[]): string[] {
+    return [...routes].sort(routeSorter).map(formatRoute);
+}
+
+function routeSorter (a: Route, b: Route) {
+    return (a.pathname + a.method).localeCompare(b.pathname + b.method);
+}
+
+function formatRoute ({ method, pathname }: { method: string, pathname: string }) {
+    return `${method} ${pathname}`;
 }

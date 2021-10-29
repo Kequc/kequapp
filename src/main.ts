@@ -4,7 +4,7 @@ import sendFile from './addons/send-file';
 import staticFiles from './addons/static-files';
 import createGetBody, { IGetBody } from './body/create-get-body';
 import createRouter, { Router } from './router/create-router';
-import listRoutes from './router/list-routes';
+import { listRoutes } from './router/find-route';
 import requestProcessor from './router/request-processor';
 import Ex from './utils/ex';
 import setupConfig, { ConfigInput, Logger } from './utils/setup-config';
