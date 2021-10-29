@@ -14,17 +14,6 @@ export interface IGetBody {
     <T>(format: BodyOptions & { multipart: true }): Promise<[T, FilePart[]]>;
     <T>(format?: BodyOptions): Promise<T>;
 }
-export type BodyOptions = {
-    raw?: boolean;
-    multipart?: boolean;
-    skipNormalize?: boolean;
-    arrays?: string[];
-    numbers?: string[];
-    booleans?: string[];
-    required?: string[];
-    validate? (body: BodyJson): string | void;
-    postProcess? (body: BodyJson): BodyJson;
-};
 export type StaticFilesOptions = {
     dir?: string;
     exclude?: string[];
@@ -37,6 +26,17 @@ export type FilePart = RawPart & {
     mime?: string;
     name?: string;
     filename?: string;
+};
+export type BodyOptions = {
+    raw?: boolean;
+    multipart?: boolean;
+    skipNormalize?: boolean;
+    arrays?: string[];
+    numbers?: string[];
+    booleans?: string[];
+    required?: string[];
+    validate? (body: BodyJson): string | void;
+    postProcess? (body: BodyJson): BodyJson;
 };
 export type BodyJson = {
     [k: string]: any;

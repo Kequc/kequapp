@@ -34,7 +34,7 @@ export type BundleParams = {
 };
 
 
-function createApp (options: ConfigInput = {}): IKequapp {
+function createApp (options?: ConfigInput): IKequapp {
     const _routes = [];
     const _config = setupConfig(options);
 

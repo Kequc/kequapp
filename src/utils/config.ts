@@ -1,4 +1,6 @@
 import errorHandler from '../built-in/error-handler';
+import jsonRenderer from '../built-in/json-renderer';
+import textRenderer from '../built-in/text-renderer';
 import { Bundle } from '../main';
 
 
@@ -30,14 +32,17 @@ export type Renderer = (payload: unknown, bundle: Bundle) => Promise<void> | voi
 
 const DEFAULT_CONFIG: Config = {
     logger: console,
-    renderers: {},
+    renderers: {
+        'application/json': jsonRenderer,
+        'text/plain': textRenderer,
+        'text/html': textRenderer
+    },
     errorHandler,
     maxPayloadSize: undefined // maybe 1e6
 };
 
-export function setupConfig (config: ConfigInput): Config {
-    validateConfig(config);
-    return { ...DEFAULT_CONFIG, ...config };
+export function setupConfig (config?: ConfigInput): Config {
+    return extendConfig({ ...DEFAULT_CONFIG }, config);
 }
 
 export function extendConfig (config: Config, override?: ConfigInput): Config {
@@ -54,6 +59,7 @@ export function validateConfig (config: ConfigInput): void {
     if (typeof config !== 'object' || config === null) {
         throw new Error('Config must be an object');
     }
+
     validateLogger(config.logger);
     validateRenderers(config.renderers);
     validateErrorHandler(config.errorHandler);
@@ -61,7 +67,7 @@ export function validateConfig (config: ConfigInput): void {
 }
 
 function validateLogger (logger?: Logger) {
-    if (logger === undefined) return;
+    if (logger !== undefined) return;
     if (typeof logger !== 'object' || logger === null) {
         throw new Error('Logger must be an object');
     }

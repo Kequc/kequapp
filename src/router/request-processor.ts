@@ -1,17 +1,9 @@
 import { Route } from './create-router';
 import findRoute from './find-route';
 import { extractParams } from './path-params';
-import jsonRenderer from '../built-in/json-renderer';
-import textRenderer from '../built-in/text-renderer';
 import { Bundle, Ex } from '../main';
 import { Config, ConfigRenderers, Renderer } from '../utils/config';
 import { getHeader, sanitizeContentType, sanitizePathname } from '../utils/sanitize';
-
-const DEFAULT_RENDERERS = {
-    'application/json': jsonRenderer,
-    'text/plain': textRenderer,
-    'text/html': textRenderer
-};
 
 async function requestProcessor (config: Config, routes: Route[], bundle: Bundle): Promise<void> {
     const { req, res, url, logger } = bundle;
@@ -61,13 +53,12 @@ async function render (config: Config, payload: unknown, bundle: Bundle): Promis
 
 function findRenderer (renderers: ConfigRenderers, contentType: string): Renderer {
     const key = sanitizeContentType(contentType);
-    const renderer = renderers[key] || DEFAULT_RENDERERS[key];
 
-    if (!renderer) {
-        throw Ex.InternalServerError('Renderer not found', {
-            contentType
-        });
+    if (renderers[key]) {
+        return renderers[key];
     }
 
-    return renderer;
+    throw Ex.InternalServerError('Renderer not found', {
+        contentType
+    });
 }
