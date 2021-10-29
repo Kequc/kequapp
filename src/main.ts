@@ -6,8 +6,8 @@ import createGetBody, { IGetBody } from './body/create-get-body';
 import createRouter, { Router } from './router/create-router';
 import { listRoutes } from './router/find-route';
 import requestProcessor from './router/request-processor';
+import { ConfigInput, extendConfig, Logger, setupConfig } from './utils/config';
 import Ex from './utils/ex';
-import setupConfig, { ConfigInput, Logger } from './utils/setup-config';
 
 
 export interface IKequapp extends RequestListener, Router {
@@ -38,8 +38,8 @@ function createApp (options: ConfigInput = {}): IKequapp {
     const _routes = [];
     const _config = setupConfig(options);
 
-    function app (req: IncomingMessage, res: ServerResponse, _override: ConfigInput = {}) {
-        const config = { ..._config, ..._override };
+    function app (req: IncomingMessage, res: ServerResponse, override?: ConfigInput) {
+        const config = extendConfig(_config, override);
         const url = new URL(req.url || '/', `${req.headers.protocol}://${req.headers.host}`);
 
         res.statusCode = 200; // default

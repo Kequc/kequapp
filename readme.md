@@ -382,7 +382,6 @@ const { getResponse, res } = inject(app, {
 });
 
 const body = await getResponse();
-});
 ```
 
 ```javascript
@@ -398,5 +397,4 @@ const { getResponse, req, res } = inject(app, {
 req.end('{ "name": "April" }');
 
 const body = await getResponse();
-});
 ```

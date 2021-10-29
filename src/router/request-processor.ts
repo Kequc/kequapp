@@ -4,8 +4,8 @@ import { extractParams } from './path-params';
 import jsonRenderer from '../built-in/json-renderer';
 import textRenderer from '../built-in/text-renderer';
 import { Bundle, Ex } from '../main';
+import { Config, ConfigRenderers, Renderer } from '../utils/config';
 import { getHeader, sanitizeContentType, sanitizePathname } from '../utils/sanitize';
-import { Config, ConfigRenderers, Renderer } from '../utils/setup-config';
 
 const DEFAULT_RENDERERS = {
     'application/json': jsonRenderer,
