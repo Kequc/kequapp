@@ -26,7 +26,7 @@ app.branch('/user')
         return `${body.name} is ${body.age} and ${files[0].filename} has ${files[0].data}!`;
     })
     .route('POST', async ({ getBody }) => {
-        const body = await getBody();
+        const body = await getBody<{ name: string }>();
         return `User creation ${body.name}!`;
     });
 

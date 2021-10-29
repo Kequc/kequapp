@@ -6,7 +6,7 @@ import app from './app';
 const logger = util.logger();
 
 it('reads parameters from the url', async function () {
-    const { getResponse, res } = inject(app, { logger }, {
+    const { getResponse, res } = inject(app, {
         url: '/user/21'
     });
 
@@ -17,7 +17,7 @@ it('reads parameters from the url', async function () {
 });
 
 it('reads query parameters', async function () {
-    const { getResponse, res } = inject(app, { logger }, {
+    const { getResponse, res } = inject(app, {
         url: '/user?name=tony&age=21'
     });
 
@@ -28,7 +28,7 @@ it('reads query parameters', async function () {
 });
 
 it('reads the authorization header', async function () {
-    const { getResponse, res } = inject(app, { logger }, {
+    const { getResponse, res } = inject(app, {
         url: '/admin/dashboard',
         headers: {
             Authorization: 'mike'
@@ -42,7 +42,7 @@ it('reads the authorization header', async function () {
 });
 
 it('returns an error if auth is invalid', async function () {
-    const { getResponse, res } = inject(app, { logger }, {
+    const { getResponse, res } = inject(app, {
         url: '/admin/dashboard',
         headers: {
             Authorization: 'lisa'
@@ -57,7 +57,7 @@ it('returns an error if auth is invalid', async function () {
 });
 
 it('reads the body of a request', async function () {
-    const { getResponse, req, res } = inject(app, { logger }, {
+    const { getResponse, req, res } = inject(app, {
         method: 'POST',
         url: '/user',
         headers: {
@@ -75,7 +75,7 @@ it('reads the body of a request', async function () {
 });
 
 it('reads the body of a multipart request', async function () {
-    const { getResponse, req, res } = inject(app, { logger }, {
+    const { getResponse, req, res } = inject(app, {
         method: 'POST',
         url: '/user/secrets',
         headers: {
@@ -106,7 +106,7 @@ contents of the file
 });
 
 it('reads the body of a request using shorthand', async function () {
-    const { getResponse, res } = inject(app, { logger }, {
+    const { getResponse, res } = inject(app, {
         method: 'POST',
         url: '/user',
         headers: {
@@ -122,7 +122,7 @@ it('reads the body of a request using shorthand', async function () {
 });
 
 it('throws an error when trying to access missing route', async function () {
-    const { getResponse, res } = inject(app, { logger }, {
+    const { getResponse, res } = inject(app, {
         url: '/users/how-are-ya'
     });
 

@@ -39,7 +39,7 @@ function normalizeBody (body: BodyJson, options: BodyOptions): BodyJson {
             if (!isEmpty(result[key])) continue;
         }
 
-        throw Ex.UnprocessableEntity(`Value ${key} cannot be empty`, {
+        throw Ex.UnprocessableEntity(`Value ${key} is required`, {
             body,
             required
         });
@@ -100,7 +100,6 @@ export default normalizeBody;
 function isEmpty (value: unknown): boolean {
     if (value === null) return true;
     if (value === undefined) return true;
-    if (typeof value === 'string' && value.trim() === '') return true;
     return false;
 }
 

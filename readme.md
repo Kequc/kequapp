@@ -103,13 +103,49 @@ The following parameters are made available to handlers and renderers.
 
 | parameter  | description                                       |
 | ---------- | ------------------------------------------------- |
-| `req`      | The node `req` object.                            |
-| `res`      | The node `res` object.                            |
-| `url`      | Url requested by the client.                      |
+| `req`      | The node [`req`](https://nodejs.org/api/http.html#class-httpclientrequest) object.                            |
+| `res`      | The node [`res`](https://nodejs.org/api/http.html#class-httpserverresponse) object.                            |
+| `url`      | [URL](https://developer.mozilla.org/en-US/docs/Web/API/URL) requested by the client.                      |
 | `context`  | Params shared between handler functions.          |
 | `params`   | Params extracted from the pathname.               |
 | `getBody`  | Function to extract params from the request body. |
-| `logger`   | Logger specified during setup.                    |
+| `logger`   | Logger specified during instantiation.            |
+
+### Querystring
+
+Querystring values are available from the Javascript [`URLSearchParams`](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams) object found on the `url` object.
+
+```javascript
+app.route('/hotels', ({ url }) => {
+    const page = url.searchParams.get('page');
+    const categories = url.searchParams.getAll('categories');
+
+    // page ~= '2'
+    // categories ~= ['ac', 'hottub']
+});
+```
+
+### Cookies
+
+Cookies are just a special header, managed by the client. It's easier to encode and decode cookies with use of an external library as there is no similar function built into node.
+
+```javascript
+const cookie = require('cookie'); // npm i cookie
+```
+
+```javascript
+function withCookies ({ req, context }) {
+    const cookies = cookie.parse(req.headers.cookie);
+    // cookies ~= { myCookie: 'hello' }
+    context.cookies = cookies;
+}
+
+const cookiesBranch = app.branch(withCookies);
+
+app.route('/login', ({ res }) => {
+    res.setHeader('Set-Cookie', [cookie.serialize('myCookie', 'hello')]);
+});
+```
 
 ### Body
 
@@ -182,7 +218,7 @@ It is required to specify which body parameters are `arrays`.
 
 Otherwise the server only knows a field is an array when it receives more than one item, which creates ambiguity in the structure of the body. Fields that do not specify an array will return the first value.
 
-Additional normalization is available. Specifying `required` ensures that the field is not `null`, `undefined`, or an empty string. There are also `numbers` and `booleans`. Full control is offered using `validate()` and `postProcess()`.
+Additional normalization is available. Specifying `required` ensures that the field is not `null` or `undefined` (though might be empty). There are also `numbers` and `booleans`. Full control is offered using `validate()` and `postProcess()`.
 
 Note body normalization is ignored with `raw` or `skipNormalize`.
 
@@ -220,49 +256,15 @@ app.route('POST', '/user', async ({ getBody }) => {
 });
 ```
 
-| parameter       | description                                  |
-| ----------      | -------------------------------------------- |
-| `arrays`        | Value is returned as an array.               |
-| `required`      | Value or values are not `null`, `undefined`, or an empty string. |
-| `numbers`       | Value or values are converted to numbers.    |
-| `booleans`      | Value or values are converted to booleans.   |
-| `skipNormalize` | Skip normalization.                          |
+| parameter       | description                                    |
+| ----------      | ---------------------------------------------- |
+| `arrays`        | Value is returned as an array.                 |
+| `required`      | Value or values are not `null` or `undefined`. |
+| `numbers`       | Value or values are converted to numbers.      |
+| `booleans`      | Value or values are converted to booleans.     |
+| `skipNormalize` | Skip normalization.                            |
 
-### Querystring
-
-Querystring parameters are available from the Javascript [`URLSearchParams`](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams) object found in `url`.
-
-```javascript
-app.route('/hotels', ({ url }) => {
-    const page = url.searchParams.get('page');
-    const categories = url.searchParams.getAll('categories');
-
-    // page ~= 2
-    // categories ~= ['ac', 'hottub']
-});
-```
-
-### Cookies
-
-Cookies are just a special header, managed by the client. It's easier to encode and decode cookies with use of an external library as there is no similar function built into node.
-
-```javascript
-const cookie = require('cookie'); // npm i cookie
-```
-
-```javascript
-function withCookies ({ req, context }) {
-    const cookies = cookie.parse(req.headers.cookie);
-    // cookies ~= { myCookie: 'hello' }
-    context.cookies = cookies;
-}
-
-const cookiesBranch = app.branch(withCookies);
-
-app.route('/login', ({ res }) => {
-    res.setHeader('Set-Cookie', [cookie.serialize('myCookie', 'hello')]);
-});
-```
+Further clarification. Required will throw an error if the value is missing. Arrays return an empty array if no value is provided. Numbers will throw an error if any value is provided which parses into `NaN`. Booleans return false if no value is provided, the value is falsy, `'0'`, or `'false'`.
 
 ### Exceptions
 
@@ -337,11 +339,11 @@ app.route('/db.json', async function ({ req, res }) {
 
 ### Unit Tests
 
-It is possible to test your application without spinning up a server using the `inject()` tool. The first parameter is your app, then a config override for your app, followed by options largely used to populate the request.
+It is possible to test your application without spinning up a server using the `inject()` tool. The first parameter is your app, then options largely used to populate the request. An optional `overrides` parameter can be provided to override configuration options from your app.
 
 Returned `req` and `res` objects are from the npm `mock-req` and `mock-res` modules respectively. Ensure you have both [`mock-req`](https://www.npmjs.com/package/mock-req) and [`mock-res`](https://www.npmjs.com/package/mock-res) installed in your project.
 
-It also returns `getResponse()` which is a utility you may use to wait for your application to respond. Alternatively you may inspect what your application is doing in realtime using the `req`, and `res` objects manually.
+It also returns `getResponse()` which is a utility you may use to wait for your application to respond. Alternatively you may inspect what your application is doing in realtime using the `req`, and `res` objects.
 
 ```javascript
 const assert = require('assert');
@@ -350,7 +352,8 @@ const { inject } = require('kequapp/inject');
 
 ```javascript
 it('reads the authorization header', async function () {
-    const { getResponse, res } = inject(app, { logger }, {
+    const { getResponse, res } = inject(app, {
+        overrides: { logger },
         url: '/admin/dashboard',
         headers: {
             Authorization: 'mike'
@@ -369,37 +372,31 @@ A `body` parameter can be provided for the request. All requests are automatical
 The following two examples are the same.
 
 ```javascript
-it('reads the body of a request', async function () {
-    const { getResponse, res } = inject(app, { logger }, {
-        method: 'POST',
-        url: '/user',
-        headers: {
-            'Content-Type': 'application/json; charset=utf-8'
-        },
-        body: '{ "name": "April" }'
-    });
+const { getResponse, res } = inject(app, {
+    method: 'POST',
+    url: '/user',
+    headers: {
+        'Content-Type': 'application/json; charset=utf-8'
+    },
+    body: '{ "name": "April" }'
+});
 
-    const body = await getResponse();
-
-    assert.strictEqual(body, 'User creation April!');
+const body = await getResponse();
 });
 ```
 
 ```javascript
-it('reads the body of a request', async function () {
-    const { getResponse, req, res } = inject(app, { logger }, {
-        method: 'POST',
-        url: '/user',
-        headers: {
-            'Content-Type': 'application/json; charset=utf-8'
-        },
-        body: null
-    });
+const { getResponse, req, res } = inject(app, {
+    method: 'POST',
+    url: '/user',
+    headers: {
+        'Content-Type': 'application/json; charset=utf-8'
+    },
+    body: null
+});
 
-    req.end('{ "name": "April" }');
+req.end('{ "name": "April" }');
 
-    const body = await getResponse();
-
-    assert.strictEqual(body, 'User creation April!');
+const body = await getResponse();
 });
 ```

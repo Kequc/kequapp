@@ -1,6 +1,7 @@
 import { IncomingMessage, ServerResponse } from 'http';
 import { RawPart } from './create-get-body';
 import Ex from '../utils/ex';
+import { getHeader } from '../utils/sanitize';
 
 function streamReader (stream: IncomingMessage | ServerResponse, maxPayloadSize?: number): Promise<RawPart> {
     return new Promise<RawPart>(function (resolve, reject) {
@@ -44,12 +45,3 @@ function streamReader (stream: IncomingMessage | ServerResponse, maxPayloadSize?
 }
 
 export default streamReader;
-
-function getHeader (stream: IncomingMessage | ServerResponse, name: string): string {
-    if ('getHeader' in stream) {
-        return String(stream.getHeader(name) || '').trim();
-    } else if ('headers' in stream) {
-        return String(stream.headers[name.toLowerCase()] || '').trim();
-    }
-    return '';
-}

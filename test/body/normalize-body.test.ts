@@ -27,7 +27,7 @@ describe('required', function () {
 
         assert.throws(() => normalizeBody(body, options), {
             statusCode: 422,
-            message: 'Value ownedPets cannot be empty'
+            message: 'Value ownedPets is required'
         });
     });
 
@@ -43,11 +43,11 @@ describe('required', function () {
 
         assert.throws(() => normalizeBody(body, options), {
             statusCode: 422,
-            message: 'Value ownedPets cannot be empty'
+            message: 'Value ownedPets is required'
         });
     });
 
-    it('throws error on empty required parameter', function () {
+    it('is okay with empty required parameter', function () {
         const body = {
             name: 'April',
             age: '23',
@@ -57,13 +57,14 @@ describe('required', function () {
             required: ['name', 'ownedPets', 'age']
         };
 
-        assert.throws(() => normalizeBody(body, options), {
-            statusCode: 422,
-            message: 'Value ownedPets cannot be empty'
+        assert.deepStrictEqual(normalizeBody(body, options), {
+            name: 'April',
+            age: '23',
+            ownedPets: ''
         });
     });
 
-    it('throws error on empty required parameter in array', function () {
+    it('is okay with empty required parameter in array', function () {
         const body = {
             name: 'April',
             age: '23',
@@ -74,13 +75,14 @@ describe('required', function () {
             required: ['name', 'ownedPets', 'age']
         };
 
-        assert.throws(() => normalizeBody(body, options), {
-            statusCode: 422,
-            message: 'Value ownedPets cannot be empty'
+        assert.deepStrictEqual(normalizeBody(body, options), {
+            name: 'April',
+            age: '23',
+            ownedPets: ['']
         });
     });
 
-    it('throws error on only spaces in required parameter', function () {
+    it('is okay with only spaces in required parameter', function () {
         const body = {
             name: 'April',
             age: '23',
@@ -90,9 +92,10 @@ describe('required', function () {
             required: ['name', 'ownedPets', 'age']
         };
 
-        assert.throws(() => normalizeBody(body, options), {
-            statusCode: 422,
-            message: 'Value ownedPets cannot be empty'
+        assert.deepStrictEqual(normalizeBody(body, options), {
+            name: 'April',
+            age: '23',
+            ownedPets: '  '
         });
     });
 });
@@ -182,7 +185,7 @@ describe('arrays', function () {
         assert.deepStrictEqual(normalizeBody(body, options), {
             name: 'April',
             age: '23',
-            ownedPets: ['hello']
+            ownedPets: ['hello', '']
         });
     });
 
@@ -198,7 +201,7 @@ describe('arrays', function () {
 
         assert.throws(() => normalizeBody(body, options), {
             statusCode: 422,
-            message: 'Value ownedPets cannot be empty'
+            message: 'Value ownedPets is required'
         });
     });
 

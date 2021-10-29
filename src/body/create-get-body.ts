@@ -11,6 +11,8 @@ export interface IGetBody {
     (format: BodyOptions & { raw: true }): Promise<Buffer>;
     (format: BodyOptions & { multipart: true }): Promise<[BodyJson, FilePart[]]>;
     (format?: BodyOptions): Promise<BodyJson>;
+    <T>(format: BodyOptions & { multipart: true }): Promise<[T, FilePart[]]>;
+    <T>(format?: BodyOptions): Promise<T>;
 }
 export type BodyOptions = {
     raw?: boolean;

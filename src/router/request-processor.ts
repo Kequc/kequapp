@@ -4,7 +4,7 @@ import { extractParams } from './path-params';
 import jsonRenderer from '../built-in/json-renderer';
 import textRenderer from '../built-in/text-renderer';
 import { Bundle, Ex } from '../main';
-import { sanitizeContentType, sanitizePathname } from '../utils/sanitize';
+import { getHeader, sanitizeContentType, sanitizePathname } from '../utils/sanitize';
 import { Config, ConfigRenderers, Renderer } from '../utils/setup-config';
 
 const DEFAULT_RENDERERS = {
@@ -20,11 +20,12 @@ async function requestProcessor (config: Config, routes: Route[], bundle: Bundle
     try {
         const route = findRoute(routes, req.method, pathname);
         Object.assign(bundle.params, extractParams(route.pathname, pathname));
-
         const payload = await lifecycle(route, bundle);
+
         await render(config, payload, bundle);
     } catch (error: unknown) {
         const payload = await config.errorHandler(error, bundle);
+
         await render(config, payload, bundle);
     }
 
@@ -45,7 +46,7 @@ async function lifecycle (route: Route, bundle: Bundle): Promise<unknown> {
 
 async function render (config: Config, payload: unknown, bundle: Bundle): Promise<void> {
     if (payload !== undefined && !bundle.res.writableEnded) {
-        const contentType = String(bundle.res.getHeader('Content-Type') || '');
+        const contentType = getHeader(bundle.res, 'Content-Type');
         const renderer = findRenderer(config.renderers, contentType);
         await renderer(payload, bundle);
     }

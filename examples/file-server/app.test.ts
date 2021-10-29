@@ -6,7 +6,7 @@ import app from './app';
 const logger = util.logger();
 
 it('can access the root', async function () {
-    const { getResponse, res } = inject(app, { logger }, {
+    const { getResponse, res } = inject(app, {
         url: '/'
     });
 
@@ -18,7 +18,7 @@ it('can access the root', async function () {
 });
 
 it('can open an image', async function () {
-    const { getResponse, res } = inject(app, { logger }, {
+    const { getResponse, res } = inject(app, {
         url: '/assets/cat.gif'
     });
 
@@ -30,7 +30,7 @@ it('can open an image', async function () {
 });
 
 it('returns only head when requested', async function () {
-    const { getResponse, res } = inject(app, { logger }, {
+    const { getResponse, res } = inject(app, {
         method: 'HEAD',
         url: '/assets/cat.gif'
     });
@@ -43,7 +43,7 @@ it('returns only head when requested', async function () {
 });
 
 it('can open a css file', async function () {
-    const { getResponse, res } = inject(app, { logger }, {
+    const { getResponse, res } = inject(app, {
         url: '/assets/css/test.css'
     });
 
@@ -56,7 +56,7 @@ it('can open a css file', async function () {
 });
 
 it('throws error accessing root directory', async function () {
-    const { getResponse, res } = inject(app, { logger }, {
+    const { getResponse, res } = inject(app, {
         url: '/assets'
     });
 
@@ -68,7 +68,7 @@ it('throws error accessing root directory', async function () {
 });
 
 it('throws error accessing nested directory', async function () {
-    const { getResponse, res } = inject(app, { logger }, {
+    const { getResponse, res } = inject(app, {
         url: '/assets/css'
     });
 
@@ -80,7 +80,7 @@ it('throws error accessing nested directory', async function () {
 });
 
 it('throws error accessing missing file', async function () {
-    const { getResponse, res } = inject(app, { logger }, {
+    const { getResponse, res } = inject(app, {
         url: '/assets/does-not-exist.exe'
     });
 
@@ -92,7 +92,7 @@ it('throws error accessing missing file', async function () {
 });
 
 it('throws error accessing excluded file', async function () {
-    const { getResponse, res } = inject(app, { logger }, {
+    const { getResponse, res } = inject(app, {
         url: '/assets/private.txt'
     });
 
