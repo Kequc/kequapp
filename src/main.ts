@@ -20,7 +20,6 @@ export type Bundle = {
     url: URL;
     context: BundleContext;
     params: BundleParams;
-    query: BundleQuery;
     getBody: IGetBody;
     logger: Logger;
 };
@@ -33,9 +32,6 @@ export type BundleParams = {
     '**'?: string[];
     '*'?: string[];
 };
-export type BundleQuery = {
-    [k: string]: string | string[];
-};
 
 
 function createApp (options: ConfigInput = {}): IKequapp {
@@ -45,7 +41,6 @@ function createApp (options: ConfigInput = {}): IKequapp {
     function app (req: IncomingMessage, res: ServerResponse, _override: ConfigInput = {}) {
         const config = { ..._config, ..._override };
         const url = new URL(req.url || '/', `${req.headers.protocol}://${req.headers.host}`);
-        const query = Object.fromEntries(url.searchParams);
 
         res.statusCode = 200; // default
         res.setHeader('Content-Type', 'text/plain; charset=utf-8'); // default
@@ -56,7 +51,6 @@ function createApp (options: ConfigInput = {}): IKequapp {
             url,
             context: {},
             params: {},
-            query,
             getBody: createGetBody(req, config.maxPayloadSize),
             logger: config.logger
         });

@@ -14,7 +14,8 @@ function loggedIn ({ req, context }) {
 }
 
 app.branch('/user')
-    .route(({ query }) => {
+    .route(({ url }) => {
+        const query = Object.fromEntries(url.searchParams);
         return 'Query ' + JSON.stringify(query);
     })
     .route('/:id', ({ params }) => {

@@ -108,7 +108,6 @@ The following parameters are made available to handlers and renderers.
 | `url`      | Url requested by the client.                      |
 | `context`  | Params shared between handler functions.          |
 | `params`   | Params extracted from the pathname.               |
-| `query`    | Params extracted from the querystring.            |
 | `getBody`  | Function to extract params from the request body. |
 | `logger`   | Logger specified during setup.                    |
 
@@ -228,6 +227,20 @@ app.route('POST', '/user', async ({ getBody }) => {
 | `numbers`       | Value or values are converted to numbers.    |
 | `booleans`      | Value or values are converted to booleans.   |
 | `skipNormalize` | Skip normalization.                          |
+
+### Querystring
+
+Querystring parameters are available from the Javascript [`URLSearchParams`](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams) object found in [`URL`](https://developer.mozilla.org/en-US/docs/Web/API/URL).
+
+```javascript
+app.route('/hotels', ({ url }) => {
+    const page = url.searchParams.get('page');
+    const categories = url.searchParams.getAll('categories');
+
+    // page ~= 2
+    // categories ~= ['ac', 'hottub']
+});
+```
 
 ### Cookies
 
