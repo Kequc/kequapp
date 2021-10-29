@@ -33,7 +33,8 @@ function normalizeBody (body: BodyJson, options: BodyOptions): BodyJson {
     // required
     for (const key of required) {
         if (arrays.includes(key)) {
-            if (result[key].length > 0 && !result[key].some(isEmpty)) continue;
+            result[key] = result[key].filter((value: unknown) => !isEmpty(value));
+            if (result[key].length > 0) continue;
         } else {
             if (!isEmpty(result[key])) continue;
         }

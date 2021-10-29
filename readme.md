@@ -223,14 +223,14 @@ app.route('POST', '/user', async ({ getBody }) => {
 | parameter       | description                                  |
 | ----------      | -------------------------------------------- |
 | `arrays`        | Value is returned as an array.               |
-| `required`      | Value is not `null`, `undefined`, or an empty string. |
+| `required`      | Value or values are not `null`, `undefined`, or an empty string. |
 | `numbers`       | Value or values are converted to numbers.    |
 | `booleans`      | Value or values are converted to booleans.   |
 | `skipNormalize` | Skip normalization.                          |
 
 ### Querystring
 
-Querystring parameters are available from the Javascript [`URLSearchParams`](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams) object found in [`URL`](https://developer.mozilla.org/en-US/docs/Web/API/URL).
+Querystring parameters are available from the Javascript [`URLSearchParams`](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams) object found in `url`.
 
 ```javascript
 app.route('/hotels', ({ url }) => {
@@ -244,7 +244,7 @@ app.route('/hotels', ({ url }) => {
 
 ### Cookies
 
-I recommend use of an external library for this.
+Cookies are just a special header, managed by the client. It's easier to encode and decode cookies with use of an external library as there is no similar function built into node.
 
 ```javascript
 const cookie = require('cookie'); // npm i cookie

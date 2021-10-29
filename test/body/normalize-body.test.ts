@@ -67,7 +67,7 @@ describe('required', function () {
         const body = {
             name: 'April',
             age: '23',
-            ownedPets: ['hello', null]
+            ownedPets: ['']
         };
         const options = {
             arrays: ['ownedPets'],
@@ -165,6 +165,24 @@ describe('arrays', function () {
             name: 'April',
             age: '23',
             ownedPets: [null]
+        });
+    });
+
+    it('handles empty parameter in required array', function () {
+        const body = {
+            name: 'April',
+            age: '23',
+            ownedPets: [null, 'hello', '']
+        };
+        const options = {
+            required: ['ownedPets'],
+            arrays: ['ownedPets']
+        };
+
+        assert.deepStrictEqual(normalizeBody(body, options), {
+            name: 'April',
+            age: '23',
+            ownedPets: ['hello']
         });
     });
 
