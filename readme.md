@@ -109,7 +109,7 @@ The following parameters are made available to handlers and renderers.
 | `context`  | Params shared between handler functions.          |
 | `params`   | Params extracted from the pathname.               |
 | `getBody`  | Function to extract params from the request body. |
-| `routes`   | Helper methods which describe your app.           |
+| `routes`   | Helper methods describe your app.                 |
 | `logger`   | Logger specified during setup.                    |
 
 ### Querystring

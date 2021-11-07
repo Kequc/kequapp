@@ -3,8 +3,6 @@ import assert from 'assert';
 import { inject } from '../../src/inject'; // 'kequapp/inject'
 import app from './app';
 
-const logger = util.logger();
-
 it('can access the root', async function () {
     const { getResponse, res } = inject(app, {
         url: '/'

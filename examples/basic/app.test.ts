@@ -3,8 +3,6 @@ import assert from 'assert';
 import { inject } from '../../src/inject'; // 'kequapp/inject'
 import app from './app';
 
-const logger = util.logger();
-
 it('reads parameters from the url', async function () {
     const { getResponse, res } = inject(app, {
         url: '/user/21'
