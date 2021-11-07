@@ -1,9 +1,13 @@
 import { IncomingMessage } from 'http';
+import { Readable } from 'stream';
+import zlib from 'zlib';
+import createParseBody, { parseJson, parseUrlEncoded } from './create-parse-body';
 import parseMultipart from './multipart/parse-multipart';
 import splitMultipart from './multipart/split-multipart';
 import normalizeBody from './normalize-body';
-import createParseBody, { parseJson, parseUrlEncoded } from './create-parse-body';
 import streamReader from './stream-reader';
+import { Ex } from '../main';
+import { getHeader } from '../utils/sanitize';
 
 
 export interface IGetBody {
@@ -53,7 +57,12 @@ function createGetBody (req: IncomingMessage, maxPayloadSize?: number): IGetBody
 
     return async function (options: BodyOptions = {}): Promise<any> {
         if (_body === undefined) {
-            _body = await streamReader(req, maxPayloadSize);
+            const data = await streamReader(getStream(req), maxPayloadSize);
+            const headers = {
+                'content-type': getHeader(req, 'Content-Type'),
+                'content-disposition': getHeader(req, 'Content-Disposition'),
+            };
+            _body = { headers, data };
         }
 
         const isMultipartRequest = _body.headers['content-type']?.startsWith('multipart/');
@@ -82,6 +91,21 @@ function createGetBody (req: IncomingMessage, maxPayloadSize?: number): IGetBody
 }
 
 export default createGetBody;
+
+function getStream (req: IncomingMessage): Readable {
+    const encoding = (req.headers['content-encoding'] || 'identity').toLowerCase();
+
+    switch (encoding) {
+    case 'br': return req.pipe(zlib.createBrotliDecompress());
+    case 'gzip': return req.pipe(zlib.createGunzip());
+    case 'deflate': return req.pipe(zlib.createInflate());
+    case 'identity': return req;
+    }
+
+    throw Ex.UnsupportedMediaType(`Unsupported encoding: ${encoding}`, {
+        encoding
+    });
+}
 
 function clone (body: RawPart): RawPart {
     return { ...body, headers: { ...body.headers } };

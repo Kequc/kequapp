@@ -1,10 +1,8 @@
-import { IncomingMessage, ServerResponse } from 'http';
-import { RawPart } from './create-get-body';
+import { Readable } from 'stream';
 import Ex from '../utils/ex';
-import { getHeader } from '../utils/sanitize';
 
-function streamReader (stream: IncomingMessage | ServerResponse, maxPayloadSize?: number): Promise<RawPart> {
-    return new Promise<RawPart>(function (resolve, reject) {
+function streamReader (stream: Readable, maxPayloadSize?: number): Promise<Buffer> {
+    return new Promise(function (resolve, reject) {
         const chunks: Buffer[] = [];
 
         stream.on('data', handleData);
@@ -16,13 +14,7 @@ function streamReader (stream: IncomingMessage | ServerResponse, maxPayloadSize?
         }
 
         function handleEnd () {
-            resolve({
-                headers: {
-                    'content-type': getHeader(stream, 'Content-Type'),
-                    'content-disposition': getHeader(stream, 'Content-Disposition'),
-                },
-                data: Buffer.concat(chunks)
-            });
+            resolve(Buffer.concat(chunks));
         }
 
         function abortStream (error: Error) {
