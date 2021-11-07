@@ -1,9 +1,10 @@
 import { Route } from './create-router';
-import findRoute from './find-route';
+import { findRoute } from './create-routes';
 import { extractParams } from './path-params';
-import { Bundle, Ex } from '../main';
+import { Bundle } from '../main';
 import { Config, ConfigRenderers, Renderer } from '../utils/config';
 import { getHeader, sanitizeContentType, sanitizePathname } from '../utils/sanitize';
+import Ex from '../utils/ex';
 
 async function requestProcessor (config: Config, routes: Route[], bundle: Bundle): Promise<void> {
     const { req, res, url, logger } = bundle;
@@ -17,6 +18,10 @@ async function requestProcessor (config: Config, routes: Route[], bundle: Bundle
         await render(config, payload, bundle);
     } catch (error: unknown) {
         const payload = await config.errorHandler(error, bundle);
+
+        if (bundle.res.statusCode === 500) {
+            logger.error(error);
+        }
 
         await render(config, payload, bundle);
     }

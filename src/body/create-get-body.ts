@@ -2,7 +2,7 @@ import { IncomingMessage } from 'http';
 import parseMultipart from './multipart/parse-multipart';
 import splitMultipart from './multipart/split-multipart';
 import normalizeBody from './normalize-body';
-import createParseBody, { parseJson, parseUrlEncoded } from './parse-body';
+import createParseBody, { parseJson, parseUrlEncoded } from './create-parse-body';
 import streamReader from './stream-reader';
 
 

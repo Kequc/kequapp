@@ -22,15 +22,14 @@ const MIME_TYPES = {
     '.wasm': 'application/wasm'
 };
 
-async function sendFile (method: string | undefined, res: ServerResponse, asset: string): Promise<void> {
+async function sendFile (method: string | undefined, res: ServerResponse, asset: string, mime?: string): Promise<void> {
     const location: string = path.join(process.cwd(), asset);
     const ext: string = path.extname(asset).toLowerCase();
-    let contentLength = 0;
+    const contentType = mime || MIME_TYPES[ext] || 'application/octet-stream';
 
     try {
         const fileInfo = fs.statSync(location);
         if (!fileInfo.isFile()) throw new Error('Not a file');
-        contentLength = fileInfo.size;
     } catch (error) {
         throw Ex.NotFound(undefined, {
             method,
@@ -40,8 +39,7 @@ async function sendFile (method: string | undefined, res: ServerResponse, asset:
         });
     }
 
-    res.setHeader('Content-Type', (MIME_TYPES[ext] || 'application/octet-stream') + '; charset=utf-8');
-    res.setHeader('Content-Length', contentLength);
+    res.setHeader('Content-Type', contentType + '; charset=utf-8');
 
     if (method === 'HEAD') {
         res.end();

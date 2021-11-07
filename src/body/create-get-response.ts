@@ -1,6 +1,6 @@
 import { ServerResponse } from 'http';
 import { RawPart } from './create-get-body';
-import createParseBody, { parseJson } from './parse-body';
+import createParseBody, { parseJson } from './create-parse-body';
 import streamReader from './stream-reader';
 
 

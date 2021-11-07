@@ -4,15 +4,20 @@ import sendFile from './addons/send-file';
 import staticFiles from './addons/static-files';
 import createGetBody, { IGetBody } from './body/create-get-body';
 import createRouter, { Router } from './router/create-router';
-import { listRoutes } from './router/find-route';
 import requestProcessor from './router/request-processor';
-import { ConfigInput, extendConfig, Logger, setupConfig } from './utils/config';
+import createRoutes, { Routes } from './router/create-routes';
+import {
+    ConfigInput,
+    extendConfig,
+    Logger,
+    setupConfig
+} from './utils/config';
 import Ex from './utils/ex';
 
 
 export interface IKequapp extends RequestListener, Router {
     (req: IncomingMessage, res: ServerResponse, override?: ConfigInput): void;
-    list (): string[];
+    routes (): Routes;
 }
 export type Bundle = {
     req: IncomingMessage;
@@ -21,6 +26,7 @@ export type Bundle = {
     context: BundleContext;
     params: BundleParams;
     getBody: IGetBody;
+    routes: Routes;
     logger: Logger;
 };
 export type BundleContext = {
@@ -52,19 +58,18 @@ function createApp (options?: ConfigInput): IKequapp {
             context: {},
             params: {},
             getBody: createGetBody(req, config.maxPayloadSize),
+            routes: { ...routes },
             logger: config.logger
         });
     }
 
-    function list (): string[] {
-        return listRoutes(_routes);
-    }
+    const routes = createRoutes(_routes);
 
     Object.assign(app, createRouter(_routes, {
         pathname: '/',
         handles: []
     }), {
-        list
+        routes
     });
 
     return app as IKequapp;

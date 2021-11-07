@@ -6,7 +6,8 @@
   "types": "dist/main.d.ts",
   "scripts": {
     "build": "rm -rf dist && tsc",
-    "start": "ts-node ./examples/basic/server.ts",
+    "start:basic": "ts-node ./examples/basic/server.ts",
+    "start:file-server": "ts-node ./examples/file-server/server.ts",
     "test": "kequtest --ts"
   },
   "files": [

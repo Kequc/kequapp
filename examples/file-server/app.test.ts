@@ -25,8 +25,6 @@ it('can open an image', async function () {
     const body = await getResponse();
 
     assert.strictEqual(res.getHeader('Content-Type'), 'image/gif; charset=utf-8');
-    assert.ok(res.getHeader('Content-Length') > 0);
-    assert.strictEqual(res.getHeader('Content-Length'), body.length);
 });
 
 it('returns only head when requested', async function () {
@@ -38,7 +36,6 @@ it('returns only head when requested', async function () {
     const body = await getResponse();
 
     assert.strictEqual(res.getHeader('Content-Type'), 'image/gif; charset=utf-8');
-    assert.ok(res.getHeader('Content-Length') > 0);
     assert.strictEqual(body.length, 0);
 });
 
@@ -50,8 +47,6 @@ it('can open a css file', async function () {
     const body = await getResponse();
 
     assert.strictEqual(res.getHeader('Content-Type'), 'text/css; charset=utf-8');
-    assert.ok(res.getHeader('Content-Length') > 0);
-    assert.strictEqual(res.getHeader('Content-Length'), body.length);
     assert.strictEqual(body, 'body {\n    margin: 0;\n}\n');
 });
 
