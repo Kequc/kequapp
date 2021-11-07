@@ -12,6 +12,14 @@ export function sanitizeContentType (contentType = ''): string {
     return contentType.split(';')[0].toLowerCase().trim() || 'text/plain';
 }
 
+export function getHeaders (stream: IncomingMessage | ServerResponse, names: string[]): { [k: string]: string } {
+    const result: { [k: string]: string } = {};
+    for (const name of names) {
+        result[name.toLowerCase()] = getHeader(stream, name);
+    }
+    return result;
+}
+
 export function getHeader (stream: IncomingMessage | ServerResponse, name: string): string {
     if ('getHeader' in stream) {
         return String(stream.getHeader(name) || '').trim();

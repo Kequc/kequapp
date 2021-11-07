@@ -1,9 +1,9 @@
 import { ServerResponse } from 'http';
 import { Readable } from 'stream';
-import { getHeader } from '../utils/sanitize';
 import { RawPart } from './create-get-body';
 import createParseBody, { parseJson } from './create-parse-body';
 import streamReader from './stream-reader';
+import { getHeaders } from '../utils/sanitize';
 
 
 export interface IGetResponse {
@@ -26,10 +26,7 @@ function createGetResponse (res: ServerResponse): IGetResponse {
     return async function (options: ResponseOptions = {}) {
         if (_body === undefined) {
             const data = await streamReader(res as unknown as Readable);
-            const headers = {
-                'content-type': getHeader(res, 'Content-Type'),
-                'content-disposition': getHeader(res, 'Content-Disposition'),
-            };
+            const headers = getHeaders(res, ['Content-Type', 'Content-Disposition']);
             _body = { headers, data };
         }
 

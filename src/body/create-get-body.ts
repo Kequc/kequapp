@@ -7,7 +7,7 @@ import splitMultipart from './multipart/split-multipart';
 import normalizeBody from './normalize-body';
 import streamReader from './stream-reader';
 import { Ex } from '../main';
-import { getHeader } from '../utils/sanitize';
+import { getHeaders } from '../utils/sanitize';
 
 
 export interface IGetBody {
@@ -58,10 +58,7 @@ function createGetBody (req: IncomingMessage, maxPayloadSize?: number): IGetBody
     return async function (options: BodyOptions = {}): Promise<any> {
         if (_body === undefined) {
             const data = await streamReader(getStream(req), maxPayloadSize);
-            const headers = {
-                'content-type': getHeader(req, 'Content-Type'),
-                'content-disposition': getHeader(req, 'Content-Disposition'),
-            };
+            const headers = getHeaders(req, ['Content-Type', 'Content-Disposition']);
             _body = { headers, data };
         }
 
