@@ -16,7 +16,7 @@ const { createApp } = require('kequapp');
 
 const app = createApp();
 
-app.route('/', () => {
+app.route(() => {
     return 'Hello world!';
 });
 
@@ -77,9 +77,13 @@ const app = createApp({
 });
 ```
 
+## HEAD Requests
+
+`HEAD` requests are passed through by default so that it's matching `GET` request lifecycle is triggered. It is the responsibility of the renderer to detect a HEAD request and then pass no body in the response. These can be overridden by defining a HEAD route or disabled entirely by setting the `autoHead` configuration option to `false`.
+
 ### Halting Execution
 
-Any handler can return a `payload`. Doing this halts further execution of the request and triggers rendering immediately. This is similar to interrupting the request by throwing an error or by finalizing the response.
+Any handler can return a `payload`. Doing this halts further execution of the request and triggers rendering immediately. This is similar to interrupting the request by throwing an error or finalizing the response.
 
 All processing halts if the response has been finalized. This is useful for example instead of rendering output you want to redirect the user to another page.
 
@@ -109,8 +113,8 @@ The following parameters are made available to handlers and renderers.
 | `context`  | Params shared between handler functions.          |
 | `params`   | Params extracted from the pathname.               |
 | `getBody`  | Function to extract params from the request body. |
-| `routes`   | Helper methods describe your app.                 |
-| `logger`   | Logger specified during setup.                    |
+| `routes`   | Helper to describe available app routes.          |
+| `logger`   | Logger specified by configuration option.         |
 
 ### Body
 
@@ -222,7 +226,7 @@ app.route('POST', '/user', async ({ getBody }) => {
 ```
 
 | parameter       | description                                    |
-| ----------      | ---------------------------------------------- |
+| --------------- | ---------------------------------------------- |
 | `arrays`        | Value is returned as an array.                 |
 | `required`      | Value or values are not `null` or `undefined`. |
 | `numbers`       | Value or values are converted to numbers.      |
@@ -231,7 +235,7 @@ app.route('POST', '/user', async ({ getBody }) => {
 
 ### Querystring
 
-Querystring values are available from the Javascript [`URLSearchParams`](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams) object found on the `url` object.
+Querystring values are available from the Javascript [`URLSearchParams`](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams) instance found on the `url` object.
 
 ```javascript
 app.route('/hotels', ({ url }) => {
@@ -306,6 +310,18 @@ const app = createApp({
 });
 ```
 
+### Configuration Options
+
+During instantiation of the app there are several configuration options available.
+
+| parameter        | description                                                |
+| ---------------- | ---------------------------------------------------------- |
+| `logger`         | Logger to use within the app. (Default: `console`)         |
+| `renderers`      | Renderers to use within the app.                           |
+| `errorHandler`   | Error handler to capture and format error responses.       |
+| `maxPayloadSize` | Maximum payload size for client requests. (Default: `1e6`) |
+| `autoHead`       | Automatically follow head requests. (Default: `true`)      |
+
 ### Static Files
 
 A rudimentary `staticFiles()` handler can be used to deliver files relative to your project directory. This utility makes use of the `**` parameter as defined by your route to build a valid path.
@@ -371,7 +387,7 @@ A `body` parameter can be provided for the request. All requests are automatical
 The following two examples are the same.
 
 ```javascript
-const { getResponse, res } = inject(app, {
+const { getResponse } = inject(app, {
     method: 'POST',
     url: '/user',
     headers: {
@@ -384,7 +400,7 @@ const body = await getResponse();
 ```
 
 ```javascript
-const { getResponse, req, res } = inject(app, {
+const { getResponse, req } = inject(app, {
     method: 'POST',
     url: '/user',
     headers: {

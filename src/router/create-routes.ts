@@ -36,12 +36,12 @@ function createRoutes (routes: Route[]): Routes {
 
 export default createRoutes;
 
-export function findRoute (routes: Route[], method: string | undefined, pathname: string): Route {
+export function findRoute (routes: Route[], method: string | undefined, pathname: string, autoHead: boolean): Route {
     const result = findRoutes(routes, pathname);
     let match = result.find(route => route.method === (method || 'GET'));
 
     // maybe it's a head request
-    if (!match && method === 'HEAD') {
+    if (!match && autoHead && method === 'HEAD') {
         match = result.find(route => route.method === 'GET');
     }
 

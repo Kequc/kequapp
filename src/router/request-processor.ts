@@ -7,17 +7,18 @@ import { getHeader, sanitizeContentType, sanitizePathname } from '../utils/sanit
 import Ex from '../utils/ex';
 
 async function requestProcessor (config: Config, routes: Route[], bundle: Bundle): Promise<void> {
+    const { errorHandler, autoHead } = config;
     const { req, res, url, logger } = bundle;
     const pathname = sanitizePathname(url.pathname);
 
     try {
-        const route = findRoute(routes, req.method, pathname);
+        const route = findRoute(routes, req.method, pathname, autoHead);
         Object.assign(bundle.params, extractParams(route.pathname, pathname));
         const payload = await lifecycle(route, bundle);
 
         await render(config, payload, bundle);
     } catch (error: unknown) {
-        const payload = await config.errorHandler(error, bundle);
+        const payload = await errorHandler(error, bundle);
 
         if (bundle.res.statusCode === 500) {
             logger.error(error);

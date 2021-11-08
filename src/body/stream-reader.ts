@@ -1,7 +1,7 @@
 import { Readable } from 'stream';
 import Ex from '../utils/ex';
 
-function streamReader (stream: Readable, maxPayloadSize?: number): Promise<Buffer> {
+function streamReader (stream: Readable, maxPayloadSize = 0): Promise<Buffer> {
     return new Promise(function (resolve, reject) {
         const chunks: Buffer[] = [];
 
@@ -25,7 +25,7 @@ function streamReader (stream: Readable, maxPayloadSize?: number): Promise<Buffe
         }
 
         function verifyPayload () {
-            if (maxPayloadSize) {
+            if (maxPayloadSize > 0) {
                 const payloadSize = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
 
                 if (payloadSize > maxPayloadSize) {

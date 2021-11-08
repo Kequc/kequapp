@@ -57,7 +57,7 @@ function createApp (options?: ConfigInput): IKequapp {
             url,
             context: {},
             params: {},
-            getBody: createGetBody(req, config.maxPayloadSize),
+            getBody: createGetBody(req, config),
             routes: { ...routes },
             logger: config.logger
         });
