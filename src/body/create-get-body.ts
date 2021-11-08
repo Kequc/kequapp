@@ -35,6 +35,7 @@ export type FilePart = RawPart & {
 export type BodyOptions = {
     raw?: boolean;
     multipart?: boolean;
+    maxPayloadSize?: number;
     skipNormalize?: boolean;
     arrays?: string[];
     numbers?: string[];
@@ -42,7 +43,6 @@ export type BodyOptions = {
     required?: string[];
     validate? (body: BodyJson): string | void;
     postProcess? (body: BodyJson): BodyJson;
-    maxPayloadSize?: number;
 };
 export type BodyJson = {
     [k: string]: any;

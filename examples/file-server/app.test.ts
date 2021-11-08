@@ -23,6 +23,7 @@ it('can open an image', async function () {
     const body = await getResponse();
 
     assert.strictEqual(res.getHeader('Content-Type'), 'image/gif; charset=utf-8');
+    assert.ok(body.length > 0);
 });
 
 it('returns only head when requested', async function () {

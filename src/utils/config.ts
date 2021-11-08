@@ -106,8 +106,8 @@ function validateMaxPayloadSize (maxPayloadSize?: number) {
     if (typeof maxPayloadSize !== 'number') {
         throw new Error('Max payload size must be a number');
     }
-    if (maxPayloadSize < 0) {
-        throw new Error('Max payload size must be a positive number');
+    if (maxPayloadSize <= 0) {
+        throw new Error('Max payload size must be greater than 0');
     }
 }
 

@@ -7,7 +7,7 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 function jsonRenderer (payload: unknown, { req, res }: Bundle): void {
     const json = generateJson(payload);
 
-    res.setHeader('Content-Length', json.length);
+    res.setHeader('Content-Length', Buffer.byteLength(json));
 
     if (req.method === 'HEAD') {
         res.end();

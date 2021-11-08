@@ -146,11 +146,11 @@ app.route('POST', '/user', async ({ getBody }) => {
 
 ### Multipart/Raw Body
 
-By passing `multipart` the function will return both a `body` and `files`.
+By passing `multipart` the function will return both a `body` and `files`. If a specific route is intended to allow larger or smaller payload size than the default, an override is available with `maxPayloadSize`.
 
 ```javascript
 app.route('POST', '/user', async ({ getBody }) => {
-    const [body, files] = await getBody({ multipart: true });
+    const [body, files] = await getBody({ multipart: true, maxPayloadSize: Infinity });
 
     // body ~= {
     //     name: 'April'
@@ -170,7 +170,7 @@ app.route('POST', '/user', async ({ getBody }) => {
 });
 ```
 
-By passing `raw` the body is processed as minimally as possible, returning a single buffer as it arrived. When combined with `multipart`, an array is returned with all parts as separate buffers with respective headers.
+By passing `raw` the body is processed as minimally as possible, returning a single buffer as it arrived.
 
 ```javascript
 app.route('POST', '/user', async ({ getBody }) => {
@@ -237,13 +237,18 @@ app.route('POST', '/user', async ({ getBody }) => {
 });
 ```
 
-| parameter       | description                                    |
-| --------------- | ---------------------------------------------- |
-| `arrays`        | Value is returned as an array.                 |
-| `required`      | Value or values are not `null` or `undefined`. |
-| `numbers`       | Value or values are converted to numbers.      |
-| `booleans`      | Value or values are converted to booleans.     |
-| `skipNormalize` | Skip normalization.                            |
+| parameter        | description                                            |
+| ---------------- | ------------------------------------------------------ |
+| `raw`            | Body is returned as it arrived.                        |
+| `multipart`      | Body and files are returned.                           |
+| `maxPayloadSize` | Override maximum payload size.                         |
+| `skipNormalize`  | Skip normalization.                                    |
+| `arrays`         | Value or values in body returned as an array.          |
+| `required`       | Value or values in body are not `null` or `undefined`. |
+| `numbers`        | Value or values in body converted to numbers.          |
+| `booleans`       | Value or values in body converted to booleans.         |
+| `validate`       | Function for detailing more requirements.              |
+| `postProcess`    | Function for post processing the normalized result.    |
 
 ### Querystring
 

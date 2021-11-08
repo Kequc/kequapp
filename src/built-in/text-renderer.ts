@@ -5,7 +5,7 @@ import Ex from '../utils/ex';
 function textRenderer (payload: unknown, { req, res }: Bundle): void {
     const text = generateText(payload);
 
-    res.setHeader('Content-Length', text.length);
+    res.setHeader('Content-Length', Buffer.byteLength(text));
 
     if (req.method === 'HEAD') {
         res.end();
