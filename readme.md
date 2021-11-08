@@ -146,11 +146,11 @@ app.route('POST', '/user', async ({ getBody }) => {
 
 ### Multipart/Raw Body
 
-By passing `multipart` the function will return both a `body` and `files`. If a specific route is intended to allow larger or smaller payload size than the default, an override is available with `maxPayloadSize`.
+By passing `multipart` the function will return both a `body` and `files`.
 
 ```javascript
 app.route('POST', '/user', async ({ getBody }) => {
-    const [body, files] = await getBody({ multipart: true, maxPayloadSize: Infinity });
+    const [body, files] = await getBody({ multipart: true });
 
     // body ~= {
     //     name: 'April'
