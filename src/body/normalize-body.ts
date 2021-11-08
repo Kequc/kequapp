@@ -69,6 +69,8 @@ function normalizeBody (body: BodyJson, options: BodyOptions): BodyJson {
 
     // booleans
     for (const key of booleans) {
+        if (!(key in result)) continue;
+
         if (arrays.includes(key)) {
             result[key] = result[key].map(toBoolean);
         } else {

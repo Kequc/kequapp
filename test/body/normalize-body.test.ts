@@ -339,8 +339,7 @@ describe('booleans', function () {
             bool4: true,
             bool5: false,
             bool6: true,
-            bool7: false,
-            bool8: false
+            bool7: false
         });
     });
 

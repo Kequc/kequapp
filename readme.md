@@ -112,42 +112,6 @@ The following parameters are made available to handlers and renderers.
 | `routes`   | Helper methods describe your app.                 |
 | `logger`   | Logger specified during setup.                    |
 
-### Querystring
-
-Querystring values are available from the Javascript [`URLSearchParams`](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams) object found on the `url` object.
-
-```javascript
-app.route('/hotels', ({ url }) => {
-    const page = url.searchParams.get('page');
-    const categories = url.searchParams.getAll('categories');
-
-    // page ~= '2'
-    // categories ~= ['ac', 'hottub']
-});
-```
-
-### Cookies
-
-Cookies are just a special header, managed by the client. It's easier to encode and decode cookies with use of an external library as there is no similar function built into node.
-
-```javascript
-const cookie = require('cookie'); // npm i cookie
-```
-
-```javascript
-function withCookies ({ req, context }) {
-    const cookies = cookie.parse(req.headers.cookie);
-    // cookies ~= { myCookie: 'hello' }
-    context.cookies = cookies;
-}
-
-const cookiesBranch = app.branch(withCookies);
-
-app.route('/login', ({ res }) => {
-    res.setHeader('Set-Cookie', [cookie.serialize('myCookie', 'hello')]);
-});
-```
-
 ### Body
 
 Node delivers the body of a request in chunks. It is not always necessary to wait for the request to finish before we begin processing it. Therefore a helper method `getBody()` is provided which you may use to await body parameters from the completed request.
@@ -219,7 +183,7 @@ It is required to specify which body parameters are `arrays`.
 
 Otherwise the server only knows a field is an array when it receives more than one item, which creates ambiguity in the structure of the body. Fields that do not specify an array will return the first value.
 
-Additional normalization is available. Specifying `required` ensures that the field is not `null` or `undefined` (though might be empty). There are also `numbers` and `booleans`. Full control is offered using `validate()` and `postProcess()`.
+Additional normalization is available. Specifying `required` ensures that the field is not `null` or `undefined` (though might be empty). Required will throw an error if the value is missing. There are also `numbers` and `booleans`. Numbers will throw an error if any value is provided which parses into `NaN`. Booleans return false if the value is falsy, `'0'`, or `'false'`. Full control is offered using `validate()` and `postProcess()`.
 
 Note body normalization is ignored with `raw` or `skipNormalize`.
 
@@ -265,7 +229,41 @@ app.route('POST', '/user', async ({ getBody }) => {
 | `booleans`      | Value or values are converted to booleans.     |
 | `skipNormalize` | Skip normalization.                            |
 
-Further clarification. Required will throw an error if the value is missing. Arrays return an empty array if no value is provided. Numbers will throw an error if any value is provided which parses into `NaN`. Booleans return false if no value is provided, the value is falsy, `'0'`, or `'false'`.
+### Querystring
+
+Querystring values are available from the Javascript [`URLSearchParams`](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams) object found on the `url` object.
+
+```javascript
+app.route('/hotels', ({ url }) => {
+    const page = url.searchParams.get('page');
+    const categories = url.searchParams.getAll('categories');
+
+    // page ~= '2'
+    // categories ~= ['ac', 'hottub']
+});
+```
+
+### Cookies
+
+Cookies are just a special header, managed by the client. It's easier to encode and decode cookies with use of an external library as there is no similar function built into node.
+
+```javascript
+const cookie = require('cookie'); // npm i cookie
+```
+
+```javascript
+function withCookies ({ req, context }) {
+    const cookies = cookie.parse(req.headers.cookie);
+    // cookies ~= { myCookie: 'hello' }
+    context.cookies = cookies;
+}
+
+const cookiesBranch = app.branch(withCookies);
+
+app.route('/login', ({ res }) => {
+    res.setHeader('Set-Cookie', [cookie.serialize('myCookie', 'hello')]);
+});
+```
 
 ### Exceptions
 
