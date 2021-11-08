@@ -77,9 +77,21 @@ const app = createApp({
 });
 ```
 
-## HEAD Requests
+### HEAD Requests
 
 `HEAD` requests are passed through by default so that it's matching `GET` request lifecycle is triggered. It is the responsibility of the renderer to detect a HEAD request and then pass no body in the response. These can be overridden by defining a HEAD route or disabled entirely by setting the `autoHead` configuration option to `false`.
+
+### Configuration Options
+
+During instantiation of the app there are several configuration options available.
+
+| parameter        | description                                                |
+| ---------------- | ---------------------------------------------------------- |
+| `logger`         | Logger to use within the app. (Default: `console`)         |
+| `renderers`      | Renderers to use within the app.                           |
+| `errorHandler`   | Error handler to capture and format error responses.       |
+| `maxPayloadSize` | Maximum payload size for client requests. (Default: `1e6`) |
+| `autoHead`       | Automatically follow head requests. (Default: `true`)      |
 
 ### Halting Execution
 
@@ -114,7 +126,7 @@ The following parameters are made available to handlers and renderers.
 | `params`   | Params extracted from the pathname.               |
 | `getBody`  | Function to extract params from the request body. |
 | `routes`   | Helper to describe available app routes.          |
-| `logger`   | Logger specified by configuration option.         |
+| `logger`   | Logger specified in configuration options.        |
 
 ### Body
 
@@ -309,18 +321,6 @@ const app = createApp({
     }
 });
 ```
-
-### Configuration Options
-
-During instantiation of the app there are several configuration options available.
-
-| parameter        | description                                                |
-| ---------------- | ---------------------------------------------------------- |
-| `logger`         | Logger to use within the app. (Default: `console`)         |
-| `renderers`      | Renderers to use within the app.                           |
-| `errorHandler`   | Error handler to capture and format error responses.       |
-| `maxPayloadSize` | Maximum payload size for client requests. (Default: `1e6`) |
-| `autoHead`       | Automatically follow head requests. (Default: `true`)      |
 
 ### Static Files
 
