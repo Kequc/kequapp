@@ -17,7 +17,7 @@ import Ex from './utils/ex';
 
 export interface IKequapp extends RequestListener, Router {
     (req: IncomingMessage, res: ServerResponse, override?: ConfigInput): void;
-    routesHelper (): RoutesHelper;
+    routesHelper: RoutesHelper;
 }
 export type Bundle = {
     req: IncomingMessage;
