@@ -43,7 +43,7 @@ app.branch(url?: string, ...handlers: Handler[]);
 Returns a new branch of the `app`.
 ```
 
-The following example uses both `route` and `branch` as well as a few fairly important concepts we need to learn and will look at now.
+The following example uses both `branch` and `route`.
 
 ```javascript
 function json ({ res }) {
