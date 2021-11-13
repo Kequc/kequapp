@@ -37,15 +37,13 @@ Alternatively you can specify a branch of the application, which will cause all 
 type Handler = (bundle: Bundle) => unknown;
 
 app.route(method?: string, url?: string, ...handlers: Handler[]);
-
 Returns the `app`.
 
 app.branch(url?: string, ...handlers: Handler[]);
-
 Returns a new branch of the `app`.
 ```
 
-The following example uses both `route` and `branch` as well as several key pieces of functionality we will look at now.
+The following example uses both `route` and `branch` as well as several important pieces of functionality we will look at now.
 
 ```javascript
 function json ({ res }) {
