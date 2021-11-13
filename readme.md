@@ -1,8 +1,10 @@
 # Introduction
 
-This is a listener for processing Node server requests. When you use `createServer` in a node application it gives you a callback to make use of incoming requests and deliver server responses. This framework acts as a way to use all of the included features of `createServer` without overloading or changing any of it's behavior or functionality.
+This is a request listener for use with Node's `createServer`.
 
-A means to make the task more organized and easier to do.
+When you use `createServer` in a node application it gives you a callback to make use of incoming requests and deliver server responses. This framework is a way to use all of the included features of `createServer` without overloading or changing any of it's behavior or functionality.
+
+A means to make the task easier to do.
 
 ```
 npm i kequapp
@@ -23,7 +25,7 @@ createServer(app).listen(4000, () => {
 });
 ```
 
-The route specified above will respond to all `'GET'` requests made to the base of the application, at `'/'`. Otherwise your application will respond gracefully with `404` not found. We're on our way to making a app.
+This route specified will respond to all `'GET'` requests made to the base of the application, at `'/'`. Otherwise your application will respond gracefully with `404` not found. We're on our way to making a app.
 
 Routes specify a method (`'GET'`, `'POST'`, etc...) and url. Methods can be anything you want, doesn't have to be one of the well known ones. And the url is anything you want to act on with the given handlers.
 
@@ -41,9 +43,7 @@ Returns the `[router instance]`.
 [router instance]
     .branch(url?: string, ...handlers: ((bundle: Bundle) => unknown)[]);
 ```
-Returns a new branch of the `[router instance]`.
-
-The following example uses both `route` and `branch` as well as several pieces of functionality we will look at now.
+Returns a new branch of the `[router instance]`. The following example uses both `route` and `branch` as well as several pieces of functionality we will look at now.
 
 ```javascript
 function json ({ res }) {
@@ -71,23 +71,25 @@ app.route('/admin/dashboard', loggedIn, ({ context }) => {
 });
 ```
 
-To understand what's happening we need to look at the properties that are created for every request.
+There are several properties that are created for every request and passed through all handlers this is called the bundle.
 
 ### req
 
-This is the node [`req`](https://nodejs.org/api/http.html#class-httpclientrequest) object. It is not modified by this framework so you can rely on the official documentation to use it.
+The node [`req`](https://nodejs.org/api/http.html#class-httpclientrequest) object. It is not modified by this framework so you can rely on the official documentation to use it.
 
 This represents the client request.
 
 ### res
 
-This is the node [`res`](https://nodejs.org/api/http.html#class-httpserverresponse) object. It is not modified by this framework either and you can rely on the official docs.
+The node [`res`](https://nodejs.org/api/http.html#class-httpserverresponse) object. It is not modified by this framework either and you can rely on the official docs.
 
 This represents your response.
 
 ### url
 
-If you need to know more about what the client is looking at in the url bar you can do so with this. It is a [URL](https://developer.mozilla.org/en-US/docs/Web/API/URL) instance generated from the `req` object. Useful for examining a querystring for example by digging into it's [`searchParams`](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams).
+If you need to know more about what the client is looking at in the url bar you can do so with this. It is a [URL](https://developer.mozilla.org/en-US/docs/Web/API/URL) instance generated from the `req` object.
+
+Useful for examining a querystring for example by digging into it's [`searchParams`](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams).
 
 ```javascript
 app.route('/hotels', ({ url }) => {
@@ -101,7 +103,9 @@ app.route('/hotels', ({ url }) => {
 
 ### context
 
-A convenient place to store variables derived by handlers, you might use these variables elsewhere in the handler lifecycle. Make changes here whenever you want and populate it with anything. Useful for storing authentication details for example, or any information that is needed amongst several handlers or routes.
+A convenient place to store variables derived by handlers, you might use these variables elsewhere in the handler lifecycle. Make changes here whenever you want and populate it with anything.
+
+Useful for storing authentication details for example, or any information that is needed amongst several handlers or routes.
 
 ### params
 
@@ -140,17 +144,20 @@ As mentioned this is very simply a logger to use throughout the app. Debug messa
 
 ### renderers
 
-So as you can see above we are just returning a payload and not actually rendering anything, or finalizing what's being sent to the client, or any of that. This is what renderers do. When we `return` anything from a handler, a `renderer` is triggered which corresponds to the type of data we are sending.
+As you can see we are just returning a payload in the examples above and not actually rendering anything, or finalizing what's being sent to the client, or any of that. This is what renderers do.
 
-In most cases you probably want to send some text, or maybe an image, a file, or whatever. The renderer is chosen based on the `Content-Type` header that has been set. That is why in our original example it was possible to set the `Content-Type` to `application/json` and then simply return javascript objects from our handlers.
+When we `return` anything from a handler, a `renderer` is triggered which corresponds to the type of data we are sending.
 
-When the renderer is triggered, it will take whatever your payload is and use it to respond in any way you want. Abstracting rendering from your application's business logic is convenient but if you want you can skip rendering by finalizing the response yourself.
+In most cases you want to send text, or maybe an image, a file, or whatever. The renderer is chosen based on the `Content-Type` header that has been set. That is why in our original example it was possible to set the `Content-Type` to `application/json` and then simply return javascript objects from our handlers.
+
+When the renderer is triggered, it will take whatever your payload is and use it to respond in any way you want. Abstracting rendering away from business logic is convenient but if you want you can skip rendering by finalizing the response yourself.
 
 ```javascript
 function authenticated ({ req, res}) {
     // must be authenticated!
 
     if (!req.headers.authorization) {
+        // trigger redirect
         res.statusCode = 302;
         res.setHeader('Location', '/login');
 
@@ -172,7 +179,9 @@ app.route('/api/users', authenticated, ({ req, res }) => {
 });
 ```
 
-Renderers are built in for `text/plain` (default) and `application/json`, but these can be overridden or extended by providing `renderers` while creating your app. These act as the final step of a response and should explicitly finalize it.
+Renderers are built in for `text/plain` (which is also the default) and `application/json`, but these can be overridden or extended by providing `renderers` while creating your app.
+
+These act as the final step of a lifecycle and should explicitly finalize the response.
 
 ```javascript
 const app = createApp({
@@ -189,7 +198,7 @@ If a response isn't finalized for any reason at the end of it's handler lifecycl
 
 ### errorHandler
 
-This is responsible for making use of any exception and turning it into useful information that should be sent to the client, and acts much the same way as any other handler. The default error handler will return a json formatted response that includes some useful information for debugging.
+This is responsible for making use of any exception and turning it into useful information that should be sent to the client, and acts much the same as any other handler. The default error handler will return a json formatted response that includes some useful information for debugging.
 
 This example sends a very basic custom response.
 
@@ -210,7 +219,11 @@ Errors thrown inside of the error handler or within the renderer used to handle 
 
 ### autoHead
 
-`HEAD` requests made by the client are passed through by default so that if no matching `HEAD` route is found the matching `GET` route is triggered instead. It is the responsibility of your application usually in the renderer to detect a `HEAD` request and then pass no body. This behavior can be disabled by setting `autoHead` to `false`.
+`HEAD` requests made by the client are handled in a special way.
+
+If no matching `HEAD` route is found the matching `GET` route is triggered instead. It is the responsibility of your application usually in the renderer to detect a `HEAD` request and then pass no body.
+
+This behavior can be disabled by setting `autoHead` to `false`.
 
 # Utilities
 
@@ -218,7 +231,7 @@ There are a few helper utilities you can use while building your application whi
 
 ### Ex
 
-Any normal error will trigger a `500` internal server error response with the default error handler. However there is a helper available that makes using any error code `400` and above easy.
+Any normal error will trigger a `500` internal server error response within the default error handler. There is a helper available that makes it possible to use any status code `400` and above.
 
 ```javascript
 const { Ex } = require('kequapp');
@@ -238,9 +251,11 @@ These methods create errors with correct stacktraces and a valid status code wou
 
 ### staticFiles
 
-This is a rudimentary handler for delivering files relative to your project directory. It utilizes the `**` parameter as defined by your route to build a valid path, and will try to guess a correct content type based on the file extension.
+A rudimentary handler for delivering files relative to your project directory.
 
-If `dir` is not specified then by default the `/public` directory is used. Exclusions can be provided if you want to ignore some files or directories using `exclude`. If there are files included which have unusual file extensions more `mime` types can be provided.
+It utilizes the `**` parameter as defined by your route to build a valid path, and will try to guess a correct content type based on the file extension.
+
+If no `dir` is specified then `/public` is used by default. Exclusions can be provided if you want to ignore some files or directories using `exclude`. If there are files included which have unusual file extensions more `mime` types can be provided.
 
 ```javascript
 const { staticFiles } = require('kequapp');
@@ -303,7 +318,9 @@ app.route('POST', '/user', async ({ getBody }) => {
 
 ### raw
 
-The body is processed as minimally as possible and will return a single buffer as it arrived. When combined with `multipart`, the body is parsed as an array with all parts split into separate buffers with respective headers.
+The body is processed as minimally as possible and will return a single buffer as it arrived.
+
+When combined with `multipart`, the body is parsed as an array with all parts split into separate buffers with respective headers.
 
 ```javascript
 app.route('POST', '/user', async ({ getBody }) => {
@@ -328,11 +345,13 @@ app.route('POST', '/user', async ({ getBody }) => {
 
 ### skipNormalize
 
-By default the data received is pushed through some body normalization. This is so that the body you receive is in a format you expect and becomes easier to work with. Disable body normalization with either `raw` or `skipNormalize`.
+By default the data received is pushed through some body normalization. This is so that the body you receive is in a format you expect and becomes easier to work with.
+
+Disable body normalization with either `raw` or `skipNormalize`.
 
 ### arrays
 
-The provided list of fields are arrays.
+The provided list of fields will be arrays.
 
 Fields which are expected to be arrays must be specified. We only know a field is an array when we receive more than one item with the same name from the client, which creates ambiguity in our data. Therefore fields that do not specify they are an array will return the first value. Fields which specify they are an array but receive no data will be an empty array.
 
@@ -352,7 +371,7 @@ app.route('POST', '/user', async ({ getBody }) => {
 
 ### required
 
-The provided list of fields are not `null` or `undefined`. It's a quick way to throw a `422` unprocessable entity error. These fields might still be empty, but at least something was sent and you can operate on it. When an array field is also a required field the array has at least one value.
+The provided list of fields are not `null` or `undefined`. It's a quick way to throw a `422` unprocessable entity error. These fields might still be empty, but at least something was sent and you can operate on it. When a `required` field is also an `arrays` field the array has at least one value.
 
 ### numbers
 
@@ -368,7 +387,9 @@ After all other normalization steps are performed, this method is run which furt
 
 ### postProcess
 
-After all other normalization steps are performed and `validate` has passed, this method is run to further format the response in any way you need. It's convenient to abstract all of these steps away from business logic. The returned value will be the final result.
+After all other normalization steps are performed and `validate` has passed, this method is run to further format the response in any way you need.
+
+The returned value will be the final result.
 
 ```javascript
 function validate (result) {
@@ -410,7 +431,7 @@ By default the max payload size is `1e6` (approximately 1mb), if this is exceede
 
 # Cookies
 
-It's easier to encode and decode cookies with use of an external library as there is no similar functionality built into node.
+It's easier to encode and decode cookies with an external library as there is no similar functionality built into the node ecosystem.
 
 ```javascript
 const cookie = require('cookie'); // npm i cookie
@@ -432,11 +453,11 @@ app.route('/set-my-cookie', ({ res }) => {
 
 # Unit Test
 
-It is possible to test your application without spinning up a server by using the `inject()` test helper tool. The first parameter is your app, then options largely used to populate the request.
+You may test your application without spinning up a server by using the `inject()` helper tool. The first parameter is your app, then options largely used to populate the request.
 
 Returned `req` and `res` objects are from the npm [`mock-req`](https://www.npmjs.com/package/mock-req) and [`mock-res`](https://www.npmjs.com/package/mock-res) modules respectively. Ensure you have both installed in your dev dependencies.
 
-It also returns `getResponse()` which is a utility you may use to wait for your application to respond. Alternatively you may inspect what your application is doing in realtime using the `req`, and `res` objects as you would expect.
+It also returns `getResponse()` which may be used to wait for your application to respond. You may instead inspect what your application is doing in realtime using the `req`, and `res` objects.
 
 
 ```javascript
@@ -463,7 +484,7 @@ it('reads the authorization header', async function () {
 
 ### overrides
 
-Override configuration options in your app.
+Overrides the configuration of your application.
 
 ### body
 
@@ -501,6 +522,6 @@ const body = await getResponse();
 
 # Conclusion
 
-And that's it. This should be ample for constructing an application that does anything you could ever want it to do. At least for version `0.1.0` I think it's okay. Please feel free to contribute or create issue tickets on the github page.
+And that's it. This should be ample for constructing an application that does anything you could ever want it to do. At least for version `0.1.0` I think it's okay.
 
-Tell me what is missing.
+Please feel free to contribute or create issue tickets on the github page. Tell me what is missing.
