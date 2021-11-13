@@ -498,7 +498,7 @@ const { getResponse } = inject(app, {
     method: 'POST',
     url: '/user',
     headers: {
-        'Content-Type': 'application/json; charset=utf-8'
+        'Content-Type': 'application/json'
     },
     body: '{ "name": "April" }'
 });
@@ -511,7 +511,7 @@ const { getResponse, req } = inject(app, {
     method: 'POST',
     url: '/user',
     headers: {
-        'Content-Type': 'application/json; charset=utf-8'
+        'Content-Type': 'application/json'
     },
     body: null
 });
