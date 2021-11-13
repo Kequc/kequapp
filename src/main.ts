@@ -5,7 +5,7 @@ import staticFiles from './addons/static-files';
 import createGetBody, { IGetBody } from './body/create-get-body';
 import createRouter, { Router } from './router/create-router';
 import requestProcessor from './router/request-processor';
-import createRoutesHelper, { Routes } from './router/create-routes-helper';
+import createRoutesHelper, { RoutesHelper } from './router/create-routes-helper';
 import {
     ConfigInput,
     extendConfig,
@@ -17,7 +17,7 @@ import Ex from './utils/ex';
 
 export interface IKequapp extends RequestListener, Router {
     (req: IncomingMessage, res: ServerResponse, override?: ConfigInput): void;
-    routes (): Routes;
+    routesHelper (): RoutesHelper;
 }
 export type Bundle = {
     req: IncomingMessage;

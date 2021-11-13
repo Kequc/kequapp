@@ -3,7 +3,7 @@ import { comparePathnames } from './path-params';
 import Ex from '../utils/ex';
 
 
-export type Routes = {
+export type RoutesHelper = {
     list (): RouteSummary[];
     methods (pathname: string): string[];
     print (): string[];
@@ -14,7 +14,7 @@ type RouteSummary = {
 };
 
 
-function createRoutesHelper (routes: Route[]): Routes {
+function createRoutesHelper (routes: Route[]): RoutesHelper {
     function list (): RouteSummary[] {
         return listRoutes(routes).map(({ method, pathname }) => ({ method, pathname }));
     }
