@@ -14,10 +14,10 @@
     "strictNullChecks": true,
     "alwaysStrict": true,
     "moduleResolution": "node",
-    "esModuleInterop": true,
+    "esModuleInterop": true
   },
   "include": [
     "./src",
     "./types.d.ts"
-, "routes/list-routes.ts", "routes/create-router.ts"  ]
+  ]
 }

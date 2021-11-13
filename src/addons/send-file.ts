@@ -2,49 +2,19 @@ import fs from 'fs';
 import { ServerResponse } from 'http';
 import path from 'path';
 import Ex from '../utils/ex';
+import guessMime from '../utils/guess-mime';
 
-const MIME_TYPES = {
-    '.html': 'text/html',
-    '.txt': 'text/plain',
-    '.js': 'text/javascript',
-    '.css': 'text/css',
-    '.json': 'application/json',
-    '.png': 'image/png',
-    '.jpg': 'image/jpg',
-    '.gif': 'image/gif',
-    '.svg': 'image/svg+xml',
-    '.wav': 'audio/wav',
-    '.mp4': 'video/mp4',
-    '.woff': 'application/font-woff',
-    '.ttf': 'application/font-ttf',
-    '.eot': 'application/vnd.ms-fontobject',
-    '.otf': 'application/font-otf',
-    '.wasm': 'application/wasm'
-};
-
-async function sendFile (method: string | undefined, res: ServerResponse, asset: string, mime?: string): Promise<void> {
+async function sendFile (res: ServerResponse, asset: string, mime?: string): Promise<void> {
     const location: string = path.join(process.cwd(), asset);
-    const ext: string = path.extname(asset).toLowerCase();
-    const contentType = mime || MIME_TYPES[ext] || 'application/octet-stream';
 
     try {
         const fileInfo = fs.statSync(location);
-        if (!fileInfo.isFile()) throw new Error('Not a file');
+        if (!fileInfo.isFile()) throw new Error();
     } catch (error) {
-        throw Ex.NotFound(undefined, {
-            method,
-            location,
-            ext,
-            error
-        });
+        throw Ex.NotFound();
     }
 
-    res.setHeader('Content-Type', contentType + '; charset=utf-8');
-
-    if (method === 'HEAD') {
-        res.end();
-        return;
-    }
+    res.setHeader('Content-Type', mime || guessMime(asset));
 
     try {
         await new Promise((resolve, reject) => {
@@ -58,9 +28,7 @@ async function sendFile (method: string | undefined, res: ServerResponse, asset:
         });
     } catch (error) {
         throw Ex.InternalServerError(undefined, {
-            method,
             location,
-            ext,
             error
         });
     }

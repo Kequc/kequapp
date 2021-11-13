@@ -8,14 +8,12 @@ export type Config = {
     logger: Logger;
     renderers: ConfigRenderers;
     errorHandler: ConfigErrorHandler
-    maxPayloadSize: number;
     autoHead: boolean;
 };
 export type ConfigInput = {
     logger?: Logger;
     renderers?: ConfigRenderers;
     errorHandler?: ConfigErrorHandler;
-    maxPayloadSize?: number;
     autoHead?: boolean;
 };
 export type ConfigRenderers = {
@@ -40,7 +38,6 @@ const DEFAULT_CONFIG: Config = {
         'text/html': textRenderer
     },
     errorHandler,
-    maxPayloadSize: 1e6,
     autoHead: true
 };
 
@@ -66,7 +63,6 @@ export function validateConfig (config: ConfigInput): void {
     validateLogger(config.logger);
     validateRenderers(config.renderers);
     validateErrorHandler(config.errorHandler);
-    validateMaxPayloadSize(config.maxPayloadSize);
     validateAutoHead(config.autoHead);
 }
 
@@ -98,16 +94,6 @@ function validateErrorHandler (errorHandler?: ConfigErrorHandler) {
     if (errorHandler === undefined) return;
     if (typeof errorHandler !== 'function') {
         throw new Error('Error handler must be an function');
-    }
-}
-
-function validateMaxPayloadSize (maxPayloadSize?: number) {
-    if (maxPayloadSize === undefined) return;
-    if (typeof maxPayloadSize !== 'number') {
-        throw new Error('Max payload size must be a number');
-    }
-    if (maxPayloadSize <= 0) {
-        throw new Error('Max payload size must be greater than 0');
     }
 }
 

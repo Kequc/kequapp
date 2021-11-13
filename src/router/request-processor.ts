@@ -1,5 +1,5 @@
 import { Route } from './create-router';
-import { findRoute } from './create-routes';
+import { findRoute } from './create-routes-helper';
 import { extractParams } from './path-params';
 import { Bundle } from '../main';
 import { Config, ConfigRenderers, Renderer } from '../utils/config';

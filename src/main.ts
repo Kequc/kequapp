@@ -5,7 +5,7 @@ import staticFiles from './addons/static-files';
 import createGetBody, { IGetBody } from './body/create-get-body';
 import createRouter, { Router } from './router/create-router';
 import requestProcessor from './router/request-processor';
-import createRoutes, { Routes } from './router/create-routes';
+import createRoutesHelper, { Routes } from './router/create-routes-helper';
 import {
     ConfigInput,
     extendConfig,
@@ -26,7 +26,6 @@ export type Bundle = {
     context: BundleContext;
     params: BundleParams;
     getBody: IGetBody;
-    routes: Routes;
     logger: Logger;
 };
 export type BundleContext = {
@@ -57,19 +56,16 @@ function createApp (options?: ConfigInput): IKequapp {
             url,
             context: {},
             params: {},
-            getBody: createGetBody(req, config),
-            routes: { ...routes },
+            getBody: createGetBody(req),
             logger: config.logger
         });
     }
-
-    const routes = createRoutes(_routes);
 
     Object.assign(app, createRouter(_routes, {
         pathname: '/',
         handles: []
     }), {
-        routes
+        routesHelper: createRoutesHelper(_routes)
     });
 
     return app as IKequapp;

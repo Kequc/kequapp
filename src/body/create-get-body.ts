@@ -8,7 +8,6 @@ import normalizeBody from './normalize-body';
 import streamReader from './stream-reader';
 import { Ex } from '../main';
 import { getHeaders } from '../utils/sanitize';
-import { Config } from '../utils/config';
 
 
 export interface IGetBody {
@@ -19,10 +18,6 @@ export interface IGetBody {
     <T>(format: BodyOptions & { multipart: true }): Promise<[T, FilePart[]]>;
     <T>(format?: BodyOptions): Promise<T>;
 }
-export type StaticFilesOptions = {
-    dir?: string;
-    exclude?: string[];
-};
 export type RawPart = {
     headers: { [k: string]: string };
     data: Buffer;
@@ -54,12 +49,12 @@ const parseBody = createParseBody({
     'application/json': parseJson,
 });
 
-function createGetBody (req: IncomingMessage, config: Config): IGetBody {
+function createGetBody (req: IncomingMessage): IGetBody {
     let _body: RawPart;
 
     return async function (options: BodyOptions = {}): Promise<any> {
         if (_body === undefined) {
-            const data = await streamReader(getStream(req), getMaxPayloadSize(config, options));
+            const data = await streamReader(getStream(req), getMaxPayloadSize(options));
             const headers = getHeaders(req, ['Content-Type', 'Content-Disposition']);
             _body = { headers, data };
         }
@@ -106,11 +101,11 @@ function getStream (req: IncomingMessage): Readable {
     });
 }
 
-function getMaxPayloadSize (config: Config, options: BodyOptions): number {
+function getMaxPayloadSize (options: BodyOptions): number {
     if (typeof options.maxPayloadSize === 'number' && options.maxPayloadSize > 0) {
         return options.maxPayloadSize;
     }
-    return config.maxPayloadSize;
+    return 1e6;
 }
 
 function clone (body: RawPart): RawPart {

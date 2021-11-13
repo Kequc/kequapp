@@ -14,7 +14,7 @@ type RouteSummary = {
 };
 
 
-function createRoutes (routes: Route[]): Routes {
+function createRoutesHelper (routes: Route[]): Routes {
     function list (): RouteSummary[] {
         return listRoutes(routes).map(({ method, pathname }) => ({ method, pathname }));
     }
@@ -34,7 +34,7 @@ function createRoutes (routes: Route[]): Routes {
     };
 }
 
-export default createRoutes;
+export default createRoutesHelper;
 
 export function findRoute (routes: Route[], method: string | undefined, pathname: string, autoHead: boolean): Route {
     const result = findRoutes(routes, pathname);
@@ -48,7 +48,7 @@ export function findRoute (routes: Route[], method: string | undefined, pathname
     if (!match) {
         throw Ex.NotFound(`Not Found: ${pathname}`, {
             request: { method, pathname },
-            routes: createRoutes(routes).print()
+            routes: createRoutesHelper(routes).print()
         });
     }
 
