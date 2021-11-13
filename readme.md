@@ -34,16 +34,18 @@ Alternatively you can specify a branch of the application, which will cause all 
 # Route and Branch
 
 ```
-[router instance]
-    .route(method?: string, url?: string, ...handlers: ((bundle: Bundle) => unknown)[]);
-```
-Returns the `[router instance]`.
+type Handler = (bundle: Bundle) => unknown;
 
+app.route(method?: string, url?: string, ...handlers: Handler[]);
+
+Returns the `app`.
+
+app.branch(url?: string, ...handlers: Handler[]);
+
+Returns a new branch of the `app`.
 ```
-[router instance]
-    .branch(url?: string, ...handlers: ((bundle: Bundle) => unknown)[]);
-```
-Returns a new branch of the `[router instance]`. The following example uses both `route` and `branch` as well as several pieces of functionality we will look at now.
+
+The following example uses both `route` and `branch` as well as several key pieces of functionality we will look at now.
 
 ```javascript
 function json ({ res }) {
@@ -375,11 +377,11 @@ The provided list of fields are not `null` or `undefined`. It's a quick way to t
 
 ### numbers
 
-The provided list of fields will throw a `422` unprocessable entity error if any value is provided which parses into `NaN`. Otherwise they are converted into numbers.
+The provided list of fields will throw a `422` unprocessable entity error if any value is provided which parses into `NaN`. Otherwise they are converted into numbers. When a `numbers` field is also an `arrays` field the array is all numbers.
 
 ### booleans
 
-The provided list of fields are converted into `false` if the value is falsy, `'0'`, or `'false'`, otherwise `true`.
+The provided list of fields are converted into `false` if the value is falsy, `'0'`, or `'false'`, otherwise `true`. When a `booleans` field is also an `arrays` field the array is all booleans.
 
 ### validate
 
@@ -396,7 +398,7 @@ function validate (result) {
     if (result.ownedPets.length > 99) {
         return 'Too many pets';
     }
-    if (result.ownedPets.length < 1) {
+    if (result.ownedPets.length < 2) {
         return 'Not enough pets!';
     }
 }
@@ -418,7 +420,7 @@ app.route('POST', '/user', async ({ getBody }) => {
     });
 
     // body ~= {
-    //     ownedPets: ['cat'],
+    //     ownedPets: ['Maggie', 'Ralph'],
     //     age: 23,
     //     name: 'April'
     // }
@@ -448,6 +450,7 @@ const branchWithCookies = app.branch(withCookies);
 
 app.route('/set-my-cookie', ({ res }) => {
     res.setHeader('Set-Cookie', cookie.serialize('myCookie', 'hello'));
+    return 'ok';
 });
 ```
 
