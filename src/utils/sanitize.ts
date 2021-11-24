@@ -28,3 +28,7 @@ export function getHeader (stream: IncomingMessage | ServerResponse, name: strin
     }
     return '';
 }
+
+export function getParts (pathname: string): string[] {
+    return pathname.split('/').filter(part => !!part);
+}

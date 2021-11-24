@@ -1,30 +1,27 @@
 import { Route } from './create-router';
-import { comparePathnames } from './path-params';
+import { compareRoute } from './path-params';
 import Ex from '../utils/ex';
+import { getParts } from '../utils/sanitize';
 
 
 export type RoutesHelper = {
-    list (): RouteSummary[];
+    list (): Route[];
     methods (pathname: string): string[];
     print (): string[];
-};
-type RouteSummary = {
-    method: string;
-    pathname: string;
 };
 
 
 function createRoutesHelper (routes: Route[]): RoutesHelper {
-    function list (): RouteSummary[] {
-        return listRoutes(routes).map(({ method, pathname }) => ({ method, pathname }));
+    function list (): Route[] {
+        return listRoutes(routes).map(route => ({ ...route }));
     }
 
     function methods (pathname: string): string[] {
-        return findRoutes(routes, pathname).map(({ method }) => method);
+        return findRoutes(routes, getParts(pathname)).map(({ method }) => method);
     }
 
     function print (): string[] {
-        return list().map(({ method, pathname }) => `${method} ${pathname}`);
+        return list().map(({ method, parts }) => `${method} /${parts.join('/')}`);
     }
 
     return {
@@ -37,7 +34,7 @@ function createRoutesHelper (routes: Route[]): RoutesHelper {
 export default createRoutesHelper;
 
 export function findRoute (routes: Route[], method: string | undefined, pathname: string, autoHead: boolean): Route {
-    const result = findRoutes(routes, pathname);
+    const result = findRoutes(routes, getParts(pathname));
     let match = result.find(route => route.method === (method || 'GET'));
 
     // maybe it's a head request
@@ -55,11 +52,11 @@ export function findRoute (routes: Route[], method: string | undefined, pathname
     return match;
 }
 
-export function findRoutes (routes: Route[], pathname: string): Route[] {
-    return routes.filter(route => comparePathnames(route.pathname, pathname));
+function findRoutes (routes: Route[], parts: string[]): Route[] {
+    return routes.filter(route => compareRoute(route, parts));
 }
 
-export function listRoutes (routes: Route[]): Route[] {
+function listRoutes (routes: Route[]): Route[] {
     return [...routes].sort((a: Route, b: Route) =>
-        (a.pathname + a.method).localeCompare(b.pathname + b.method));
+        (a.parts.join('/') + a.method).localeCompare(b.parts.join('/') + b.method));
 }

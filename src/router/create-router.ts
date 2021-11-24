@@ -1,5 +1,5 @@
-import path from 'path';
 import { Bundle } from '../main';
+import { getParts } from '../utils/sanitize';
 
 
 export type Router = {
@@ -7,8 +7,9 @@ export type Router = {
     branch: IRouterBranch;
 };
 export type RouteBuilder = {
-    pathname: string;
+    parts: string[];
     handles: Handle[];
+    isWild: boolean;
 };
 export type Route = RouteBuilder & {
     method: string;
@@ -40,18 +41,14 @@ export default createRouter;
 
 function buildBranch (routes: Route[], parent: RouteBuilder): IRouterBranch {
     return function branch (...params: unknown[]) {
-        const pathname = extractPathname(params);
+        const parts = extractParts(params);
         const handles = params.flat(Infinity) as Handle[];
 
         if (handles.find(handle => typeof handle !== 'function')) {
             throw new Error('Handle must be a function');
         }
 
-        const newParent = routeMerge(parent, {
-            pathname,
-            handles
-        });
-
+        const newParent = routeMerge(parent, routeMake(parts, handles));
         return createRouter(routes, newParent);
     };
 }
@@ -59,7 +56,7 @@ function buildBranch (routes: Route[], parent: RouteBuilder): IRouterBranch {
 function buildRoute (routes: Route[], parent: RouteBuilder, scope: Router): IRouterRoute {
     return function route (...params: unknown[]) {
         const method = extractMethod(params);
-        const pathname = extractPathname(params);
+        const parts = extractParts(params);
         const handles = params.flat(Infinity) as Handle[];
 
         if (handles.length < 1) {
@@ -69,10 +66,8 @@ function buildRoute (routes: Route[], parent: RouteBuilder, scope: Router): IRou
             throw new Error('Handle must be a function');
         }
 
-        const route: Route = Object.assign({ method }, routeMerge(parent, {
-            pathname,
-            handles
-        }));
+        const newRoute = routeMerge(parent, routeMake(parts, handles));
+        const route: Route = Object.assign({ method }, newRoute);
 
         routes.push(route as Route);
 
@@ -87,16 +82,24 @@ function extractMethod (params: unknown[]): string {
     return params.shift() as string;
 }
 
-function extractPathname (params: unknown[]): string {
+function extractParts (params: unknown[]): string[] {
     if (typeof params[0] !== 'string' || params[0][0] !== '/') {
-        return '/';
+        return [];
     }
-    return params.shift() as string;
+    return getParts(params.shift() as string);
 }
 
 function routeMerge (parent: RouteBuilder, child: RouteBuilder): RouteBuilder {
+    const parts = [...parent.parts, ...child.parts];
+    const handles = parent.handles.concat(child.handles);
+
+    return routeMake(parts, handles);
+}
+
+function routeMake (parts: string[], handles: Handle[]): RouteBuilder {
     return {
-        pathname: path.join(parent.pathname, child.pathname),
-        handles: parent.handles.concat(child.handles)
+        parts,
+        handles,
+        isWild: parts.includes('**')
     };
 }

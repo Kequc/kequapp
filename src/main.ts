@@ -4,8 +4,8 @@ import sendFile from './addons/send-file';
 import staticFiles from './addons/static-files';
 import createGetBody, { IGetBody } from './body/create-get-body';
 import createRouter, { Router } from './router/create-router';
-import requestProcessor from './router/request-processor';
 import createRoutesHelper, { RoutesHelper } from './router/create-routes-helper';
+import requestProcessor from './router/request-processor';
 import {
     ConfigInput,
     extendConfig,
@@ -62,8 +62,9 @@ function createApp (options?: ConfigInput): IKequapp {
     }
 
     Object.assign(app, createRouter(_routes, {
-        pathname: '/',
-        handles: []
+        parts: [],
+        handles: [],
+        isWild: false
     }), {
         routesHelper: createRoutesHelper(_routes)
     });

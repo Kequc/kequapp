@@ -3,8 +3,13 @@ import { findRoute } from './create-routes-helper';
 import { extractParams } from './path-params';
 import { Bundle } from '../main';
 import { Config, ConfigRenderers, Renderer } from '../utils/config';
-import { getHeader, sanitizeContentType, sanitizePathname } from '../utils/sanitize';
 import Ex from '../utils/ex';
+import {
+    getHeader,
+    getParts,
+    sanitizeContentType,
+    sanitizePathname
+} from '../utils/sanitize';
 
 async function requestProcessor (config: Config, routes: Route[], bundle: Bundle): Promise<void> {
     const { errorHandler, autoHead } = config;
@@ -13,7 +18,7 @@ async function requestProcessor (config: Config, routes: Route[], bundle: Bundle
 
     try {
         const route = findRoute(routes, req.method, pathname, autoHead);
-        Object.assign(bundle.params, extractParams(route.pathname, pathname));
+        Object.assign(bundle.params, extractParams(route, getParts(pathname)));
         const payload = await lifecycle(route, bundle);
 
         await render(config, payload, bundle);
