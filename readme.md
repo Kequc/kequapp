@@ -538,6 +538,6 @@ const body = await getResponse();
 
 # Conclusion
 
-And that's it. This should be ample for constructing an application that does anything you could ever want it to do. At least for version `0.1.*0*` I think it's okay.
+And that's it. This should be ample for constructing an application that does anything you could ever want it to do. At least for version `0.1.*` I think it's okay.
 
 Please feel free to contribute or create issue tickets on the github page. Tell me what is missing.
