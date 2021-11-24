@@ -13,7 +13,7 @@ function loggedIn ({ req, context }) {
     context.auth = req.headers.authorization;
 }
 
-app.branch('/user')
+app.branch('/users')
     .route(({ url }) => {
         const query = Object.fromEntries(url.searchParams);
         return 'Query ' + JSON.stringify(query);

@@ -1,5 +1,6 @@
-import { Bundle } from '../main';
+import { Bundle, Ex } from '../main';
 import { getParts } from '../utils/sanitize';
+import { findRoute } from './create-routes-helper';
 
 
 export type Router = {
@@ -59,15 +60,21 @@ function buildRoute (routes: Route[], parent: RouteBuilder, scope: Router): IRou
         const parts = extractParts(params);
         const handles = params.flat(Infinity) as Handle[];
 
-        if (handles.length < 1) {
-            throw new Error('Route must have at least one handle');
-        }
         if (handles.find(handle => typeof handle !== 'function')) {
             throw new Error('Handle must be a function');
         }
 
         const newRoute = routeMerge(parent, routeMake(parts, handles));
-        const route: Route = Object.assign({ method }, newRoute);
+        const route: Route = { ...newRoute, method };
+        const exists = findRoute(routes, route.parts, method);
+
+        if (exists) {
+            throw Ex.InternalServerError('Route already exists', {
+                method,
+                pathname: '/' + route.parts.join('/'),
+                matches: '/' + exists.parts.join('/')
+            });
+        }
 
         routes.push(route as Route);
 

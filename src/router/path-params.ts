@@ -1,7 +1,11 @@
 import { Route } from './create-router';
 import { BundleParams } from '../main';
 
-export function compareRoute (route: Route, parts: string[]): boolean {
+export function compareRoute (route: Route, parts: string[], method?: string): boolean {
+    if (method !== undefined && method !== route.method) {
+        return false;
+    }
+
     if (!route.isWild && route.parts.length !== parts.length) {
         return false;
     }

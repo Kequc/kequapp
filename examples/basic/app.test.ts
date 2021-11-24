@@ -5,7 +5,7 @@ import app from './app';
 
 it('reads parameters from the url', async function () {
     const { getResponse, res } = inject(app, {
-        url: '/user/21'
+        url: '/users/21'
     });
 
     const body = await getResponse();
@@ -16,7 +16,7 @@ it('reads parameters from the url', async function () {
 
 it('reads query parameters', async function () {
     const { getResponse, res } = inject(app, {
-        url: '/user?name=tony&age=21'
+        url: '/users?name=tony&age=21'
     });
 
     const body = await getResponse();
@@ -57,7 +57,7 @@ it('returns an error if auth is invalid', async function () {
 it('reads the body of a request', async function () {
     const { getResponse, req, res } = inject(app, {
         method: 'POST',
-        url: '/user',
+        url: '/users',
         headers: {
             'Content-Type': 'application/json; charset=utf-8'
         },
@@ -75,7 +75,7 @@ it('reads the body of a request', async function () {
 it('reads the body of a multipart request', async function () {
     const { getResponse, req, res } = inject(app, {
         method: 'POST',
-        url: '/user/secrets',
+        url: '/users/secrets',
         headers: {
             'Content-Type': 'multipart/form-data; charset=utf-8; boundary=------------------------d74496d66958873e'
         },
@@ -106,7 +106,7 @@ contents of the file
 it('reads the body of a request using shorthand', async function () {
     const { getResponse, res } = inject(app, {
         method: 'POST',
-        url: '/user',
+        url: '/users',
         headers: {
             'Content-Type': 'application/json; charset=utf-8'
         },
@@ -121,12 +121,13 @@ it('reads the body of a request using shorthand', async function () {
 
 it('throws an error when trying to access missing route', async function () {
     const { getResponse, res } = inject(app, {
-        url: '/users/how-are-ya'
+        url: '/how-are-ya'
     });
 
     const body = await getResponse();
+    console.log(body);
 
     assert.strictEqual(res.getHeader('Content-Type'), 'application/json; charset=utf-8');
     assert.strictEqual(body.error.statusCode, 404);
-    assert.strictEqual(body.error.message, 'Not Found: /users/how-are-ya');
+    assert.strictEqual(body.error.message, 'Not Found: /how-are-ya');
 });

@@ -1,7 +1,6 @@
 import { Bundle } from '../main';
 import Ex from '../utils/ex';
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 function textRenderer (payload: unknown, { req, res }: Bundle): void {
     const text = generateText(payload);
 
