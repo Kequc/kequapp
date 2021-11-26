@@ -50,12 +50,10 @@ In this way keep in mind you can respond to a request anywhere you want. The res
 # Branch & Route
 
 ```
-type Handler = (bundle: Bundle) => unknown;
-
-app.route(method?: string, url?: string, ...handlers: Handler[]);
+app.route(method = 'GET', url = '/', ...handlers);
 Returns the `app`.
 
-app.branch(url?: string, ...handlers: Handler[]);
+app.branch(url = '/', ...handlers);
 Returns a new branch of the `app`.
 ```
 

@@ -28,7 +28,7 @@ const DEFAULT_OPTIONS: {
 };
 
 function staticFiles (options: StaticFilesConfigInput = {}): (bundle: Bundle) => Promise<void> {
-    const config = getStaticFilesConfig(options);
+    const config = getConfig(options);
 
     return async function ({ req, res, params }: Bundle) {
         const asset = path.join(config.dir, ...(params['**'] || []));
@@ -56,7 +56,7 @@ function isExcluded (values: string[], asset: string): boolean {
     return false;
 }
 
-function getStaticFilesConfig (options: StaticFilesConfigInput): StaticFilesConfig {
+function getConfig (options: StaticFilesConfigInput): StaticFilesConfig {
     const config = { ...DEFAULT_OPTIONS };
 
     if (options.dir) {

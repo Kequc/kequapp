@@ -30,7 +30,7 @@ function inject (app: IKequapp, options: OptionsInput): InjectResponse {
     }
 
     const override = options.override;
-    const end = options.body;
+    const body = options.body;
 
     delete _options.override;
     delete _options.body;
@@ -40,8 +40,8 @@ function inject (app: IKequapp, options: OptionsInput): InjectResponse {
 
     app(req, res, override);
 
-    if (end !== null && !req.writableEnded) {
-        req.end(end);
+    if (body !== null && !req.writableEnded) {
+        req.end(body);
     }
 
     return {
