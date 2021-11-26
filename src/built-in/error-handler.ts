@@ -7,7 +7,7 @@ function errorHandler (error: unknown, { res }: Bundle): BodyJson {
     const statusCode = _error.statusCode || 500;
 
     res.statusCode = statusCode;
-    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.setHeader('Content-Type', 'application/json');
 
     const result = {
         error: {

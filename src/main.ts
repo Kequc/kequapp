@@ -48,7 +48,7 @@ function createApp (options?: ConfigInput): IKequapp {
         const url = new URL(req.url || '/', `${req.headers.protocol}://${req.headers.host}`);
 
         res.statusCode = 200; // default
-        res.setHeader('Content-Type', 'text/plain; charset=utf-8'); // default
+        res.setHeader('Content-Type', 'text/plain'); // default
 
         requestProcessor(config, _routes, {
             req,

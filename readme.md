@@ -493,7 +493,7 @@ it('reads the authorization header', async function () {
 
     const body = await getResponse();
 
-    assert.strictEqual(res.getHeader('Content-Type'), 'text/plain; charset=utf-8');
+    assert.strictEqual(res.getHeader('Content-Type'), 'text/plain');
     assert.strictEqual(body, 'Hello admin mike!');
 });
 ```

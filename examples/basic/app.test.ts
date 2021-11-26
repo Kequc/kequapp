@@ -10,7 +10,7 @@ it('reads parameters from the url', async function () {
 
     const body = await getResponse();
 
-    assert.strictEqual(res.getHeader('Content-Type'), 'text/plain; charset=utf-8');
+    assert.strictEqual(res.getHeader('Content-Type'), 'text/plain');
     assert.strictEqual(body, 'userId: 21!');
 });
 
@@ -21,7 +21,7 @@ it('reads query parameters', async function () {
 
     const body = await getResponse();
 
-    assert.strictEqual(res.getHeader('Content-Type'), 'text/plain; charset=utf-8');
+    assert.strictEqual(res.getHeader('Content-Type'), 'text/plain');
     assert.strictEqual(body, 'Query {"name":"tony","age":"21"}');
 });
 
@@ -35,7 +35,7 @@ it('reads the authorization header', async function () {
 
     const body = await getResponse();
 
-    assert.strictEqual(res.getHeader('Content-Type'), 'text/plain; charset=utf-8');
+    assert.strictEqual(res.getHeader('Content-Type'), 'text/plain');
     assert.strictEqual(body, 'Hello admin mike!');
 });
 
@@ -49,7 +49,7 @@ it('returns an error if auth is invalid', async function () {
 
     const body = await getResponse();
 
-    assert.strictEqual(res.getHeader('Content-Type'), 'application/json; charset=utf-8');
+    assert.strictEqual(res.getHeader('Content-Type'), 'application/json');
     assert.strictEqual(body.error.statusCode, 401);
     assert.strictEqual(body.error.message, 'Unauthorized');
 });
@@ -59,7 +59,7 @@ it('reads the body of a request', async function () {
         method: 'POST',
         url: '/users',
         headers: {
-            'Content-Type': 'application/json; charset=utf-8'
+            'Content-Type': 'application/json'
         },
         body: null
     });
@@ -68,7 +68,7 @@ it('reads the body of a request', async function () {
 
     const body = await getResponse();
 
-    assert.strictEqual(res.getHeader('Content-Type'), 'text/plain; charset=utf-8');
+    assert.strictEqual(res.getHeader('Content-Type'), 'text/plain');
     assert.strictEqual(body, 'User creation april!');
 });
 
@@ -77,7 +77,7 @@ it('reads the body of a multipart request', async function () {
         method: 'POST',
         url: '/users/secrets',
         headers: {
-            'Content-Type': 'multipart/form-data; charset=utf-8; boundary=------------------------d74496d66958873e'
+            'Content-Type': 'multipart/form-data; boundary=------------------------d74496d66958873e'
         },
         body: null
     });
@@ -99,7 +99,7 @@ contents of the file
 
     const body = await getResponse();
 
-    assert.strictEqual(res.getHeader('Content-Type'), 'text/plain; charset=utf-8');
+    assert.strictEqual(res.getHeader('Content-Type'), 'text/plain');
     assert.strictEqual(body, 'April is 23 and secrets.txt has contents of the file!');
 });
 
@@ -108,14 +108,14 @@ it('reads the body of a request using shorthand', async function () {
         method: 'POST',
         url: '/users',
         headers: {
-            'Content-Type': 'application/json; charset=utf-8'
+            'Content-Type': 'application/json'
         },
         body: '{ "name": "april" }'
     });
 
     const body = await getResponse();
 
-    assert.strictEqual(res.getHeader('Content-Type'), 'text/plain; charset=utf-8');
+    assert.strictEqual(res.getHeader('Content-Type'), 'text/plain');
     assert.strictEqual(body, 'User creation april!');
 });
 
@@ -127,7 +127,7 @@ it('throws an error when trying to access missing route', async function () {
     const body = await getResponse();
     console.log(body);
 
-    assert.strictEqual(res.getHeader('Content-Type'), 'application/json; charset=utf-8');
+    assert.strictEqual(res.getHeader('Content-Type'), 'application/json');
     assert.strictEqual(body.error.statusCode, 404);
     assert.strictEqual(body.error.message, 'Not Found: /how-are-ya');
 });

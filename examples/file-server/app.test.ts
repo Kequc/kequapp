@@ -10,7 +10,7 @@ it('can access the root', async function () {
 
     const body = await getResponse();
 
-    assert.strictEqual(res.getHeader('Content-Type'), 'text/plain; charset=utf-8');
+    assert.strictEqual(res.getHeader('Content-Type'), 'text/plain');
     assert.strictEqual(res.getHeader('Content-Length'), body.length);
     assert.strictEqual(body, 'Hello world!');
 });
@@ -56,7 +56,7 @@ it('throws error accessing root directory', async function () {
 
     const body = await getResponse();
 
-    assert.strictEqual(res.getHeader('Content-Type'), 'application/json; charset=utf-8');
+    assert.strictEqual(res.getHeader('Content-Type'), 'application/json');
     assert.strictEqual(res.statusCode, 404);
     assert.strictEqual(body.error.message, 'Not Found');
 });
@@ -68,7 +68,7 @@ it('throws error accessing nested directory', async function () {
 
     const body = await getResponse();
 
-    assert.strictEqual(res.getHeader('Content-Type'), 'application/json; charset=utf-8');
+    assert.strictEqual(res.getHeader('Content-Type'), 'application/json');
     assert.strictEqual(body.error.statusCode, 404);
     assert.strictEqual(body.error.message, 'Not Found');
 });
@@ -80,7 +80,7 @@ it('throws error accessing missing file', async function () {
 
     const body = await getResponse();
 
-    assert.strictEqual(res.getHeader('Content-Type'), 'application/json; charset=utf-8');
+    assert.strictEqual(res.getHeader('Content-Type'), 'application/json');
     assert.strictEqual(res.statusCode, 404);
     assert.strictEqual(body.error.message, 'Not Found');
 });
@@ -92,7 +92,7 @@ it('throws error accessing excluded file', async function () {
 
     const body = await getResponse();
 
-    assert.strictEqual(res.getHeader('Content-Type'), 'application/json; charset=utf-8');
+    assert.strictEqual(res.getHeader('Content-Type'), 'application/json');
     assert.strictEqual(res.statusCode, 404);
     assert.strictEqual(body.error.message, 'Not Found');
 });
