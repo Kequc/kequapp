@@ -28,7 +28,7 @@ const DEFAULT_OPTIONS: {
 };
 
 function staticFiles (options: StaticFilesConfigInput = {}): (bundle: Bundle) => Promise<void> {
-    const config = getConfig(options);
+    const config = setupConfig(options);
 
     return async function ({ req, res, params }: Bundle) {
         const asset = path.join(config.dir, ...(params['**'] || []));
@@ -56,33 +56,31 @@ function isExcluded (values: string[], asset: string): boolean {
     return false;
 }
 
-function getConfig (options: StaticFilesConfigInput): StaticFilesConfig {
-    const config = { ...DEFAULT_OPTIONS };
+function setupConfig (options: StaticFilesConfigInput): StaticFilesConfig {
+    const config = { ...DEFAULT_OPTIONS, ...options };
 
-    if (options.dir) {
-        if (typeof options.dir !== 'string') {
+    if (config.dir) {
+        if (typeof config.dir !== 'string') {
             throw new Error('staticFiles options.dir must be a string');
         }
-        config.dir = options.dir;
     }
 
-    if (options.exclude) {
-        if (!Array.isArray(options.exclude)) {
+    if (config.exclude) {
+        if (!Array.isArray(config.exclude)) {
             throw new Error('staticFiles options.exclude must be an array');
         }
-        for (const value of options.exclude) {
+        for (const value of config.exclude) {
             if (typeof value !== 'string') {
                 throw new Error('staticFiles options.exclude value must be a string');
             }
-            config.exclude.push(path.join(value));
         }
     }
 
-    if (options.mime) {
-        if (typeof options.mime !== 'object' || options.mime === null) {
+    if (config.mime) {
+        if (typeof config.mime !== 'object' || config.mime === null) {
             throw new Error('staticFiles options.mime must be an object');
         }
-        for (const value of Object.values(options.mime)) {
+        for (const value of Object.values(config.mime)) {
             if (typeof value !== 'string') {
                 throw new Error('staticFiles options.mime value must be a string');
             }

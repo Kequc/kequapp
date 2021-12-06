@@ -8,8 +8,7 @@ async function sendFile (res: ServerResponse, asset: string, mime?: string): Pro
     const location: string = path.join(process.cwd(), asset);
 
     try {
-        const fileInfo = fs.statSync(location);
-        if (!fileInfo.isFile()) throw new Error();
+        if (!fs.statSync(location).isFile()) throw new Error();
     } catch (error) {
         throw Ex.NotFound();
     }
