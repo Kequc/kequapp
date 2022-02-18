@@ -1,10 +1,9 @@
 import fs from 'fs';
-import { ServerResponse } from 'http';
 import path from 'path';
-import Ex from '../utils/ex';
-import guessMime from '../utils/guess-mime';
+import Ex from '../util/ex';
+import guessMime from '../util/guess-mime';
 
-async function sendFile (res: ServerResponse, asset: string, mime?: string): Promise<void> {
+async function sendFile (res: TRes, asset: string, mime?: string): Promise<void> {
     const location: string = path.join(process.cwd(), asset);
 
     try {

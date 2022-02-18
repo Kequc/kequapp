@@ -1,7 +1,6 @@
-import { Bundle } from '../main';
-import Ex from '../utils/ex';
+import Ex from '../util/ex';
 
-function jsonRenderer (payload: unknown, { req, res }: Bundle): void {
+function jsonRenderer (payload: unknown, { req, res }: TBundle): void {
     const json = generateJson(payload);
 
     res.setHeader('Content-Length', Buffer.byteLength(json));

@@ -1,5 +1,5 @@
 import { Readable } from 'stream';
-import Ex from '../utils/ex';
+import Ex from '../util/ex';
 
 function streamReader (stream: Readable, maxPayloadSize = Infinity): Promise<Buffer> {
     return new Promise(function (resolve, reject) {

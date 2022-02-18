@@ -1,7 +1,6 @@
-import { BodyJson, RawPart } from './create-get-body';
-import Ex from '../utils/ex';
+import Ex from '../util/ex';
 
-export function parseUrlEncoded (body: RawPart): BodyJson {
+export function parseUrlEncoded (body: TRawPart): TBodyJson {
     const params = new URLSearchParams(body.data.toString());
     const result: { [k: string]: unknown } = {};
 
@@ -16,14 +15,14 @@ export function parseUrlEncoded (body: RawPart): BodyJson {
     return result;
 }
 
-export function parseJson (body: RawPart): BodyJson {
+export function parseJson (body: TRawPart): TBodyJson {
     return JSON.parse(body.data.toString());
 }
 
-type Parser = (body: RawPart) => any;
+type Parser = (body: TRawPart) => any;
 
 function createParseBody (parsers: { [k: string]: Parser }, _default?: Parser): Parser {
-    return function (body: RawPart) {
+    return function (body: TRawPart) {
         const contentType = body.headers['content-type'] || 'text/plain';
 
         try {

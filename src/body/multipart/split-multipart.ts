@@ -1,11 +1,10 @@
-import Ex from '../../utils/ex';
-import headerAttributes from '../../utils/header-attributes';
-import { RawPart } from '../create-get-body';
+import Ex from '../../util/ex';
+import headerAttributes from '../../util/header-attributes';
 
 const CR = 0x0d;
 const LF = 0x0a;
 
-function splitMultipart (body: RawPart): RawPart[] {
+function splitMultipart (body: TRawPart): TRawPart[] {
     const contentType = body.headers['content-type'];
     if (!contentType?.startsWith('multipart/')) {
         throw Ex.BadRequest('Unable to process request', {
@@ -15,7 +14,7 @@ function splitMultipart (body: RawPart): RawPart[] {
 
     const boundary = extractBoundary(contentType);
     const buffer = body.data;
-    const result: RawPart[] = [];
+    const result: TRawPart[] = [];
 
     let headers: { [k: string]: string } = {};
     let i = findNextLine(buffer, buffer.indexOf(boundary, 0));

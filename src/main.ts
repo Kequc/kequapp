@@ -1,73 +1,36 @@
-import { IncomingMessage, RequestListener, ServerResponse } from 'http';
-import { URL } from 'url';
 import sendFile from './addons/send-file';
 import staticFiles from './addons/static-files';
-import createGetBody, { IGetBody } from './body/create-get-body';
-import createRouter, { Router } from './router/create-router';
-import createRoutesHelper, { RoutesHelper } from './router/create-routes-helper';
+import createGetBody from './body/create-get-body';
+import createBranch from './router/create-branch';
+import createRoute from './router/create-route';
 import requestProcessor from './router/request-processor';
-import {
-    ConfigInput,
-    extendConfig,
-    Logger,
-    setupConfig
-} from './utils/config';
-import Ex from './utils/ex';
+import { extendConfig, setupConfig } from './util/config';
+import Ex from './util/ex';
 
+function createApp (options?: Partial<TConfig>): IKequapp {
+    const config = setupConfig(options);
+    const branch = createBranch();
 
-export interface IKequapp extends RequestListener, Router {
-    (req: IncomingMessage, res: ServerResponse, override?: ConfigInput): void;
-    routesHelper: RoutesHelper;
-}
-export type Bundle = {
-    req: IncomingMessage;
-    res: ServerResponse;
-    url: URL;
-    context: BundleContext;
-    params: BundleParams;
-    getBody: IGetBody;
-    logger: Logger;
-};
-export type BundleContext = {
-    [k: string]: unknown;
-};
-export type BundleParams = {
-    [k: string]: string;
-} & {
-    '**'?: string[];
-    '*'?: string[];
-};
-
-
-function createApp (options?: ConfigInput): IKequapp {
-    const _routes = [];
-    const _config = setupConfig(options);
-
-    function app (req: IncomingMessage, res: ServerResponse, override?: ConfigInput) {
-        const config = extendConfig(_config, override);
+    function app (req: TReq, res: TRes, override?: Partial<TConfig>): void {
+        const reqConfig = extendConfig(config, override);
         const url = new URL(req.url || '/', `${req.headers.protocol}://${req.headers.host}`);
-
-        res.statusCode = 200; // default
-        res.setHeader('Content-Type', 'text/plain'); // default
-
-        requestProcessor(config, _routes, {
+        const bundle = {
             req,
             res,
             url,
             context: {},
             params: {},
             getBody: createGetBody(req),
-            logger: config.logger
-        });
+            logger: reqConfig.logger
+        };
+
+        res.statusCode = 200; // default
+        res.setHeader('Content-Type', 'text/plain'); // default
+
+        requestProcessor(reqConfig, branch, bundle);
     }
 
-    Object.assign(app, createRouter(_routes, {
-        parts: [],
-        handles: [],
-        isWild: false
-    }), {
-        routesHelper: createRoutesHelper(_routes)
-    });
+    Object.assign(app, branch);
 
     return app as IKequapp;
 }
@@ -75,6 +38,8 @@ function createApp (options?: ConfigInput): IKequapp {
 export {
     Ex,
     createApp,
+    createBranch,
+    createRoute,
     sendFile,
     staticFiles
 };

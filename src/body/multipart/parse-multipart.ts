@@ -1,10 +1,9 @@
-import headerAttributes from '../../utils/header-attributes';
-import { sanitizeContentType } from '../../utils/sanitize';
-import { BodyJson, FilePart, RawPart } from '../create-get-body';
+import headerAttributes from '../../util/header-attributes';
+import { sanitizeContentType } from '../../util/sanitize';
 
-function parseMultipart (parts: RawPart[]): [BodyJson, FilePart[]] {
-    const result: BodyJson = {};
-    const files: FilePart[] = [];
+function parseMultipart (parts: TRawPart[]): [TBodyJson, TFilePart[]] {
+    const result: TBodyJson = {};
+    const files: TFilePart[] = [];
     const visited: { [k: string]: number } = {};
 
     for (const part of parts) {

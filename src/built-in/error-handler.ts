@@ -1,9 +1,5 @@
-import { BodyJson } from '../body/create-get-body';
-import { Bundle } from '../main';
-import { ServerError } from '../utils/ex';
-
-function errorHandler (error: unknown, { res }: Bundle): BodyJson {
-    const _error = error as ServerError;
+function errorHandler (error: unknown, { res }: TBundle): unknown {
+    const _error = error as TServerError;
     const statusCode = _error.statusCode || 500;
 
     res.statusCode = statusCode;

@@ -1,13 +1,11 @@
-import { ClientRequest, ServerResponse } from 'http';
 import MockReq from 'mock-req';
 import MockRes from 'mock-res';
-import createGetResponse, { IGetResponse } from './body/create-get-response';
+import createGetResponse from './body/create-get-response';
 import { IKequapp } from './main';
-import { ConfigInput } from './utils/config';
 
 
-type OptionsInput = {
-    override?: ConfigInput;
+type TOptionsInput = {
+    override?: TConfigInput;
     method?: string;
     url?: string;
     headers?: { [k: string]: string };
@@ -15,14 +13,15 @@ type OptionsInput = {
     search?: string;
     body?: unknown;
 };
-type InjectResponse = {
-    req: ClientRequest;
-    res: ServerResponse;
+
+type TInjectResponse = {
+    req: TReq;
+    res: TRes;
     getResponse: IGetResponse;
 };
 
 
-function inject (app: IKequapp, options: OptionsInput): InjectResponse {
+function inject (app: IKequapp, options: TOptionsInput): TInjectResponse {
     const _options = { ...options };
 
     if (_options.search) {

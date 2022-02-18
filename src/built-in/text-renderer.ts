@@ -1,7 +1,6 @@
-import { Bundle } from '../main';
-import Ex from '../utils/ex';
+import Ex from '../util/ex';
 
-function textRenderer (payload: unknown, { req, res }: Bundle): void {
+function textRenderer (payload: unknown, { req, res }: TBundle): void {
     const text = generateText(payload);
 
     res.setHeader('Content-Length', Buffer.byteLength(text));

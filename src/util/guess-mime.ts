@@ -80,6 +80,7 @@ const DEFAULT_MIME = {
 
 function detectMime (asset: string, mime: { [key: string]: string } = {}): string {
     const ext: string = path.extname(asset).toLowerCase();
+
     return mime[ext] || DEFAULT_MIME[ext] || 'application/octet-stream';
 }
 

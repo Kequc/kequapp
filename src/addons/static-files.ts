@@ -1,8 +1,7 @@
 import path from 'path';
 import sendFile from './send-file';
-import { Bundle } from '../main';
-import Ex from '../utils/ex';
-import guessMime from '../utils/guess-mime';
+import Ex from '../util/ex';
+import guessMime from '../util/guess-mime';
 
 
 type StaticFilesConfig = {
@@ -27,10 +26,10 @@ const DEFAULT_OPTIONS: {
     mime: {}
 };
 
-function staticFiles (options: StaticFilesConfigInput = {}): (bundle: Bundle) => Promise<void> {
+function staticFiles (options: StaticFilesConfigInput = {}): (bundle: TBundle) => Promise<void> {
     const config = setupConfig(options);
 
-    return async function ({ req, res, params }: Bundle) {
+    return async function ({ req, res, params }: TBundle) {
         const asset = path.join(config.dir, ...(params['**'] || []));
         const mime = guessMime(asset, config.mime);
 

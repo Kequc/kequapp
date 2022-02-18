@@ -123,7 +123,7 @@ Useful for storing authentication details for example, or any information that i
 
 ### params
 
-When defining a route we can specify parameters to extract by prefixing a `':'` character in the url. If we specify a route such as `'/users/:userId'` we will have a parameter called `'userId'` here. A `'*'` character can be used to accept anything, and `'**'` can be used to accept anything for the remainder of the url.
+When defining a route we can specify parameters to extract by prefixing a `':'` character in the url. If we specify a route such as `'/users/:userId'` we will have a parameter called `'userId'` here. Asterix `'**'` accept anything for the remainder of the url.
 
 Param values are always a string.
 
