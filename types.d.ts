@@ -7,16 +7,13 @@ declare module 'mock-res';
 
 // config
 
-interface IKequapp extends IBranchInstance {
-    (req: TReq, res: TRes, override?: Partial<TConfig>): void;
+interface IKequapp extends TRequestListener, IBranchInstance {
+    (req: TReq, res: TRes): void;
 }
 
 type TConfig = {
-    logger: TLogger;
     renderers: TRenderers;
     errorHandler: TErrorHandler
-    autoHead: boolean;
-    autoOptions: boolean;
 };
 
 type TRenderers = {
@@ -25,14 +22,6 @@ type TRenderers = {
 
 type TErrorHandler = (error: unknown, bundle: TBundle) => unknown;
 type TRenderer = (payload: unknown, bundle: TBundle) => Promise<void> | void;
-
-type TLogger = {
-    log (...params: unknown[]): void;
-    error (...params: unknown[]): void;
-    warn (...params: unknown[]): void;
-    debug (...params: unknown[]): void;
-    info (...params: unknown[]): void;
-};
 
 // bundle
 
@@ -43,7 +32,6 @@ type TBundle = {
     context: TBundleContext;
     params: TBundleParams;
     getBody: IGetBody;
-    logger: TLogger;
 };
 
 type TBundleContext = {
@@ -98,9 +86,9 @@ type TBodyOptions = {
     postProcess? (body: TBodyJson): TBodyJson;
 };
 
-type TBodyJsonValue = string | number | boolean | null | TBodyJson;
+type TBodyJsonValue = string | number | boolean | Date | null | TBodyJson | TBodyJsonValue[];
 type TBodyJson = {
-    [k: string]: TBodyJsonValue | TBodyJsonValue[];
+	[k: string]: TBodyJsonValue;
 };
 
 interface IGetResponse {
@@ -119,29 +107,33 @@ interface IRouterInstance {
 }
 
 interface IBranchInstance extends IRouterInstance {
-    add (...routers: IRouterInstance[]): void;
+    add (...routers: IRouterInstance[]): IBranchInstance;
 }
 
+type TPathname = `/${string}`;
+type TPathnameWild = `/${string}/**`;
+
 interface ICreateBranch {
-    (pathname: string, ...handles: THandle[]): IBranchInstance;
+    (pathname: TPathname, options: Partial<TConfig>, ...handles: THandle[]): IBranchInstance;
+    (pathname: TPathname, ...handles: THandle[]): IBranchInstance;
+    (options: Partial<TConfig>, ...handles: THandle[]): IBranchInstance;
     (...handles: THandle[]): IBranchInstance;
 }
 
 interface ICreateRoute {
-    (method: string, pathname: string, ...handles: THandle[]): IRouterInstance;
+    (pathname: TPathname, ...handles: THandle[]): IRouterInstance;
+    (method: string, pathname: TPathname, ...handles: THandle[]): IRouterInstance;
     (method: string, ...handles: THandle[]): IRouterInstance;
-    (pathname: string, ...handles: THandle[]): IRouterInstance;
     (...handles: THandle[]): IRouterInstance;
 }
 
-type TBranchData = {
+type TRouteData = {
     parts: string[];
+    options: Partial<TConfig>;
     handles: THandle[];
-};
-type TRouteData = TBranchData & {
     method: string;
 };
-type THandle = (bundle: TBundle, routes?: IRouteManager) => Promise<unknown> | unknown;
+type THandle = (bundle: TBundle, routeManager: IRouteManager) => Promise<unknown> | unknown;
 
 type TRoute = {
     method: string;

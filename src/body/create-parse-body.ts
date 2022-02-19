@@ -2,7 +2,7 @@ import Ex from '../util/ex';
 
 export function parseUrlEncoded (body: TRawPart): TBodyJson {
     const params = new URLSearchParams(body.data.toString());
-    const result: { [k: string]: unknown } = {};
+    const result: TBodyJson = {};
 
     for (const key of params.keys()) {
         if (params.getAll(key).length > 1) {

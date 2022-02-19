@@ -1,11 +1,8 @@
 import MockReq from 'mock-req';
 import MockRes from 'mock-res';
 import createGetResponse from './body/create-get-response';
-import { IKequapp } from './main';
 
-
-type TOptionsInput = {
-    override?: TConfigInput;
+type TOptions = {
     method?: string;
     url?: string;
     headers?: { [k: string]: string };
@@ -20,24 +17,20 @@ type TInjectResponse = {
     getResponse: IGetResponse;
 };
 
-
-function inject (app: IKequapp, options: TOptionsInput): TInjectResponse {
+function inject (app: IKequapp, options: TOptions): TInjectResponse {
     const _options = { ...options };
 
     if (_options.search) {
         _options.search = new URLSearchParams(_options.search).toString();
     }
 
-    const override = options.override;
     const body = options.body;
-
-    delete _options.override;
     delete _options.body;
 
     const req = new MockReq(_options);
     const res = new MockRes();
 
-    app(req, res, override);
+    app(req, res);
 
     if (body !== null && !req.writableEnded) {
         req.end(body);

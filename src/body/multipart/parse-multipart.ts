@@ -4,7 +4,7 @@ import { sanitizeContentType } from '../../util/sanitize';
 function parseMultipart (parts: TRawPart[]): [TBodyJson, TFilePart[]] {
     const result: TBodyJson = {};
     const files: TFilePart[] = [];
-    const visited: { [k: string]: number } = {};
+    const counters: { [k: string]: number } = {};
 
     for (const part of parts) {
         const { filename, name } = headerAttributes(part.headers['content-disposition']);
@@ -19,13 +19,19 @@ function parseMultipart (parts: TRawPart[]): [TBodyJson, TFilePart[]] {
         const key = name || 'undefined';
         const value = part.data.toString();
 
-        visited[key] = visited[key] || 0;
-        visited[key]++;
-        if (visited[key] === 2) result[key] = [result[key]];
+        counters[key] = counters[key] || 0;
+        counters[key]++;
 
-        if (visited[key] > 1) {
-            result[key].push(value);
+        if (counters[key] === 2) {
+            // convert to array
+            result[key] = [result[key]];
+        }
+
+        if (counters[key] > 1) {
+            // add to array
+            (result[key] as TBodyJsonValue[]).push(value);
         } else {
+            // set value
             result[key] = value;
         }
     }

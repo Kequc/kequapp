@@ -1,5 +1,3 @@
-import { compareRoute } from '../util/path-params';
-
 export function extractParts (params: unknown[]): string[] {
     if (typeof params[0] !== 'string' || params[0][0] !== '/') {
         return [];
@@ -9,7 +7,14 @@ export function extractParts (params: unknown[]): string[] {
 }
 
 export function getParts (pathname: string): string[] {
-    return pathname.split('/').filter(part => !!part);
+    const parts = pathname.split('/').filter(part => !!part);
+    const wildIndex = parts.indexOf('**');
+
+    if (wildIndex > -1) {
+        return parts.slice(0, wildIndex + 1);
+    }
+
+    return parts;
 }
 
 export function extractHandles (params: unknown[]): THandle[] {
@@ -25,4 +30,23 @@ export function extractHandles (params: unknown[]): THandle[] {
 
 export function findRoute (routes: TRouteData[], parts: string[], method?: string): TRouteData | undefined {
     return routes.find(route => compareRoute(route, parts, method));
+}
+
+export function compareRoute (route: TRouteData | TRoute, parts: string[], method?: string): boolean {
+    if (method !== undefined && method !== route.method) {
+        return false;
+    }
+
+    if (!route.parts.includes('**') && route.parts.length !== parts.length) {
+        return false;
+    }
+
+    for (let i = 0; i < route.parts.length; i++) {
+        if (route.parts[i] === '**') return true;
+        if (route.parts[i][0] === ':') continue;
+        if (route.parts[i] === parts[i]) continue;
+        return false;
+    }
+
+    return true;
 }

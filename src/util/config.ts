@@ -3,24 +3,19 @@ import jsonRenderer from '../built-in/json-renderer';
 import textRenderer from '../built-in/text-renderer';
 
 const DEFAULT_CONFIG: TConfig = {
-    logger: console,
     renderers: {
         'application/json': jsonRenderer,
         'text/plain': textRenderer,
         'text/html': textRenderer
     },
-    errorHandler,
-    autoHead: true,
-    autoOptions: true
+    errorHandler
 };
 
-export function setupConfig (config?: Partial<TConfig>): TConfig {
-    return extendConfig({ ...DEFAULT_CONFIG }, config);
+export function createConfig (config: Partial<TConfig>): TConfig {
+    return extendConfig({ ...DEFAULT_CONFIG }, config) as TConfig;
 }
 
-export function extendConfig (config: TConfig, override?: Partial<TConfig>): TConfig {
-    if (!override) return config;
-
+export function extendConfig (config: Partial<TConfig>, override: Partial<TConfig>): Partial<TConfig> {
     validateConfig(override);
 
     return {
@@ -30,29 +25,13 @@ export function extendConfig (config: TConfig, override?: Partial<TConfig>): TCo
     };
 }
 
-export function validateConfig (config: Partial<TConfig>): void {
+function validateConfig (config: Partial<TConfig>): void {
     if (typeof config !== 'object' || config === null) {
         throw new Error('Config must be an object');
     }
 
-    validateLogger(config.logger);
     validateRenderers(config.renderers);
     validateErrorHandler(config.errorHandler);
-    validateAutoHead(config.autoHead);
-}
-
-function validateLogger (logger?: TLogger) {
-    if (logger === undefined) return;
-
-    if (typeof logger !== 'object' || logger === null) {
-        throw new Error('Logger must be an object');
-    }
-
-    for (const key of ['log', 'error', 'warn', 'debug', 'info']) {
-        if (typeof logger[key] !== 'function') {
-            throw new Error('Method ' + key + ' missing on logger');
-        }
-    }
 }
 
 function validateRenderers (renderers?: TRenderers) {
@@ -74,13 +53,5 @@ function validateErrorHandler (errorHandler?: TErrorHandler) {
 
     if (typeof errorHandler !== 'function') {
         throw new Error('Error handler must be an function');
-    }
-}
-
-function validateAutoHead (autoHead?: boolean) {
-    if (autoHead === undefined) return;
-
-    if (typeof autoHead !== 'boolean') {
-        throw new Error('Auto head must be a boolean');
     }
 }

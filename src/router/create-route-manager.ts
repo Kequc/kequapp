@@ -1,11 +1,8 @@
-import { getParts } from './helpers';
+import { compareRoute, getParts } from './helpers';
 import Ex from '../util/ex';
-import { compareRoute } from '../util/path-params';
 import { getHeader, sanitizeContentType } from '../util/sanitize';
 
-function createRouteManager (config: TConfig, branch: IBranchInstance, bundle: TBundle): IRouteManager {
-    const { errorHandler, logger } = config;
-
+function createRouteManager (branch: IBranchInstance, bundle: TBundle): IRouteManager {
     function routeManager (pathname?: string): TRoute[] {
         if (pathname) {
             const parts = getParts(pathname);
@@ -21,18 +18,20 @@ function createRouteManager (config: TConfig, branch: IBranchInstance, bundle: T
         return {
             method: route.method,
             parts: route.parts,
-            lifecycle: createLifecycle(route.handles)
+            lifecycle: createLifecycle(route)
         };
     }
 
-    function createLifecycle (handles: THandle[]): ILifecycle {
+    function createLifecycle (route: TRouteData): ILifecycle {
+        const { errorHandler } = route.options as TConfig;
+
         async function lifecycle (): Promise<void> {
             try {
-                for (const handle of handles) {
+                for (const handle of route.handles) {
                     const payload = await handle(bundle, routeManager);
 
                     if (payload !== undefined || bundle.res.writableEnded) {
-                        await render(payload);
+                        await render(route, payload);
                         break;
                     }
                 }
@@ -40,20 +39,22 @@ function createRouteManager (config: TConfig, branch: IBranchInstance, bundle: T
                 const payload = await errorHandler(error, bundle);
 
                 if (bundle.res.statusCode === 500) {
-                    logger.error(error);
+                    console.error(error);
                 }
 
-                await render(payload);
+                await render(route, payload);
             }
         }
 
         return lifecycle;
     }
 
-    async function render (payload: unknown): Promise<void> {
+    async function render (route: TRouteData, payload: unknown): Promise<void> {
+        const { renderers } = route.options as TConfig;
+
         if (payload !== undefined && !bundle.res.writableEnded) {
             const contentType = getHeader(bundle.res, 'Content-Type');
-            const renderer = findRenderer(config.renderers, contentType);
+            const renderer = findRenderer(renderers, contentType);
             await renderer(payload, bundle);
         }
 

@@ -1,11 +1,11 @@
 import { extractParts, extractHandles } from './helpers';
 
-function createRoute (...params: unknown[]) {
+function createRoute (...params: unknown[]): IRouterInstance {
     const method = extractMethod(params);
     const parts = extractParts(params);
     const handles = extractHandles(params);
 
-    function route (): TRouteData[] {
+    function route (): Omit<TRouteData, 'options'>[] {
         return [{
             parts,
             handles,
@@ -13,7 +13,7 @@ function createRoute (...params: unknown[]) {
         }];
     }
 
-    return route;
+    return route as IRouterInstance;
 }
 
 export default createRoute as ICreateRoute;

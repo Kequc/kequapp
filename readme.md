@@ -145,18 +145,9 @@ app.route('POST', '/users', async ({ getBody }) => {
 
 This method can be used in many ways so we will look at it again in more detail in [another section](#body).
 
-### logger
-
-During instantiation of the app object it is possible to provide a `logger` which will be used throughout the project. This is that object.
-
-
 # Configuration Options
 
 During instantiation of the app there are several configuration options available.
-
-### logger
-
-As mentioned this is very simply a logger to use throughout the project. Debug messages are sent for every request, `500` errors are logged here. As well as anything else we want to use it for in our project. If not specfied the default is `console`.
 
 ### renderers
 
@@ -482,7 +473,6 @@ const { inject } = require('kequapp/inject');
 ```javascript
 it('reads the authorization header', async function () {
     const { getResponse, res } = inject(app, {
-        overrides: { logger },
         url: '/admin/dashboard',
         headers: {
             Authorization: 'mike'
@@ -495,10 +485,6 @@ it('reads the authorization header', async function () {
     assert.strictEqual(body, 'Hello admin mike!');
 });
 ```
-
-### overrides
-
-Overrides the configuration options of our application.
 
 ### body
 

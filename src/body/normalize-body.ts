@@ -3,7 +3,7 @@ import Ex from '../util/ex';
 function normalizeBody (body: TBodyJson, options: TBodyOptions): TBodyJson {
     if (options.skipNormalize === true) return body;
 
-    const result = { ...body };
+    const result: TBodyJson = { ...body };
     const {
         required = [],
         arrays = [],
@@ -25,15 +25,17 @@ function normalizeBody (body: TBodyJson, options: TBodyOptions): TBodyJson {
         if (arrays.includes(key)) continue;
 
         if (Array.isArray(result[key])) {
-            result[key] = result[key][0];
+            const value = (result[key] as TBodyJsonValue[])[0];
+            result[key] = value;
         }
     }
 
     // required
     for (const key of required) {
         if (arrays.includes(key)) {
-            result[key] = result[key].filter((value: unknown) => !isEmpty(value));
-            if (result[key].length > 0) continue;
+            const values = (result[key] as TBodyJsonValue[]).filter(value => !isEmpty(value));
+            result[key] = values;
+            if (values.length > 0) continue;
         } else {
             if (!isEmpty(result[key])) continue;
         }
@@ -51,11 +53,13 @@ function normalizeBody (body: TBodyJson, options: TBodyOptions): TBodyJson {
         let failed = false;
 
         if (arrays.includes(key)) {
-            result[key] = result[key].map(toNumber);
-            failed = result[key].some((value: number) => isNaN(value));
+            const values = (result[key] as TBodyJsonValue[]).map(toNumber);
+            result[key] = values;
+            failed = values.some(value => isNaN(value));
         } else {
-            result[key] = toNumber(result[key]);
-            failed = isNaN(result[key]);
+            const value = toNumber(result[key]);
+            result[key] = value;
+            failed = isNaN(value);
         }
 
         if (failed) {
@@ -71,7 +75,8 @@ function normalizeBody (body: TBodyJson, options: TBodyOptions): TBodyJson {
         if (!(key in result)) continue;
 
         if (arrays.includes(key)) {
-            result[key] = result[key].map(toBoolean);
+            const values = (result[key] as TBodyJsonValue[]).map(toBoolean);
+            result[key] = values;
         } else {
             result[key] = toBoolean(result[key]);
         }
@@ -98,17 +103,17 @@ function normalizeBody (body: TBodyJson, options: TBodyOptions): TBodyJson {
 
 export default normalizeBody;
 
-function isEmpty (value: unknown): boolean {
+function isEmpty (value: TBodyJsonValue): boolean {
     if (value === null) return true;
     if (value === undefined) return true;
     return false;
 }
 
-function toNumber (value: string): number {
-    return parseInt(value, 10);
+function toNumber (value: TBodyJsonValue): number {
+    return parseInt(value as string, 10);
 }
 
-function toBoolean (value: unknown): boolean {
+function toBoolean (value: TBodyJsonValue): boolean {
     if (value === '0' || value === 'false') {
         return false;
     } else {
