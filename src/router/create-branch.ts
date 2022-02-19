@@ -1,5 +1,5 @@
 import { extendConfig } from '../util/config';
-import { extractParts, extractHandles } from './helpers';
+import { extractParts, extractHandles, extractOptions } from './helpers';
 
 function createBranch (...params: unknown[]): IBranchInstance {
     const parts = extractParts(params);
@@ -19,7 +19,7 @@ function createBranch (...params: unknown[]): IBranchInstance {
     function add (...routers: IRouterInstance[]): IBranchInstance {
         const newRoutes = routers.map(router => router()).flat();
 
-        validate(newRoutes, routes);
+        validateRoutes(routes, newRoutes);
 
         routes.push(...newRoutes);
         routes.sort(priority);
@@ -34,15 +34,7 @@ function createBranch (...params: unknown[]): IBranchInstance {
 
 export default createBranch as ICreateBranch;
 
-function extractOptions (params: unknown[]): Partial<TConfig> {
-    if (typeof params[0] !== 'object' || typeof params[0] === null) {
-        return {};
-    }
-
-    return params.shift() as Partial<TConfig>;
-}
-
-function validate (newRoutes: TRouteData[], routes: TRouteData[]): void {
+function validateRoutes (routes: TRouteData[], newRoutes: TRouteData[]): void {
     const checked = [...routes];
 
     for (const route of newRoutes) {

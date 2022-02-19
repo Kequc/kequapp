@@ -3,12 +3,12 @@ import MockRes from 'mock-res';
 import createGetResponse from './body/create-get-response';
 
 type TOptions = {
-    method?: string;
-    url?: string;
-    headers?: { [k: string]: string };
-    rawHeaders?: { [k: string]: string };
-    search?: string;
-    body?: unknown;
+    method: string;
+    url: string;
+    headers: { [k: string]: string };
+    rawHeaders: { [k: string]: string };
+    search: string;
+    body: unknown;
 };
 
 type TInjectResponse = {
@@ -17,7 +17,7 @@ type TInjectResponse = {
     getResponse: IGetResponse;
 };
 
-function inject (app: IKequapp, options: TOptions): TInjectResponse {
+function inject (app: IKequapp, options: Partial<TOptions>): TInjectResponse {
     const _options = { ...options };
 
     if (_options.search) {

@@ -1,4 +1,4 @@
-import { compareRoute, getParts } from './helpers';
+import { getParts } from './helpers';
 import Ex from '../util/ex';
 import { getHeader, sanitizeContentType } from '../util/sanitize';
 
@@ -68,6 +68,25 @@ function createRouteManager (branch: IBranchInstance, bundle: TBundle): IRouteMa
 }
 
 export default createRouteManager;
+
+function compareRoute (route: TRouteData, parts: string[], method?: string): boolean {
+    if (method !== undefined && method !== route.method) {
+        return false;
+    }
+
+    if (!route.parts.includes('**') && route.parts.length !== parts.length) {
+        return false;
+    }
+
+    for (let i = 0; i < route.parts.length; i++) {
+        if (route.parts[i] === '**') return true;
+        if (route.parts[i][0] === ':') continue;
+        if (route.parts[i] === parts[i]) continue;
+        return false;
+    }
+
+    return true;
+}
 
 function findRenderer (renderers: TRenderers, contentType: string): TRenderer {
     const key = sanitizeContentType(contentType);

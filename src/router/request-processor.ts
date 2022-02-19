@@ -15,11 +15,11 @@ async function requestProcessor (branch: IBranchInstance, bundle: TBundle): Prom
         throw Ex.NotFound();
     }
 
-    Object.assign(bundle.params, extractParams(route, getParts(url.pathname)));
+    Object.assign(bundle.params, extractParams(route, getParts(pathname)));
 
     await route.lifecycle();
 
-    console.debug(res.statusCode, req.method, url.pathname);
+    console.debug(res.statusCode, method, pathname);
 }
 
 export default requestProcessor;

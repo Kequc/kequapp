@@ -1,11 +1,9 @@
 import createRoute from '../router/create-route';
 import Ex from '../util/ex';
+import { validatePathname } from '../util/validate';
 
 function autoHead (pathname: TPathnameWild): IRouterInstance {
-    // additional validation
-    if (typeof pathname === 'string' && !pathname.endsWith('/**')) {
-        throw new Error('autoHead pathname must end with \'/**\'');
-    }
+    validatePathname(pathname, 'autoHead pathname', true);
 
     return createRoute(pathname, async ({ url }, routeManager) => {
         const route = routeManager(url.pathname).find(route => route.method === 'GET');

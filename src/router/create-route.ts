@@ -1,4 +1,4 @@
-import { extractParts, extractHandles } from './helpers';
+import { extractParts, extractHandles, extractMethod } from './helpers';
 
 function createRoute (...params: unknown[]): IRouterInstance {
     const method = extractMethod(params);
@@ -17,11 +17,3 @@ function createRoute (...params: unknown[]): IRouterInstance {
 }
 
 export default createRoute as ICreateRoute;
-
-function extractMethod (params: unknown[]): string {
-    if (typeof params[0] !== 'string' || params[0][0] === '/') {
-        return 'GET';
-    }
-
-    return params.shift() as string;
-}
