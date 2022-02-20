@@ -43,9 +43,9 @@ createServer(app).listen(4000, () => {
 
 The route shown above will respond to all `'GET'` requests made to the base of the application, at `'/'`. Otherwise our application will respond gracefully with `404` not found.
 
-A route optionally specifies both a method (`'GET'`, `'POST'`, etc...) and a url. Methods can be anything we want, doesn't have to be one of the well-known ones and url is anything we want to act on. Following this is any number of handlers associated with the route.
+A route optionally specifies both a method (`'GET'`, `'POST'`, etc...) and a url. Methods can be anything we want, doesn't have to be one of the well-known ones and url is anything we want to act on. Following this is any number of handlers associated with that route.
 
-The `createApp` method returns our request listener but is also a branch.
+The `createApp` method returns our request listener but it is also a branch.
 
 # Using createBranch and createRoute
 
@@ -63,9 +63,9 @@ app.add(branch);
 // Returns the `app`.
 ```
 
-You may specify a branch of the application, which will cause all child routes to adopt the given url, options, and handlers. It's a convenient way to keep our application organized while remains completely modular.
+You may specify a branch of the application, which will cause all child routes to adopt the given url, options, and handlers. It's a convenient way to keep our application organized while remaining completely modular.
 
-We can structure the application such that the api is separate from client facing pages for example. Routes in each branch carrying a different set of handlers and behaviors.
+The application can be structured such that the api is separate from client facing pages for example. Routes in each branch carrying a different set of handlers and behaviors.
 
 ```javascript
 // handlers
@@ -106,7 +106,9 @@ app.add(
 );
 ```
 
-Routes beginning with `'/api'` are returning `'application/json'` formatted responses and routes beginning with `'/admin'` require the user to be logged in. The endpoints created from the example above are the following.
+Routes beginning with `'/api'` are returning `'application/json'` formatted responses and routes beginning with `'/admin'` require the user to be logged in.
+
+The endpoints created are the following.
 
 ```
 GET /api/user
@@ -114,7 +116,7 @@ GET /api/user/:id
 GET /admin/dashboard
 ```
 
-This example is verbose. You could for example simplify the code by omitting the `'/admin'` branch because it only exposes one route.
+This example is verbose. You could simplify the code by omitting the `'/admin'` branch because it only exposes one route.
 
 ```javascript
 const dashboardRoute = createRoute('/admin/dashboard', loggedIn, ({ context }) => {
@@ -122,7 +124,9 @@ const dashboardRoute = createRoute('/admin/dashboard', loggedIn, ({ context }) =
 });
 ```
 
-A route can have any number of handlers, in this case two. We can respond to a request whenever we want, when we do remaining handlers are ignored. Handlers run in sequence, and any of them may terminate the lifecycle of the request if it returns a value, throws an error, or finalizes the response.
+A route can have any number of handlers, in this case two.
+
+We can respond to a request whenever we want, when we do remaining handlers are ignored. Handlers run in sequence, and any of them may terminate the lifecycle of the request if it returns a value, throws an error, or finalizes the response.
 
 ```javascript
 // handlers
@@ -157,7 +161,9 @@ app.add(createRoute('/api/user', authenticated, json, () => {
 
 # Renderers
 
-In the examples we are returning a payload from one of our handlers and not actually rendering anything, or finalizing what's being sent to the client in most cases. This is what renderers are for.
+In the examples we are returning a payload from one of our handlers and not actually rendering anything, or finalizing what's being sent to the client in most cases.
+
+This is what renderers are for.
 
 When we `return` something from a handler, a `renderer` is triggered which corresponds to the type of data we are sending.
 
@@ -169,7 +175,9 @@ Some renderers are built-in already, there is one for `'text/plain'` (which is a
 
 ```javascript
 const { createApp, createRenderer } = require('kequapp');
+```
 
+```javascript
 const options = {
     renderers: [
         createRenderer('text/html', (payload, { res }) => {
@@ -205,9 +213,7 @@ const options = {
 const app = createApp(options);
 ```
 
-Errors thrown within the error handler itself or within the renderer used to handle the error response causes a fatal exception and our application will crash.
-
-For a better example of how to write an error handler see the existing one in this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
+Errors thrown within the error handler itself or within the renderer used to handle the error response causes a fatal exception and our application will crash. For a better example of how to write an error handler see the existing one in this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
 
 Note that any branch of our application can also specify options as it's first or second parameter.
 
@@ -227,7 +233,7 @@ createBranch('/user', options, json).add(
 );
 ```
 
-An unhandled exception from our application renders a `500` internal server error response to the client by default. If we would like to send an error with a different status code there is a helper for that. This makes it possible to utilize any status code `400` and above.
+An unhandled exception from our application renders a `500` internal server error response to the client by default. If we would like to send an error with a different status code there is a helper tool for that. This makes it easy to utilize any status code `400` and above.
 
 ```javascript
 const { Ex } = require('kequapp');
@@ -489,7 +495,9 @@ It is possible to capture all `'HEAD'` requests and have them trigger your `'GET
 
 ```javascript
 import { Ex } from 'kequapp';
+```
 
+```javascript
 createRoute('HEAD', '/**', async ({ url }, routeManager) => {
     const route = routeManager(url.pathname).find(route => route.method === 'GET');
 
@@ -508,7 +516,9 @@ There is a convenience helper for this purpose.
 
 ```javascript
 import { autoHead } from 'kequapp';
+```
 
+```javascript
 app.add(autoHead());
 ```
 
