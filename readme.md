@@ -161,9 +161,9 @@ app.add(createRoute('/api/user', authenticated, json, () => {
 
 # Renderers
 
-In the examples we are returning a payload from one of our handlers and not actually rendering anything, or finalizing what's being sent to the client in most cases.
+In all of these examples we are returning a payload from one of our handlers and not actually rendering anything, or finalizing what's being sent to the client in most cases.
 
-This is what renderers are for.
+This is what renderers do.
 
 When we `return` something from a handler, a `renderer` is triggered which corresponds to the type of data we are sending.
 
@@ -188,6 +188,7 @@ const options = {
 };
 
 const app = createApp(options);
+const branch = createBranch(options);
 ```
 
 It is important to note that if a response isn't finalized at the end of a request lifecycle then a `500` internal server error will be thrown. For examples of how to write a renderer see the existing renderers in this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
@@ -241,11 +242,11 @@ const { Ex } = require('kequapp');
 
 ```javascript
 createRoute('/throw-error', () => {
-    throw Ex.StatusCode(404);
-    throw Ex.StatusCode(404, 'Custom message', { extra: 'info' });
-    // same as
     throw Ex.NotFound();
     throw Ex.NotFound('Custom message', { extra: 'info' });
+    // same as
+    throw Ex.StatusCode(404);
+    throw Ex.StatusCode(404, 'Custom message', { extra: 'info' });
 });
 ```
 
@@ -380,7 +381,7 @@ Disable body normalization with either `raw` or `skipNormalize`.
 
 The provided list of fields will be arrays.
 
-Fields which are expected to be arrays must be specified. We only know a field is an array when we receive more than one item with the same name from a client, which creates ambiguity in our data. Therefore fields that do not specify they are an array will return the first value. Fields which specify they are an array but receive no data will be an empty array.
+Fields which are expected to be arrays must be specified. We only know a field is an array when we receive more than one item with the same name from a client, which creates ambiguity in our object. Therefore fields that do not specify that they are an array will return the first value. Fields which specify they are an array but receive no data will be an empty array.
 
 ```javascript
 createRoute('POST', '/users', async ({ getBody }) => {
@@ -398,7 +399,7 @@ createRoute('POST', '/users', async ({ getBody }) => {
 
 ### required
 
-The provided list of fields are not `null` or `undefined`. It's a quick way to throw a `422` unprocessable entity error. These fields might still be empty, but at least something was sent and we can operate on them. When a `required` field is also an `arrays` field the array is sure to have at least one value.
+The provided list of fields are not `null` or `undefined`. It's a quick way to throw a `422` unprocessable entity error. These fields might still be empty, but at least something was sent and we know we can operate on them. When a `required` field is also an `arrays` field the array is sure to have at least one value.
 
 ### numbers
 
@@ -459,7 +460,7 @@ The max payload size is `1e6` by default (approximately 1mb), if this is exceede
 
 A handler for delivering files relative to our project directory in included. It pairs a directory location with an endpoint, and guesses `Content-Type` from a list of file extensions.
 
-If no `dir` is specified then `'/public'` is used by default. Exclusions can be provided if we want to ignore some files or directories using `exclude`. If there are files included with unusual file extensions additional `mime` types can be provided.
+If no `dir` is specified then `'/public'` is used by default. Exclusions can be provided if we want to ignore some files or directories using `exclude`. If there are files included with unusual file extensions more `mime` types can be added.
 
 ```javascript
 const { staticFiles } = require('kequapp');
@@ -475,7 +476,7 @@ app.add(staticFiles('/assets', {
 }));
 ```
 
-If we need more control, an additional helper is available. This sends a file to the client and finalizes the response. Mime type can be specified as an optional third parameter.
+We can send a file directly to the client and automatically finalize the response. Mime type is optionally provided as a third parameter.
 
 ```javascript
 const { sendFile } = require('kequapp');
@@ -491,11 +492,7 @@ app.add(createRoute('/db.json', async ({ req, res }) => {
 
 # HEAD requests
 
-It is possible to capture all `'HEAD'` requests and have them trigger your `'GET'` lifecycles by making use of the `routeManager`, which is provided as a second parameter in all handlers.
-
-```javascript
-import { Ex } from 'kequapp';
-```
+It is possible to capture `'HEAD'` requests and have them trigger a corresponding `'GET'` lifecycle by making use of the `routeManager`, which is provided as a second parameter in all handlers.
 
 ```javascript
 createRoute('HEAD', '/**', async ({ url }, routeManager) => {
