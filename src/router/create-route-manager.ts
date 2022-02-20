@@ -17,53 +17,37 @@ function createRouteManager (branch: IBranchInstance, bundle: TBundle): IRouteMa
     function convert (route: TRouteData): TRoute {
         return {
             method: route.method,
-            parts: route.parts,
+            parts: [...route.parts],
             lifecycle: createLifecycle(route)
         };
     }
 
     function createLifecycle (route: TRouteData): ILifecycle {
         const { errorHandler } = route.options as TConfig;
+        const { res } = bundle;
 
         async function lifecycle (): Promise<void> {
             try {
                 for (const handle of route.handles) {
                     const payload = await handle(bundle, routeManager);
 
-                    if (payload !== undefined || bundle.res.writableEnded) {
-                        await render(route, payload);
+                    if (payload !== undefined || res.writableEnded) {
+                        await render(route, payload, bundle);
                         break;
                     }
                 }
             } catch (error: unknown) {
                 const payload = await errorHandler(error, bundle);
 
-                if (bundle.res.statusCode === 500) {
+                if (res.statusCode === 500) {
                     console.error(error);
                 }
 
-                await render(route, payload);
+                await render(route, payload, bundle);
             }
         }
 
         return lifecycle;
-    }
-
-    async function render (route: TRouteData, payload: unknown): Promise<void> {
-        const { renderers } = route.options as TConfig;
-
-        if (payload !== undefined && !bundle.res.writableEnded) {
-            const contentType = getHeader(bundle.res, 'Content-Type');
-            const renderer = findRenderer(renderers, contentType);
-            await renderer(payload, bundle);
-        }
-
-        if (!bundle.res.writableEnded) {
-            throw Ex.InternalServerError('Response not finalized', {
-                pathname: bundle.url.pathname,
-                method: bundle.req.method
-            });
-        }
     }
 }
 
@@ -86,6 +70,24 @@ function compareRoute (route: TRouteData, parts: string[], method?: string): boo
     }
 
     return true;
+}
+
+async function render (route: TRouteData, payload: unknown, bundle: TBundle): Promise<void> {
+    const { renderers } = route.options as TConfig;
+    const { req, res, url, } = bundle;
+
+    if (payload !== undefined && !res.writableEnded) {
+        const contentType = getHeader(res, 'Content-Type');
+        const renderer = findRenderer(renderers, contentType);
+        await renderer(payload, bundle);
+    }
+
+    if (!res.writableEnded) {
+        throw Ex.InternalServerError('Response not finalized', {
+            pathname: url.pathname,
+            method: req.method
+        });
+    }
 }
 
 function findRenderer (renderers: TRenderers, contentType: string): TRenderer {

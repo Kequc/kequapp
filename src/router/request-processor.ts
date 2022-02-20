@@ -16,6 +16,8 @@ async function requestProcessor (branch: IBranchInstance, bundle: TBundle): Prom
     }
 
     Object.assign(bundle.params, extractParams(route, getParts(pathname)));
+    Object.freeze(bundle);
+    Object.freeze(bundle.params);
 
     await route.lifecycle();
 

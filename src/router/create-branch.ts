@@ -41,7 +41,7 @@ function validateRoutes (routes: TRouteData[], newRoutes: TRouteData[]): void {
         const exists = checked.find(existing => isDuplicate(existing, route));
 
         if (exists) {
-            console.error({
+            console.error('Route already exists', {
                 method: route.method,
                 pathname: `/${route.parts.join('/')}`,
                 matches: `/${exists.parts.join('/')}`

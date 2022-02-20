@@ -88,7 +88,7 @@ type TBodyOptions = {
 
 type TBodyJsonValue = string | number | boolean | Date | null | TBodyJson | TBodyJsonValue[];
 type TBodyJson = {
-	[k: string]: TBodyJsonValue;
+    [k: string]: TBodyJsonValue;
 };
 
 interface IGetResponse {
@@ -111,7 +111,7 @@ interface IBranchInstance extends IRouterInstance {
 }
 
 type TPathname = `/${string}`;
-type TPathnameWild = `/${string}/**`;
+type TPathnameWild = TPathname & `${string}/**`;
 
 interface ICreateBranch {
     (pathname: TPathname, options: Partial<TConfig>, ...handles: THandle[]): IBranchInstance;
