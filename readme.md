@@ -6,16 +6,16 @@ When you use `createServer` in a node application it gives you a callback to mak
 
 ### Features
 
-* Full modularity
+* Modular framework
 * Includes body parsing for multipart requests
 * Includes simple static file serving
-* Support for async await
-* Handle any request
+* Async await anywhere
+* Handle any request type
 * Handle thrown errors
-* Handle rendering of any content type
-* Respond to or finalize responses in any way
+* Handle rendering any content type
+* Finalize response any possible way
 * Does not modify existing node features
-* Simple interface with a manageable learning curve
+* Simple interface with manageable learning curve
 * Fast
 * Includes inject tool for tests
 * No dependencies <3
@@ -47,13 +47,19 @@ A route optionally specifies both a method (`'GET'`, `'POST'`, etc...) and a url
 
 The `createApp` method returns our request listener but it is also a branch.
 
-# Using createBranch and createRoute
+# Using `add()`
+
+Every branch of our application exposes an `add` method. This is used to extend the branch with additional functionality.
+
+In most cases this will be a branch or a route.
+
+# Using `createBranch()` and `createRoute()`
 
 ```javascript
 const route = createRoute(method = 'GET', url = '/', ...handlers);
 // Returns a new route.
 
-const branch = createBranch(url = '/', options = {}, ...handlers);
+const branch = createBranch(url = '/', ...handlers);
 // Returns a new branch.
 
 app.add(route);
@@ -63,9 +69,7 @@ app.add(branch);
 // Returns the `app`.
 ```
 
-You may specify a branch of the application, which will cause all child routes to adopt the given url, options, and handlers. It's a convenient way to keep our application organized while remaining completely modular.
-
-The application can be structured such that the api is separate from client facing pages for example. Routes in each branch carrying a different set of handlers and behaviors.
+You may specify a branch of the application, which will cause all child routes to adopt the given url and handlers. For example the application can be structured such that the api is separate from client facing pages. Routes in each branch may carry a different set of handlers and behaviors.
 
 ```javascript
 // handlers
@@ -159,7 +163,7 @@ app.add(createRoute('/api/user', authenticated, json, () => {
 }));
 ```
 
-# Renderers
+# Using `createRenderer()`
 
 In all of these examples we are returning a payload from one of our handlers and not actually rendering anything, or finalizing what's being sent to the client in most cases.
 
@@ -171,68 +175,56 @@ In most cases we want to send text, or maybe an image, or file. The renderer is 
 
 The renderer accepts any payload and formats it to be sent to the client.
 
-Some renderers are built-in already, there is one for `'text/plain'` (which is also the default) and `'application/json'`. These can be overridden or extended by providing `renderers` while creating our app or when creating a branch.
+Some renderers are built-in already, there is one for `'text/plain'` (which is also the default) and `'application/json'`. These can be overridden or extended by adding your own.
 
 ```javascript
-const { createApp, createRenderer } = require('kequapp');
+const { createRenderer } = require('kequapp');
 ```
 
 ```javascript
-const options = {
-    renderers: [
-        createRenderer('text/html', (payload, { res }) => {
-            const html = myMarkupRenderer(payload);
-            res.end(html);
-        })
-    ]
-};
+// renderers
+const htmlRenderer = createRenderer('text/html', (payload, { res }) => {
+    const html = myMarkupRenderer(payload);
 
-const app = createApp(options);
-const branch = createBranch(options);
+    // finalize response
+    res.end(html);
+});
+
+// handlers
+function html ({ res }) {
+    res.setHeader('Content-Type', 'text/html');
+}
+
+// api
+adminBranch.add(htmlRenderer, html);
 ```
 
-It is important to note that if a response isn't finalized at the end of a request lifecycle then a `500` internal server error will be thrown. For examples of how to write a renderer see the existing renderers in this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
+Note renderers are always the last step. If a response isn't finalized at the end of a request lifecycle then a `500` internal server error is thrown. For examples of how to write a renderer see the existing renderers in this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
 
-# Error handling
+# Using `createErrorHandler()`
 
 Much as any other handler there is an `errorHandler`. This makes use of an exception by turning it into useful information that should be sent to the client. The default error handler will return a `'application/json'` formatted response that includes useful information for debugging.
 
 This example manages a very basic custom response.
 
 ```javascript
-const options = {
-    errorHandler (error, { res }) {
-        const statusCode = error.statusCode || 500;
+const { createErrorHandler } = require('kequapp');
+```
 
-        res.statusCode = statusCode;
-        res.setHeader('Content-Type', 'text/plain');
+```javascript
+app.add(createErrorHandler((error, { res }) => {
+    const statusCode = error.statusCode || 500;
 
-        return `${statusCode} ${error.message}`;
-    }
-};
+    res.statusCode = statusCode;
+    res.setHeader('Content-Type', 'text/plain');
 
-const app = createApp(options);
+    return `${statusCode} ${error.message}`;
+}));
 ```
 
 Errors thrown within the error handler itself or within the renderer used to handle the error response causes a fatal exception and our application will crash. For a better example of how to write an error handler see the existing one in this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
 
-Note that any branch of our application can also specify options as it's first or second parameter.
-
-```javascript
-const options = {
-    renderers,
-    errorHandler
-};
-
-createBranch('/user', options, json).add(
-    createRoute(() => {
-        return { result: [] };
-    }),
-    createRoute('/:id', ({ params }) => {
-        return { userId: params.id };
-    })
-);
-```
+# Error handling
 
 An unhandled exception from our application renders a `500` internal server error response to the client by default. If we would like to send an error with a different status code there is a helper tool for that. This makes it easy to utilize any status code `400` and above.
 
@@ -314,7 +306,7 @@ createRoute('POST', '/user', async ({ getBody }) => {
 
 This method can be used in many ways so we will look at it in more detail in the next section.
 
-# Body
+# Using `getBody()`
 
 The `getBody()` method can be used to retrieve, parse, and normalize data from client requests.
 
@@ -456,7 +448,7 @@ createRoute('POST', '/users', async ({ getBody }) => {
 
 The max payload size is `1e6` by default (approximately 1mb), if this is exceeded the request will be terminated saving both memory and bandwidth. If you are absolutely sure you want to receive a payload of any size then a value of `Infinity` is accepted.
 
-# Static files
+# Using `staticFiles()` and `sendFile()`
 
 A handler for delivering files relative to our project directory in included. It pairs a directory location with an endpoint, and guesses `Content-Type` from a list of file extensions.
 
@@ -490,7 +482,7 @@ app.add(createRoute('/db.json', async ({ req, res }) => {
 }));
 ```
 
-# HEAD requests
+# Using `routeManager()`
 
 It is possible to capture `'HEAD'` requests and have them trigger a corresponding `'GET'` lifecycle by making use of the `routeManager`, which is provided as a second parameter in all handlers.
 
@@ -507,9 +499,9 @@ createRoute('HEAD', '/**', async ({ url }, routeManager) => {
 });
 ```
 
-The `routeManager` method takes a pathname and looks up compatible routes in your application. If no pathname is provided all routes are returned instead. Routes are returned in order of priority.
+The `routeManager` method takes a pathname and looks up compatible routes in our application. If no pathname is provided all routes are returned instead. Routes are returned in order of priority the first is the most exact match.
 
-There is a convenience helper for this purpose.
+There is a convenience helper for the `'HEAD'` request example above.
 
 ```javascript
 import { autoHead } from 'kequapp';
@@ -519,9 +511,12 @@ import { autoHead } from 'kequapp';
 app.add(autoHead());
 ```
 
-It is the responsibility of our application usually in the renderer, to detect a `'HEAD'` request and not send the body in response. Or to skip functionality not intended when a `'HEAD'` request is received.
+When executing lifecycles out of turn, it becomes the responsibility of our application to detect the type of request. Only in cases where we want different functionality or to skip something.
+
+In the `'HEAD'` request example we need to detect a `'HEAD'` request and not send the body from the renderer.
 
 ```javascript
+// render
 if (req.method === 'HEAD') {
     res.end();
 } else {
@@ -529,7 +524,7 @@ if (req.method === 'HEAD') {
 }
 ```
 
-The default renderers have this functionality built in.
+The default renderers have this built in already.
 
 # Unit testing
 

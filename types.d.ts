@@ -103,7 +103,7 @@ interface ICreateBranch {
     (...handles: THandle[]): IAddableBranch;
 }
 
-interface IAddableBranch extends IAddable {
+interface IAddableBranch {
     (): TAddableData[];
     add (...routers: IAddable[]): IAddableBranch;
 }

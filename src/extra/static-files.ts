@@ -18,7 +18,7 @@ type TOptions = {
 };
 
 function staticFiles (pathname: TPathnameWild, options: Partial<TOptions> = {}): IAddable {
-    validatePathname(pathname, 'staticFiles pathname', true);
+    validatePathname(pathname, 'Static files pathname', true);
     validateOptions(options);
 
     const config: TOptions = { ...DEFAULT_OPTIONS, ...options };
@@ -43,10 +43,10 @@ function staticFiles (pathname: TPathnameWild, options: Partial<TOptions> = {}):
 export default staticFiles;
 
 function validateOptions (options: Partial<TOptions>): void {
-    validateObject(options, 'staticFiles options');
-    validateType(options.dir, 'staticFiles options.dir', 'string');
-    validateArray(options.exclude, 'staticFiles options.exclude', 'string');
-    validateObject(options.mime, 'staticFiles options.mime', 'string');
+    validateObject(options, 'Static files options');
+    validateType(options.dir, 'Static files options.dir', 'string');
+    validateArray(options.exclude, 'Static files options.exclude', 'string');
+    validateObject(options.mime, 'Static files options.mime', 'string');
 }
 
 function isExcluded (values: string[], asset: string): boolean {
