@@ -15,7 +15,7 @@ When you use `createServer` in a node application it gives you a callback to mak
 * Handle rendering of any content type
 * Respond to or finalize responses in any way
 * Does not modify existing node features
-* Simple interface with a good learning curve
+* Simple interface with a manageable learning curve
 * Fast
 * Includes inject tool for tests
 * No dependencies <3

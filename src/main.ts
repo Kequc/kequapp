@@ -1,14 +1,17 @@
-import autoHead from './addons/auto-head';
-import sendFile from './addons/send-file';
-import staticFiles from './addons/static-files';
+import createBranch from './addable/create-branch';
+import createErrorHandler from './addable/create-error-handler';
+import createRenderer from './addable/create-renderer';
+import createRoute from './addable/create-route';
 import createGetBody from './body/create-get-body';
-import createBranch from './router/create-branch';
-import createRoute from './router/create-route';
+import autoHead from './extra/auto-head';
+import sendFile from './extra/send-file';
+import staticFiles from './extra/static-files';
 import requestProcessor from './router/request-processor';
 import Ex from './util/ex';
 
-function createApp (options: Partial<TConfig> = {}): IKequapp {
-    const branch = createBranch(options);
+function createApp (): IKequapp {
+    const branch = createBranch();
+    let _cache: TAddableData[];
 
     function app (req: TReq, res: TRes): void {
         const url = new URL(req.url || '/', `${req.headers.protocol}://${req.headers.host}`);
@@ -16,7 +19,9 @@ function createApp (options: Partial<TConfig> = {}): IKequapp {
         res.statusCode = 200; // default
         res.setHeader('Content-Type', 'text/plain'); // default
 
-        requestProcessor(branch, {
+        if (!_cache) _cache = branch();
+
+        requestProcessor(_cache, {
             req,
             res,
             url,
@@ -36,6 +41,8 @@ export {
     createApp,
     createBranch,
     createRoute,
+    createRenderer,
+    createErrorHandler,
     autoHead,
     sendFile,
     staticFiles

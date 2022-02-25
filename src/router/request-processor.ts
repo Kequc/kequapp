@@ -2,7 +2,7 @@ import createRouteManager from './create-route-manager';
 import { getParts } from './helpers';
 import Ex from '../util/ex';
 
-async function requestProcessor (branch: IBranchInstance, bundle: TBundle): Promise<void> {
+async function requestProcessor (branch: TAddableData[], bundle: TBundle): Promise<void> {
     const { req, res, url } = bundle;
     const method = req.method;
     const pathname = url.pathname;

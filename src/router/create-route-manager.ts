@@ -1,20 +1,29 @@
+import errorHandler from '../built-in/error-handler';
+import jsonRenderer from '../built-in/json-renderer';
+import textRenderer from '../built-in/text-renderer';
 import { getParts } from './helpers';
 import Ex from '../util/ex';
 import { getHeader, sanitizeContentType } from '../util/sanitize';
 
-function createRouteManager (branch: IBranchInstance, bundle: TBundle): IRouteManager {
+const DEFAULT_RENDERERS = {
+    'application/json': jsonRenderer,
+    'text/plain': textRenderer,
+    'text/html': textRenderer
+};
+
+function createRouteManager (branch: TAddableData[], bundle: TBundle): IRouteManager {
     function routeManager (pathname?: string): TRoute[] {
         if (pathname) {
             const parts = getParts(pathname);
-            return branch().filter(route => compareRoute(route, parts)).map(convert);
+            return branch.filter(route => compareRoute(route, parts)).map(convert);
         }
 
-        return branch().map(convert);
+        return branch.map(convert) || [];
     }
 
     return routeManager;
 
-    function convert (route: TRouteData): TRoute {
+    function convert (route: TAddableData): TRoute {
         return {
             method: route.method,
             parts: [...route.parts],
@@ -22,8 +31,7 @@ function createRouteManager (branch: IBranchInstance, bundle: TBundle): IRouteMa
         };
     }
 
-    function createLifecycle (route: TRouteData): ILifecycle {
-        const { errorHandler } = route.options as TConfig;
+    function createLifecycle (route: TAddableData): ILifecycle {
         const { res } = bundle;
 
         async function lifecycle (): Promise<void> {
@@ -32,18 +40,19 @@ function createRouteManager (branch: IBranchInstance, bundle: TBundle): IRouteMa
                     const payload = await handle(bundle, routeManager);
 
                     if (payload !== undefined || res.writableEnded) {
-                        await render(route, payload, bundle);
+                        await render(route, payload, bundle, routeManager);
                         break;
                     }
                 }
             } catch (error: unknown) {
-                const payload = await errorHandler(error, bundle);
+                const handle = route.errorHandler || errorHandler;
+                const payload = await handle(error, bundle, routeManager);
 
                 if (res.statusCode === 500) {
                     console.error(error);
                 }
 
-                await render(route, payload, bundle);
+                await render(route, payload, bundle, routeManager);
             }
         }
 
@@ -53,7 +62,7 @@ function createRouteManager (branch: IBranchInstance, bundle: TBundle): IRouteMa
 
 export default createRouteManager;
 
-function compareRoute (route: TRouteData, parts: string[], method?: string): boolean {
+function compareRoute (route: TAddableData, parts: string[], method?: string): boolean {
     if (method !== undefined && method !== route.method) {
         return false;
     }
@@ -72,14 +81,13 @@ function compareRoute (route: TRouteData, parts: string[], method?: string): boo
     return true;
 }
 
-async function render (route: TRouteData, payload: unknown, bundle: TBundle): Promise<void> {
-    const { renderers } = route.options as TConfig;
+async function render (route: TAddableData, payload: unknown, bundle: TBundle, routeManager: IRouteManager): Promise<void> {
     const { req, res, url, } = bundle;
 
     if (payload !== undefined && !res.writableEnded) {
         const contentType = getHeader(res, 'Content-Type');
-        const renderer = findRenderer(renderers, contentType);
-        await renderer(payload, bundle);
+        const renderer = findRenderer(route.renderers, contentType);
+        await renderer(payload, bundle, routeManager);
     }
 
     if (!res.writableEnded) {
@@ -90,11 +98,17 @@ async function render (route: TRouteData, payload: unknown, bundle: TBundle): Pr
     }
 }
 
-function findRenderer (renderers: TRenderers, contentType: string): TRenderer {
-    const key = sanitizeContentType(contentType);
+function findRenderer (renderers: TRendererData[], contentType: string): TRenderer {
+    const mime = sanitizeContentType(contentType);
 
-    if (renderers[key]) {
-        return renderers[key];
+    const renderer = renderers.find(renderer => renderer.mime === mime);
+
+    if (renderer) {
+        return renderer.handle;
+    }
+
+    if (contentType in DEFAULT_RENDERERS) {
+        return DEFAULT_RENDERERS[contentType];
     }
 
     throw Ex.InternalServerError('Renderer not found', {

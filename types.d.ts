@@ -7,21 +7,9 @@ declare module 'mock-res';
 
 // config
 
-interface IKequapp extends TRequestListener, IBranchInstance {
+interface IKequapp extends TRequestListener, IAddableBranch {
     (req: TReq, res: TRes): void;
 }
-
-type TConfig = {
-    renderers: TRenderers;
-    errorHandler: TErrorHandler
-};
-
-type TRenderers = {
-    [k: string]: TRenderer;
-};
-
-type TErrorHandler = (error: unknown, bundle: TBundle) => unknown;
-type TRenderer = (payload: unknown, bundle: TBundle) => Promise<void> | void;
 
 // bundle
 
@@ -56,10 +44,6 @@ interface IGetBody {
     (format?: TBodyOptions): Promise<TBodyJson>;
     <T>(format: TBodyOptions & { multipart: true }): Promise<[T, TFilePart[]]>;
     <T>(format?: TBodyOptions): Promise<T>;
-}
-
-interface IRouteManager {
-    (pathname?: string): TRoute[];
 }
 
 type TRawPart = {
@@ -102,38 +86,61 @@ type TResponseOptions = {
 
 // router
 
-interface IRouterInstance {
-    (): TRouteData[];
+interface IAddable {
+    (): Partial<TAddableData>[];
 }
 
-interface IBranchInstance extends IRouterInstance {
-    add (...routers: IRouterInstance[]): IBranchInstance;
-}
-
-type TPathname = `/${string}`;
-type TPathnameWild = TPathname & `${string}/**`;
+type TAddableData = {
+    parts: string[];
+    handles: THandle[];
+    method: string;
+    renderers: TRendererData[];
+    errorHandler?: TErrorHandler;
+};
 
 interface ICreateBranch {
-    (pathname: TPathname, options: Partial<TConfig>, ...handles: THandle[]): IBranchInstance;
-    (pathname: TPathname, ...handles: THandle[]): IBranchInstance;
-    (options: Partial<TConfig>, ...handles: THandle[]): IBranchInstance;
-    (...handles: THandle[]): IBranchInstance;
+    (pathname: TPathname, ...handles: THandle[]): IAddableBranch;
+    (...handles: THandle[]): IAddableBranch;
+}
+
+interface IAddableBranch extends IAddable {
+    (): TAddableData[];
+    add (...routers: IAddable[]): IAddableBranch;
 }
 
 interface ICreateRoute {
-    (pathname: TPathname, ...handles: THandle[]): IRouterInstance;
-    (method: string, pathname: TPathname, ...handles: THandle[]): IRouterInstance;
-    (method: string, ...handles: THandle[]): IRouterInstance;
-    (...handles: THandle[]): IRouterInstance;
+    (pathname: TPathname, ...handles: THandle[]): IAddable;
+    (method: string, pathname: TPathname, ...handles: THandle[]): IAddable;
+    (method: string, ...handles: THandle[]): IAddable;
+    (...handles: THandle[]): IAddable;
 }
 
-type TRouteData = {
-    parts: string[];
-    options: Partial<TConfig>;
-    handles: THandle[];
-    method: string;
-};
+interface ICreateRenderer {
+    (mime: string, handle: TRenderer): IAddable;
+}
+
+interface ICreateErrorHandler {
+    (handle: TErrorHandler): IAddable;
+}
+
+interface IRouteManager {
+    (pathname?: string): TRoute[];
+}
+
+// errata
+
 type THandle = (bundle: TBundle, routeManager: IRouteManager) => Promise<unknown> | unknown;
+
+type TRendererData = {
+    mime: string;
+    handle: TRenderer;
+};
+
+type TRenderer = (payload: unknown, bundle: TBundle, routeManager: IRouteManager) => Promise<void> | void;
+type TErrorHandler = (error: unknown, bundle: TBundle, routeManager: IRouteManager) => Promise<unknown> | unknown;
+
+type TPathname = `/${string}`;
+type TPathnameWild = TPathname & `${string}/**`;
 
 type TRoute = {
     method: string;

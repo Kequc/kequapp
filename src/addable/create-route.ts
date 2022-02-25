@@ -1,11 +1,11 @@
-import { extractParts, extractHandles, extractMethod } from './helpers';
+import { extractParts, extractHandles, extractMethod } from '../router/helpers';
 
-function createRoute (...params: unknown[]): IRouterInstance {
+function createRoute (...params: unknown[]): IAddable {
     const method = extractMethod(params);
     const parts = extractParts(params);
     const handles = extractHandles(params);
 
-    function route (): Omit<TRouteData, 'options'>[] {
+    function route (): Partial<TAddableData>[] {
         return [{
             parts,
             handles,
@@ -13,7 +13,7 @@ function createRoute (...params: unknown[]): IRouterInstance {
         }];
     }
 
-    return route as IRouterInstance;
+    return route as IAddable;
 }
 
 export default createRoute as ICreateRoute;

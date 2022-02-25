@@ -1,6 +1,6 @@
 import path from 'path';
+import createRoute from '../addable/create-route';
 import sendFile from './send-file';
-import createRoute from '../router/create-route';
 import Ex from '../util/ex';
 import guessMime from '../util/guess-mime';
 import { validateArray, validateObject, validatePathname, validateType } from '../util/validate';
@@ -17,7 +17,7 @@ type TOptions = {
     mime: { [key: string]: string };
 };
 
-function staticFiles (pathname: TPathnameWild, options: Partial<TOptions> = {}): IRouterInstance {
+function staticFiles (pathname: TPathnameWild, options: Partial<TOptions> = {}): IAddable {
     validatePathname(pathname, 'staticFiles pathname', true);
     validateOptions(options);
 
