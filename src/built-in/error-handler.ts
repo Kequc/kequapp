@@ -1,4 +1,6 @@
-function errorHandler (error: unknown, { res }: TBundle): unknown {
+import createErrorHandler from '../addable/create-error-handler';
+
+export default createErrorHandler((error, { res }) => {
     const _error = error as TServerError;
     const statusCode = _error.statusCode || 500;
 
@@ -20,6 +22,4 @@ function errorHandler (error: unknown, { res }: TBundle): unknown {
     }
 
     return result;
-}
-
-export default errorHandler;
+});

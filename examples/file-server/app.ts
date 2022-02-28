@@ -1,12 +1,12 @@
-import { createApp, staticFiles } from '../../src/main'; // 'kequapp'
+import { createApp, createRoute, staticFiles } from '../../src/main'; // 'kequapp'
 
 const app = createApp();
 
-app.route('/', () => {
+app.add(createRoute(() => {
     return 'Hello world!';
-});
+}));
 
-app.route('/assets/**', staticFiles({
+app.add(staticFiles('/assets/**', {
     dir: '/examples/file-server/assets',
     exclude: ['/examples/file-server/assets/private.txt']
 }));

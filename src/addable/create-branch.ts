@@ -13,7 +13,7 @@ function createBranch (...params: unknown[]): IAddableBranch {
             ...addable,
             parts: [...parts, ...addable.parts],
             handles: [...handles, ...addable.handles],
-            errorHandler,
+            errorHandler: addable.errorHandler || errorHandler,
             renderers
         }));
     }
@@ -26,7 +26,7 @@ function createBranch (...params: unknown[]): IAddableBranch {
         added.push(...findRoutes(adding));
         added.sort(priority);
 
-        errorHandler = findErrorHandler(adding);
+        errorHandler = findErrorHandler(adding) || errorHandler;
         renderers.unshift(...findRenderers(adding));
 
         return branch as IAddableBranch;

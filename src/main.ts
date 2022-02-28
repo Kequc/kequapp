@@ -3,6 +3,9 @@ import createErrorHandler from './addable/create-error-handler';
 import createRenderer from './addable/create-renderer';
 import createRoute from './addable/create-route';
 import createGetBody from './body/create-get-body';
+import errorHandler from './built-in/error-handler';
+import jsonRenderer from './built-in/json-renderer';
+import textRenderer from './built-in/text-renderer';
 import autoHead from './extra/auto-head';
 import sendFile from './extra/send-file';
 import staticFiles from './extra/static-files';
@@ -12,6 +15,12 @@ import Ex from './util/ex';
 function createApp (): IKequapp {
     const branch = createBranch();
     let _cache: TAddableData[];
+
+    branch.add(
+        errorHandler,
+        jsonRenderer,
+        textRenderer
+    );
 
     function app (req: TReq, res: TRes): void {
         const url = new URL(req.url || '/', `${req.headers.protocol}://${req.headers.host}`);

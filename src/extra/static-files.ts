@@ -5,16 +5,16 @@ import Ex from '../util/ex';
 import guessMime from '../util/guess-mime';
 import { validateArray, validateObject, validatePathname, validateType } from '../util/validate';
 
-const DEFAULT_OPTIONS: TOptions = {
-    dir: '/public',
-    exclude: [],
-    mime: {}
-};
-
 type TOptions = {
     dir: TPathname;
     exclude: string[];
     mime: { [key: string]: string };
+};
+
+const DEFAULT_OPTIONS: TOptions = {
+    dir: '/public',
+    exclude: [],
+    mime: {}
 };
 
 function staticFiles (pathname: TPathnameWild, options: Partial<TOptions> = {}): IAddable {

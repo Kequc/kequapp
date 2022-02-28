@@ -1,6 +1,7 @@
+import createRenderer from '../addable/create-renderer';
 import Ex from '../util/ex';
 
-function jsonRenderer (payload: unknown, { req, res }: TBundle): void {
+export default createRenderer('application/json', (payload, { req, res }) => {
     const json = generateJson(payload);
 
     res.setHeader('Content-Length', Buffer.byteLength(json));
@@ -10,9 +11,7 @@ function jsonRenderer (payload: unknown, { req, res }: TBundle): void {
     } else {
         res.end(json);
     }
-}
-
-export default jsonRenderer;
+});
 
 function generateJson (payload: unknown): string {
     try {

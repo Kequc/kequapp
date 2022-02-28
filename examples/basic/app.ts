@@ -1,10 +1,10 @@
-import { createApp, Ex } from '../../src/main'; // 'kequapp'
+import { createApp, createBranch, createRoute, Ex } from '../../src/main'; // 'kequapp'
 
 const app = createApp();
 
-app.route('/', () => {
+app.add(createRoute(() => {
     return 'Hello world!';
-});
+}));
 
 function loggedIn ({ req, context }) {
     if (req.headers.authorization !== 'mike') {
@@ -13,26 +13,28 @@ function loggedIn ({ req, context }) {
     context.auth = req.headers.authorization;
 }
 
-app.branch('/users')
-    .route(({ url }) => {
+app.add(createBranch('/users').add(
+    createRoute(({ url }) => {
         const query = Object.fromEntries(url.searchParams);
         return 'Query ' + JSON.stringify(query);
-    })
-    .route('/:id', ({ params }) => {
+    }),
+    createRoute('/:id', ({ params }) => {
         return `userId: ${params.id}!`;
-    })
-    .route('POST', '/secrets', async ({ getBody }) => {
+    }),
+    createRoute('POST', '/secrets', async ({ getBody }) => {
         const [body, files] = await getBody({ multipart: true });
         return `${body.name} is ${body.age} and ${files[0].filename} has ${files[0].data}!`;
-    })
-    .route('POST', async ({ getBody }) => {
+    }),
+    createRoute('POST', async ({ getBody }) => {
         const body = await getBody<{ name: string }>();
         return `User creation ${body.name}!`;
-    });
+    })
+));
 
-app.branch('/admin', loggedIn)
-    .route('/dashboard', ({ context }) => {
+app.add(createBranch('/admin', loggedIn).add(
+    createRoute('/dashboard', ({ context }) => {
         return `Hello admin ${context.auth}!`;
-    });
+    })
+));
 
 export default app;

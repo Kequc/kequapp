@@ -1,6 +1,7 @@
+import createRenderer from '../addable/create-renderer';
 import Ex from '../util/ex';
 
-function textRenderer (payload: unknown, { req, res }: TBundle): void {
+export default createRenderer('text/plain', (payload, { req, res }) => {
     const text = generateText(payload);
 
     res.setHeader('Content-Length', Buffer.byteLength(text));
@@ -10,9 +11,7 @@ function textRenderer (payload: unknown, { req, res }: TBundle): void {
     } else {
         res.end(text);
     }
-}
-
-export default textRenderer;
+});
 
 function generateText (payload: unknown): string {
     try {

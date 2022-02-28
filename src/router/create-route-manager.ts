@@ -1,15 +1,6 @@
-import errorHandler from '../built-in/error-handler';
-import jsonRenderer from '../built-in/json-renderer';
-import textRenderer from '../built-in/text-renderer';
 import { getParts } from './helpers';
 import Ex from '../util/ex';
 import { getHeader, sanitizeContentType } from '../util/sanitize';
-
-const DEFAULT_RENDERERS = {
-    'application/json': jsonRenderer,
-    'text/plain': textRenderer,
-    'text/html': textRenderer
-};
 
 function createRouteManager (branch: TAddableData[], bundle: TBundle): IRouteManager {
     function routeManager (pathname?: string): TRoute[] {
@@ -45,7 +36,7 @@ function createRouteManager (branch: TAddableData[], bundle: TBundle): IRouteMan
                     }
                 }
             } catch (error: unknown) {
-                const handle = route.errorHandler || errorHandler;
+                const handle = route.errorHandler!;
                 const payload = await handle(error, bundle, routeManager);
 
                 if (res.statusCode === 500) {
@@ -105,10 +96,6 @@ function findRenderer (renderers: TRendererData[], contentType: string): TRender
 
     if (renderer) {
         return renderer.handle;
-    }
-
-    if (contentType in DEFAULT_RENDERERS) {
-        return DEFAULT_RENDERERS[contentType];
     }
 
     throw Ex.InternalServerError('Renderer not found', {
