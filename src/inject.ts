@@ -11,13 +11,13 @@ type TOptions = {
     body: unknown;
 };
 
-type TInjectResponse = {
+type TInject = {
     req: TReq;
     res: TRes;
     getResponse: IGetResponse;
 };
 
-function inject (app: IKequapp, options: Partial<TOptions>): TInjectResponse {
+function inject (app: IKequapp, options: Partial<TOptions>): TInject {
     const _options = { ...options };
 
     if (_options.search) {

@@ -10,14 +10,13 @@
     "outDir": "./dist",
     "removeComments": true,
     "strict": true,
-    "noImplicitAny": false,
     "strictNullChecks": true,
     "alwaysStrict": true,
     "moduleResolution": "node",
     "esModuleInterop": true
   },
   "include": [
-    "./src",
-    "./types.d.ts"
+    "src",
+    "types.d.ts"
   ]
 }

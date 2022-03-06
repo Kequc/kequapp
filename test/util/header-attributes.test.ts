@@ -1,6 +1,6 @@
 import 'kequtest';
 import assert from 'assert';
-import headerAttributes from '../../src/utils/header-attributes';
+import headerAttributes from '../../src/util/header-attributes';
 
 it('parses attributes', function () {
     const result = headerAttributes('multipart/form-data; boundary=boundary1; name=name1');
