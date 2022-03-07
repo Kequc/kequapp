@@ -1,4 +1,5 @@
 import { extractParts, extractHandles, extractMethod } from '../router/helpers';
+import { IAddable, ICreateRoute, TAddableData } from '../types';
 
 function createRoute (...params: unknown[]): IAddable {
     const method = extractMethod(params);

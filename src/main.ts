@@ -1,18 +1,20 @@
+export { default as createBranch } from './addable/create-branch';
 import createBranch from './addable/create-branch';
-import createErrorHandler from './addable/create-error-handler';
-import createRenderer from './addable/create-renderer';
-import createRoute from './addable/create-route';
+export { default as createErrorHandler } from './addable/create-error-handler';
+export { default as createRenderer } from './addable/create-renderer';
+export { default as createRoute } from './addable/create-route';
 import createGetBody from './body/create-get-body';
 import errorHandler from './built-in/error-handler';
 import jsonRenderer from './built-in/json-renderer';
 import textRenderer from './built-in/text-renderer';
-import autoHead from './extra/auto-head';
-import sendFile from './extra/send-file';
-import staticFiles from './extra/static-files';
+export { default as autoHead } from './extra/auto-head';
+export { default as sendFile } from './extra/send-file';
+export { default as staticFiles } from './extra/static-files';
 import requestProcessor from './router/request-processor';
-import Ex from './util/ex';
+import { IKequapp, TAddableData, TReq, TRes } from './types';
+export { default as Ex } from './util/ex';
 
-function createApp (): IKequapp {
+export function createApp (): IKequapp {
     const branch = createBranch();
     let _cache: TAddableData[];
 
@@ -44,15 +46,3 @@ function createApp (): IKequapp {
 
     return app as IKequapp;
 }
-
-export {
-    Ex,
-    createApp,
-    createBranch,
-    createRoute,
-    createRenderer,
-    createErrorHandler,
-    autoHead,
-    sendFile,
-    staticFiles
-};

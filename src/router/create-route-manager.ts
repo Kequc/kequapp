@@ -1,6 +1,7 @@
 import { getParts } from './helpers';
 import Ex from '../util/ex';
 import { getHeader, sanitizeContentType } from '../util/sanitize';
+import { ILifecycle, IRouteManager, TAddableData, TBundle, TRenderer, TRendererData, TRoute } from '../types';
 
 function createRouteManager (branch: TAddableData[], bundle: TBundle): IRouteManager {
     function routeManager (pathname?: string): TRoute[] {

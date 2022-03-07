@@ -1,3 +1,4 @@
+import { TParams, TRawPart } from '../../types';
 import Ex from '../../util/ex';
 import headerAttributes from '../../util/header-attributes';
 
@@ -16,7 +17,7 @@ function splitMultipart (body: TRawPart): TRawPart[] {
     const buffer = body.data;
     const result: TRawPart[] = [];
 
-    let headers: { [k: string]: string } = {};
+    let headers: TParams = {};
     let i = findNextLine(buffer, buffer.indexOf(boundary, 0));
 
     function addHeader (nextLine: number) {

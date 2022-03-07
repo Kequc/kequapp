@@ -2,6 +2,7 @@ import { Readable } from 'stream';
 import createParseBody, { parseJson } from './create-parse-body';
 import streamReader from './stream-reader';
 import { getHeaders } from '../util/sanitize';
+import { IGetResponse, TRawPart, TRes, TResponseOptions } from '../types';
 
 const parseBody = createParseBody({
     'text/': ({ data }) => data.toString(),

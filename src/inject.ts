@@ -1,23 +1,9 @@
 import MockReq from 'mock-req';
 import MockRes from 'mock-res';
 import createGetResponse from './body/create-get-response';
+import { IKequapp, TInject, TInjectOptions } from './types';
 
-type TOptions = {
-    method: string;
-    url: string;
-    headers: { [k: string]: string };
-    rawHeaders: { [k: string]: string };
-    search: string;
-    body: unknown;
-};
-
-type TInject = {
-    req: TReq;
-    res: TRes;
-    getResponse: IGetResponse;
-};
-
-function inject (app: IKequapp, options: Partial<TOptions>): TInject {
+export function inject (app: IKequapp, options: Partial<TInjectOptions>): TInject {
     const _options = { ...options };
 
     if (_options.search) {
@@ -42,7 +28,3 @@ function inject (app: IKequapp, options: Partial<TOptions>): TInject {
         getResponse: createGetResponse(res)
     };
 }
-
-export {
-    inject
-};

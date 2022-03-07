@@ -1,4 +1,5 @@
 import { STATUS_CODES } from 'http';
+import { TServerError } from '../types';
 
 type TStatusCode = (statusCode: number, message?: string, ...info: unknown[]) => TServerError;
 type TServerErrorHelper = (message?: string, ...info: unknown[]) => Error;
@@ -88,7 +89,7 @@ function createMethodName (statusCode: number) {
     return message.replace('\'', '').split(/[\s-]+/).map(word => word.charAt(0).toUpperCase() + word.substr(1)).join('');
 }
 
-function normalize (value: unknown) {
+function normalize (value: any): any {
     if (typeof value !== 'object' || value === null) return value;
     if (value instanceof Date) return value;
     if (value instanceof Error) return {
@@ -98,7 +99,7 @@ function normalize (value: unknown) {
     };
     if (Array.isArray(value)) return value.map(normalize);
 
-    const result = {};
+    const result: { [key: string]: any } = {};
 
     for (const key of Object.keys(value)) {
         result[key] = normalize(value[key]);

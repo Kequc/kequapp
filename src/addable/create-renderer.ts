@@ -1,3 +1,4 @@
+import { IAddable, ICreateRenderer, TAddableData, TRenderer } from '../types';
 import { validateType } from '../util/validate';
 
 function createRenderer (mime: string, handle: TRenderer): IAddable {

@@ -1,4 +1,5 @@
 import { extractParts, extractHandles, priority, validateAdding } from '../router/helpers';
+import { IAddable, IAddableBranch, ICreateBranch, TAddableData, TErrorHandler, TRendererData } from '../types';
 
 function createBranch (...params: unknown[]): IAddableBranch {
     const parts = extractParts(params);

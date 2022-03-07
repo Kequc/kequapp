@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { TRes } from '../types';
 import Ex from '../util/ex';
 import guessMime from '../util/guess-mime';
 

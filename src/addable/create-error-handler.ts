@@ -1,3 +1,4 @@
+import { IAddable, ICreateErrorHandler, TAddableData, TErrorHandler } from '../types';
 import { validateType } from '../util/validate';
 
 function createErrorHandler (handle: TErrorHandler): IAddable {

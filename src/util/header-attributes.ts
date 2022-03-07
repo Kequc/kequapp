@@ -1,5 +1,7 @@
-function headerAttributes (header = ''): { [k: string]: string } {
-    const result: { [k: string]: string } = {};
+import { TParams } from '../types';
+
+function headerAttributes (header = ''): TParams {
+    const result: TParams = {};
 
     let inQuotes = false;
     let isAssignment = false;

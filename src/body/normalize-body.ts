@@ -1,3 +1,4 @@
+import { TBodyJson, TBodyJsonValue, TBodyOptions } from '../types';
 import Ex from '../util/ex';
 
 function normalizeBody (body: TBodyJson, options: TBodyOptions): TBodyJson {

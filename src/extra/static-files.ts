@@ -4,11 +4,12 @@ import sendFile from './send-file';
 import Ex from '../util/ex';
 import guessMime from '../util/guess-mime';
 import { validateArray, validateObject, validatePathname, validateType } from '../util/validate';
+import { IAddable, TParams, TPathname, TPathnameWild } from '../types';
 
 type TOptions = {
     dir: TPathname;
     exclude: string[];
-    mime: { [key: string]: string };
+    mime: TParams;
 };
 
 const DEFAULT_OPTIONS: TOptions = {

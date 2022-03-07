@@ -7,6 +7,7 @@ import normalizeBody from './normalize-body';
 import streamReader from './stream-reader';
 import Ex from '../util/ex';
 import { getHeaders } from '../util/sanitize';
+import { IGetBody, TBodyOptions, TRawPart, TReq } from '../types';
 
 const parseBody = createParseBody({
     'application/x-www-form-urlencoded': parseUrlEncoded,

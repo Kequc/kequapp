@@ -1,12 +1,12 @@
 export function validateObject (topic: unknown, name: string, type?: string): void {
     if (topic !== undefined) {
-        if (typeof topic !== 'object' || topic === null) {
+        if (typeof topic !== 'object' || topic === null || Array.isArray(topic)) {
             throw new Error(`${name} must be an object`);
         }
 
         if (type !== undefined) {
             for (const key of Object.keys(topic)) {
-                validateType(topic[key], `${name} ${key}`, type);
+                validateType((topic as { [k: string]: unknown })[key], `${name} ${key}`, type);
             }
         }
     }

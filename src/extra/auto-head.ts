@@ -1,4 +1,5 @@
 import createRoute from '../addable/create-route';
+import { IAddable, TPathnameWild } from '../types';
 import Ex from '../util/ex';
 import { validatePathname } from '../util/validate';
 

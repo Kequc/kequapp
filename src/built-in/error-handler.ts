@@ -1,4 +1,5 @@
 import createErrorHandler from '../addable/create-error-handler';
+import { TServerError } from '../types';
 
 export default createErrorHandler((error, { res }) => {
     const _error = error as TServerError;

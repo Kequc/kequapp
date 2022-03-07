@@ -1,3 +1,4 @@
+import { TAddableData, THandle } from '../types';
 import { validateArray, validateObject, validateType } from '../util/validate';
 
 export function extractMethod (params: unknown[]): string {

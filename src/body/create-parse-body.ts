@@ -1,3 +1,4 @@
+import { TBodyJson, TRawPart } from '../types';
 import Ex from '../util/ex';
 
 export function parseUrlEncoded (body: TRawPart): TBodyJson {
