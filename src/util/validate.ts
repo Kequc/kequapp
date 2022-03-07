@@ -32,15 +32,21 @@ export function validateType (topic: unknown, name: string, type: string): void 
     }
 }
 
-export function validatePathname (topic: string, name: string, isWild = false): void {
-    if (typeof topic !== undefined) {
+export function validatePathname (topic: unknown, name: string, isWild = false): void {
+    if (topic !== undefined) {
         validateType(topic, name, 'string');
 
-        if (topic[0] !== '/') {
+        if ((topic as string)[0] !== '/') {
             throw new Error(`${name} must start with '/'`);
         }
-        if (isWild && !topic.endsWith('/**')) {
+        if (isWild && !(topic as string).endsWith('/**')) {
             throw new Error(`${name} must end with '/**'`);
         }
+    }
+}
+
+export function validateExists (topic: unknown, name: string): void {
+    if (topic === undefined) {
+        throw new Error(`${name} is undefined`);
     }
 }

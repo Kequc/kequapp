@@ -22,11 +22,17 @@ app.add(createBranch('/users').add(
         return `userId: ${params.id}!`;
     }),
     createRoute('POST', '/secrets', async ({ getBody }) => {
-        const [body, files] = await getBody({ multipart: true });
+        const [body, files] = await getBody<{ name: string, age: number }>({
+            multipart: true,
+            required: ['name', 'age'],
+            numbers: ['age']
+        });
         return `${body.name} is ${body.age} and ${files[0].filename} has ${files[0].data}!`;
     }),
     createRoute('POST', async ({ getBody }) => {
-        const body = await getBody<{ name: string }>();
+        const body = await getBody<{ name: string }>({
+            required: ['name']
+        });
         return `User creation ${body.name}!`;
     })
 ));

@@ -1,3 +1,4 @@
+import { IncomingMessage } from 'http';
 import { Readable } from 'stream';
 import zlib from 'zlib';
 import createParseBody, { parseJson, parseUrlEncoded } from './create-parse-body';
@@ -7,14 +8,14 @@ import normalizeBody from './normalize-body';
 import streamReader from './stream-reader';
 import Ex from '../util/ex';
 import { getHeaders } from '../util/sanitize';
-import { IGetBody, TBodyOptions, TRawPart, TReq } from '../types';
+import { IGetBody, TBodyOptions, TRawPart } from '../types';
 
 const parseBody = createParseBody({
     'application/x-www-form-urlencoded': parseUrlEncoded,
     'application/json': parseJson,
 });
 
-function createGetBody (req: TReq): IGetBody {
+function createGetBody (req: IncomingMessage): IGetBody {
     let _body: TRawPart;
 
     return async function (options: TBodyOptions = {}): Promise<any> {
@@ -51,7 +52,7 @@ function createGetBody (req: TReq): IGetBody {
 
 export default createGetBody;
 
-function getStream (req: TReq): Readable {
+function getStream (req: IncomingMessage): Readable {
     const encoding = (req.headers['content-encoding'] || 'identity').toLowerCase();
 
     switch (encoding) {

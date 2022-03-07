@@ -1,4 +1,5 @@
-import { TParams, TReq, TRes } from '../types';
+import { IncomingMessage, ServerResponse } from 'http';
+import { TParams } from '../types';
 
 export function sanitizePathname (pathname = ''): string {
     const result = pathname.replace(/[\\/]+$/, '');
@@ -14,7 +15,7 @@ export function sanitizeContentType (contentType = ''): string {
     return contentType.split(';')[0].toLowerCase().trim() || 'text/plain';
 }
 
-export function getHeaders (stream: TReq | TRes, names: string[]): TParams {
+export function getHeaders (stream: IncomingMessage | ServerResponse, names: string[]): TParams {
     const result: TParams = {};
 
     for (const name of names) {
@@ -24,7 +25,7 @@ export function getHeaders (stream: TReq | TRes, names: string[]): TParams {
     return result;
 }
 
-export function getHeader (stream: TReq | TRes, name: string): string {
+export function getHeader (stream: IncomingMessage | ServerResponse, name: string): string {
     if ('getHeader' in stream) {
         return String(stream.getHeader(name) || '').trim();
     } else if ('headers' in stream) {

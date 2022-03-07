@@ -3,12 +3,12 @@ import createRoute from '../addable/create-route';
 import sendFile from './send-file';
 import Ex from '../util/ex';
 import guessMime from '../util/guess-mime';
-import { validateArray, validateObject, validatePathname, validateType } from '../util/validate';
+import { validateArray, validateObject, validatePathname } from '../util/validate';
 import { IAddable, TParams, TPathname, TPathnameWild } from '../types';
 
 type TOptions = {
     dir: TPathname;
-    exclude: string[];
+    exclude: TPathname[];
     mime: TParams;
 };
 
@@ -18,7 +18,7 @@ const DEFAULT_OPTIONS: TOptions = {
     mime: {}
 };
 
-function staticFiles (pathname: TPathnameWild, options: Partial<TOptions> = {}): IAddable {
+function staticFiles (pathname: TPathnameWild = '/**', options: Partial<TOptions> = {}): IAddable {
     validatePathname(pathname, 'Static files pathname', true);
     validateOptions(options);
 
@@ -45,9 +45,13 @@ export default staticFiles;
 
 function validateOptions (options: Partial<TOptions>): void {
     validateObject(options, 'Static files options');
-    validateType(options.dir, 'Static files options.dir', 'string');
-    validateArray(options.exclude, 'Static files options.exclude', 'string');
+    validatePathname(options.dir, 'Static files options.dir');
+    validateArray(options.exclude, 'Static files options.exclude');
     validateObject(options.mime, 'Static files options.mime', 'string');
+
+    for (const value of options.exclude || []) {
+        validatePathname(value, 'Static files options.exclude');
+    }
 }
 
 function isExcluded (values: string[], asset: string): boolean {

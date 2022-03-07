@@ -1,5 +1,5 @@
 import { TAddableData, THandle } from '../types';
-import { validateArray, validateObject, validateType } from '../util/validate';
+import { validateArray, validateExists, validateObject, validateType } from '../util/validate';
 
 export function extractMethod (params: unknown[]): string {
     if (typeof params[0] !== 'string' || params[0][0] === '/') {
@@ -59,12 +59,13 @@ export function validateAdding (added: TAddableData[], adding: TAddableData[]): 
     const checked: TAddableData[] = [...added];
 
     for (const data of adding) {
-        validateObject(data, 'Add');
-        validateArray(data.parts, 'Parts', 'string');
-        validateArray(data.handles, 'Handles', 'function');
-        validateType(data.method, 'Method', 'string');
-        validateArray(data.renderers, 'Renderers', 'object');
-        validateType(data.errorHandler, 'Error handler', 'function');
+        validateExists(data, 'Addable');
+        validateObject(data, 'Addable');
+        validateArray(data.parts, 'Addable parts', 'string');
+        validateArray(data.handles, 'Addable handles', 'function');
+        validateType(data.method, 'Addable method', 'string');
+        validateArray(data.renderers, 'Addable renderers', 'object');
+        validateType(data.errorHandler, 'Addable error handler', 'function');
 
         if (data.parts.length > 0) {
             const exists = checked.find(existing => isDuplicate(existing, data));

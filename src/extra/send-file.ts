@@ -1,10 +1,10 @@
 import fs from 'fs';
 import path from 'path';
-import { TRes } from '../types';
+import { ServerResponse } from '../types';
 import Ex from '../util/ex';
 import guessMime from '../util/guess-mime';
 
-async function sendFile (res: TRes, asset: string, mime?: string): Promise<void> {
+async function sendFile (res: ServerResponse, asset: string, mime?: string): Promise<void> {
     const location: string = path.join(process.cwd(), asset);
 
     try {

@@ -1,3 +1,4 @@
+import { IncomingMessage, ServerResponse } from 'http';
 export { default as createBranch } from './addable/create-branch';
 import createBranch from './addable/create-branch';
 export { default as createErrorHandler } from './addable/create-error-handler';
@@ -11,7 +12,7 @@ export { default as autoHead } from './extra/auto-head';
 export { default as sendFile } from './extra/send-file';
 export { default as staticFiles } from './extra/static-files';
 import requestProcessor from './router/request-processor';
-import { IKequapp, TAddableData, TReq, TRes } from './types';
+import { IKequapp, TAddableData } from './types';
 export { default as Ex } from './util/ex';
 
 export function createApp (): IKequapp {
@@ -24,7 +25,7 @@ export function createApp (): IKequapp {
         textRenderer
     );
 
-    function app (req: TReq, res: TRes): void {
+    function app (req: IncomingMessage, res: ServerResponse): void {
         const url = new URL(req.url || '/', `${req.headers.protocol}://${req.headers.host}`);
 
         res.statusCode = 200; // default

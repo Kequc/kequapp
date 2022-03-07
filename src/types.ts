@@ -1,9 +1,7 @@
-export type TReq = import('http').IncomingMessage;
-export type TRes = import('http').ServerResponse;
-export type TRequestListener = import('http').RequestListener;
+import { RequestListener, IncomingMessage, ServerResponse } from 'http';
 
-export interface IKequapp extends TRequestListener, IAddableBranch {
-    (req: TReq, res: TRes): void;
+export interface IKequapp extends RequestListener {
+    add (...routers: IAddable[]): IAddableBranch;
 }
 
 export interface IAddable {
@@ -43,19 +41,19 @@ export interface ICreateErrorHandler {
     (handle: TErrorHandler): IAddable;
 }
 
+export type THandle = (bundle: TBundle, routeManager: IRouteManager) => Promise<unknown> | unknown;
+
+export type TRenderer = (payload: unknown, bundle: TBundle, routeManager: IRouteManager) => Promise<void> | void;
+export type TErrorHandler = (error: unknown, bundle: TBundle, routeManager: IRouteManager) => Promise<unknown> | unknown;
+
 export interface IRouteManager {
     (pathname?: string): TRoute[];
 }
-
-export type THandle = (bundle: TBundle, routeManager: IRouteManager) => Promise<unknown> | unknown;
 
 export type TRendererData = {
     mime: string;
     handle: TRenderer;
 };
-
-export type TRenderer = (payload: unknown, bundle: TBundle, routeManager: IRouteManager) => Promise<void> | void;
-export type TErrorHandler = (error: unknown, bundle: TBundle, routeManager: IRouteManager) => Promise<unknown> | unknown;
 
 export type TPathname = `/${string}`;
 export type TPathnameWild = TPathname & `${string}/**`;
@@ -71,17 +69,17 @@ export interface ILifecycle {
 }
 
 export interface IGetResponse {
-    (format: TResponseOptions & { raw: true }): Promise<Buffer>;
-    (format?: TResponseOptions): Promise<any>;
+    (format: ServerResponseponseOptions & { raw: true }): Promise<Buffer>;
+    (format?: ServerResponseponseOptions): Promise<any>;
 }
 
-export type TResponseOptions = {
+export type ServerResponseponseOptions = {
     raw?: boolean;
 };
 
 export type TBundle = {
-    req: TReq;
-    res: TRes;
+    req: IncomingMessage;
+    res: ServerResponse;
     url: URL;
     context: TBundleContext;
     params: TBundleParams;
@@ -138,19 +136,4 @@ export type TBodyJson = {
 export type TServerError = Error & {
     statusCode: number;
     info: unknown[];
-};
-
-export type TInjectOptions = {
-    method: string;
-    url: string;
-    headers: TParams;
-    rawHeaders: TParams;
-    search: string;
-    body: unknown;
-};
-
-export type TInject = {
-    req: TReq;
-    res: TRes;
-    getResponse: IGetResponse;
 };
