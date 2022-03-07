@@ -1,6 +1,8 @@
 import { IAddable, ICreateRenderer, TAddableData, TRenderer } from '../types';
 import { validateExists, validateType } from '../util/validate';
 
+export default createRenderer as ICreateRenderer;
+
 function createRenderer (mime: string, handle: TRenderer): IAddable {
     validateExists(mime, 'Mime');
     validateType(mime, 'Mime', 'string');
@@ -18,5 +20,3 @@ function createRenderer (mime: string, handle: TRenderer): IAddable {
 
     return renderer as IAddable;
 }
-
-export default createRenderer as ICreateRenderer;

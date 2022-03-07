@@ -1,7 +1,7 @@
 import { TBodyJson, TBodyJsonValue, TBodyOptions } from '../types';
 import Ex from '../util/ex';
 
-function normalizeBody (body: TBodyJson, options: TBodyOptions): TBodyJson {
+export default function normalizeBody (body: TBodyJson, options: TBodyOptions): TBodyJson {
     if (options.skipNormalize === true) return body;
 
     const result: TBodyJson = { ...body };
@@ -101,8 +101,6 @@ function normalizeBody (body: TBodyJson, options: TBodyOptions): TBodyJson {
         return result;
     }
 }
-
-export default normalizeBody;
 
 function isEmpty (value: TBodyJsonValue): boolean {
     if (value === null) return true;

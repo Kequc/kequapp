@@ -79,10 +79,8 @@ const DEFAULT_MIME: TParams = {
     '.7z': 'application/x-7z-compressed'
 };
 
-function detectMime (asset: string, mime: TParams = {}): string {
+export default function detectMime (asset: string, mime: TParams = {}): string {
     const ext: string = path.extname(asset).toLowerCase();
 
     return mime[ext] || DEFAULT_MIME[ext] || 'application/octet-stream';
 }
-
-export default detectMime;

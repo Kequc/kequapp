@@ -3,12 +3,11 @@ import { getParts } from './helpers';
 import Ex from '../util/ex';
 import { TAddableData, TBundle, TBundleParams, TRoute } from '../types';
 
-async function requestProcessor (branch: TAddableData[], bundle: TBundle): Promise<void> {
+export default async function requestProcessor (branch: TAddableData[], bundle: TBundle): Promise<void> {
     const { req, res, url } = bundle;
     const method = req.method;
     const pathname = url.pathname;
     const routeManager = createRouteManager(branch, bundle);
-
     const route = routeManager(pathname).find(route => route.method === method);
 
     if (!route) {
@@ -17,15 +16,13 @@ async function requestProcessor (branch: TAddableData[], bundle: TBundle): Promi
     }
 
     Object.assign(bundle.params, extractParams(route, getParts(pathname)));
-    Object.freeze(bundle);
     Object.freeze(bundle.params);
+    Object.freeze(bundle);
 
     await route.lifecycle();
 
     console.debug(res.statusCode, method, pathname);
 }
-
-export default requestProcessor;
 
 function extractParams (route: TRoute, parts: string[]): TBundleParams {
     const params: TBundleParams = {};

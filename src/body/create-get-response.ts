@@ -1,15 +1,16 @@
+import { ServerResponse } from 'http';
 import { Readable } from 'stream';
 import createParseBody, { parseJson } from './create-parse-body';
 import streamReader from './stream-reader';
 import { getHeaders } from '../util/sanitize';
-import { IGetResponse, TRawPart, ServerResponse, ServerResponseponseOptions } from '../types';
+import { IGetResponse, TRawPart, ServerResponseponseOptions } from '../types';
 
 const parseBody = createParseBody({
     'text/': ({ data }) => data.toString(),
     'application/json': parseJson,
 }, ({ data }) => data);
 
-function createGetResponse (res: ServerResponse): IGetResponse {
+export default function createGetResponse (res: ServerResponse): IGetResponse {
     let _body: TRawPart;
 
     return async function (options: ServerResponseponseOptions = {}) {
@@ -26,5 +27,3 @@ function createGetResponse (res: ServerResponse): IGetResponse {
         return parseBody(_body);
     };
 }
-
-export default createGetResponse;

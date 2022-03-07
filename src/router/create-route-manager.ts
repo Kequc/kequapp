@@ -3,7 +3,7 @@ import Ex from '../util/ex';
 import { getHeader, sanitizeContentType } from '../util/sanitize';
 import { ILifecycle, IRouteManager, TAddableData, TBundle, TRenderer, TRendererData, TRoute } from '../types';
 
-function createRouteManager (branch: TAddableData[], bundle: TBundle): IRouteManager {
+export default function createRouteManager (branch: TAddableData[], bundle: TBundle): IRouteManager {
     function routeManager (pathname?: string): TRoute[] {
         if (pathname) {
             const parts = getParts(pathname);
@@ -51,8 +51,6 @@ function createRouteManager (branch: TAddableData[], bundle: TBundle): IRouteMan
         return lifecycle;
     }
 }
-
-export default createRouteManager;
 
 function compareRoute (route: TAddableData, parts: string[], method?: string): boolean {
     if (method !== undefined && method !== route.method) {

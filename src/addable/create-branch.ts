@@ -1,5 +1,8 @@
-import { extractParts, extractHandles, priority, validateAdding } from '../router/helpers';
+import { extractParts, extractHandles, priority } from '../router/helpers';
 import { IAddable, IAddableBranch, ICreateBranch, TAddableData, TErrorHandler, TRendererData } from '../types';
+import validateAdding from '../util/validate-adding';
+
+export default createBranch as ICreateBranch;
 
 function createBranch (...params: unknown[]): IAddableBranch {
     const parts = extractParts(params);
@@ -37,8 +40,6 @@ function createBranch (...params: unknown[]): IAddableBranch {
 
     return branch as IAddableBranch;
 }
-
-export default createBranch as ICreateBranch;
 
 function findRoutes (adding: TAddableData[]): TAddableData[] {
     return adding.filter(data => data.parts.length > 0);

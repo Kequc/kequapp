@@ -1,7 +1,7 @@
 import { Readable } from 'stream';
 import Ex from '../util/ex';
 
-function streamReader (stream: Readable, maxPayloadSize = Infinity): Promise<Buffer> {
+export default function streamReader (stream: Readable, maxPayloadSize = Infinity): Promise<Buffer> {
     return new Promise(function (resolve, reject) {
         const chunks: Buffer[] = [];
 
@@ -35,5 +35,3 @@ function streamReader (stream: Readable, maxPayloadSize = Infinity): Promise<Buf
         }
     });
 }
-
-export default streamReader;

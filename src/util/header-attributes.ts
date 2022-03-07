@@ -1,6 +1,6 @@
 import { TParams } from '../types';
 
-function headerAttributes (header = ''): TParams {
+export default function headerAttributes (header = ''): TParams {
     const result: TParams = {};
 
     let inQuotes = false;
@@ -49,5 +49,3 @@ function headerAttributes (header = ''): TParams {
 
     return result;
 }
-
-export default headerAttributes;

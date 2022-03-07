@@ -15,7 +15,7 @@ const parseBody = createParseBody({
     'application/json': parseJson,
 });
 
-function createGetBody (req: IncomingMessage): IGetBody {
+export default function createGetBody (req: IncomingMessage): IGetBody {
     let _body: TRawPart;
 
     return async function (options: TBodyOptions = {}): Promise<any> {
@@ -49,8 +49,6 @@ function createGetBody (req: IncomingMessage): IGetBody {
         }
     };
 }
-
-export default createGetBody;
 
 function getStream (req: IncomingMessage): Readable {
     const encoding = (req.headers['content-encoding'] || 'identity').toLowerCase();

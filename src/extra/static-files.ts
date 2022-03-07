@@ -18,7 +18,7 @@ const DEFAULT_OPTIONS: TOptions = {
     mime: {}
 };
 
-function staticFiles (pathname: TPathnameWild = '/**', options: Partial<TOptions> = {}): IAddable {
+export default function staticFiles (pathname: TPathnameWild = '/**', options: Partial<TOptions> = {}): IAddable {
     validatePathname(pathname, 'Static files pathname', true);
     validateOptions(options);
 
@@ -40,8 +40,6 @@ function staticFiles (pathname: TPathnameWild = '/**', options: Partial<TOptions
         }
     });
 }
-
-export default staticFiles;
 
 function validateOptions (options: Partial<TOptions>): void {
     validateObject(options, 'Static files options');

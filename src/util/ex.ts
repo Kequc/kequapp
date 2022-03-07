@@ -3,7 +3,7 @@ import { TServerError } from '../types';
 
 type TStatusCode = (statusCode: number, message?: string, ...info: unknown[]) => TServerError;
 type TServerErrorHelper = (message?: string, ...info: unknown[]) => Error;
-type TExHelper = {
+type TEx = {
     StatusCode: (statusCode: number, message?: string, ...info: unknown[]) => Error;
     BadRequest: TServerErrorHelper;                      // 400
     Unauthorized: TServerErrorHelper;                    // 401
@@ -71,7 +71,7 @@ for (const statusCode of statusCodes) {
     };
 }
 
-export default Ex as TExHelper;
+export default Ex as TEx;
 
 function _buildError (parent: TStatusCode, statusCode: number, message?: string, ...info: unknown[]) {
     const error = new Error(message || STATUS_CODES[statusCode]) as TServerError;

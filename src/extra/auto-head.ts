@@ -3,7 +3,7 @@ import { IAddable, TPathnameWild } from '../types';
 import Ex from '../util/ex';
 import { validateExists, validatePathname } from '../util/validate';
 
-function autoHead (pathname: TPathnameWild = '/**'): IAddable {
+export default function autoHead (pathname: TPathnameWild = '/**'): IAddable {
     validateExists(pathname, 'Auto head pathname');
     validatePathname(pathname, 'Auto head pathname', true);
 
@@ -18,5 +18,3 @@ function autoHead (pathname: TPathnameWild = '/**'): IAddable {
         await route.lifecycle();
     });
 }
-
-export default autoHead;
