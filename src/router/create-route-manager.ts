@@ -3,14 +3,14 @@ import Ex from '../util/ex';
 import { getHeader, sanitizeContentType } from '../util/sanitize';
 import { ILifecycle, IRouteManager, TRouteData, TBundle, TRenderer, TRendererData, TRoute } from '../types';
 
-export default function createRouteManager (branch: TRouteData[], bundle: TBundle): IRouteManager {
+export default function createRouteManager (routes: TRouteData[], bundle: TBundle): IRouteManager {
     function routeManager (pathname?: string): TRoute[] {
         if (pathname) {
             const parts = getParts(pathname);
-            return branch.filter(route => compareRoute(route, parts)).map(convert);
+            return routes.filter(route => compareRoute(route, parts)).map(convert);
         }
 
-        return branch.map(convert) || [];
+        return routes.map(convert) || [];
     }
 
     return routeManager;

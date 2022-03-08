@@ -3,11 +3,11 @@ import { getParts } from './helpers';
 import Ex from '../util/ex';
 import { TRouteData, TBundle, TBundleParams, TRoute } from '../types';
 
-export default async function requestProcessor (branch: TRouteData[], bundle: TBundle): Promise<void> {
+export default async function requestProcessor (routes: TRouteData[], bundle: TBundle): Promise<void> {
     const { req, res, url } = bundle;
     const method = req.method;
     const pathname = url.pathname;
-    const routeManager = createRouteManager(branch, bundle);
+    const routeManager = createRouteManager(routes, bundle);
     const route = routeManager(pathname).find(route => route.method === method);
 
     if (!route) {

@@ -17,7 +17,7 @@ export { default as Ex } from './util/ex';
 
 export function createApp (): IKequapp {
     const branch = createBranch();
-    let _cache: TRouteData[];
+    let routes: TRouteData[];
 
     branch.add(
         errorHandler,
@@ -31,9 +31,9 @@ export function createApp (): IKequapp {
         res.statusCode = 200; // default
         res.setHeader('Content-Type', 'text/plain'); // default
 
-        if (!_cache) _cache = branch();
+        if (!routes) routes = branch().routes || [];
 
-        requestProcessor(_cache, {
+        requestProcessor(routes, {
             req,
             res,
             url,

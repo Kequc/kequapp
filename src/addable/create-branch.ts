@@ -41,9 +41,8 @@ function createBranch (...params: unknown[]): IAddableBranch {
 
         routes.push(...newRoutes);
         routes.sort(priority);
-
-        errorHandler = newErrorHandler || errorHandler;
         renderers.unshift(...newRenderers);
+        errorHandler = newErrorHandler || errorHandler;
 
         return branch as IAddableBranch;
     }
@@ -57,10 +56,10 @@ function findRoutes (addableDatas: TAddableData[]): TRouteData[] {
     return addableDatas.map(addableData => addableData.routes || []).flat();
 }
 
-function findErrorHandler (addableDatas: TAddableData[]): TErrorHandler | undefined {
-    return addableDatas.find(addableData => !!addableData.errorHandler)?.errorHandler;
-}
-
 function findRenderers (addableDatas: TAddableData[]): TRendererData[] {
     return addableDatas.map(addableData => addableData.renderers || []).flat();
+}
+
+function findErrorHandler (addableDatas: TAddableData[]): TErrorHandler | undefined {
+    return addableDatas.find(addableData => !!addableData.errorHandler)?.errorHandler;
 }
