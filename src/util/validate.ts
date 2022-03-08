@@ -29,7 +29,9 @@ export function validateArray (topic: unknown, name: string, type?: string): voi
 }
 
 export function validateType (topic: unknown, name: string, type: string): void {
-    if (topic !== undefined && typeof topic !== type) {
+    if (type === 'object') {
+        validateObject(topic, name);
+    } else if (topic !== undefined && typeof topic !== type) {
         throw new Error(`${name} must be a ${type}`);
     }
 }
@@ -59,8 +61,14 @@ export function validateRoutes (existing: TRouteData[], routes?: TRouteData[]): 
     for (const route of routes || []) {
         validateExists(route, 'Route');
         validateObject(route, 'Route');
+
+        validateExists(route.parts, 'Route parts');
         validateArray(route.parts, 'Route parts', 'string');
+
+        validateExists(route.handles, 'Route handles');
         validateArray(route.handles, 'Route handles', 'function');
+
+        validateExists(route.method, 'Route method');
         validateType(route.method, 'Route method', 'string');
 
         const exists = checked.find(value => isDuplicate(value, route));
@@ -83,6 +91,7 @@ export function validateRoutes (existing: TRouteData[], routes?: TRouteData[]): 
 }
 
 export function validateRenderers (renderers?: TRendererData[]): void {
+    validateExists(renderers, 'Renderers');
     validateArray(renderers, 'Renderers', 'object');
 
     for (const renderer of renderers || []) {

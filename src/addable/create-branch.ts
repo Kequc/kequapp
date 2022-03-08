@@ -1,6 +1,6 @@
 import { extractParts, extractHandles, priority } from '../router/helpers';
 import { IAddable, IAddableBranch, ICreateBranch, TRouteData, TErrorHandler, TRendererData, TAddableData } from '../types';
-import { validateErrorHandler, validateRenderers, validateRoutes } from '../util/validate';
+import { validateArray, validateErrorHandler, validateRenderers, validateRoutes } from '../util/validate';
 
 export default createBranch as ICreateBranch;
 
@@ -25,7 +25,12 @@ function createBranch (...params: unknown[]): IAddableBranch {
     }
 
     function add (...addables: IAddable[]): IAddableBranch {
+        validateArray(addables, 'Addable', 'function');
+
         const addableDatas = addables.map(addable => addable()).reverse();
+
+        validateArray(addableDatas, 'Addable return', 'object');
+
         const newRoutes = findRoutes(addableDatas);
         const newRenderers = findRenderers(addableDatas);
         const newErrorHandler = findErrorHandler(addableDatas);
