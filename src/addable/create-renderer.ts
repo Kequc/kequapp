@@ -9,13 +9,13 @@ function createRenderer (mime: string, handle: TRenderer): IAddable {
     validateExists(handle, 'Handle');
     validateType(handle, 'Handle', 'function');
 
-    function renderer (): Partial<TAddableData>[] {
-        return [{
+    function renderer (): TAddableData {
+        return {
             renderers: [{
                 mime,
                 handle
             }]
-        }];
+        };
     }
 
     return renderer as IAddable;

@@ -1,37 +1,44 @@
 import { extractParts, extractHandles, priority } from '../router/helpers';
-import { IAddable, IAddableBranch, ICreateBranch, TAddableData, TErrorHandler, TRendererData } from '../types';
-import validateAdding from '../util/validate-adding';
+import { IAddable, IAddableBranch, ICreateBranch, TRouteData, TErrorHandler, TRendererData, TAddableData } from '../types';
+import { validateErrorHandler, validateRenderers, validateRoutes } from '../util/validate';
 
 export default createBranch as ICreateBranch;
 
 function createBranch (...params: unknown[]): IAddableBranch {
     const parts = extractParts(params);
     const handles = extractHandles(params);
-    const added: TAddableData[] = [];
 
-    let errorHandler: TErrorHandler | undefined;
+    const routes: TRouteData[] = [];
     const renderers: TRendererData[] = [];
+    let errorHandler: TErrorHandler | undefined;
 
-    function branch (): TAddableData[] {
-        return added.map(addable => ({
-            ...addable,
-            parts: [...parts, ...addable.parts],
-            handles: [...handles, ...addable.handles],
-            errorHandler: addable.errorHandler || errorHandler,
-            renderers
-        }));
+    function branch (): TAddableData {
+        return {
+            routes: routes.map(route => ({
+                ...route,
+                parts: [...parts, ...route.parts],
+                handles: [...handles, ...route.handles],
+                renderers: [...route.renderers, ...renderers],
+                errorHandler: route.errorHandler || errorHandler
+            })),
+        };
     }
 
     function add (...addables: IAddable[]): IAddableBranch {
-        const adding = addables.map(runAddable).flat().reverse();
+        const addableDatas = addables.map(addable => addable()).reverse();
+        const newRoutes = findRoutes(addableDatas);
+        const newRenderers = findRenderers(addableDatas);
+        const newErrorHandler = findErrorHandler(addableDatas);
 
-        validateAdding(added, adding);
+        validateRoutes(routes, newRoutes);
+        validateRenderers(newRenderers);
+        validateErrorHandler(newErrorHandler);
 
-        added.push(...findRoutes(adding));
-        added.sort(priority);
+        routes.push(...newRoutes);
+        routes.sort(priority);
 
-        errorHandler = findErrorHandler(adding) || errorHandler;
-        renderers.unshift(...findRenderers(adding));
+        errorHandler = newErrorHandler || errorHandler;
+        renderers.unshift(...newRenderers);
 
         return branch as IAddableBranch;
     }
@@ -41,24 +48,14 @@ function createBranch (...params: unknown[]): IAddableBranch {
     return branch as IAddableBranch;
 }
 
-function findRoutes (adding: TAddableData[]): TAddableData[] {
-    return adding.filter(data => data.parts.length > 0);
+function findRoutes (addableDatas: TAddableData[]): TRouteData[] {
+    return addableDatas.map(addableData => addableData.routes || []).flat();
 }
 
-function findErrorHandler (adding: TAddableData[]): TErrorHandler | undefined {
-    return adding.find(data => !!data.errorHandler)?.errorHandler;
+function findErrorHandler (addableDatas: TAddableData[]): TErrorHandler | undefined {
+    return addableDatas.find(addableData => !!addableData.errorHandler)?.errorHandler;
 }
 
-function findRenderers (adding: TAddableData[]): TRendererData[] {
-    return adding.map(data => data.renderers).flat();
-}
-
-function runAddable (addable: IAddable): TAddableData {
-    return {
-        parts: [],
-        handles: [],
-        method: 'GET',
-        renderers: [],
-        ...addable()
-    };
+function findRenderers (addableDatas: TAddableData[]): TRendererData[] {
+    return addableDatas.map(addableData => addableData.renderers || []).flat();
 }

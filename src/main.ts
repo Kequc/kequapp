@@ -12,12 +12,12 @@ export { default as autoHead } from './extra/auto-head';
 export { default as sendFile } from './extra/send-file';
 export { default as staticFiles } from './extra/static-files';
 import requestProcessor from './router/request-processor';
-import { IKequapp, TAddableData } from './types';
+import { IKequapp, TRouteData } from './types';
 export { default as Ex } from './util/ex';
 
 export function createApp (): IKequapp {
     const branch = createBranch();
-    let _cache: TAddableData[];
+    let _cache: TRouteData[];
 
     branch.add(
         errorHandler,

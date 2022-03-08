@@ -1,9 +1,9 @@
 import createRouteManager from './create-route-manager';
 import { getParts } from './helpers';
 import Ex from '../util/ex';
-import { TAddableData, TBundle, TBundleParams, TRoute } from '../types';
+import { TRouteData, TBundle, TBundleParams, TRoute } from '../types';
 
-export default async function requestProcessor (branch: TAddableData[], bundle: TBundle): Promise<void> {
+export default async function requestProcessor (branch: TRouteData[], bundle: TBundle): Promise<void> {
     const { req, res, url } = bundle;
     const method = req.method;
     const pathname = url.pathname;

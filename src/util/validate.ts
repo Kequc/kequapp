@@ -1,3 +1,5 @@
+import { TErrorHandler, TRendererData, TRouteData } from '../types';
+
 export function validateObject (topic: unknown, name: string, type?: string): void {
     if (topic !== undefined) {
         if (typeof topic !== 'object' || topic === null || Array.isArray(topic)) {
@@ -49,4 +51,66 @@ export function validateExists (topic: unknown, name: string): void {
     if (topic === undefined) {
         throw new Error(`${name} is undefined`);
     }
+}
+
+export function validateRoutes (existing: TRouteData[], routes?: TRouteData[]): void {
+    const checked: TRouteData[] = [...existing];
+
+    for (const route of routes || []) {
+        validateExists(route, 'Route');
+        validateObject(route, 'Route');
+        validateArray(route.parts, 'Route parts', 'string');
+        validateArray(route.handles, 'Route handles', 'function');
+        validateType(route.method, 'Route method', 'string');
+
+        const exists = checked.find(value => isDuplicate(value, route));
+
+        if (exists) {
+            console.error('Route already exists', {
+                method: route.method,
+                pathname: `/${route.parts.join('/')}`,
+                matches: `/${exists.parts.join('/')}`
+            });
+
+            throw new Error('Route already exists');
+        }
+
+        validateRenderers(route.renderers);
+        validateErrorHandler(route.errorHandler);
+
+        checked.push(route);
+    }
+}
+
+export function validateRenderers (renderers?: TRendererData[]): void {
+    validateArray(renderers, 'Renderers', 'object');
+
+    for (const renderer of renderers || []) {
+        validateExists(renderer.mime, 'Renderer mime');
+        validateType(renderer.mime, 'Renderer mime', 'string');
+        validateExists(renderer.handle, 'Renderer handle');
+        validateType(renderer.handle, 'Renderer handle', 'function');
+    }
+}
+
+export function validateErrorHandler (errorHandler?: TErrorHandler): void {
+    validateType(errorHandler, 'Error handler', 'function');
+}
+
+function isDuplicate (a: TRouteData, b: TRouteData): boolean {
+    if (a.method !== b.method || a.parts.length !== b.parts.length) {
+        return false;
+    }
+
+    const count = a.parts.length;
+
+    for (let i = 0; i < count; i++) {
+        const aa = a.parts[i];
+        const bb = b.parts[i];
+        if (aa === bb) continue;
+        if ((aa === '**' || aa[0] === ':') && (bb === '**' || bb[0] === ':')) continue;
+        return false;
+    }
+
+    return true;
 }

@@ -1,9 +1,9 @@
 import { getParts } from './helpers';
 import Ex from '../util/ex';
 import { getHeader, sanitizeContentType } from '../util/sanitize';
-import { ILifecycle, IRouteManager, TAddableData, TBundle, TRenderer, TRendererData, TRoute } from '../types';
+import { ILifecycle, IRouteManager, TRouteData, TBundle, TRenderer, TRendererData, TRoute } from '../types';
 
-export default function createRouteManager (branch: TAddableData[], bundle: TBundle): IRouteManager {
+export default function createRouteManager (branch: TRouteData[], bundle: TBundle): IRouteManager {
     function routeManager (pathname?: string): TRoute[] {
         if (pathname) {
             const parts = getParts(pathname);
@@ -15,7 +15,7 @@ export default function createRouteManager (branch: TAddableData[], bundle: TBun
 
     return routeManager;
 
-    function convert (route: TAddableData): TRoute {
+    function convert (route: TRouteData): TRoute {
         return {
             method: route.method,
             parts: [...route.parts],
@@ -23,7 +23,7 @@ export default function createRouteManager (branch: TAddableData[], bundle: TBun
         };
     }
 
-    function createLifecycle (route: TAddableData): ILifecycle {
+    function createLifecycle (route: TRouteData): ILifecycle {
         const { res } = bundle;
 
         async function lifecycle (): Promise<void> {
@@ -52,7 +52,7 @@ export default function createRouteManager (branch: TAddableData[], bundle: TBun
     }
 }
 
-function compareRoute (route: TAddableData, parts: string[], method?: string): boolean {
+function compareRoute (route: TRouteData, parts: string[], method?: string): boolean {
     if (method !== undefined && method !== route.method) {
         return false;
     }
@@ -71,7 +71,7 @@ function compareRoute (route: TAddableData, parts: string[], method?: string): b
     return true;
 }
 
-async function render (route: TAddableData, payload: unknown, bundle: TBundle, routeManager: IRouteManager): Promise<void> {
+async function render (route: TRouteData, payload: unknown, bundle: TBundle, routeManager: IRouteManager): Promise<void> {
     const { req, res, url, } = bundle;
 
     if (payload !== undefined && !res.writableEnded) {

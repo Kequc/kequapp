@@ -5,10 +5,16 @@ export interface IKequapp extends RequestListener {
 }
 
 export interface IAddable {
-    (): Partial<TAddableData>[];
+    (): TAddableData;
 }
 
 export type TAddableData = {
+    routes?: TRouteData[];
+    renderers?: TRendererData[];
+    errorHandler?: TErrorHandler;
+};
+
+export type TRouteData = {
     parts: string[];
     handles: THandle[];
     method: string;
@@ -22,7 +28,7 @@ export interface ICreateBranch {
 }
 
 export interface IAddableBranch {
-    (): TAddableData[];
+    (): TAddableData;
     add (...routers: IAddable[]): IAddableBranch;
 }
 
@@ -44,6 +50,7 @@ export interface ICreateErrorHandler {
 export type THandle = (bundle: TBundle, routeManager: IRouteManager) => Promise<unknown> | unknown;
 
 export type TRenderer = (payload: unknown, bundle: TBundle, routeManager: IRouteManager) => Promise<void> | void;
+
 export type TErrorHandler = (error: unknown, bundle: TBundle, routeManager: IRouteManager) => Promise<unknown> | unknown;
 
 export interface IRouteManager {
@@ -91,6 +98,7 @@ export type TBundleContext = {
 };
 
 export type TParams = { [k: string]: string };
+
 export type TBundleParams = TParams & {
     '**'?: string[];
 };
@@ -129,6 +137,7 @@ export type TBodyOptions = {
 };
 
 export type TBodyJsonValue = string | number | boolean | Date | null | TBodyJson | TBodyJsonValue[];
+
 export type TBodyJson = {
     [k: string]: TBodyJsonValue;
 };

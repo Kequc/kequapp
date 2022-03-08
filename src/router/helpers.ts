@@ -1,4 +1,4 @@
-import { TAddableData, THandle } from '../types';
+import { TRouteData, THandle } from '../types';
 import { validateArray } from '../util/validate';
 
 export function extractMethod (params: unknown[]): string {
@@ -36,7 +36,7 @@ export function extractHandles (params: unknown[]): THandle[] {
     return handles as THandle[];
 }
 
-export function priority (a: TAddableData, b: TAddableData): number {
+export function priority (a: TRouteData, b: TRouteData): number {
     const count = a.parts.length;
 
     for (let i = 0; i < count; i++) {

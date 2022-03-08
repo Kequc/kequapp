@@ -7,10 +7,10 @@ function createErrorHandler (handle: TErrorHandler): IAddable {
     validateExists(handle, 'Error handler');
     validateType(handle, 'Error handler', 'function');
 
-    function errorHandler (): Partial<TAddableData>[] {
-        return [{
+    function errorHandler (): TAddableData {
+        return {
             errorHandler: handle
-        }];
+        };
     }
 
     return errorHandler as IAddable;
