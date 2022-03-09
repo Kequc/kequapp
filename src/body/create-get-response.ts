@@ -2,8 +2,8 @@ import { ServerResponse } from 'http';
 import { Readable } from 'stream';
 import createParseBody, { parseJson } from './create-parse-body';
 import streamReader from './stream-reader';
+import { IGetResponse, ServerResponseponseOptions, TRawPart } from '../types';
 import { getHeaders } from '../util/sanitize';
-import { IGetResponse, TRawPart, ServerResponseponseOptions } from '../types';
 
 const parseBody = createParseBody({
     'text/': ({ data }) => data.toString(),

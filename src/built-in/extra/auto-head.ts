@@ -1,7 +1,7 @@
-import createRoute from '../addable/create-route';
-import { IAddable, TPathnameWild } from '../types';
-import Ex from '../util/ex';
-import { validateExists, validatePathname } from '../util/validate';
+import createRoute from '../../router/addable/create-route';
+import { IAddable, TPathnameWild } from '../../types';
+import Ex from '../../util/ex';
+import { validateExists, validatePathname } from '../../util/validate';
 
 export default function autoHead (pathname: TPathnameWild = '/**'): IAddable {
     validateExists(pathname, 'Auto head pathname');

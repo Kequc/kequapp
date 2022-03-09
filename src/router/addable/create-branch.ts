@@ -1,6 +1,19 @@
-import { extractParts, extractHandles, priority } from '../router/helpers';
-import { IAddable, IAddableBranch, ICreateBranch, TRouteData, TErrorHandler, TRendererData, TAddableData } from '../types';
-import { validateArray, validateErrorHandler, validateRenderers, validateRoutes } from '../util/validate';
+import {
+    IAddable,
+    IAddableBranch,
+    ICreateBranch,
+    TAddableData,
+    TErrorHandler,
+    TRendererData,
+    TRouteData
+} from '../../types';
+import { extractHandles, extractParts, priority } from '../../util/helpers';
+import {
+    validateArray,
+    validateErrorHandler,
+    validateRenderers,
+    validateRoutes
+} from '../../util/validate';
 
 export default createBranch as ICreateBranch;
 
@@ -20,7 +33,7 @@ function createBranch (...params: unknown[]): IAddableBranch {
                 handles: [...handles, ...route.handles],
                 renderers: [...route.renderers, ...renderers],
                 errorHandler: route.errorHandler || errorHandler
-            })),
+            })).sort(priority)
         };
     }
 
@@ -40,7 +53,6 @@ function createBranch (...params: unknown[]): IAddableBranch {
         validateErrorHandler(newErrorHandler);
 
         routes.push(...newRoutes);
-        routes.sort(priority);
         renderers.unshift(...newRenderers);
         errorHandler = newErrorHandler || errorHandler;
 

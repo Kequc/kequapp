@@ -1,12 +1,13 @@
-import { IAddable, ICreateErrorHandler, TAddableData, TErrorHandler } from '../types';
-import { validateExists, validateType } from '../util/validate';
+import {
+    IAddable,
+    ICreateErrorHandler,
+    TAddableData,
+    TErrorHandler
+} from '../../types';
 
 export default createErrorHandler as ICreateErrorHandler;
 
 function createErrorHandler (handle: TErrorHandler): IAddable {
-    validateExists(handle, 'Error handler');
-    validateType(handle, 'Error handler', 'function');
-
     function errorHandler (): TAddableData {
         return {
             errorHandler: handle

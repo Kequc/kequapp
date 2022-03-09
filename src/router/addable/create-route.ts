@@ -1,5 +1,5 @@
-import { extractParts, extractHandles, extractMethod } from '../router/helpers';
-import { IAddable, ICreateRoute, TAddableData } from '../types';
+import { IAddable, ICreateRoute, TAddableData } from '../../types';
+import { extractHandles, extractMethod, extractParts } from '../../util/helpers';
 
 export default createRoute as ICreateRoute;
 

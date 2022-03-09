@@ -1,7 +1,15 @@
-import { getParts } from './helpers';
+import {
+    ILifecycle,
+    IRouteManager,
+    TBundle,
+    TRenderer,
+    TRendererData,
+    TRoute,
+    TRouteData
+} from '../types';
 import Ex from '../util/ex';
+import { getParts } from '../util/helpers';
 import { getHeader, sanitizeContentType } from '../util/sanitize';
-import { ILifecycle, IRouteManager, TRouteData, TBundle, TRenderer, TRendererData, TRoute } from '../types';
 
 export default function createRouteManager (routes: TRouteData[], bundle: TBundle): IRouteManager {
     function routeManager (pathname?: string): TRoute[] {
@@ -24,14 +32,12 @@ export default function createRouteManager (routes: TRouteData[], bundle: TBundl
     }
 
     function createLifecycle (route: TRouteData): ILifecycle {
-        const { res } = bundle;
-
-        async function lifecycle (): Promise<void> {
+        async function lifecycle () {
             try {
                 for (const handle of route.handles) {
                     const payload = await handle(bundle, routeManager);
 
-                    if (payload !== undefined || res.writableEnded) {
+                    if (payload !== undefined || bundle.res.writableEnded) {
                         await render(route, payload, bundle, routeManager);
                         break;
                     }
@@ -40,7 +46,7 @@ export default function createRouteManager (routes: TRouteData[], bundle: TBundl
                 const handle = route.errorHandler!;
                 const payload = await handle(error, bundle, routeManager);
 
-                if (res.statusCode === 500) {
+                if (bundle.res.statusCode === 500) {
                     console.error(error);
                 }
 

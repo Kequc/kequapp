@@ -1,7 +1,12 @@
 import createRouteManager from './create-route-manager';
-import { getParts } from './helpers';
+import {
+    TBundle,
+    TBundleParams,
+    TRoute,
+    TRouteData
+} from '../types';
 import Ex from '../util/ex';
-import { TRouteData, TBundle, TBundleParams, TRoute } from '../types';
+import { getParts } from '../util/helpers';
 
 export default async function requestProcessor (routes: TRouteData[], bundle: TBundle): Promise<void> {
     const { req, res, url } = bundle;
@@ -16,7 +21,6 @@ export default async function requestProcessor (routes: TRouteData[], bundle: TB
     }
 
     Object.assign(bundle.params, extractParams(route, getParts(pathname)));
-    Object.freeze(bundle.params);
     Object.freeze(bundle);
 
     await route.lifecycle();

@@ -1,10 +1,15 @@
 import path from 'path';
-import createRoute from '../addable/create-route';
 import sendFile from './send-file';
-import Ex from '../util/ex';
-import guessMime from '../util/guess-mime';
-import { validateArray, validateObject, validatePathname } from '../util/validate';
-import { IAddable, TParams, TPathname, TPathnameWild } from '../types';
+import createRoute from '../../router/addable/create-route';
+import {
+    IAddable,
+    TParams,
+    TPathname,
+    TPathnameWild
+} from '../../types';
+import Ex from '../../util/ex';
+import guessMime from '../../util/guess-mime';
+import { validateArray, validateObject, validatePathname } from '../../util/validate';
 
 type TOptions = {
     dir: TPathname;

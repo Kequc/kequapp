@@ -1,8 +1,8 @@
 import fs from 'fs';
 import { ServerResponse } from 'http';
 import path from 'path';
-import Ex from '../util/ex';
-import guessMime from '../util/guess-mime';
+import Ex from '../../util/ex';
+import guessMime from '../../util/guess-mime';
 
 export default async function sendFile (res: ServerResponse, asset: string, mime?: string): Promise<void> {
     const location: string = path.join(process.cwd(), asset);

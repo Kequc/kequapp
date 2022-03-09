@@ -1,5 +1,5 @@
-import { TRouteData, THandle } from '../types';
-import { validateArray } from '../util/validate';
+import { validateArray } from './validate';
+import { THandle, TRouteData } from '../types';
 
 export function extractMethod (params: unknown[]): string {
     if (typeof params[0] !== 'string' || params[0][0] === '/') {
