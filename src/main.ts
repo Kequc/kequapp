@@ -4,8 +4,9 @@ import errorHandler from './built-in/error-handler';
 import jsonRenderer from './built-in/json-renderer';
 import textRenderer from './built-in/text-renderer';
 import createBranch from './router/addable/create-branch';
+import createRouter from './router/create-router';
 import requestProcessor from './router/request-processor';
-import { IKequapp, TRouteData } from './types';
+import { IKequapp, IRouter } from './types';
 export { default as createBranch } from './router/addable/create-branch';
 export { default as createErrorHandler } from './router/addable/create-error-handler';
 export { default as createRenderer } from './router/addable/create-renderer';
@@ -14,6 +15,7 @@ export { default as autoHead } from './built-in/extra/auto-head';
 export { default as sendFile } from './built-in/extra/send-file';
 export { default as staticFiles } from './built-in/extra/static-files';
 export { default as Ex } from './util/ex';
+export * from './types';
 
 export function createApp (): IKequapp {
     const branch = createBranch().add(
@@ -21,7 +23,7 @@ export function createApp (): IKequapp {
         jsonRenderer,
         textRenderer
     );
-    let routes: TRouteData[];
+    let router: IRouter;
 
     function app (req: IncomingMessage, res: ServerResponse): void {
         const url = new URL(req.url || '/', `${req.headers.protocol}://${req.headers.host}`);
@@ -29,9 +31,9 @@ export function createApp (): IKequapp {
         res.statusCode = 200; // default
         res.setHeader('Content-Type', 'text/plain'); // default
 
-        if (!routes) routes = branch().routes || [];
+        if (!router) router = createRouter(branch());
 
-        requestProcessor(routes, {
+        requestProcessor(router, {
             req,
             res,
             url,

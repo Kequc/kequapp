@@ -3,14 +3,14 @@ import {
     IAddableBranch,
     ICreateBranch,
     TAddableData,
-    TErrorHandler,
+    TErrorHandlerData,
     TRendererData,
     TRouteData
 } from '../../types';
-import { extractHandles, extractParts, priority } from '../../util/helpers';
+import { extractHandles, extractParts } from '../../util/helpers';
 import {
     validateArray,
-    validateErrorHandler,
+    validateErrorHandlers,
     validateRenderers,
     validateRoutes
 } from '../../util/validate';
@@ -23,7 +23,7 @@ function createBranch (...params: unknown[]): IAddableBranch {
 
     const routes: TRouteData[] = [];
     const renderers: TRendererData[] = [];
-    let errorHandler: TErrorHandler | undefined;
+    const errorHandlers: TErrorHandlerData[] = [];
 
     function branch (): TAddableData {
         return {
@@ -31,30 +31,36 @@ function createBranch (...params: unknown[]): IAddableBranch {
                 ...route,
                 parts: [...parts, ...route.parts],
                 handles: [...handles, ...route.handles],
-                renderers: [...route.renderers, ...renderers],
-                errorHandler: route.errorHandler || errorHandler
-            })).sort(priority)
+            })),
+            renderers: renderers.map(renderer => ({
+                ...renderer,
+                parts: [...parts, ...renderer.parts],
+            })),
+            errorHandlers: errorHandlers.map(errorHandler => ({
+                ...errorHandler,
+                parts: [...parts, ...errorHandler.parts],
+            }))
         };
     }
 
     function add (...addables: IAddable[]): IAddableBranch {
         validateArray(addables, 'Addable', 'function');
 
-        const addableDatas = addables.map(addable => addable()).reverse();
+        const addableDatas = addables.map(addable => addable());
 
-        validateArray(addableDatas, 'Addable return', 'object');
+        validateArray(addableDatas, 'Addable return value', 'object');
 
-        const newRoutes = findRoutes(addableDatas);
-        const newRenderers = findRenderers(addableDatas);
-        const newErrorHandler = findErrorHandler(addableDatas);
+        const newRoutes = addableDatas.map(addableData => addableData.routes || []).flat();
+        const newRenderers = addableDatas.map(addableData => addableData.renderers || []).flat();
+        const newErrorHandlers = addableDatas.map(addableData => addableData.errorHandlers || []).flat();
 
-        validateRoutes(routes, newRoutes);
+        validateRoutes(newRoutes, routes);
         validateRenderers(newRenderers);
-        validateErrorHandler(newErrorHandler);
+        validateErrorHandlers(newErrorHandlers);
 
-        routes.push(...newRoutes);
+        routes.unshift(...newRoutes);
         renderers.unshift(...newRenderers);
-        errorHandler = newErrorHandler || errorHandler;
+        errorHandlers.unshift(...newErrorHandlers);
 
         return branch as IAddableBranch;
     }
@@ -62,16 +68,4 @@ function createBranch (...params: unknown[]): IAddableBranch {
     Object.assign(branch, { add });
 
     return branch as IAddableBranch;
-}
-
-function findRoutes (addableDatas: TAddableData[]): TRouteData[] {
-    return addableDatas.map(addableData => addableData.routes || []).flat();
-}
-
-function findRenderers (addableDatas: TAddableData[]): TRendererData[] {
-    return addableDatas.map(addableData => addableData.renderers || []).flat();
-}
-
-function findErrorHandler (addableDatas: TAddableData[]): TErrorHandler | undefined {
-    return addableDatas.find(addableData => !!addableData.errorHandler)?.errorHandler;
 }

@@ -8,13 +8,12 @@ function createRoute (...params: unknown[]): IAddable {
     const parts = extractParts(params);
     const handles = extractHandles(params);
 
-    function route (): TAddableData {
+    function route (): Partial<TAddableData> {
         return {
             routes: [{
                 parts,
                 handles,
-                method,
-                renderers: []
+                method
             }]
         };
     }

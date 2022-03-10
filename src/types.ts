@@ -5,21 +5,19 @@ export interface IKequapp extends RequestListener {
 }
 
 export interface IAddable {
-    (): TAddableData;
+    (): Partial<TAddableData>;
 }
 
 export type TAddableData = {
-    routes?: TRouteData[];
-    renderers?: TRendererData[];
-    errorHandler?: TErrorHandler;
+    routes: TRouteData[];
+    renderers: TRendererData[];
+    errorHandlers: TErrorHandlerData[];
 };
 
 export type TRouteData = {
     parts: string[];
     handles: THandle[];
     method: string;
-    renderers: TRendererData[];
-    errorHandler?: TErrorHandler;
 };
 
 export interface ICreateBranch {
@@ -40,10 +38,12 @@ export interface ICreateRoute {
 }
 
 export interface ICreateRenderer {
+    (pathname: TPathname, mime: string, handle: TRenderer): IAddable;
     (mime: string, handle: TRenderer): IAddable;
 }
 
 export interface ICreateErrorHandler {
+    (pathname: TPathname, handle: TErrorHandler): IAddable;
     (handle: TErrorHandler): IAddable;
 }
 
@@ -54,22 +54,33 @@ export type TRenderer = (payload: unknown, bundle: TBundle, routeManager: IRoute
 export type TErrorHandler = (error: unknown, bundle: TBundle, routeManager: IRouteManager) => Promise<unknown> | unknown;
 
 export interface IRouteManager {
-    (pathname?: string): TRoute[];
+    (pathname?: string): TRoute;
 }
 
+export interface IRouter {
+    (pathname?: string): TAddableData;
+}
+
+export type TRoute = {
+    parts: string[];
+    method: string;
+    lifecycle: (req: IncomingMessage, res: ServerResponse) => void;
+};
+
 export type TRendererData = {
+    parts: string[];
     mime: string;
     handle: TRenderer;
 };
 
-export type TPathname = `/${string}`;
-export type TPathnameWild = TPathname & `${string}/**`;
-
-export type TRoute = {
-    method: string;
+export type TErrorHandlerData = {
     parts: string[];
-    lifecycle: ILifecycle;
+    handle: TErrorHandler;
 };
+
+export type TPathname = `/${string}`;
+
+export type TPathnameWild = TPathname & `${string}/**`;
 
 export interface ILifecycle {
     (): Promise<void>;

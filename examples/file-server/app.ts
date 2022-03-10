@@ -1,6 +1,8 @@
-import { createApp, createRoute, staticFiles } from '../../src/main'; // 'kequapp'
+import { createApp, createRoute, staticFiles, autoHead } from '../../src/main'; // 'kequapp'
 
 const app = createApp();
+
+app.add(autoHead());
 
 app.add(createRoute(() => {
     return 'Hello world!';

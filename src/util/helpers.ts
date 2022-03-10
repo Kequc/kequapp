@@ -9,9 +9,9 @@ export function extractMethod (params: unknown[]): string {
     return params.shift() as string;
 }
 
-export function extractParts (params: unknown[]): string[] {
+export function extractParts (params: unknown[], isWild = false): string[] {
     if (typeof params[0] !== 'string' || params[0][0] !== '/') {
-        return [];
+        return isWild ? ['**'] : [];
     }
 
     return getParts(params.shift() as string);
@@ -36,7 +36,9 @@ export function extractHandles (params: unknown[]): THandle[] {
     return handles as THandle[];
 }
 
-export function priority (a: TRouteData, b: TRouteData): number {
+type TSortable = { parts: string[] };
+
+export function priority (a: TSortable, b: TSortable): number {
     const count = a.parts.length;
 
     for (let i = 0; i < count; i++) {

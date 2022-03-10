@@ -1,4 +1,4 @@
-import { TErrorHandler, TRendererData, TRouteData } from '../types';
+import { TErrorHandler, TErrorHandlerData, TRendererData, TRouteData } from '../types';
 
 export function validateObject (topic: unknown, name: string, type?: string): void {
     if (topic !== undefined) {
@@ -22,7 +22,7 @@ export function validateArray (topic: unknown, name: string, type?: string): voi
 
         if (type !== undefined) {
             for (const value of topic) {
-                validateType(value, `${name} value`, type);
+                validateType(value, `${name} item`, type);
             }
         }
     }
@@ -55,8 +55,10 @@ export function validateExists (topic: unknown, name: string): void {
     }
 }
 
-export function validateRoutes (existing: TRouteData[], routes?: TRouteData[]): void {
+export function validateRoutes (routes: TRouteData[], existing: TRouteData[]): void {
     const checked: TRouteData[] = [...existing];
+
+    validateArray(routes, 'Routes', 'object');
 
     for (const route of routes || []) {
         validateExists(route, 'Route');
@@ -83,27 +85,35 @@ export function validateRoutes (existing: TRouteData[], routes?: TRouteData[]): 
             throw new Error('Route already exists');
         }
 
-        validateRenderers(route.renderers);
-        validateErrorHandler(route.errorHandler);
-
         checked.push(route);
     }
 }
 
-export function validateRenderers (renderers?: TRendererData[]): void {
-    validateExists(renderers, 'Renderers');
+export function validateRenderers (renderers: TRendererData[]): void {
     validateArray(renderers, 'Renderers', 'object');
 
     for (const renderer of renderers || []) {
+        validateExists(renderer.parts, 'Renderer parts');
+        validateArray(renderer.parts, 'Renderer parts', 'string');
+
         validateExists(renderer.mime, 'Renderer mime');
         validateType(renderer.mime, 'Renderer mime', 'string');
+
         validateExists(renderer.handle, 'Renderer handle');
         validateType(renderer.handle, 'Renderer handle', 'function');
     }
 }
 
-export function validateErrorHandler (errorHandler?: TErrorHandler): void {
-    validateType(errorHandler, 'Error handler', 'function');
+export function validateErrorHandlers (errorHandlers: TErrorHandlerData[]): void {
+    validateArray(errorHandlers, 'Error handler', 'object');
+
+    for (const errorHandler of errorHandlers || []) {
+        validateExists(errorHandler.parts, 'Error handler parts');
+        validateArray(errorHandler.parts, 'Error handler parts', 'string');
+
+        validateExists(errorHandler.handle, 'Error handler handle');
+        validateType(errorHandler.handle, 'Error handler handle', 'function');
+    }
 }
 
 function isDuplicate (a: TRouteData, b: TRouteData): boolean {
