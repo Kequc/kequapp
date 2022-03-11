@@ -129,5 +129,5 @@ it('throws an error when trying to access missing route', async () => {
 
     assert.strictEqual(res.getHeader('Content-Type'), 'application/json');
     assert.strictEqual(body.error.statusCode, 404);
-    assert.strictEqual(body.error.message, 'Not Found: /how-are-ya');
+    assert.strictEqual(body.error.message, 'Not Found');
 });

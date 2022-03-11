@@ -6,7 +6,7 @@ import textRenderer from './built-in/text-renderer';
 import createBranch from './router/addable/create-branch';
 import createRequestProcessor from './router/create-request-processor';
 import createRouter from './router/create-router';
-import { IKequapp, IRouter } from './types';
+import { IAddable, IKequapp, IRouter } from './types';
 export { default as createBranch } from './router/addable/create-branch';
 export { default as createErrorHandler } from './router/addable/create-error-handler';
 export { default as createRenderer } from './router/addable/create-renderer';
@@ -48,7 +48,13 @@ export function createApp (): IKequapp {
         });
     }
 
-    Object.assign(app, branch);
+    function add (...params: IAddable[]): IKequapp {
+        branch.add(...params);
+
+        return app as IKequapp;
+    }
+
+    Object.assign(app, { add });
 
     return app as IKequapp;
 }

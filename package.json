@@ -40,7 +40,7 @@
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
     "eslint": "^7.32.0",
-    "kequtest": "^1.0.0",
+    "kequtest": "^1.0.1",
     "mock-req": "^0.2.0",
     "mock-res": "^0.5.0",
     "ts-node": "^10.2.1",

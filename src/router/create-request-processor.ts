@@ -95,7 +95,7 @@ function findErrorHandler (errorHandlers: TErrorHandlerData[], contentType: stri
 function compareContentType (a: string, b: string): boolean {
     const wildIndex = a.indexOf('*');
 
-    if (wildIndex > 0) {
+    if (wildIndex > -1) {
         return a.slice(0, wildIndex) === b.slice(0, wildIndex);
     }
 
