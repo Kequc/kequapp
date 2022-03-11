@@ -49,12 +49,12 @@ export interface ICreateErrorHandler {
 
 export type THandle = (bundle: TBundle, routeManager: IRouteManager) => Promise<unknown> | unknown;
 
-export type TRenderer = (payload: unknown, bundle: TBundle, routeManager: IRouteManager) => Promise<void> | void;
+export type TRenderer = (payload: unknown, bundle: TBundle) => Promise<void> | void;
 
-export type TErrorHandler = (error: unknown, bundle: TBundle, routeManager: IRouteManager) => Promise<unknown> | unknown;
+export type TErrorHandler = (error: unknown, bundle: TBundle) => Promise<unknown> | unknown;
 
 export interface IRouteManager {
-    (pathname?: string): TRoute;
+    (method: string, pathname: string): Promise<void>;
 }
 
 export interface IRouter {
