@@ -1,5 +1,5 @@
 import { Ex } from '../main';
-import { IRequestProcessor, IRouter, TBundle, TErrorHandler, TErrorHandlerData, TRenderer, TRendererData, TRouteData } from '../types';
+import { IRequestProcessor, IRouter, TBundle, TErrorHandler, TErrorHandlerData, TRenderer, TRendererData } from '../types';
 import { extractParams, getParts } from '../util/helpers';
 import { getHeader, sanitizeContentType } from '../util/sanitize';
 

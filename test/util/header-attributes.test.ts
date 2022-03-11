@@ -2,7 +2,7 @@ import 'kequtest';
 import assert from 'assert';
 import headerAttributes from '../../src/util/header-attributes';
 
-it('parses attributes', function () {
+it('parses attributes', () => {
     const result = headerAttributes('multipart/form-data; boundary=boundary1; name=name1');
     assert.deepStrictEqual(result, {
         boundary: 'boundary1',
@@ -10,7 +10,7 @@ it('parses attributes', function () {
     });
 });
 
-it('parses attributes with quotes', function () {
+it('parses attributes with quotes', () => {
     const result = headerAttributes('multipart/form-data; boundary="boundary1"; name="name1"');
     assert.deepStrictEqual(result, {
         boundary: 'boundary1',
@@ -18,7 +18,7 @@ it('parses attributes with quotes', function () {
     });
 });
 
-it('parses attributes with spaces', function () {
+it('parses attributes with spaces', () => {
     const result = headerAttributes('multipart/form-data; boundary=boundary1 name=name1');
     assert.deepStrictEqual(result, {
         boundary: 'boundary1',
@@ -26,7 +26,7 @@ it('parses attributes with spaces', function () {
     });
 });
 
-it('parses attributes with commas', function () {
+it('parses attributes with commas', () => {
     const result = headerAttributes('multipart/form-data; boundary=boundary1, name=name1');
     assert.deepStrictEqual(result, {
         boundary: 'boundary1',
@@ -34,7 +34,7 @@ it('parses attributes with commas', function () {
     });
 });
 
-it('parses attributes with colons', function () {
+it('parses attributes with colons', () => {
     const result = headerAttributes('multipart/form-data; boundary=boundary1: name=name1');
     assert.deepStrictEqual(result, {
         boundary: 'boundary1',
@@ -42,7 +42,7 @@ it('parses attributes with colons', function () {
     });
 });
 
-it('parses attributes with line', function () {
+it('parses attributes with line', () => {
     const result = headerAttributes('multipart/form-data; boundary=boundary1| name=name1');
     assert.deepStrictEqual(result, {
         boundary: 'boundary1',
@@ -50,14 +50,14 @@ it('parses attributes with line', function () {
     });
 });
 
-it('parses strange attributes in quotes', function () {
+it('parses strange attributes in quotes', () => {
     const result = headerAttributes('multipart/form-data; boundary="boundary1;|?:, name=name1"');
     assert.deepStrictEqual(result, {
         boundary: 'boundary1;|?:, name=name1'
     });
 });
 
-it('handles mixed', function () {
+it('handles mixed', () => {
     const result = headerAttributes('multipart/form-data; boundary=boundary1; name="name1"');
     assert.deepStrictEqual(result, {
         boundary: 'boundary1',
@@ -65,7 +65,7 @@ it('handles mixed', function () {
     });
 });
 
-it('handles poorly formatted', function () {
+it('handles poorly formatted', () => {
     const result = headerAttributes('multipart/form-data; boundary=boundary1; name="name1');
     assert.deepStrictEqual(result, {
         boundary: 'boundary1'

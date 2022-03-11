@@ -10,6 +10,7 @@ function loggedIn ({ req, context }) {
     if (req.headers.authorization !== 'mike') {
         throw Ex.Unauthorized();
     }
+
     context.auth = req.headers.authorization;
 }
 
@@ -37,10 +38,8 @@ app.add(createBranch('/users').add(
     })
 ));
 
-app.add(createBranch('/admin', loggedIn).add(
-    createRoute('/dashboard', ({ context }) => {
-        return `Hello admin ${context.auth}!`;
-    })
-));
+app.add(createRoute('/admin/dashboard', loggedIn, ({ context }) => {
+    return `Hello admin ${context.auth}!`;
+}));
 
 export default app;
