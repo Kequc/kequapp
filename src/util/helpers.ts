@@ -1,5 +1,5 @@
 import { validateArray } from './validate';
-import { THandle, TRouteData } from '../types';
+import { TBundleParams, THandle, TRouteData } from '../types';
 
 export function extractMethod (params: unknown[]): string {
     if (typeof params[0] !== 'string' || params[0][0] === '/') {
@@ -28,6 +28,14 @@ export function getParts (pathname: string): string[] {
     return parts;
 }
 
+export function extractContentType (params: unknown[]): string | undefined {
+    if (typeof params[0] !== 'string') {
+        return undefined;
+    }
+
+    return params.shift() as string;
+}
+
 export function extractHandles (params: unknown[]): THandle[] {
     const handles = params.flat(Infinity);
 
@@ -36,12 +44,23 @@ export function extractHandles (params: unknown[]): THandle[] {
     return handles as THandle[];
 }
 
-type TSortable = { parts: string[] };
+type TSortable = { parts: string[], contentType?: string };
 
 export function priority (a: TSortable, b: TSortable): number {
-    const count = a.parts.length;
+    if (a.parts.join('/') === b.parts.join('/')) {
+        if (a.contentType && b.contentType) {
+            const aa = a.contentType.indexOf('*');
+            const bb = b.contentType.indexOf('*');
 
-    for (let i = 0; i < count; i++) {
+            if (aa > -1 && bb > -1) return bb - aa;
+            if (aa > -1) return 1;
+            if (bb > -1) return -1;
+        }
+
+        return 0;
+    }
+
+    for (let i = 0; i < a.parts.length; i++) {
         const aa = a.parts[i];
         const bb = b.parts[i];
 
@@ -55,4 +74,21 @@ export function priority (a: TSortable, b: TSortable): number {
     }
 
     return -1;
+}
+
+export function extractParams (route: TRouteData, parts: string[]): TBundleParams {
+    const params: TBundleParams = {};
+
+    for (let i = 0; i < route.parts.length; i++) {
+        if (route.parts[i] === '**') {
+            params['**'] = parts.slice(i);
+            return params;
+        }
+
+        if (route.parts[i][0] === ':') {
+            params[route.parts[i].substring(1)] = parts[i];
+        }
+    }
+
+    return params;
 }

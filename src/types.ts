@@ -38,22 +38,24 @@ export interface ICreateRoute {
 }
 
 export interface ICreateRenderer {
-    (pathname: TPathname, mime: string, handle: TRenderer): IAddable;
-    (mime: string, handle: TRenderer): IAddable;
+    (pathname: TPathname, contentType: string, handle: TRenderer): IAddable;
+    (contentType: string, handle: TRenderer): IAddable;
 }
 
 export interface ICreateErrorHandler {
+    (pathname: TPathname, contentType: string, handle: TErrorHandler): IAddable;
     (pathname: TPathname, handle: TErrorHandler): IAddable;
+    (contentType: string, handle: TErrorHandler): IAddable;
     (handle: TErrorHandler): IAddable;
 }
 
-export type THandle = (bundle: TBundle, routeManager: IRouteManager) => Promise<unknown> | unknown;
+export type THandle = (bundle: TBundle, requestProcessor: IRequestProcessor) => Promise<unknown> | unknown;
 
 export type TRenderer = (payload: unknown, bundle: TBundle) => Promise<void> | void;
 
 export type TErrorHandler = (error: unknown, bundle: TBundle) => Promise<unknown> | unknown;
 
-export interface IRouteManager {
+export interface IRequestProcessor {
     (method: string, pathname: string): Promise<void>;
 }
 
@@ -69,12 +71,13 @@ export type TRoute = {
 
 export type TRendererData = {
     parts: string[];
-    mime: string;
+    contentType: string;
     handle: TRenderer;
 };
 
 export type TErrorHandlerData = {
     parts: string[];
+    contentType: string;
     handle: TErrorHandler;
 };
 

@@ -2,9 +2,9 @@ import { IRouter, TAddableData } from '../types';
 import { getParts, priority } from '../util/helpers';
 
 export default function createRouter (branchData: TAddableData): IRouter {
-    const routes = branchData.routes.sort(priority);
-    const renderers = branchData.renderers.sort(priority);
-    const errorHandlers = branchData.errorHandlers.sort(priority);
+    const routes = [...branchData.routes].sort(priority);
+    const renderers = [...branchData.renderers].sort(priority);
+    const errorHandlers = [...branchData.errorHandlers].sort(priority);
 
     function router (pathname?: string): TAddableData {
         if (pathname) {

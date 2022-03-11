@@ -1,7 +1,7 @@
 import createRenderer from '../router/addable/create-renderer';
 import Ex from '../util/ex';
 
-export default createRenderer('text/plain', (payload, { req, res }) => {
+export default createRenderer('text/*', (payload, { req, res }) => {
     const text = generateText(payload);
 
     res.setHeader('Content-Length', Buffer.byteLength(text));

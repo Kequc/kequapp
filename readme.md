@@ -482,13 +482,13 @@ app.add(createRoute('/db.json', async ({ req, res }) => {
 }));
 ```
 
-# Using `routeManager()`
+# Using `requestProcessor()`
 
-It is possible to capture `'HEAD'` requests and have them trigger a corresponding `'GET'` lifecycle by making use of the `routeManager`, which is provided as a second parameter in all handlers.
+It is possible to capture `'HEAD'` requests and have them trigger a corresponding `'GET'` lifecycle by making use of the `requestProcessor`, which is provided as a second parameter in all handlers.
 
 ```javascript
-createRoute('HEAD', '/**', async ({ url }, routeManager) => {
-    const route = routeManager(url.pathname).find(route => route.method === 'GET');
+createRoute('HEAD', '/**', async ({ url }, requestProcessor) => {
+    const route = requestProcessor(url.pathname).find(route => route.method === 'GET');
 
     if (!route) {
         // 404
@@ -499,7 +499,7 @@ createRoute('HEAD', '/**', async ({ url }, routeManager) => {
 });
 ```
 
-The `routeManager` method takes a pathname and looks up compatible routes in our application. If no pathname is provided all routes are returned instead. Routes are returned in order of priority the first is the most exact match.
+The `requestProcessor` method takes a pathname and looks up compatible routes in our application. If no pathname is provided all routes are returned instead. Routes are returned in order of priority the first is the most exact match.
 
 There is a convenience helper for the `'HEAD'` request example above.
 

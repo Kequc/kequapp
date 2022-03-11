@@ -1,4 +1,4 @@
-import { TErrorHandler, TErrorHandlerData, TRendererData, TRouteData } from '../types';
+import { TErrorHandlerData, TRendererData, TRouteData } from '../types';
 
 export function validateObject (topic: unknown, name: string, type?: string): void {
     if (topic !== undefined) {
@@ -96,8 +96,8 @@ export function validateRenderers (renderers: TRendererData[]): void {
         validateExists(renderer.parts, 'Renderer parts');
         validateArray(renderer.parts, 'Renderer parts', 'string');
 
-        validateExists(renderer.mime, 'Renderer mime');
-        validateType(renderer.mime, 'Renderer mime', 'string');
+        validateExists(renderer.contentType, 'Renderer contentType');
+        validateType(renderer.contentType, 'Renderer contentType', 'string');
 
         validateExists(renderer.handle, 'Renderer handle');
         validateType(renderer.handle, 'Renderer handle', 'function');
@@ -110,6 +110,9 @@ export function validateErrorHandlers (errorHandlers: TErrorHandlerData[]): void
     for (const errorHandler of errorHandlers || []) {
         validateExists(errorHandler.parts, 'Error handler parts');
         validateArray(errorHandler.parts, 'Error handler parts', 'string');
+
+        validateExists(errorHandler.contentType, 'Error handler contentType');
+        validateType(errorHandler.contentType, 'Error handler contentType', 'string');
 
         validateExists(errorHandler.handle, 'Error handler handle');
         validateType(errorHandler.handle, 'Error handler handle', 'function');

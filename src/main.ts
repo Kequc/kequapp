@@ -4,8 +4,8 @@ import errorHandler from './built-in/error-handler';
 import jsonRenderer from './built-in/json-renderer';
 import textRenderer from './built-in/text-renderer';
 import createBranch from './router/addable/create-branch';
+import createRequestProcessor from './router/create-request-processor';
 import createRouter from './router/create-router';
-import requestProcessor from './router/request-processor';
 import { IKequapp, IRouter } from './types';
 export { default as createBranch } from './router/addable/create-branch';
 export { default as createErrorHandler } from './router/addable/create-error-handler';
@@ -27,19 +27,24 @@ export function createApp (): IKequapp {
 
     function app (req: IncomingMessage, res: ServerResponse): void {
         const url = new URL(req.url || '/', `${req.headers.protocol}://${req.headers.host}`);
+        const method = req.method || 'GET';
+        const pathname = url.pathname;
 
         res.statusCode = 200; // default
         res.setHeader('Content-Type', 'text/plain'); // default
 
         if (!router) router = createRouter(branch());
 
-        requestProcessor(router, {
+        createRequestProcessor(router, {
             req,
             res,
             url,
             context: {},
             params: {},
             getBody: createGetBody(req)
+        })(method, pathname).then(() => {
+            // debug
+            console.debug(res.statusCode, method, pathname);
         });
     }
 
