@@ -3,7 +3,7 @@ import { IRequestProcessor, IRouter, TBundle, TErrorHandler, TErrorHandlerData, 
 import { extractParams, getParts } from '../util/helpers';
 import { getHeader, sanitizeContentType } from '../util/sanitize';
 
-function createRequestProcessor (router: IRouter, raw: TBundle): IRequestProcessor {
+function createRequestProcessor (router: IRouter, raw: Omit<TBundle, 'params'>): IRequestProcessor {
     async function requestProcessor (method: string, pathname: string) {
         const {
             routes,
@@ -11,6 +11,10 @@ function createRequestProcessor (router: IRouter, raw: TBundle): IRequestProcess
             errorHandlers
         } = router(pathname);
         const route = routes.find(route => route.method === method);
+        const bundle: TBundle = Object.freeze({
+            ...raw,
+            params: extractParams(getParts(pathname), route)
+        });
 
         try {
             if (!route) {
@@ -18,22 +22,17 @@ function createRequestProcessor (router: IRouter, raw: TBundle): IRequestProcess
                 throw Ex.NotFound();
             }
 
-            const bundle: TBundle = Object.freeze({
-                ...raw,
-                context: {},
-                params: extractParams(route, getParts(pathname))
-            });
-
             for (const handle of route.handles) {
                 const payload = await handle(bundle, requestProcessor);
 
-                if (payload !== undefined || bundle.res.writableEnded) {
+                if (bundle.res.writableEnded) {
+                    break;
+                } else if (payload !== undefined) {
                     await render(renderers, payload, bundle);
                     break;
                 }
             }
         } catch (error: unknown) {
-            const bundle: TBundle = Object.freeze({ ...raw });
             const errorHandler = findErrorHandler(errorHandlers, getContentType(bundle));
             const payload = await errorHandler(error, bundle);
 
@@ -41,7 +40,9 @@ function createRequestProcessor (router: IRouter, raw: TBundle): IRequestProcess
                 console.error(error);
             }
 
-            await render(renderers, payload, bundle);
+            if (!bundle.res.writableEnded) {
+                await render(renderers, payload, bundle);
+            }
         }
     }
 
@@ -57,10 +58,8 @@ function getContentType ({ res }: TBundle): string {
 async function render (renderers: TRendererData[], payload: unknown, bundle: TBundle): Promise<void> {
     const { req, res, url } = bundle;
 
-    if (payload !== undefined && !res.writableEnded) {
-        const renderer = findRenderer(renderers, getContentType(bundle));
-        await renderer(payload, bundle);
-    }
+    const renderer = findRenderer(renderers, getContentType(bundle));
+    await renderer(payload, bundle);
 
     if (!res.writableEnded) {
         throw Ex.InternalServerError('Response not finalized', {
@@ -86,7 +85,9 @@ function findErrorHandler (errorHandlers: TErrorHandlerData[], contentType: stri
     const errorHandler = errorHandlers.find(errorHandler => compareContentType(errorHandler.contentType, contentType));
 
     if (!errorHandler) {
-        throw Ex.InternalServerError('Error handler not found');
+        throw Ex.InternalServerError('Error handler not found', {
+            contentType
+        });
     }
 
     return errorHandler.handle;

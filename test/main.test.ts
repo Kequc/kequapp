@@ -25,5 +25,7 @@ it('exports a lot of stuff', () => {
 });
 
 it('exposes a branch on the app', () => {
-    assert.strictEqual(typeof createApp().add, 'function');
+    const app = createApp();
+    assert.strictEqual(typeof app.add, 'function');
+    assert.strictEqual(app, app.add());
 });

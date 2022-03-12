@@ -40,7 +40,6 @@ export function createApp (): IKequapp {
             res,
             url,
             context: {},
-            params: {},
             getBody: createGetBody(req)
         })(method, pathname).then(() => {
             // debug
