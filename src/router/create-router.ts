@@ -2,6 +2,7 @@ import { IRouter, TAddableData } from '../types';
 import { getParts } from '../util/helpers';
 
 type TSortable = { parts: string[], contentType?: string };
+type TItem = { parts: string[] };
 
 export default function createRouter (branchData: TAddableData): IRouter {
     const routes = [...branchData.routes].sort(priority);
@@ -13,9 +14,9 @@ export default function createRouter (branchData: TAddableData): IRouter {
             const parts = getParts(pathname);
 
             return {
-                routes: routes.filter(item => compare(item.parts, parts)),
-                renderers: renderers.filter(item => compare(item.parts, parts)),
-                errorHandlers: errorHandlers.filter(item => compare(item.parts, parts))
+                routes: routes.filter(item => compare(item, parts)),
+                renderers: renderers.filter(item => compare(item, parts)),
+                errorHandlers: errorHandlers.filter(item => compare(item, parts))
             };
         }
 
@@ -30,40 +31,43 @@ export default function createRouter (branchData: TAddableData): IRouter {
 }
 
 function priority (a: TSortable, b: TSortable): number {
-    for (let i = 0; i < a.parts.length; i++) {
+    const count = Math.max(a.parts.length, b.parts.length);
+
+    for (let i = 0; i < count; i++) {
         const aa = a.parts[i];
         const bb = b.parts[i];
 
-        if (aa === bb)  continue;
+        if (aa === bb) continue;
+        if (bb === undefined || aa === '**') return 1;
+        if (aa === undefined || bb === '**') return -1;
 
-        if (bb === undefined) return 1;
-        if (aa === '**' || aa[0] === ':') return 1;
-        if (bb === '**' || bb[0] === ':') return -1;
+        const aaa = aa[0] === ':';
+        const bbb = bb[0] === ':';
 
-        if (a.contentType && b.contentType) {
-            const aa = a.contentType.indexOf('*');
-            const bb = b.contentType.indexOf('*');
-
-            if (aa > -1 && bb > -1) return bb - aa;
-            if (aa > -1) return 1;
-            if (bb > -1) return -1;
-        }
+        if (aaa && bbb) continue;
+        if (aaa) return 1;
+        if (bbb) return -1;
 
         return aa.localeCompare(bb);
     }
 
-    return -1;
-}
+    if (a.contentType && b.contentType) {
+        const aa = a.contentType.indexOf('*');
+        const bb = b.contentType.indexOf('*');
 
-function compare (itemParts: string[], parts: string[]): boolean {
-    if (!itemParts.includes('**') && itemParts.length !== parts.length) {
-        return false;
+        if (aa > -1 && bb > -1) return bb - aa;
+        if (aa > -1) return 1;
+        if (bb > -1) return -1;
     }
 
-    for (let i = 0; i < itemParts.length; i++) {
-        if (itemParts[i] === '**') return true;
-        if (itemParts[i][0] === ':') continue;
-        if (itemParts[i] === parts[i]) continue;
+    return 0;
+}
+
+function compare (item: TItem, parts: string[]): boolean {
+    for (let i = 0; i < item.parts.length; i++) {
+        if (item.parts[i] === '**') return true;
+        if (item.parts[i][0] === ':') continue;
+        if (item.parts[i] === parts[i]) continue;
         return false;
     }
 

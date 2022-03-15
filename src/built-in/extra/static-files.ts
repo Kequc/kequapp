@@ -1,39 +1,43 @@
 import path from 'path';
 import sendFile from './send-file';
 import createRoute from '../../router/addable/create-route';
-import {
-    IAddable,
-    TParams,
-    TPathname,
-    TPathnameWild
-} from '../../types';
+import { IAddable, TParams, TPathname } from '../../types';
 import Ex from '../../util/ex';
 import guessMime from '../../util/guess-mime';
+import { extractOptions, extractPathname } from '../../util/helpers';
 import { validateArray, validateObject, validatePathname } from '../../util/validate';
 
-type TOptions = {
+type TStaticFilesOptions = {
     dir: TPathname;
     exclude: TPathname[];
     mime: TParams;
 };
 
-const DEFAULT_OPTIONS: TOptions = {
+const DEFAULT_OPTIONS: TStaticFilesOptions = {
     dir: '/public',
     exclude: [],
     mime: {}
 };
 
-export default function staticFiles (pathname: TPathnameWild = '/**', options: Partial<TOptions> = {}): IAddable {
+interface IStaticFiles {
+    (pathname: TPathname, options: Partial<TStaticFilesOptions>): IAddable;
+    (pathname: TPathname): IAddable;
+    (options: Partial<TStaticFilesOptions>): IAddable;
+    (): IAddable;
+}
+
+function staticFiles (...params: unknown[]): IAddable {
+    const pathname = extractPathname(params, '/**');
+    const options = extractOptions<TStaticFilesOptions>(params, DEFAULT_OPTIONS);
+
     validatePathname(pathname, 'Static files pathname', true);
     validateOptions(options);
 
-    const config: TOptions = { ...DEFAULT_OPTIONS, ...options };
-
     return createRoute(pathname, async ({ req, res, params }) => {
-        const asset = path.join(config.dir, ...(params['**'] || []));
-        const mime = guessMime(asset, config.mime);
+        const asset = path.join(options.dir, ...(params['**'] || []));
+        const mime = guessMime(asset, options.mime);
 
-        if (isExcluded(config.exclude, asset)) {
+        if (isExcluded(options.exclude, asset)) {
             throw Ex.NotFound();
         }
 
@@ -46,7 +50,9 @@ export default function staticFiles (pathname: TPathnameWild = '/**', options: P
     });
 }
 
-function validateOptions (options: Partial<TOptions>): void {
+export default staticFiles as IStaticFiles;
+
+function validateOptions (options: TStaticFilesOptions): void {
     validateObject(options, 'Static files options');
     validatePathname(options.dir, 'Static files options.dir');
     validateArray(options.exclude, 'Static files options.exclude');

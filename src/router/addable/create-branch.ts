@@ -7,7 +7,7 @@ import {
     TRendererData,
     TRouteData
 } from '../../types';
-import { extractHandles, extractParts } from '../../util/helpers';
+import { extractHandles, extractPathname, getParts } from '../../util/helpers';
 import {
     validateArray,
     validateErrorHandlers,
@@ -18,8 +18,11 @@ import {
 export default createBranch as ICreateBranch;
 
 function createBranch (...params: unknown[]): IAddableBranch {
-    const parts = extractParts(params);
+    const parts = getParts(extractPathname(params));
     const handles = extractHandles(params);
+
+    // we don't want wild
+    if (parts.includes('**')) parts.pop();
 
     const routes: TRouteData[] = [];
     const renderers: TRendererData[] = [];

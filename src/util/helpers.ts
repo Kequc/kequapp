@@ -1,5 +1,5 @@
 import { validateArray } from './validate';
-import { TBundleParams, THandle, TRouteData } from '../types';
+import { TBundleParams, THandle, TPathname, TRouteData } from '../types';
 
 export function extractMethod (params: unknown[]): string {
     if (typeof params[0] !== 'string' || params[0][0] === '/') {
@@ -9,12 +9,12 @@ export function extractMethod (params: unknown[]): string {
     return params.shift() as string;
 }
 
-export function extractParts (params: unknown[], isWild = false): string[] {
+export function extractPathname (params: unknown[], url: TPathname = '/'): TPathname {
     if (typeof params[0] !== 'string' || params[0][0] !== '/') {
-        return isWild ? ['**'] : [];
+        return url;
     }
 
-    return getParts(params.shift() as string);
+    return params.shift() as TPathname;
 }
 
 export function getParts (pathname: string): string[] {
@@ -42,6 +42,14 @@ export function extractHandles (params: unknown[]): THandle[] {
     validateArray(handles, 'Handle', 'function');
 
     return handles as THandle[];
+}
+
+export function extractOptions<T> (params: unknown[], defaultOptions?: T): T {
+    if (typeof params[0] !== 'object' || params[0] === null || Array.isArray(params[0])) {
+        return { ...defaultOptions } as T;
+    }
+
+    return { ...defaultOptions, ...(params.shift() as T) };
 }
 
 export function extractParams (parts: string[], route?: TRouteData): TBundleParams {

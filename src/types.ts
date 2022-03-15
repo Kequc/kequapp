@@ -31,8 +31,8 @@ export interface IAddableBranch {
 }
 
 export interface ICreateRoute {
-    (pathname: TPathname, ...handles: THandle[]): IAddable;
     (method: string, pathname: TPathname, ...handles: THandle[]): IAddable;
+    (pathname: TPathname, ...handles: THandle[]): IAddable;
     (method: string, ...handles: THandle[]): IAddable;
     (...handles: THandle[]): IAddable;
 }
@@ -47,6 +47,10 @@ export interface ICreateErrorHandler {
     (pathname: TPathname, handle: TErrorHandler): IAddable;
     (contentType: string, handle: TErrorHandler): IAddable;
     (handle: TErrorHandler): IAddable;
+}
+
+export interface ICreateHandle {
+    (handle: THandle): THandle;
 }
 
 export type THandle = (bundle: TBundle, requestProcessor: IRequestProcessor) => Promise<unknown> | unknown;

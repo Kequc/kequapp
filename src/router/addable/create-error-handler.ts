@@ -4,13 +4,18 @@ import {
     TAddableData,
     TErrorHandler
 } from '../../types';
-import { extractContentType, extractHandles, extractParts } from '../../util/helpers';
+import {
+    extractContentType,
+    extractHandles,
+    extractPathname,
+    getParts
+} from '../../util/helpers';
 import { validateExists } from '../../util/validate';
 
 export default createErrorHandler as ICreateErrorHandler;
 
 function createErrorHandler (...params: unknown[]): IAddable {
-    const parts = extractParts(params, true);
+    const parts = getParts(extractPathname(params, '/**'));
     const contentType = extractContentType(params) || '*';
     const [handle] = extractHandles(params) as unknown as TErrorHandler[];
 
