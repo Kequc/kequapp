@@ -2,12 +2,11 @@ import createBranch from '../../router/addable/create-branch';
 import createRoute from '../../router/addable/create-route';
 import { IAddableBranch, THandle, TPathname } from '../../types';
 import {
-    extendHeader,
     extractHandles,
     extractOptions,
-    extractPathname,
-    setHeaders
+    extractPathname
 } from '../../util/helpers';
+import { extendHeader, setHeaders } from '../../util/sanitize';
 import {
     validateArray,
     validateExists,

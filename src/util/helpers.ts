@@ -77,25 +77,3 @@ export function extractParams (parts: string[], route?: TRouteData): TBundlePara
 
     return params;
 }
-
-export function extendHeader (res: ServerResponse, key: string, value: string): void {
-    const existing = res.getHeader(key);
-
-    if (existing === undefined) {
-        res.setHeader(key, value);
-    } else if (Array.isArray(existing)) {
-        res.setHeader(key, [...existing, value]);
-    } else {
-        res.setHeader(key, `${existing},${value}`);
-    }
-}
-
-export function setHeaders (res: ServerResponse, headers: THeaders): void {
-    for (const [key, value] of Object.entries(headers)) {
-        if (value === undefined) {
-            res.removeHeader(key);
-        } else {
-            res.setHeader(key, value);
-        }
-    }
-}

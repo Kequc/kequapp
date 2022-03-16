@@ -1,6 +1,7 @@
 import createHandle from '../../router/create-handle';
 import { THandle } from '../../types';
-import { extendHeader, extractOptions, setHeaders } from '../../util/helpers';
+import { extractOptions } from '../../util/helpers';
+import { extendHeader, setHeaders } from '../../util/sanitize';
 import {
     validateArray,
     validateExists,
