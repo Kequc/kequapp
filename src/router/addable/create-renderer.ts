@@ -16,7 +16,7 @@ export default createRenderer as ICreateRenderer;
 
 function createRenderer (...params: unknown[]): IAddable {
     const parts = getParts(extractPathname(params, '/**'));
-    const contentType = extractContentType(params)!;
+    const contentType = extractContentType(params);
     const [handle] = extractHandles(params) as unknown as TRenderer[];
 
     validateExists(contentType, 'Renderer contentType');

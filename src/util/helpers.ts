@@ -35,9 +35,9 @@ export function getParts (pathname: string): string[] {
     return parts;
 }
 
-export function extractContentType (params: unknown[]): string | undefined {
+export function extractContentType (params: unknown[], contentType = '*'): string {
     if (typeof params[0] !== 'string') {
-        return undefined;
+        return contentType;
     }
 
     return params.shift() as string;

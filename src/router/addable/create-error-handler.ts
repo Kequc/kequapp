@@ -16,7 +16,7 @@ export default createErrorHandler as ICreateErrorHandler;
 
 function createErrorHandler (...params: unknown[]): IAddable {
     const parts = getParts(extractPathname(params, '/**'));
-    const contentType = extractContentType(params) || '*';
+    const contentType = extractContentType(params);
     const [handle] = extractHandles(params) as unknown as TErrorHandler[];
 
     validateExists(handle, 'Error handler');
