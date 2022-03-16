@@ -61,9 +61,9 @@ function validateOptions (options: TAllowOriginOptions): void {
 }
 
 function getVaryOrigin ({ allowOrigin }: TAllowOriginOptions): boolean {
-    if (allowOrigin === '*') return true;
-    if (Array.isArray(allowOrigin) && allowOrigin.includes('*')) return true;
-    return false;
+    if (allowOrigin === '*') return false;
+    if (Array.isArray(allowOrigin) && allowOrigin.includes('*')) return false;
+    return true;
 }
 
 function createComposeAllowOrigin ({ allowOrigin }: TAllowOriginOptions): IComposeAllowOrigin {
