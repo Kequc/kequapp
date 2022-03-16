@@ -1,9 +1,13 @@
-import { ServerResponse } from 'http';
 import createBranch from '../../router/addable/create-branch';
 import createRoute from '../../router/addable/create-route';
-import createHandle from '../../router/create-handle';
 import { IAddableBranch, THandle, TPathname } from '../../types';
-import { extractHandles, extractOptions, extractPathname } from '../../util/helpers';
+import {
+    extendHeader,
+    extractHandles,
+    extractOptions,
+    extractPathname,
+    setHeaders
+} from '../../util/helpers';
 import {
     validateArray,
     validateExists,
@@ -11,22 +15,16 @@ import {
     validatePathname,
     validateType
 } from '../../util/validate';
+import allowOrigin, { TAllowOriginOptions } from './allow-origin';
 
-type TComposeResult = Promise<string | undefined> | string | undefined;
-type TComposeAllowOrigin = (origin: string) => TComposeResult;
-type TComposeAllowHeaders = (requestHeaders?: string) => TComposeResult;
+interface IComposeAllowHeaders {
+    (requestHeaders?: string): Promise<string | undefined> | string | undefined;
+}
 
-type TCorsOptions = {
-    allowOrigin: string | RegExp | (string | RegExp)[] | TComposeAllowOrigin;
+type TCorsOptions = TAllowOriginOptions & {
     allowMethods: string[];
-    allowCredentials?: boolean;
-    allowHeaders?: string[] | TComposeAllowHeaders;
-    exposeHeaders?: string[];
+    allowHeaders?: string[] | IComposeAllowHeaders;
     maxAge?: number;
-};
-
-type THeaders = {
-    [key: string]: string | number | undefined;
 };
 
 interface ICors {
@@ -50,89 +48,49 @@ function cors (...params: unknown[]): IAddableBranch {
     validatePathname(pathname, 'Cors pathname');
     validateOptions(options);
 
-    const allowCredentials = options.allowCredentials ? 'true' : undefined;
-    const exposeHeaders = options.exposeHeaders ? options.exposeHeaders.join(',') : undefined;
     const allowMethods = options.allowMethods.join(',');
     const maxAge = options.maxAge;
+    const varyHeaders = typeof options.allowHeaders === 'function';
 
-    const composeAllowOrigin = createComposeAllowOrigin(options);
     const composeAllowHeaders = createComposeAllowHeaders(options);
 
-    const addAllowOrigin = createHandle(async ({ url, res }) => {
+    handles.unshift(allowOrigin({
+        allowOrigin: options.allowOrigin,
+        allowCredentials: options.allowCredentials,
+        exposeHeaders: options.exposeHeaders
+    }));
+
+    const route = createRoute('OPTIONS', isWild ? '/**' : '/', async ({ req, res }) => {
+        const requestHeaders = req.headers['access-control-request-headers'];
+
         setHeaders(res, {
-            'Access-Control-Allow-Origin': await composeAllowOrigin(url.origin),
-            'Access-Control-Allow-Credentials': allowCredentials,
-            'Access-Control-Expose-Headers': exposeHeaders
+            'Access-Control-Allow-Headers': await composeAllowHeaders(requestHeaders),
+            'Access-Control-Allow-Methods': allowMethods,
+            'Access-Control-Max-Age': maxAge,
+            'Content-Length': 0
         });
+
+        if (varyHeaders) {
+            extendHeader(res, 'Vary', 'Access-Control-Request-Headers');
+        }
+
+        res.statusCode = 204;
+        res.end();
     });
 
-    return createBranch(pathname, addAllowOrigin, ...handles).add(
-        createRoute('OPTIONS', isWild ? '/**' : '/', async ({ req, res }) => {
-            const requestHeaders = req.headers['access-control-request-headers'];
-
-            setHeaders(res, {
-                'Access-Control-Allow-Headers': await composeAllowHeaders(requestHeaders),
-                'Access-Control-Allow-Methods': allowMethods,
-                'Access-Control-Max-Age': maxAge,
-                'Content-Length': 0
-            });
-
-            res.statusCode = 204;
-            res.end();
-        })
-    );
+    return createBranch(pathname, ...handles).add(route);
 }
 
 export default cors as ICors;
 
 function validateOptions (options: TCorsOptions): void {
     validateObject(options, 'Cors options');
-    validateExists(options.allowOrigin, 'Cors options.allowOrigin');
     validateExists(options.allowMethods, 'Cors options.allowMethods');
     validateArray(options.allowMethods, 'Cors options.allowMethods', 'string');
-    validateType(options.allowCredentials, 'Cors options.allowCredentials', 'boolean');
-    validateArray(options.exposeHeaders, 'Cors options.exposeHeaders', 'string');
     validateType(options.maxAge, 'Cors options.maxAge', 'number');
 }
 
-function createComposeAllowOrigin ({ allowOrigin }: TCorsOptions): TComposeAllowOrigin {
-    if (typeof allowOrigin === 'string') {
-        return () => allowOrigin;
-    }
-    if (typeof allowOrigin === 'function') {
-        return allowOrigin;
-    }
-    if (allowOrigin instanceof RegExp) {
-        return (origin) => allowOrigin.test(origin) ? origin : undefined;
-    }
-    if (Array.isArray(allowOrigin)) {
-        const clone = [...allowOrigin];
-
-        if (clone.some(value => typeof value !== 'string' && !(value instanceof RegExp))) {
-            throw new Error('Cors options.allowOrigin must each be a string or RegExp');
-        }
-        if (clone.includes('*')) {
-            return () => '*';
-        }
-
-        return (origin) => {
-            for (const value of clone) {
-                if (typeof value === 'string' && origin === value) {
-                    return origin;
-                }
-                if (value instanceof RegExp && value.test(origin)) {
-                    return origin;
-                }
-            }
-
-            return undefined;
-        };
-    }
-
-    throw new Error('Cors options.allowOrigin is invalid');
-}
-
-function createComposeAllowHeaders ({ allowHeaders }: TCorsOptions): TComposeAllowHeaders {
+function createComposeAllowHeaders ({ allowHeaders }: TCorsOptions): IComposeAllowHeaders {
     if (allowHeaders === undefined) {
         return (requestHeaders?: string) => requestHeaders;
     }
@@ -149,12 +107,4 @@ function createComposeAllowHeaders ({ allowHeaders }: TCorsOptions): TComposeAll
     }
 
     throw new Error('Cors options.allowHeaders is invalid');
-}
-
-function setHeaders (res: ServerResponse, headers: THeaders) {
-    for (const [key, value] of Object.entries(headers)) {
-        if (value !== undefined) {
-            res.setHeader(key, value);
-        }
-    }
 }

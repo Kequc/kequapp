@@ -121,6 +121,10 @@ export type TBundleParams = TParams & {
     '**'?: string[];
 };
 
+export type THeaders = {
+    [key: string]: string | number | undefined;
+};
+
 export interface IGetBody {
     (format: TBodyOptions & { raw: true, multipart: true }): Promise<TRawPart[]>;
     (format: TBodyOptions & { raw: true }): Promise<Buffer>;
