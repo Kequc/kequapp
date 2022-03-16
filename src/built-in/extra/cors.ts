@@ -54,12 +54,6 @@ function cors (...params: unknown[]): IAddableBranch {
 
     const composeAllowHeaders = createComposeAllowHeaders(options);
 
-    handles.unshift(allowOrigin({
-        allowOrigin: options.allowOrigin,
-        allowCredentials: options.allowCredentials,
-        exposeHeaders: options.exposeHeaders
-    }));
-
     const route = createRoute('OPTIONS', isWild ? '/**' : '/', async ({ req, res }) => {
         const requestHeaders = req.headers['access-control-request-headers'];
 
@@ -78,6 +72,12 @@ function cors (...params: unknown[]): IAddableBranch {
         res.end();
     });
 
+    handles.unshift(allowOrigin({
+        allowOrigin: options.allowOrigin,
+        allowCredentials: options.allowCredentials,
+        exposeHeaders: options.exposeHeaders
+    }));
+
     return createBranch(pathname, ...handles).add(route);
 }
 
@@ -85,6 +85,7 @@ export default cors as ICors;
 
 function validateOptions (options: TCorsOptions): void {
     validateObject(options, 'Cors options');
+
     validateExists(options.allowMethods, 'Cors options.allowMethods');
     validateArray(options.allowMethods, 'Cors options.allowMethods', 'string');
     validateType(options.maxAge, 'Cors options.maxAge', 'number');

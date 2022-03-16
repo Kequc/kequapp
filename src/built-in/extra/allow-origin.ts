@@ -54,6 +54,7 @@ export default allowOrigin as IAllowOrigin;
 
 function validateOptions (options: TAllowOriginOptions): void {
     validateObject(options, 'Cors options');
+
     validateExists(options.allowOrigin, 'Cors options.allowOrigin');
     validateType(options.allowCredentials, 'Cors options.allowCredentials', 'boolean');
     validateArray(options.exposeHeaders, 'Cors options.exposeHeaders', 'string');

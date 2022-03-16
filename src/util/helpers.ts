@@ -92,7 +92,9 @@ export function extendHeader (res: ServerResponse, key: string, value: string): 
 
 export function setHeaders (res: ServerResponse, headers: THeaders): void {
     for (const [key, value] of Object.entries(headers)) {
-        if (value !== undefined) {
+        if (value === undefined) {
+            res.removeHeader(key);
+        } else {
             res.setHeader(key, value);
         }
     }
