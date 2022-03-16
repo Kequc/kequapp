@@ -1,9 +1,7 @@
-import { ServerResponse } from 'http';
 import { validateArray } from './validate';
 import {
     TBundleParams,
     THandle,
-    THeaders,
     TPathname,
     TRouteData
 } from '../types';
