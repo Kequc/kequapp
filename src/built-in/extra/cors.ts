@@ -48,11 +48,10 @@ function cors (...params: unknown[]): IAddableBranch {
     validatePathname(pathname, 'Cors pathname');
     validateOptions(options);
 
+    const composeAllowHeaders = createComposeAllowHeaders(options);
     const allowMethods = options.allowMethods.join(',');
     const maxAge = options.maxAge;
     const varyHeaders = typeof options.allowHeaders === 'function';
-
-    const composeAllowHeaders = createComposeAllowHeaders(options);
 
     const route = createRoute('OPTIONS', isWild ? '/**' : '/', async ({ req, res }) => {
         const requestHeaders = req.headers['access-control-request-headers'];

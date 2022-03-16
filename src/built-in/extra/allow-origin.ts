@@ -31,11 +31,10 @@ function allowOrigin (...params: unknown[]): THandle {
 
     validateOptions(options);
 
+    const composeAllowOrigin = createComposeAllowOrigin(options);
     const allowCredentials = options.allowCredentials ? 'true' : undefined;
     const exposeHeaders = options.exposeHeaders?.join(',') || undefined;
     const varyOrigin = getVaryOrigin(options);
-
-    const composeAllowOrigin = createComposeAllowOrigin(options);
 
     return createHandle(async ({ req, res }) => {
         setHeaders(res, {
