@@ -2,7 +2,6 @@ import { IRouter, TAddableData } from '../types';
 import { getParts } from '../util/helpers';
 
 type TSortable = { parts: string[], contentType?: string };
-type TItem = { parts: string[] };
 
 export default function createRouter (branchData: TAddableData): IRouter {
     const routes = [...branchData.routes].sort(priority);
@@ -11,12 +10,12 @@ export default function createRouter (branchData: TAddableData): IRouter {
 
     function router (pathname?: string): TAddableData {
         if (pathname) {
-            const parts = getParts(pathname);
+            const clientParts = getParts(pathname);
 
             return {
-                routes: routes.filter(item => compare(item, parts)),
-                renderers: renderers.filter(item => compare(item, parts)),
-                errorHandlers: errorHandlers.filter(item => compare(item, parts))
+                routes: routes.filter(item => compare(item.parts, clientParts)),
+                renderers: renderers.filter(item => compare(item.parts, clientParts)),
+                errorHandlers: errorHandlers.filter(item => compare(item.parts, clientParts))
             };
         }
 
@@ -63,12 +62,14 @@ function priority (a: TSortable, b: TSortable): number {
     return 0;
 }
 
-function compare (item: TItem, parts: string[]): boolean {
-    for (let i = 0; i < item.parts.length; i++) {
-        if (item.parts[i] === '**') return true;
-        if (item.parts[i][0] === ':') continue;
-        if (item.parts[i] === parts[i]) continue;
+function compare (parts: string[], clientParts: string[]): boolean {
+    if (parts.length !== clientParts.length && !parts.includes('**')) {
         return false;
+    }
+
+    for (let i = 0; i < parts.length; i++) {
+        if (parts[i] === '**') return true;
+        if (parts[i][0] !== ':' && parts[i] !== clientParts[i]) return false;
     }
 
     return true;
