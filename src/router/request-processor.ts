@@ -57,7 +57,9 @@ async function render (renderers: TRendererData[], payload: unknown, bundle: TBu
     const { req, res, url } = bundle;
 
     if (!res.writableEnded && payload !== undefined) {
-        const renderer = findRenderer(renderers, getContentType(bundle));
+        const contentType = getContentType(bundle);
+        const renderer = findRenderer(renderers, contentType);
+
         await renderer(payload, bundle);
     }
 
