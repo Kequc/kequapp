@@ -63,7 +63,13 @@ function priority (a: TSortable, b: TSortable): number {
 }
 
 function compare (parts: string[], clientParts: string[]): boolean {
-    if (parts.length !== clientParts.length && !parts.includes('**')) {
+    const isWild = parts.includes('**');
+
+    if (!isWild && parts.length !== clientParts.length) {
+        return false;
+    }
+
+    if (isWild && parts.length - 1 > clientParts.length) {
         return false;
     }
 
