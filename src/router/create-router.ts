@@ -13,9 +13,9 @@ export default function createRouter (branchData: TAddableData): IRouter {
             const clientParts = getParts(pathname);
 
             return {
-                routes: routes.filter(item => compare(item.parts, clientParts)),
-                renderers: renderers.filter(item => compare(item.parts, clientParts)),
-                errorHandlers: errorHandlers.filter(item => compare(item.parts, clientParts))
+                routes: routes.filter(item => compareParts(item.parts, clientParts)),
+                renderers: renderers.filter(item => compareParts(item.parts, clientParts)),
+                errorHandlers: errorHandlers.filter(item => compareParts(item.parts, clientParts))
             };
         }
 
@@ -62,7 +62,7 @@ function priority (a: TSortable, b: TSortable): number {
     return 0;
 }
 
-function compare (parts: string[], clientParts: string[]): boolean {
+function compareParts (parts: string[], clientParts: string[]): boolean {
     const isWild = parts.includes('**');
 
     if (!isWild && parts.length !== clientParts.length) {
