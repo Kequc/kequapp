@@ -1,11 +1,8 @@
+import allowOrigin, { TAllowOriginOptions } from './allow-origin';
 import createBranch from '../../router/addable/create-branch';
 import createRoute from '../../router/addable/create-route';
 import { IAddableBranch, THandle, TPathname } from '../../types';
-import {
-    extractHandles,
-    extractOptions,
-    extractPathname
-} from '../../util/helpers';
+import { extractHandles, extractOptions, extractPathname } from '../../util/extract';
 import { extendHeader, setHeaders } from '../../util/sanitize';
 import {
     validateArray,
@@ -14,7 +11,6 @@ import {
     validatePathname,
     validateType
 } from '../../util/validate';
-import allowOrigin, { TAllowOriginOptions } from './allow-origin';
 
 interface IComposeAllowHeaders {
     (requestHeaders?: string): Promise<string | undefined> | string | undefined;
@@ -83,7 +79,6 @@ export default cors as ICors;
 
 function validateOptions (options: TCorsOptions): void {
     validateObject(options, 'Cors options');
-
     validateExists(options.allowMethods, 'Cors options.allowMethods');
     validateArray(options.allowMethods, 'Cors options.allowMethods', 'string');
     validateType(options.maxAge, 'Cors options.maxAge', 'number');

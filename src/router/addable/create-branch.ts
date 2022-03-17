@@ -7,7 +7,7 @@ import {
     TRendererData,
     TRouteData
 } from '../../types';
-import { extractHandles, extractPathname, getParts } from '../../util/helpers';
+import { extractHandles, extractPathname, getParts } from '../../util/extract';
 import {
     validateArray,
     validateErrorHandlers,

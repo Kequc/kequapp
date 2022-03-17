@@ -9,7 +9,7 @@ import {
     extractHandles,
     extractPathname,
     getParts
-} from '../../util/helpers';
+} from '../../util/extract';
 import { validateExists } from '../../util/validate';
 
 export default createRenderer as ICreateRenderer;

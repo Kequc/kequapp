@@ -3,8 +3,8 @@ import sendFile from './send-file';
 import createRoute from '../../router/addable/create-route';
 import { IAddable, TParams, TPathname } from '../../types';
 import Ex from '../../util/ex';
+import { extractOptions, extractPathname } from '../../util/extract';
 import guessMime from '../../util/guess-mime';
-import { extractOptions, extractPathname } from '../../util/helpers';
 import { validateArray, validateObject, validatePathname } from '../../util/validate';
 
 type TStaticFilesOptions = {

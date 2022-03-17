@@ -1,5 +1,5 @@
+import { getParts } from '../util/extract';
 import { IRouter, TAddableData } from '../types';
-import { getParts } from '../util/helpers';
 
 type TSortable = { parts: string[], contentType?: string };
 

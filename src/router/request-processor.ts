@@ -1,15 +1,12 @@
+import { extractParams, getParts } from '../util/extract';
 import {
-    IRouter,
-    TBundle,
-    TErrorHandler,
-    TErrorHandlerData,
-    TRenderer,
-    TRendererData,
-    TRouteData
-} from '../types';
+    findErrorHandler,
+    findRenderer,
+    findRoute,
+    getContentType
+} from './search';
+import { IRouter, TBundle, TRendererData } from '../types';
 import Ex from '../util/ex';
-import { extractParams, getParts } from '../util/helpers';
-import { getHeader, sanitizeContentType } from '../util/sanitize';
 
 export default async function requestProcessor (router: IRouter, raw: Omit<TBundle, 'params'>): Promise<void> {
     const { req, res, url } = raw;
@@ -41,7 +38,8 @@ export default async function requestProcessor (router: IRouter, raw: Omit<TBund
             }
         }
     } catch (error: unknown) {
-        const errorHandler = findErrorHandler(errorHandlers, getContentType(bundle));
+        const contentType = getContentType(bundle);
+        const errorHandler = findErrorHandler(errorHandlers, contentType);
         const payload = await errorHandler(error, bundle);
 
         if (res.statusCode === 500) {
@@ -51,18 +49,8 @@ export default async function requestProcessor (router: IRouter, raw: Omit<TBund
         await render(renderers, payload, bundle);
     }
 
-    // debug
+    // track request
     console.debug(res.statusCode, method, pathname);
-}
-
-function findRoute (routes: TRouteData[], method: string): TRouteData | undefined {
-    const route = routes.find(route => route.method === method);
-
-    if (!route && method === 'HEAD') {
-        return findRoute(routes, 'GET');
-    }
-
-    return route;
 }
 
 async function render (renderers: TRendererData[], payload: unknown, bundle: TBundle): Promise<void> {
@@ -79,44 +67,4 @@ async function render (renderers: TRendererData[], payload: unknown, bundle: TBu
             pathname: url.pathname
         });
     }
-}
-
-function findRenderer (renderers: TRendererData[], contentType: string): TRenderer {
-    const renderer = renderers.find(renderer => compareContentType(renderer.contentType, contentType));
-
-    if (!renderer) {
-        throw Ex.InternalServerError('Renderer not found', {
-            contentType,
-            availalble: renderers.map(renderer => renderer.contentType)
-        });
-    }
-
-    return renderer.handle;
-}
-
-function findErrorHandler (errorHandlers: TErrorHandlerData[], contentType: string): TErrorHandler {
-    const errorHandler = errorHandlers.find(errorHandler => compareContentType(errorHandler.contentType, contentType));
-
-    if (!errorHandler) {
-        throw Ex.InternalServerError('Error handler not found', {
-            contentType,
-            availalble: errorHandlers.map(errorHandler => errorHandler.contentType)
-        });
-    }
-
-    return errorHandler.handle;
-}
-
-function compareContentType (a: string, b: string): boolean {
-    const wildIndex = a.indexOf('*');
-
-    if (wildIndex > -1) {
-        return a.slice(0, wildIndex) === b.slice(0, wildIndex);
-    }
-
-    return a === b;
-}
-
-function getContentType ({ res }: TBundle): string {
-    return sanitizeContentType(getHeader(res, 'Content-Type'));
 }

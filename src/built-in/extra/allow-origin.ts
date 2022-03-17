@@ -1,6 +1,6 @@
 import createHandle from '../../router/create-handle';
 import { THandle } from '../../types';
-import { extractOptions } from '../../util/helpers';
+import { extractOptions } from '../../util/extract';
 import { extendHeader, setHeaders } from '../../util/sanitize';
 import {
     validateArray,
@@ -54,7 +54,6 @@ export default allowOrigin as IAllowOrigin;
 
 function validateOptions (options: TAllowOriginOptions): void {
     validateObject(options, 'Cors options');
-
     validateExists(options.allowOrigin, 'Cors options.allowOrigin');
     validateType(options.allowCredentials, 'Cors options.allowCredentials', 'boolean');
     validateArray(options.exposeHeaders, 'Cors options.exposeHeaders', 'string');

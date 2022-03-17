@@ -4,7 +4,7 @@ import {
     extractMethod,
     extractPathname,
     getParts
-} from '../../util/helpers';
+} from '../../util/extract';
 
 export default createRoute as ICreateRoute;
 
