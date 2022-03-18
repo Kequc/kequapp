@@ -117,9 +117,7 @@ export type TBundleParams = TParams & {
     '**'?: string[];
 };
 
-export type THeaders = {
-    [key: string]: string | number | undefined;
-};
+export type THeader = string | number | string[] | undefined;
 
 export interface IGetBody {
     (format: TBodyOptions & { raw: true, multipart: true }): Promise<TRawPart[]>;
@@ -163,4 +161,12 @@ export type TBodyJson = {
 export type TServerError = Error & {
     statusCode: number;
     info: unknown[];
+};
+
+export type TInjectOptions = {
+    method: string;
+    url: string;
+    headers: TParams;
+    rawHeaders: TParams;
+    body: unknown;
 };

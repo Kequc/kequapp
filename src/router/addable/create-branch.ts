@@ -49,13 +49,13 @@ function createBranch (...params: unknown[]): IAddableBranch {
     function add (...addables: IAddable[]): IAddableBranch {
         validateArray(addables, 'Addable', 'function');
 
-        const addableDatas = addables.map(addable => addable());
+        const addablesData = addables.map(addable => addable());
 
-        validateArray(addableDatas, 'Addable return value', 'object');
+        validateArray(addablesData, 'Addable return value', 'object');
 
-        const newRoutes = addableDatas.map(addableData => addableData.routes || []).flat();
-        const newRenderers = addableDatas.map(addableData => addableData.renderers || []).flat();
-        const newErrorHandlers = addableDatas.map(addableData => addableData.errorHandlers || []).flat();
+        const newRoutes = addablesData.map(addableData => addableData.routes || []).flat();
+        const newRenderers = addablesData.map(addableData => addableData.renderers || []).flat();
+        const newErrorHandlers = addablesData.map(addableData => addableData.errorHandlers || []).flat();
 
         validateRoutes(newRoutes, routes);
         validateRenderers(newRenderers);

@@ -1,4 +1,4 @@
-import { validateArray } from '../util/validate';
+import { validateArray } from './validate';
 import {
     TBundleParams,
     THandle,

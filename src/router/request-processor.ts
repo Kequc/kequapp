@@ -5,7 +5,7 @@ import {
     findRoute,
     getContentType
 } from './search';
-import { IRouter, TBundle, TRendererData } from '../types';
+import { IRouter, TBundle, TRendererData, TRouteData } from '../types';
 import Ex from '../util/ex';
 
 export default async function requestProcessor (router: IRouter, raw: Omit<TBundle, 'params'>): Promise<void> {
@@ -26,17 +26,8 @@ export default async function requestProcessor (router: IRouter, raw: Omit<TBund
             throw Ex.NotFound();
         }
 
-        const lastIndex = route.handles.length - 1;
-
-        for (let i = 0; i <= lastIndex; i++) {
-            const handle = route.handles[i];
-            const payload = await handle(bundle);
-
-            if (res.writableEnded || payload !== undefined || i === lastIndex) {
-                await render(renderers, payload, bundle);
-                break;
-            }
-        }
+        const payload = await lifecycle(route, bundle);
+        await render(renderers, payload, bundle);
     } catch (error: unknown) {
         const contentType = getContentType(bundle);
         const errorHandler = findErrorHandler(errorHandlers, contentType);
@@ -53,13 +44,26 @@ export default async function requestProcessor (router: IRouter, raw: Omit<TBund
     console.debug(res.statusCode, method, pathname);
 }
 
+async function lifecycle (route: TRouteData, bundle: TBundle): Promise<unknown> {
+    let payload: unknown = undefined;
+
+    for (const handle of route.handles) {
+        payload = await handle(bundle);
+
+        if (bundle.res.writableEnded || payload !== undefined) {
+            break;
+        }
+    }
+
+    return payload;
+}
+
 async function render (renderers: TRendererData[], payload: unknown, bundle: TBundle): Promise<void> {
     const { req, res, url } = bundle;
 
     if (!res.writableEnded && payload !== undefined) {
         const contentType = getContentType(bundle);
         const renderer = findRenderer(renderers, contentType);
-
         await renderer(payload, bundle);
     }
 

@@ -1,18 +1,9 @@
 import { IncomingMessage, ServerResponse } from 'http';
-import MockReq from 'mock-req';
-import MockRes from 'mock-res';
 import { Transform } from 'stream';
 import createGetResponse from './body/create-get-response';
-import { IGetResponse, IKequapp, TParams } from './types';
-
-type TInjectOptions = {
-    method: string;
-    url: string;
-    headers: TParams;
-    rawHeaders: TParams;
-    search: string;
-    body: unknown;
-};
+import { IGetResponse, IKequapp, TInjectOptions } from './types';
+import FakeIncomingMessage from './util/mock/fake-req';
+import FakeServerResponse from './util/mock/fake-res';
 
 type TInject = {
     req: IncomingMessage & Transform;
@@ -21,23 +12,10 @@ type TInject = {
 };
 
 export function inject (app: IKequapp, options: Partial<TInjectOptions>): TInject {
-    const _options = { ...options };
-
-    if (_options.search) {
-        _options.search = new URLSearchParams(_options.search).toString();
-    }
-
-    const body = options.body;
-    delete _options.body;
-
-    const req = new MockReq(_options);
-    const res = new MockRes();
+    const req = new FakeIncomingMessage(options);
+    const res = new FakeServerResponse();
 
     app(req, res);
-
-    if (body !== null && !req.writableEnded) {
-        req.end(body);
-    }
 
     return {
         req,
