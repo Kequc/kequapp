@@ -90,11 +90,11 @@ export interface ILifecycle {
 }
 
 export interface IGetResponse {
-    (format: ServerResponseponseOptions & { raw: true }): Promise<Buffer>;
-    (format?: ServerResponseponseOptions): Promise<any>;
+    (format: ServerResponseOptions & { raw: true }): Promise<Buffer>;
+    (format?: ServerResponseOptions): Promise<any>;
 }
 
-export type ServerResponseponseOptions = {
+export type ServerResponseOptions = {
     raw?: boolean;
 };
 
