@@ -49,6 +49,8 @@ it('returns an error if auth is invalid', async () => {
 
     const body = await getResponse();
 
+    console.log(typeof body);
+
     assert.strictEqual(res.getHeader('Content-Type'), 'application/json');
     assert.strictEqual(body.error.statusCode, 401);
     assert.strictEqual(body.error.message, 'Unauthorized');

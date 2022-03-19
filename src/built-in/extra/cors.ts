@@ -3,7 +3,6 @@ import createBranch from '../../router/addable/create-branch';
 import createRoute from '../../router/addable/create-route';
 import { IAddableBranch, THandle, TPathname } from '../../types';
 import { extractHandles, extractOptions, extractPathname } from '../../util/extract';
-import { extendHeader, setHeaders } from '../../util/sanitize';
 import {
     validateArray,
     validateExists,
@@ -11,6 +10,7 @@ import {
     validatePathname,
     validateType
 } from '../../util/validate';
+import { extendHeader, setHeaders } from '../../util/header-tools';
 
 interface IComposeAllowHeaders {
     (requestHeaders?: string): Promise<string | undefined> | string | undefined;

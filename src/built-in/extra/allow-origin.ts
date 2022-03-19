@@ -1,7 +1,7 @@
 import createHandle from '../../router/create-handle';
 import { THandle } from '../../types';
 import { extractOptions } from '../../util/extract';
-import { extendHeader, setHeaders } from '../../util/sanitize';
+import { extendHeader, setHeaders } from '../../util/header-tools';
 import {
     validateArray,
     validateExists,
@@ -34,7 +34,7 @@ function allowOrigin (...params: unknown[]): THandle {
 
     const composeAllowOrigin = createComposeAllowOrigin(options);
     const allowCredentials = options.allowCredentials ? 'true' : undefined;
-    const exposeHeaders = options.exposeHeaders?.join(',') || undefined;
+    const exposeHeaders = options.exposeHeaders?.join(',');
     const varyOrigin = getVaryOrigin(options);
 
     return createHandle(async ({ req, res }) => {

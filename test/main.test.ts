@@ -11,8 +11,6 @@ import {
     sendFile,
     staticFiles,
     createHandle,
-    extendHeader,
-    setHeaders,
     Ex
 } from '../src/main';
 
@@ -27,8 +25,6 @@ it('exports a lot of stuff', () => {
     assert.strictEqual(typeof sendFile, 'function');
     assert.strictEqual(typeof staticFiles, 'function');
     assert.strictEqual(typeof createHandle, 'function');
-    assert.strictEqual(typeof extendHeader, 'function');
-    assert.strictEqual(typeof setHeaders, 'function');
     assert.strictEqual(typeof Ex, 'object');
 });
 

@@ -8,7 +8,6 @@ import normalizeBody from './normalize-body';
 import streamReader from './stream-reader';
 import { IGetBody, TBodyOptions, TRawPart } from '../types';
 import Ex from '../util/ex';
-import { getHeaders } from '../util/sanitize';
 
 const parseBody = createParseBody({
     'application/x-www-form-urlencoded': parseUrlEncoded,
@@ -20,12 +19,16 @@ export default function createGetBody (req: IncomingMessage): IGetBody {
 
     return async function (options: TBodyOptions = {}): Promise<any> {
         if (_body === undefined) {
-            const data = await streamReader(getStream(req), getMaxPayloadSize(options));
-            const headers = getHeaders(req, ['Content-Type', 'Content-Disposition']);
-            _body = { headers, data };
+            _body = {
+                headers: {
+                    'content-type': req.headers['content-type'] || '',
+                    'content-disposition': req.headers['content-disposition'] || ''
+                },
+                data: await streamReader(getStream(req), getMaxPayloadSize(options))
+            };
         }
 
-        const isMultipartRequest = _body.headers['content-type']?.startsWith('multipart/');
+        const isMultipartRequest = String(_body.headers['content-type'] || '').startsWith('multipart/');
 
         if (options.raw === true) {
             if (options.multipart === true) {

@@ -1,5 +1,4 @@
 import {
-    TBundle,
     TErrorHandler,
     TErrorHandlerData,
     TRenderer,
@@ -7,7 +6,6 @@ import {
     TRouteData
 } from '../types';
 import Ex from '../util/ex';
-import { getHeader, sanitizeContentType } from '../util/sanitize';
 
 export function findRoute (routes: TRouteData[], method: string): TRouteData | undefined {
     const route = routes.find(route => route.method === method);
@@ -43,10 +41,6 @@ export function findErrorHandler (errorHandlers: TErrorHandlerData[], contentTyp
     }
 
     return errorHandler.handle;
-}
-
-export function getContentType ({ res }: TBundle): string {
-    return sanitizeContentType(getHeader(res, 'Content-Type'));
 }
 
 function compareContentType (a: string, b: string): boolean {

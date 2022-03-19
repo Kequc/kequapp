@@ -1,12 +1,13 @@
-import { extractParams, getParts } from '../util/extract';
+import { findErrorHandler, findRenderer, findRoute } from './search';
 import {
-    findErrorHandler,
-    findRenderer,
-    findRoute,
-    getContentType
-} from './search';
-import { IRouter, TBundle, TRendererData, TRouteData } from '../types';
+    IRouter,
+    TBundle,
+    TRendererData,
+    TRouteData
+} from '../types';
 import Ex from '../util/ex';
+import { extractParams, getParts } from '../util/extract';
+import { getHeaderString } from '../util/header-tools';
 
 export default async function requestProcessor (router: IRouter, raw: Omit<TBundle, 'params'>): Promise<void> {
     const { req, res, url } = raw;
@@ -29,7 +30,7 @@ export default async function requestProcessor (router: IRouter, raw: Omit<TBund
         const payload = await lifecycle(route, bundle);
         await render(renderers, payload, bundle);
     } catch (error: unknown) {
-        const contentType = getContentType(bundle);
+        const contentType = getHeaderString(res, 'Content-Type');
         const errorHandler = findErrorHandler(errorHandlers, contentType);
         const payload = await errorHandler(error, bundle);
 
@@ -62,7 +63,7 @@ async function render (renderers: TRendererData[], payload: unknown, bundle: TBu
     const { req, res, url } = bundle;
 
     if (!res.writableEnded && payload !== undefined) {
-        const contentType = getContentType(bundle);
+        const contentType = getHeaderString(bundle.res, 'Content-Type');
         const renderer = findRenderer(renderers, contentType);
         await renderer(payload, bundle);
     }

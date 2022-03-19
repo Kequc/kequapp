@@ -1,9 +1,8 @@
 import { IncomingMessage, ServerResponse } from 'http';
 import { Transform } from 'stream';
 import createGetResponse from './body/create-get-response';
-import { IGetResponse, IKequapp, TInjectOptions } from './types';
-import FakeIncomingMessage from './util/mock/fake-req';
-import FakeServerResponse from './util/mock/fake-res';
+import { IGetResponse, IKequapp, TReqOptions } from './types';
+import { FakeReq, FakeRes } from './util/fake-http';
 
 type TInject = {
     req: IncomingMessage & Transform;
@@ -11,9 +10,9 @@ type TInject = {
     getResponse: IGetResponse;
 };
 
-export function inject (app: IKequapp, options: Partial<TInjectOptions>): TInject {
-    const req = new FakeIncomingMessage(options);
-    const res = new FakeServerResponse();
+export function inject (app: IKequapp, options: Partial<TReqOptions>): TInject {
+    const req = new FakeReq(options) as any;
+    const res = new FakeRes() as any;
 
     app(req, res);
 

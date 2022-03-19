@@ -7,6 +7,7 @@ const LF = 0x0a;
 
 function splitMultipart (body: TRawPart): TRawPart[] {
     const contentType = body.headers['content-type'];
+
     if (!contentType?.startsWith('multipart/')) {
         throw Ex.BadRequest('Unable to process request', {
             contentType

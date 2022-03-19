@@ -90,11 +90,11 @@ export interface ILifecycle {
 }
 
 export interface IGetResponse {
-    (format: ServerResponseOptions & { raw: true }): Promise<Buffer>;
-    (format?: ServerResponseOptions): Promise<any>;
+    (format: TServerResponseOptions & { raw: true }): Promise<Buffer>;
+    (format?: TServerResponseOptions): Promise<any>;
 }
 
-export type ServerResponseOptions = {
+export type TServerResponseOptions = {
     raw?: boolean;
 };
 
@@ -111,13 +111,15 @@ export type TBundleContext = {
     [k: string]: unknown;
 };
 
+export type THeader = string | number | string[] | undefined;
+
+export type THeaders = { [key: string]: THeader };
+
 export type TParams = { [k: string]: string };
 
 export type TBundleParams = TParams & {
     '**'?: string[];
 };
-
-export type THeader = string | number | string[] | undefined;
 
 export interface IGetBody {
     (format: TBodyOptions & { raw: true, multipart: true }): Promise<TRawPart[]>;
@@ -163,10 +165,11 @@ export type TServerError = Error & {
     info: unknown[];
 };
 
-export type TInjectOptions = {
+export type TReqOptions = {
+    [key: string]: any;
     method: string;
     url: string;
     headers: TParams;
-    rawHeaders: TParams;
+    rawHeaders: string[];
     body: unknown;
 };

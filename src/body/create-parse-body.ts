@@ -1,9 +1,9 @@
 import { TBodyJson, TRawPart } from '../types';
 import Ex from '../util/ex';
 
-type Parser = (body: TRawPart) => any;
+type TParser = (body: TRawPart) => any;
 
-export default function createParseBody (parsers: { [k: string]: Parser }, _default?: Parser): Parser {
+export default function createParseBody (parsers: { [k: string]: TParser }, _default?: TParser): TParser {
     return function (body: TRawPart) {
         const contentType = body.headers['content-type'] || 'text/plain';
 
