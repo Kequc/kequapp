@@ -1,9 +1,10 @@
 import {
     IAddable,
     IAddableBranch,
-    ICreateBranch,
     TAddableData,
     TErrorHandlerData,
+    THandle,
+    TPathname,
     TRendererData,
     TRouteData
 } from '../../types';
@@ -16,6 +17,11 @@ import {
 } from '../../util/validate';
 
 export default createBranch as ICreateBranch;
+
+export interface ICreateBranch {
+    (pathname: TPathname, ...handles: THandle[]): IAddableBranch;
+    (...handles: THandle[]): IAddableBranch;
+}
 
 function createBranch (...params: unknown[]): IAddableBranch {
     const parts = getParts(extractPathname(params));

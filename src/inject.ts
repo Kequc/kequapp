@@ -10,7 +10,7 @@ type TInject = {
     getResponse: IGetResponse;
 };
 
-export function inject (app: IKequapp, options: Partial<TReqOptions>): TInject {
+export function inject (app: IKequapp, options: TReqOptions): TInject {
     const req = new FakeReq(options) as any;
     const res = new FakeRes() as any;
 

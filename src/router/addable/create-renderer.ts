@@ -1,7 +1,7 @@
 import {
     IAddable,
-    ICreateRenderer,
     TAddableData,
+    TPathname,
     TRenderer
 } from '../../types';
 import {
@@ -13,6 +13,11 @@ import {
 import { validateExists } from '../../util/validate';
 
 export default createRenderer as ICreateRenderer;
+
+interface ICreateRenderer {
+    (pathname: TPathname, contentType: string, handle: TRenderer): IAddable;
+    (contentType: string, handle: TRenderer): IAddable;
+}
 
 function createRenderer (...params: unknown[]): IAddable {
     const parts = getParts(extractPathname(params, '/**'));

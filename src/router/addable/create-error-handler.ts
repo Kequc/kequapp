@@ -1,8 +1,8 @@
 import {
     IAddable,
-    ICreateErrorHandler,
     TAddableData,
-    TErrorHandler
+    TErrorHandler,
+    TPathname
 } from '../../types';
 import {
     extractContentType,
@@ -13,6 +13,13 @@ import {
 import { validateExists } from '../../util/validate';
 
 export default createErrorHandler as ICreateErrorHandler;
+
+interface ICreateErrorHandler {
+    (pathname: TPathname, contentType: string, handle: TErrorHandler): IAddable;
+    (pathname: TPathname, handle: TErrorHandler): IAddable;
+    (contentType: string, handle: TErrorHandler): IAddable;
+    (handle: TErrorHandler): IAddable;
+}
 
 function createErrorHandler (...params: unknown[]): IAddable {
     const parts = getParts(extractPathname(params, '/**'));

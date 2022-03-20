@@ -8,56 +8,16 @@ export interface IAddable {
     (): Partial<TAddableData>;
 }
 
-export type TAddableData = {
-    routes: TRouteData[];
-    renderers: TRendererData[];
-    errorHandlers: TErrorHandlerData[];
-};
-
-export type TRouteData = {
-    parts: string[];
-    handles: THandle[];
-    method: string;
-};
-
-export interface ICreateBranch {
-    (pathname: TPathname, ...handles: THandle[]): IAddableBranch;
-    (...handles: THandle[]): IAddableBranch;
-}
-
 export interface IAddableBranch {
     (): TAddableData;
     add (...routers: IAddable[]): IAddableBranch;
 }
 
-export interface ICreateRoute {
-    (method: string, pathname: TPathname, ...handles: THandle[]): IAddable;
-    (pathname: TPathname, ...handles: THandle[]): IAddable;
-    (method: string, ...handles: THandle[]): IAddable;
-    (...handles: THandle[]): IAddable;
-}
-
-export interface ICreateRenderer {
-    (pathname: TPathname, contentType: string, handle: TRenderer): IAddable;
-    (contentType: string, handle: TRenderer): IAddable;
-}
-
-export interface ICreateErrorHandler {
-    (pathname: TPathname, contentType: string, handle: TErrorHandler): IAddable;
-    (pathname: TPathname, handle: TErrorHandler): IAddable;
-    (contentType: string, handle: TErrorHandler): IAddable;
-    (handle: TErrorHandler): IAddable;
-}
-
-export interface ICreateHandle {
-    (handle: THandle): THandle;
-}
-
-export type THandle = (bundle: TBundle) => Promise<unknown> | unknown;
-
-export type TRenderer = (payload: unknown, bundle: TBundle) => Promise<void> | void;
-
-export type TErrorHandler = (error: unknown, bundle: TBundle) => Promise<unknown> | unknown;
+export type TAddableData = {
+    routes: TRouteData[];
+    renderers: TRendererData[];
+    errorHandlers: TErrorHandlerData[];
+};
 
 export interface IRouter {
     (pathname?: string): TAddableData;
@@ -67,6 +27,12 @@ export type TRoute = {
     parts: string[];
     method: string;
     lifecycle: (req: IncomingMessage, res: ServerResponse) => void;
+};
+
+export type TRouteData = {
+    parts: string[];
+    handles: THandle[];
+    method: string;
 };
 
 export type TRendererData = {
@@ -81,22 +47,21 @@ export type TErrorHandlerData = {
     handle: TErrorHandler;
 };
 
+export type THandle = (bundle: TBundle) => Promise<unknown> | unknown;
+
+export type TRenderer = (payload: unknown, bundle: TBundle) => Promise<void> | void;
+
+export type TErrorHandler = (error: unknown, bundle: TBundle) => Promise<unknown> | unknown;
+
 export type TPathname = `/${string}`;
 
 export type TPathnameWild = TPathname & `${string}/**`;
 
-export interface ILifecycle {
-    (): Promise<void>;
-}
+export type THeader = string | number | string[] | undefined;
 
-export interface IGetResponse {
-    (format: TServerResponseOptions & { raw: true }): Promise<Buffer>;
-    (format?: TServerResponseOptions): Promise<any>;
-}
+export type THeaders = { [key: string]: THeader };
 
-export type TServerResponseOptions = {
-    raw?: boolean;
-};
+export type TParams = { [k: string]: string };
 
 export type TBundle = {
     req: IncomingMessage;
@@ -107,18 +72,12 @@ export type TBundle = {
     getBody: IGetBody;
 };
 
-export type TBundleContext = {
-    [k: string]: unknown;
-};
-
-export type THeader = string | number | string[] | undefined;
-
-export type THeaders = { [key: string]: THeader };
-
-export type TParams = { [k: string]: string };
-
 export type TBundleParams = TParams & {
     '**'?: string[];
+};
+
+export type TBundleContext = {
+    [k: string]: unknown;
 };
 
 export interface IGetBody {
@@ -129,17 +88,6 @@ export interface IGetBody {
     <T>(format: TBodyOptions & { multipart: true }): Promise<[T, TFilePart[]]>;
     <T>(format?: TBodyOptions): Promise<T>;
 }
-
-export type TRawPart = {
-    headers: TParams;
-    data: Buffer;
-};
-
-export type TFilePart = TRawPart & {
-    mime?: string;
-    name?: string;
-    filename?: string;
-};
 
 export type TBodyOptions = {
     raw?: boolean;
@@ -154,6 +102,35 @@ export type TBodyOptions = {
     postProcess? (body: TBodyJson): TBodyJson;
 };
 
+export interface IGetResponse {
+    (format: TGetResponseOptions & { raw: true }): Promise<Buffer>;
+    (format?: TGetResponseOptions): Promise<any>;
+}
+
+export type TReqOptions = {
+    [key: string]: any;
+    method?: string;
+    url?: string;
+    headers?: TParams;
+    rawHeaders?: string[];
+    body?: unknown;
+};
+
+export type TGetResponseOptions = {
+    raw?: boolean;
+};
+
+export type TRawPart = {
+    headers: TParams;
+    data: Buffer;
+};
+
+export type TFilePart = TRawPart & {
+    mime?: string;
+    name?: string;
+    filename?: string;
+};
+
 export type TBodyJsonValue = string | number | boolean | Date | null | TBodyJson | TBodyJsonValue[];
 
 export type TBodyJson = {
@@ -163,13 +140,4 @@ export type TBodyJson = {
 export type TServerError = Error & {
     statusCode: number;
     info: unknown[];
-};
-
-export type TReqOptions = {
-    [key: string]: any;
-    method: string;
-    url: string;
-    headers: TParams;
-    rawHeaders: string[];
-    body: unknown;
 };

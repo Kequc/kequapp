@@ -2,7 +2,7 @@ import { ServerResponse } from 'http';
 import { Readable } from 'stream';
 import createParseBody, { parseJson } from './create-parse-body';
 import streamReader from './stream-reader';
-import { IGetResponse, TRawPart, TServerResponseOptions } from '../types';
+import { IGetResponse, TGetResponseOptions, TRawPart } from '../types';
 import { getHeaderString } from '../util/header-tools';
 
 const parseBody = createParseBody({
@@ -13,7 +13,7 @@ const parseBody = createParseBody({
 export default function createGetResponse (res: ServerResponse): IGetResponse {
     let _body: TRawPart;
 
-    return async function (options: TServerResponseOptions = {}) {
+    return async function (options: TGetResponseOptions = {}) {
         if (_body === undefined) {
             // ensures application has responded
             const data = await streamReader(res as unknown as Readable);

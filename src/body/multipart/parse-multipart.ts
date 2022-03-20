@@ -14,7 +14,7 @@ function parseMultipart (parts: TRawPart[]): [TBodyJson, TFilePart[]] {
 
     for (const part of parts) {
         const { filename, name } = headerAttributes(part.headers['content-disposition']);
-        const mime = sanitizeContentType(part.headers['content-type']);
+        const mime = sanitizeContentType(part.headers['content-type'] || 'text/plain');
         const isFile = filename || !mime.startsWith('text/');
 
         if (isFile) {

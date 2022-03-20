@@ -56,9 +56,9 @@ export function setHeaders (res: ServerResponse, headers: THeaders): void {
 function getValues (value: THeader): string[] {
     if (value === undefined) {
         return [];
-    } else if (Array.isArray(value)) {
-        return value.map(String);
-    } else {
-        return String(value).split(',');
     }
+
+    return (Array.isArray(value) ? value : [value])
+        .map(item => String(item).split(','))
+        .flat();
 }
