@@ -9,7 +9,7 @@ export class FakeReq extends Transform {
     headers: TParams;
     rawHeaders: string[];
 
-    constructor (options: Partial<TReqOptions>) {
+    constructor (options: TReqOptions) {
         super();
 
         for (const key of Object.keys(options)) {

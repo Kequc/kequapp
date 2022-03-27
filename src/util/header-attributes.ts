@@ -24,23 +24,21 @@ export default function headerAttributes (header = ''): TParams {
             }
             continue;
         }
-
         if (/[?:;|, ]/.test(header[i]) && !inQuotes) {
             if (isAssignment) result[key] = value;
             reset();
             continue;
         }
-
         if (header[i] === '=' && !inQuotes) {
             isAssignment = true;
             continue;
         }
-
         if (isAssignment) {
             value += header[i];
-        } else {
-            key += header[i];
+            continue;
         }
+
+        key += header[i];
     }
 
     if (isAssignment && !inQuotes) {

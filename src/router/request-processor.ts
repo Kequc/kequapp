@@ -13,7 +13,6 @@ export default async function requestProcessor (router: IRouter, raw: Omit<TBund
     const { req, res, url } = raw;
     const method = req.method || 'GET';
     const pathname = url.pathname;
-
     const { routes, renderers, errorHandlers } = router(pathname);
     const route = findRoute(routes, method);
     const bundle: TBundle = Object.freeze({

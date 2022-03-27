@@ -22,18 +22,21 @@ const NO_DUPE = [
     'user-agent'
 ];
 
-export function getHeaderString (res: ServerResponse, key: string): string {
+export function getHeaderString (res: ServerResponse, key?: string): string {
+    if (key === undefined) return '';
+
     const values = getValues(res.getHeader(key));
+    const _key = key.toLowerCase();
 
-    if (key !== undefined && NO_DUPE.includes(key)) {
-        return values[0];
+    if (NO_DUPE.includes(_key)) {
+        return values[0] || '';
+    } else {
+        return stringify(values, _key === 'cookie');
     }
-
-    return [...new Set(values)].join(key === 'cookie' ? ';' : ',');
 }
 
-export function extendHeader (res: ServerResponse, key: string, value: THeader): void {
-    if (value === undefined) return;
+export function extendHeader (res: ServerResponse, key?: string, value?: THeader): void {
+    if (key === undefined || value === undefined) return;
 
     const values = [
         ...getValues(res.getHeader(key)),
@@ -60,5 +63,10 @@ function getValues (value: THeader): string[] {
 
     return (Array.isArray(value) ? value : [value])
         .map(item => String(item).split(','))
-        .flat();
+        .flat()
+        .map(item => item.trim());
+}
+
+function stringify (values: string[], isCookie = false) {
+    return [...new Set(values)].join(isCookie ? ';' : ',');
 }
