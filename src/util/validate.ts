@@ -29,10 +29,12 @@ export function validateArray (topic: unknown, name: string, type?: string): voi
 }
 
 export function validateType (topic: unknown, name: string, type: string): void {
-    if (type === 'object') {
-        validateObject(topic, name);
-    } else if (topic !== undefined && typeof topic !== type) {
-        throw new Error(`${name} must be a ${type}`);
+    if (topic !== undefined) {
+        if (type === 'object') {
+            validateObject(topic, name);
+        } else if (typeof topic !== type) {
+            throw new Error(`${name} must be a ${type}`);
+        }
     }
 }
 

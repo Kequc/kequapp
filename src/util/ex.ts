@@ -1,10 +1,11 @@
 import { STATUS_CODES } from 'http';
 import { TServerError } from '../types';
 
+type TError = Error & { statusCode: number, info: unknown[] };
 type TStatusCode = (statusCode: number, message?: string, ...info: unknown[]) => TServerError;
-type TServerErrorHelper = (message?: string, ...info: unknown[]) => Error;
+type TServerErrorHelper = (message?: string, ...info: unknown[]) => TError;
 type TEx = {
-    StatusCode: (statusCode: number, message?: string, ...info: unknown[]) => Error;
+    StatusCode: (statusCode: number, message?: string, ...info: unknown[]) => TError;
     BadRequest: TServerErrorHelper;                      // 400
     Unauthorized: TServerErrorHelper;                    // 401
     PaymentRequired: TServerErrorHelper;                 // 402
@@ -55,10 +56,11 @@ const Ex: any = {
 
 function StatusCode (statusCode: number, message?: string, ...info: unknown[]) {
     if (!STATUS_CODES[statusCode]) {
-        return _buildError(StatusCode, 500, message, ...info);
+        return _buildError(StatusCode, 'Error', statusCode, message, ...info);
     }
 
-    return _buildError(StatusCode, statusCode, message, ...info);
+    const key = createMethodName(statusCode);
+    return _buildError(StatusCode, key, statusCode, message, ...info);
 }
 
 for (const statusCode of statusCodes) {
@@ -67,14 +69,15 @@ for (const statusCode of statusCodes) {
     const key = createMethodName(statusCode);
 
     Ex[key] = function (message?: string, ...info: unknown[]) {
-        return _buildError(Ex[key], statusCode, message, ...info);
+        return _buildError(Ex[key], key, statusCode, message, ...info);
     };
 }
 
 export default Ex as TEx;
 
-function _buildError (parent: TStatusCode, statusCode: number, message?: string, ...info: unknown[]) {
+function _buildError (parent: TStatusCode, name: string, statusCode: number, message?: string, ...info: unknown[]) {
     const error = new Error(message || STATUS_CODES[statusCode]) as TServerError;
+    error.name = name;
     error.statusCode = statusCode;
     error.info = info.map(normalize);
 

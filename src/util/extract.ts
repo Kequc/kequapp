@@ -1,10 +1,5 @@
 import { validateArray } from './validate';
-import {
-    TBundleParams,
-    THandle,
-    TPathname,
-    TRouteData
-} from '../types';
+import { THandle, TPathname } from '../types';
 
 export function extractMethod (params: unknown[]): string {
     if (typeof params[0] !== 'string' || params[0][0] === '/') {
@@ -55,23 +50,4 @@ export function extractOptions<T> (params: unknown[], defaultOptions?: T): T {
     }
 
     return { ...defaultOptions, ...(params.shift() as T) };
-}
-
-export function extractParams (parts: string[], route?: TRouteData): TBundleParams {
-    const params: TBundleParams = {};
-
-    if (route !== undefined) {
-        for (let i = 0; i < route.parts.length; i++) {
-            if (route.parts[i] === '**') {
-                params['**'] = parts.slice(i);
-                return params;
-            }
-
-            if (route.parts[i][0] === ':') {
-                params[route.parts[i].substring(1)] = parts[i];
-            }
-        }
-    }
-
-    return params;
 }

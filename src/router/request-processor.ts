@@ -2,11 +2,12 @@ import { findErrorHandler, findRenderer, findRoute } from './search';
 import {
     IRouter,
     TBundle,
+    TBundleParams,
     TRendererData,
     TRouteData
 } from '../types';
 import Ex from '../util/ex';
-import { extractParams, getParts } from '../util/extract';
+import { getParts } from '../util/extract';
 import { getHeaderString } from '../util/header-tools';
 
 export default async function requestProcessor (router: IRouter, raw: Omit<TBundle, 'params'>): Promise<void> {
@@ -17,7 +18,7 @@ export default async function requestProcessor (router: IRouter, raw: Omit<TBund
     const route = findRoute(routes, method);
     const bundle: TBundle = Object.freeze({
         ...raw,
-        params: extractParams(getParts(pathname), route)
+        params: getParams(getParts(pathname), route)
     });
 
     try {
@@ -42,6 +43,25 @@ export default async function requestProcessor (router: IRouter, raw: Omit<TBund
 
     // track request
     console.debug(res.statusCode, method, pathname);
+}
+
+function getParams (parts: string[], route?: TRouteData): TBundleParams {
+    const params: TBundleParams = {};
+
+    if (route !== undefined) {
+        for (let i = 0; i < route.parts.length; i++) {
+            if (route.parts[i] === '**') {
+                params['**'] = parts.slice(i);
+                return params;
+            }
+
+            if (route.parts[i][0] === ':') {
+                params[route.parts[i].substring(1)] = parts[i];
+            }
+        }
+    }
+
+    return params;
 }
 
 async function lifecycle (route: TRouteData, bundle: TBundle): Promise<unknown> {
