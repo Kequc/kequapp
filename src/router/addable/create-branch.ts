@@ -16,16 +16,16 @@ import {
     validateRoutes
 } from '../../util/validate';
 
-export default createBranch as ICreateBranch;
-
 export interface ICreateBranch {
     (pathname: TPathname, ...handles: THandle[]): IAddableBranch;
     (...handles: THandle[]): IAddableBranch;
 }
 
+export default createBranch as ICreateBranch;
+
 function createBranch (...params: unknown[]): IAddableBranch {
     const parts = getParts(extractPathname(params));
-    const handles = extractHandles(params);
+    const handles = extractHandles<THandle>(params);
 
     // we don't want wild
     if (parts.includes('**')) parts.pop();

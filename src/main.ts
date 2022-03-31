@@ -17,6 +17,7 @@ export { default as sendFile } from './built-in/extra/send-file';
 export { default as staticFiles } from './built-in/extra/static-files';
 export { default as createHandle } from './router/create-handle';
 export { default as Ex } from './util/ex';
+export { default as inject } from './inject';
 export * from './types';
 
 export function createApp (): IKequapp {

@@ -9,6 +9,10 @@ import {
     validateType
 } from '../../util/validate';
 
+const DEFAULT_OPTIONS: TAllowOriginOptions = {
+    allowOrigin: '*'
+};
+
 interface IComposeAllowOrigin {
     (origin?: string): Promise<string | undefined> | string | undefined;
 }
@@ -23,9 +27,7 @@ interface IAllowOrigin {
     (options?: Partial<TAllowOriginOptions>): THandle;
 }
 
-const DEFAULT_OPTIONS: TAllowOriginOptions = {
-    allowOrigin: '*'
-};
+export default allowOrigin as IAllowOrigin;
 
 function allowOrigin (...params: unknown[]): THandle {
     const options = extractOptions<TAllowOriginOptions>(params, DEFAULT_OPTIONS);
@@ -49,8 +51,6 @@ function allowOrigin (...params: unknown[]): THandle {
         }
     });
 }
-
-export default allowOrigin as IAllowOrigin;
 
 function validateOptions (options: TAllowOriginOptions): void {
     validateObject(options, 'Cors options');

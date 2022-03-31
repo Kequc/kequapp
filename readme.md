@@ -536,7 +536,7 @@ It also returns `getResponse()` which may be used to wait for our application to
 
 
 ```javascript
-const { inject } = require('kequapp/inject');
+const { inject } = require('kequapp');
 ```
 
 ```javascript

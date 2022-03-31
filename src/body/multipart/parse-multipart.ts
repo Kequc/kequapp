@@ -6,7 +6,7 @@ import {
 } from '../../types';
 import headerAttributes from '../../util/header-attributes';
 
-function parseMultipart (parts: TRawPart[]): [TBodyJson, TFilePart[]] {
+export default function parseMultipart (parts: TRawPart[]): [TBodyJson, TFilePart[]] {
     const result: TBodyJson = {};
     const files: TFilePart[] = [];
     const counters: { [k: string]: number } = {};
@@ -43,8 +43,6 @@ function parseMultipart (parts: TRawPart[]): [TBodyJson, TFilePart[]] {
 
     return [result, files];
 }
-
-export default parseMultipart;
 
 function getMime (contentType?: string): string {
     return contentType?.split(';')[0].toLowerCase().trim() || 'text/plain';

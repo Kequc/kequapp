@@ -1,6 +1,6 @@
 import 'kequtest';
 import assert from 'assert';
-import { inject } from '../src/inject';
+import inject from '../src/inject';
 import { createApp, createRoute } from '../src/main';
 
 it('can return a response from the app', async () => {

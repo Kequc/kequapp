@@ -12,17 +12,17 @@ import {
 } from '../../util/extract';
 import { validateExists } from '../../util/validate';
 
-export default createRenderer as ICreateRenderer;
-
 interface ICreateRenderer {
-    (pathname: TPathname, contentType: string, handle: TRenderer): IAddable;
+    (contentType: string, pathname: TPathname, handle: TRenderer): IAddable;
     (contentType: string, handle: TRenderer): IAddable;
 }
 
+export default createRenderer as ICreateRenderer;
+
 function createRenderer (...params: unknown[]): IAddable {
-    const parts = getParts(extractPathname(params, '/**'));
     const contentType = extractContentType(params);
-    const [handle] = extractHandles(params) as unknown as TRenderer[];
+    const parts = getParts(extractPathname(params, '/**'));
+    const [handle] = extractHandles<TRenderer>(params);
 
     validateExists(contentType, 'Renderer contentType');
     validateExists(handle, 'Renderer handle');

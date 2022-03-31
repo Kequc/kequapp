@@ -12,6 +12,11 @@ import {
 } from '../../util/validate';
 import { extendHeader, setHeaders } from '../../util/header-tools';
 
+const DEFAULT_OPTIONS: TCorsOptions = {
+    allowOrigin: '*',
+    allowMethods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE']
+};
+
 interface IComposeAllowHeaders {
     (requestHeaders?: string): Promise<string | undefined> | string | undefined;
 }
@@ -29,15 +34,12 @@ interface ICors {
     (...handles: THandle[]): IAddableBranch;
 }
 
-const DEFAULT_OPTIONS: TCorsOptions = {
-    allowOrigin: '*',
-    allowMethods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE']
-};
+export default cors as ICors;
 
 function cors (...params: unknown[]): IAddableBranch {
     const pathname = extractPathname(params, '/**');
     const options = extractOptions<TCorsOptions>(params, DEFAULT_OPTIONS);
-    const handles = extractHandles(params);
+    const handles = extractHandles<THandle>(params);
     const isWild = pathname.includes('/**');
 
     validatePathname(pathname, 'Cors pathname');
@@ -74,8 +76,6 @@ function cors (...params: unknown[]): IAddableBranch {
 
     return createBranch(pathname, ...handles).add(route);
 }
-
-export default cors as ICors;
 
 function validateOptions (options: TCorsOptions): void {
     validateObject(options, 'Cors options');

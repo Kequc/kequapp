@@ -5,7 +5,7 @@ import headerAttributes from '../../util/header-attributes';
 const CR = 0x0d;
 const LF = 0x0a;
 
-function splitMultipart (body: TRawPart): TRawPart[] {
+export default function splitMultipart (body: TRawPart): TRawPart[] {
     const contentType = body.headers['content-type'];
 
     if (!contentType?.startsWith('multipart/')) {
@@ -61,8 +61,6 @@ function splitMultipart (body: TRawPart): TRawPart[] {
 
     return result;
 }
-
-export default splitMultipart;
 
 function extractBoundary (contentType: string) {
     const boundary = headerAttributes(contentType).boundary;

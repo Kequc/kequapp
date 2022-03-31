@@ -1,5 +1,5 @@
 import { validateArray } from './validate';
-import { THandle, TPathname } from '../types';
+import { TPathname } from '../types';
 
 export function extractMethod (params: unknown[]): string {
     if (typeof params[0] !== 'string' || params[0][0] === '/') {
@@ -36,12 +36,12 @@ export function extractContentType (params: unknown[], contentType = '*'): strin
     return params.shift() as string;
 }
 
-export function extractHandles (params: unknown[]): THandle[] {
+export function extractHandles<T> (params: unknown[]): T[] {
     const handles = params.flat(Infinity);
 
     validateArray(handles, 'Handle', 'function');
 
-    return handles as THandle[];
+    return handles as T[];
 }
 
 export function extractOptions<T> (params: unknown[], defaultOptions?: T): T {

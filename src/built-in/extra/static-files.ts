@@ -26,6 +26,8 @@ interface IStaticFiles {
     (): IAddable;
 }
 
+export default staticFiles as IStaticFiles;
+
 function staticFiles (...params: unknown[]): IAddable {
     const pathname = extractPathname(params, '/**');
     const options = extractOptions<TStaticFilesOptions>(params, DEFAULT_OPTIONS);
@@ -49,8 +51,6 @@ function staticFiles (...params: unknown[]): IAddable {
         }
     });
 }
-
-export default staticFiles as IStaticFiles;
 
 function validateOptions (options: TStaticFilesOptions): void {
     validateObject(options, 'Static files options');

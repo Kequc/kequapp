@@ -12,19 +12,19 @@ import {
 } from '../../util/extract';
 import { validateExists } from '../../util/validate';
 
-export default createErrorHandler as ICreateErrorHandler;
-
 interface ICreateErrorHandler {
-    (pathname: TPathname, contentType: string, handle: TErrorHandler): IAddable;
-    (pathname: TPathname, handle: TErrorHandler): IAddable;
+    (contentType: string, pathname: TPathname, handle: TErrorHandler): IAddable;
     (contentType: string, handle: TErrorHandler): IAddable;
+    (pathname: TPathname, handle: TErrorHandler): IAddable;
     (handle: TErrorHandler): IAddable;
 }
 
+export default createErrorHandler as ICreateErrorHandler;
+
 function createErrorHandler (...params: unknown[]): IAddable {
-    const parts = getParts(extractPathname(params, '/**'));
     const contentType = extractContentType(params);
-    const [handle] = extractHandles(params) as unknown as TErrorHandler[];
+    const parts = getParts(extractPathname(params, '/**'));
+    const [handle] = extractHandles<TErrorHandler>(params);
 
     validateExists(handle, 'Error handler');
 

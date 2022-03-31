@@ -39,7 +39,16 @@ const router = createRouter({
         renderer(['halloween', '**'], 'application/json'),
         renderer(['halloween', '**'])
     ],
-    errorHandlers: []
+    errorHandlers: [
+        errorHandler(['**']),
+        errorHandler(['halloween', '**'], 'text/html'),
+        errorHandler(['halloween', '**'], 'application/*'),
+        errorHandler(['cats', '**']),
+        errorHandler(['cats', 'tiffany', 'friends']),
+        errorHandler(['halloween', '**'], 'text/plain'),
+        errorHandler(['halloween', '**'], 'application/json'),
+        errorHandler(['halloween', '**'])
+    ]
 });
 
 describe('priority', () => {
@@ -69,6 +78,19 @@ describe('priority', () => {
             renderer(['**']),
         ]);
     });
+
+    it('sorts errorHandlers', () => {
+        assert.deepStrictEqual(router().errorHandlers, [
+            errorHandler(['cats', 'tiffany', 'friends']),
+            errorHandler(['cats', '**']),
+            errorHandler(['halloween', '**'], 'text/html'),
+            errorHandler(['halloween', '**'], 'text/plain'),
+            errorHandler(['halloween', '**'], 'application/json'),
+            errorHandler(['halloween', '**'], 'application/*'),
+            errorHandler(['halloween', '**']),
+            errorHandler(['**']),
+        ]);
+    });
 });
 
 describe('compare', () => {
@@ -93,6 +115,50 @@ describe('compare', () => {
         assert.deepStrictEqual(router('/cats/rodger').routes, [
             route('GET', ['cats', '**']),
             route('GET', ['**'])
+        ]);
+    });
+
+    it('filters renderers', () => {
+        assert.deepStrictEqual(router('/cats').renderers, [
+            renderer(['cats', '**']),
+            renderer(['**']),
+        ]);
+    });
+
+    it('filters nested renderers', () => {
+        assert.deepStrictEqual(router('/cats/tiffany/friends').renderers, [
+            errorHandler(['cats', 'tiffany', 'friends']),
+            renderer(['cats', '**']),
+            renderer(['**']),
+        ]);
+    });
+
+    it('finds wildcard renderers', () => {
+        assert.deepStrictEqual(router('/cats/rodger').renderers, [
+            renderer(['cats', '**']),
+            renderer(['**']),
+        ]);
+    });
+
+    it('filters errorHandlers', () => {
+        assert.deepStrictEqual(router('/cats').errorHandlers, [
+            errorHandler(['cats', '**']),
+            errorHandler(['**']),
+        ]);
+    });
+
+    it('filters nested errorHandlers', () => {
+        assert.deepStrictEqual(router('/cats/tiffany/friends').errorHandlers, [
+            errorHandler(['cats', 'tiffany', 'friends']),
+            errorHandler(['cats', '**']),
+            errorHandler(['**']),
+        ]);
+    });
+
+    it('finds wildcard errorHandlers', () => {
+        assert.deepStrictEqual(router('/cats/rodger').errorHandlers, [
+            errorHandler(['cats', '**']),
+            errorHandler(['**']),
         ]);
     });
 });
