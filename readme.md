@@ -1,3 +1,5 @@
+# <img alt="kequtest" src="https://github.com/Kequc/kequapp/raw/logo.png" width="142" height="85" />
+
 # Introduction
 
 This is a request listener for use with the Node [`http`](https://nodejs.org/api/http.html) and [`https`](https://nodejs.org/api/https.html) library.
@@ -43,8 +45,6 @@ createServer(app).listen(4000, () => {
 ```
 
 This will respond to all `'GET'` requests made to the base of the application at `'/'`. Otherwise will respond gracefully with a `404` not found error.
-
-Every branch of our application exposes `add()`. This is used to extend it with functionality. In simple cases this will be a route or another branch.
 
 # `createHandle()`
 
@@ -111,8 +111,10 @@ const { createBranch } = require('kequapp');
 
 A branch of the application will cause routes to adopt the given path and handles. For example the application can be structured such that the api is a branch separate from client facing pages and carry different functionality.
 
+Every branch of our application exposes `add()`. This is used to extend it with functionality. In general cases this will be a route or another branch.
+
 ```javascript
-// createBranch createRoute
+// createBranch
 
 app.add(
     createBranch('/api', json).add(
@@ -138,7 +140,7 @@ The example is better served by splitting these branches or routes into separate
 It is possible to simplify the example as it is verbose. We can omit the `'/api'` branch because it only exposes one branch, and we can omit the `'/admin'` branch because it only exposes one route.
 
 ```javascript
-// createBranch createRoute
+// createBranch
 
 app.add(
     createBranch('/api/user', json).add(
@@ -297,7 +299,7 @@ The node [`ServerResponse`](https://nodejs.org/api/http.html#class-httpserverres
 
 * `url`
 
-If we need to know more about what the client is looking at in the url bar we can do so here. It is a [URL](https://developer.mozilla.org/en-US/docs/Web/API/URL) instance generated from the `req` object.
+If we need to know more about what the client is looking at in the url bar we can do so here. It is a [`URL`](https://developer.mozilla.org/en-US/docs/Web/API/URL) instance generated from the `req` object.
 
 Useful for examining the querystring for example by digging into it's [`searchParams`](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams).
 
@@ -334,6 +336,8 @@ This method can be used in many ways so we will look at it in more detail in the
 The `getBody()` method can retrieve, parse, and normalize data from client requests.
 
 ```javascript
+// getBody
+
 createRoute('POST', '/user', async ({ getBody }) => {
     const body = await getBody();
 
@@ -350,6 +354,8 @@ createRoute('POST', '/user', async ({ getBody }) => {
 Causes the function to return both `body` and `files`. If the client didn't send any files, or it wasn't a multipart request the second parameter will be an empty array.
 
 ```javascript
+// multipart
+
 createRoute('POST', '/users', async ({ getBody }) => {
     const [body, files] = await getBody({ multipart: true });
 
@@ -378,6 +384,8 @@ The body is processed as minimally as possible and will return a single buffer a
 When combined with `multipart`, the body is parsed as an array with all parts split into separate buffers with respective headers.
 
 ```javascript
+// raw
+
 createRoute('POST', '/users', async ({ getBody }) => {
     const parts = await getBody({ raw: true, multipart: true });
 
@@ -411,6 +419,8 @@ The provided list of fields will be arrays.
 Fields which are expected to be arrays must be specified. We only know a field is an array when we receive more than one item with the same name from a client, which creates ambiguity in our object. Therefore fields that do not specify that they are an array will return the first value. Fields which specify they are an array but receive no data will be an empty array.
 
 ```javascript
+// arrays
+
 createRoute('POST', '/users', async ({ getBody }) => {
     const body = await getBody({
         arrays: ['ownedPets']
@@ -442,33 +452,19 @@ The provided list of fields are converted into `false` if the value is falsy, `'
 
 After all other normalization is completed, this method is run which further ensures that the data is valid. Returning anything within this method causes a `422` unprocessable entity error.
 
-* `postProcess`
-
-After all other normalization is completed and `validate` has passed, this method is run to further format the response in any way we need.
-
-The returned value will be the final result.
-
 ```javascript
-function validate (result) {
-    if (result.ownedPets.length > 99) {
-        return 'Too many pets';
-    }
-}
-
-function postProcess (result) {
-    return {
-        ...result,
-        name: result.name.trim()
-    };
-}
+// validate
 
 createRoute('POST', '/users', async ({ getBody }) => {
     const body = await getBody({
         arrays: ['ownedPets'],
         required: ['name', 'age'],
         numbers: ['age'],
-        validate,
-        postProcess
+        validate (result) {
+            if (result.ownedPets.length > 99) {
+                return 'Too many pets';
+            }
+        }
     });
 
     // body ~= {
@@ -478,6 +474,40 @@ createRoute('POST', '/users', async ({ getBody }) => {
     // }
 });
 ```
+
+We know it is safe to use `result.ownedPets.length` because it is specified as an array and therefore is certain to exist.
+
+* `postProcess`
+
+After all other normalization is completed and `validate` has passed, this method is run to further format the response in any way we need.
+
+The returned value will be the final result.
+
+```javascript
+// postProcess
+
+createRoute('POST', '/users', async ({ getBody }) => {
+    const body = await getBody({
+        arrays: ['ownedPets'],
+        required: ['name', 'age'],
+        numbers: ['age'],
+        postProcess (result) {
+            return {
+                ...result,
+                name: result.name.trim()
+            };
+        }
+    });
+
+    // body ~= {
+    //     ownedPets: ['Maggie', 'Ralph'],
+    //     age: 23,
+    //     name: 'April'
+    // }
+});
+```
+
+We know it is safe to call `result.name.trim()` because it is specified as required and therefore is certain to exist.
 
 * `maxPayloadSize`
 
