@@ -1,4 +1,4 @@
-# <img alt="kequtest" src="https://github.com/Kequc/kequapp/raw/logo.png" width="142" height="85" />
+<img alt="kequtest" src="https://github.com/Kequc/kequapp/blob/0.2-wip/logo.png?raw=true" width="142" height="85" />
 
 # Introduction
 
