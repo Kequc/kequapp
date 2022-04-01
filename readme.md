@@ -1,5 +1,7 @@
 <img alt="kequtest" src="https://github.com/Kequc/kequapp/blob/0.2-wip/logo.png?raw=true" width="142" height="85" />
 
+Versatile, non-intrusive, tiny webapp framework
+
 # Introduction
 
 This is a request listener for use with the Node [`http`](https://nodejs.org/api/http.html) and [`https`](https://nodejs.org/api/https.html) library.
