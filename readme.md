@@ -46,19 +46,17 @@ This will respond to all `'GET'` requests made to the base of the application at
 
 Every branch of our application exposes `add()`. This is used to extend it with functionality. In simple cases this will be a route or another branch.
 
-A route can specify both a method (`'GET'`, `'POST'`, etc...) and path. The method doesn't have to be one of the well-known ones. The path is a location, following these are any number of handle functions.
+# `createHandle()`
 
-# Use `createHandle()`
+```javascript
+const { createHandle } = require('kequapp');
+```
 
 ```
 # createHandle((bundle) => unknown): (bundle) => unknown;
 ```
 
 A helper method which adds types. It only returns the function provided and is the same as using the function directly.
-
-```javascript
-const { createHandle } = require('kequapp');
-```
 
 ```javascript
 // createHandle
@@ -76,15 +74,39 @@ const loggedIn = createHandle(({ req, context }) => {
 });
 ```
 
-# Use `createBranch()` and `createRoute()`
+# `createRoute()`
 
 ```javascript
-const { createBranch, createRoute } = require('kequapp');
+const { createRoute } = require('kequapp');
+```
+
+```
+# createRoute(method = 'GET', url = '/', ...handles: Handle[]): Route;
+```
+
+A route can specify both a method (`'GET'`, `'POST'`, etc...) and path. The method doesn't have to be one of the well-known ones. The path is a location, following these are any number of handle functions.
+
+```javascript
+// createRoute
+
+createRoute('POST', '/admin/user', loggedIn, () => {
+    // ...etc
+    return `User created!`;
+});
+```
+
+The path can be a wildcard route by including `'/**'`. For example `'/everything/**'` will capture all requests leading to `'/everything'`, including `'/everything/rumpelstiltskin/car'` and anything else.
+
+Individual wildcards can be added by prefixing `':'` in the path. For example `'/users/:userId'` will respond to `'/users/bob'` and `'/users/mary'` but not `'/users/bob/car'`. That would require a route using `'/users/:userId/car'`
+
+# `createBranch()`
+
+```javascript
+const { createBranch } = require('kequapp');
 ```
 
 ```
 # createBranch(url = '/', ...handles: Handle[]): Branch;
-# createRoute(method = 'GET', url = '/', ...handles: Handle[]): Route;
 ```
 
 A branch of the application will cause routes to adopt the given path and handles. For example the application can be structured such that the api is a branch separate from client facing pages and carry different functionality.
@@ -143,7 +165,7 @@ GET /api/user/:id
 GET /admin/dashboard
 ```
 
-# Use `createErrorHandler()`
+# `createErrorHandler()`
 
 ```javascript
 const { createErrorHandler } = require('kequapp');
@@ -171,7 +193,7 @@ app.add(
 
 Errors thrown within the error handler itself or within the renderer used to handle the error causes a fatal exception and our application will crash. For a better example of how to write an error handler see the existing one in this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
 
-# Use `createRenderer()`
+# `createRenderer()`
 
 ```javascript
 const { createRenderer } = require('kequapp');
@@ -203,7 +225,7 @@ A renderer is always the last step of a request lifecycle.
 
 We need to be sure a response is finalized otherwise a `500` internal server error will be thrown by our application. For examples of how to write a renderer see the existing ones in this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
 
-# Use `Ex()`
+# `Ex()`
 
 ```javascript
 const { Ex } = require('kequapp');
@@ -265,19 +287,15 @@ app.add(
 
 Properties such as `{ req, res, context }` are used throughout the above examples. These properties are provided on every request and provided to each handle, renderer, and error handler.
 
-### req
+* `req`
 
-The node [`req`](https://nodejs.org/api/http.html#class-httpclientrequest) object. It is not modified by this framework so we can rely on the official documentation to use it.
+The node [`ClientRequest`](https://nodejs.org/api/http.html#class-httpclientrequest) object. It is not modified by this framework so we can rely on the official documentation to use it. This represents the client request.
 
-This represents the client request.
+* `res`
 
-### res
+The node [`ServerResponse`](https://nodejs.org/api/http.html#class-httpserverresponse) object. It is not modified by this framework so we can rely on the official documentation to use it. This represents our response.
 
-The node [`res`](https://nodejs.org/api/http.html#class-httpserverresponse) object. It is not modified by this framework so we can rely on the official documentation to use it.
-
-This represents our response.
-
-### url
+* `url`
 
 If we need to know more about what the client is looking at in the url bar we can do so here. It is a [URL](https://developer.mozilla.org/en-US/docs/Web/API/URL) instance generated from the `req` object.
 
@@ -293,21 +311,27 @@ createRoute('/hotels', ({ url }) => {
 });
 ```
 
-### context
+* `context`
 
 A place to store variables derived by handlers, we might use these variables elsewhere in the handler lifecycle. We may make changes here whenever we want and populate it with anything.
 
 Useful for storing authentication details for example, or any information that is needed amongst other handlers.
 
-### params
+* `params`
 
 When defining a route we can specify parameters to extract by prefixing a `':'` character in the url. If we specify a route such as `'/user/:userId'` we will have a parameter called `'userId'`. Use a double asterix `'**'` to accept anything for the remainder of the url.
 
 These values are always a string.
 
-### getBody
+* `getBody()`
 
 Node delivers the body of a request in chunks. It is not always necessary to wait for the request to finish before we begin processing it. In most cases we just want the data and therefore a helper method `getBody()` is provided which we may use to await body parameters from the completed request.
+
+This method can be used in many ways so we will look at it in more detail in the next section.
+
+# `getBody()`
+
+The `getBody()` method can retrieve, parse, and normalize data from client requests.
 
 ```javascript
 createRoute('POST', '/user', async ({ getBody }) => {
@@ -321,13 +345,7 @@ createRoute('POST', '/user', async ({ getBody }) => {
 });
 ```
 
-This method can be used in many ways so we will look at it in more detail in the next section.
-
-# Use `getBody()`
-
-The `getBody()` method can retrieve, parse, and normalize data from client requests.
-
-### multipart
+* `multipart`
 
 Causes the function to return both `body` and `files`. If the client didn't send any files, or it wasn't a multipart request the second parameter will be an empty array.
 
@@ -353,7 +371,7 @@ createRoute('POST', '/users', async ({ getBody }) => {
 });
 ```
 
-### raw
+* `raw`
 
 The body is processed as minimally as possible and will return a single buffer as it arrived.
 
@@ -380,13 +398,13 @@ createRoute('POST', '/users', async ({ getBody }) => {
 });
 ```
 
-### skipNormalize
+* `skipNormalize`
 
 By default the data received is pushed through some body normalization. This is so that the body we receive is in a format we expect and becomes easier to work with.
 
 Disable body normalization with either `raw` or `skipNormalize`.
 
-### arrays
+* `arrays`
 
 The provided list of fields will be arrays.
 
@@ -406,25 +424,25 @@ createRoute('POST', '/users', async ({ getBody }) => {
 });
 ```
 
-### required
+* `required`
 
 The provided list of fields are not `null` or `undefined`. It's a quick way to throw a `422` unprocessable entity error. These fields might still be empty, but at least something was sent and we know we can operate on them. When a `required` field is also an `arrays` field the array is sure to have at least one value.
 
-### numbers
+* `numbers`
 
 The provided list of fields will throw a `422` unprocessable entity error if any value is provided which parses into `NaN`. Otherwise they are converted into numbers.
 
 When a `numbers` field is also an `arrays` field the array is all numbers.
 
-### booleans
+* `booleans`
 
 The provided list of fields are converted into `false` if the value is falsy, `'0'`, or `'false'`, otherwise `true`. When a `booleans` field is also an `arrays` field the array is all booleans.
 
-### validate
+* `validate`
 
 After all other normalization is completed, this method is run which further ensures that the data is valid. Returning anything within this method causes a `422` unprocessable entity error.
 
-### postProcess
+* `postProcess`
 
 After all other normalization is completed and `validate` has passed, this method is run to further format the response in any way we need.
 
@@ -461,19 +479,18 @@ createRoute('POST', '/users', async ({ getBody }) => {
 });
 ```
 
-### maxPayloadSize
+* `maxPayloadSize`
 
 The max payload size is `1e6` by default (approximately 1mb), if this is exceeded the request will be terminated saving both memory and bandwidth. If you are absolutely sure you want to receive a payload of any size then a value of `Infinity` is accepted.
 
-# Use `sendFile()` and `staticFiles()`
+# `sendFile()`
 
 ```javascript
-const { sendFile, staticFiles } = require('kequapp');
+const { sendFile } = require('kequapp');
 ```
 
 ```
 # sendFile(res: Res, asset: string, mime?: string): void;
-# staticFiles(url = '/**', options = {}): Route;
 ```
 
 We can send a file directly to the client and automatically finalize a response. Mime type can optionally be provided as a third parameter otherwise the correct header to send is guessed based on file extension.
@@ -487,7 +504,17 @@ createRoute('/db.json', async ({ req, res }) => {
 });
 ```
 
-For a directory of resources `staticFiles()` pairs a directory location with a route that delivers files relative to our project directory. If no `dir` is specified then `'/public'` is used by default. Exclusions can be provided if we want to ignore some files or directories using `exclude`. If there are files included with unusual file extensions additional `mime` types can be added.
+# `staticFiles()`
+
+```javascript
+const { staticFiles } = require('kequapp');
+```
+
+```
+# staticFiles(url = '/**', options = {}): Route;
+```
+
+Pairs a directory location with a route that delivers files relative to our project directory. If no `dir` is specified then `'/public'` is used by default. Exclusions can be provided if we want to ignore some files or directories using `exclude`. If there are files included with unusual file extensions additional `mime` types can be added.
 
 ```javascript
 // staticFiles
@@ -503,7 +530,7 @@ app.add(staticFiles('/assets', {
 
 # `OPTIONS` requests and CORS
 
-A `OPTIONS` request is handled automatically by our application.
+A `OPTIONS` request is handled automatically by the framework.
 
 By default all routes attach a `'Access-Control-Allow-Origin'` header with a value of `'*'`. In addition, `OPTIONS` requests are given `'Access-Control-Allow-Headers'` and `'Access-Control-Allow-Methods'` headers. To change this behavior we add a handler to the branch which overrides them.
 
@@ -545,11 +572,11 @@ createBranch('/my-nocors-api', noCors).add(
 
 # `HEAD` requests
 
-A `HEAD` request is handled automatically by our application.
+A `HEAD` request is handled automatically by the framework.
 
 By default if no route matches a `HEAD` request our application will look for a corresponding `GET` route and execute that one instead. It becomes the responsibility of our application therefore to detect a `HEAD` request and treat it appropriately, this is already done automatically by the library's built-in renderers.
 
-To disable automatic `HEAD` behavior capture those requests and throw an error.
+To disable default `HEAD` behavior capture those requests with a route.
 
 ```javascript
 // NO HEAD
@@ -561,7 +588,7 @@ createBranch('/my-nohead-api').add(
 );
 ```
 
-# Use `inject()`
+# `inject()`
 
 ```javascript
 const { inject } = require('kequapp');
