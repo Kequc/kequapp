@@ -3,7 +3,6 @@ import { Readable } from 'stream';
 import createParseBody, { parseJson } from './create-parse-body';
 import streamReader from './stream-reader';
 import { IGetResponse, TGetResponseOptions, TRawPart } from '../types';
-import { getHeaderString } from '../util/header-tools';
 
 const parseBody = createParseBody({
     'text/': ({ data }) => data.toString(),
@@ -20,8 +19,8 @@ export default function createGetResponse (res: ServerResponse): IGetResponse {
 
             _body = {
                 headers: {
-                    'content-type': getHeaderString(res, 'Content-Type'),
-                    'content-disposition': getHeaderString(res, 'Content-Disposition')
+                    'content-type': String(res.getHeader('Content-Type') || ''),
+                    'content-disposition': String(res.getHeader('Content-Disposition') || '')
                 },
                 data
             };
