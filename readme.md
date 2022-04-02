@@ -4,9 +4,9 @@ Versatile, non-intrusive, tiny webapp framework
 
 # Introduction
 
-This is a request listener for use with the Node's [`http`](https://nodejs.org/api/http.html) and [`https`](https://nodejs.org/api/https.html) libraries.
+This is a request listener for use with Node's [`http`](https://nodejs.org/api/http.html) and [`https`](https://nodejs.org/api/https.html) libraries.
 
-When you use `createServer` in a node application it gives you a callback to make use of incoming requests and deliver server responses. This framework is a way to use all of the included features of `createServer` without overloading or changing built-in behavior or functionality.
+When you use `createServer` in a node application it gives you a callback to make use of incoming requests and deliver server responses. This framework is a way to use all of the included features of `createServer` without changing built-in behavior or functionality.
 
 **Features**
 
@@ -86,7 +86,9 @@ const { createRoute } = require('kequapp');
 # createRoute(method = 'GET', url = '/', ...handles: Handle[]): Route;
 ```
 
-A route can specify both a method (`'GET'`, `'POST'`, etc...) and path. The method doesn't have to be one of the well-known ones. The path is a location, following these are any number of handle functions.
+A route can specify both a method (`'GET'`, `'POST'`, etc...) and path. The method doesn't have to be one of the well-known ones. The path is a location that the application should respond to.
+
+Following these are any number of handle functions.
 
 ```javascript
 // createRoute
@@ -701,4 +703,4 @@ Not that a `getResponse()` will not resolve until the request is finalized.
 
 And that's it. This should be ample for constructing an application that does anything we could ever want it to do. At least for version `0.2.*` I think it's okay.
 
-Please feel free to contribute or create issue tickets on the github page. Tell me what is missing.
+Please feel free to contribute or create issue tickets on the github page. Tell me what needs improvement.
