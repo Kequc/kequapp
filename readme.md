@@ -147,8 +147,6 @@ GET /api/user/:id
 GET /admin/dashboard
 ```
 
-The example is better served by splitting these branches or routes into separate files for organization and readability.
-
 It is possible to simplify the example as it is verbose. We can omit the `'/api'` branch because it only exposes one branch, and we can omit the `'/admin'` branch because it only exposes one route.
 
 ```javascript
@@ -168,6 +166,8 @@ app.add(
     })
 );
 ```
+
+The example is better served by splitting these branches or routes into separate files for organization and readability.
 
 # `createErrorHandler()`
 
@@ -568,27 +568,25 @@ A `OPTIONS` request is handled automatically by the framework.
 
 By default all routes attach a `'Access-Control-Allow-Origin'` header with a value of `'*'`. In addition, `OPTIONS` requests are given `'Access-Control-Allow-Headers'` and `'Access-Control-Allow-Methods'` headers. To change this behavior we add a handler to the branch which overrides them.
 
-Modifying `'Access-Control-'` headers in this way is how we customize all aspects of CORS requests. It is possible to augment `OPTIONS` requests specifically by adding a wildcard route and including it in our branch, they do not need to be finalized as it will be done by our application if we don't.
+Modifying `'Access-Control-'` headers in this way is how we customize all aspects of CORS requests. It is possible to augment `OPTIONS` specifically by adding a wildcard route and including it in our branch, these responses do not need to be finalized as it will be done automatically by our application.
 
 ```javascript
 // CORS
 
-const strict = createHandle(({ res }) => {
+const strictCors = createHandle(({ res }) => {
     res.setHeader('Access-Control-Allow-Origin', 'https://foo.com');
 });
 
-const customCors = createRoute('OPTIONS', '/**', ({ res }) => {
-    res.setHeader('Access-Control-Max-Age', 86400);
-    res.setHeader('Vary', 'Access-Control-Request-Headers');
-    // ...etc
-});
-
-createBranch('/my-cors-api', strict).add(
-    customCors
+createBranch('/my-cors-api', strictCors).add(
+    createRoute('OPTIONS', '/**', ({ res }) => {
+        res.setHeader('Access-Control-Max-Age', 86400);
+        res.setHeader('Vary', 'Access-Control-Request-Headers');
+        // ...etc
+    })
 );
 ```
 
-We can disable CORS by removing the header in a handle, and if we really want to we can capture `OPTIONS` requests to neutralize them.
+We can disable CORS by removing the header, and if we really want to we can capture `OPTIONS` requests to neutralize them.
 
 ```javascript
 // NO CORS
@@ -597,7 +595,7 @@ const noCors = createHandle(({ res }) => {
     res.removeHeader('Access-Control-Allow-Origin');
 });
 
-createBranch('/my-nocors-api', noCors).add(
+createBranch('/my-cors-api', noCors).add(
     createRoute('OPTIONS', '/**', () => {
         throw Ex.NotFound();
     })
