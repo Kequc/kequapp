@@ -260,7 +260,11 @@ This makes it easy to utilize any status code `400` and above. These methods cre
 
 # Responding to requests
 
-We can respond to a request whenever we want, remaining handles are ignored. Handles run in sequence, and any of them may terminate the lifecycle of a request by returning a value, throwing an error, or finalizing the response.
+We can respond to a request whenever we want, remaining handles are ignored.
+
+Handles run in sequence and any of them may terminate the request one of three ways. By returning a value, a renderer is triggered and content will be sent to the client. Throwing an error causes an error handler to be triggered and thus an error will be sent to the client.
+
+Or, we can finalize the response manually.
 
 ```javascript
 // Respond to request
