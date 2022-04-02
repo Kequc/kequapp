@@ -183,22 +183,6 @@ As any other handle there is an `errorHandler`. This turns an exception into use
 
 This example manages a very basic custom response.
 
-```javascript
-// createErrorHandler
-
-app.add(
-    createErrorHandler('text/*', (error, { res }) => {
-        const statusCode = error.statusCode || 500;
-        res.statusCode = statusCode;
-        return `${statusCode} ${error.message}`;
-    })
-);
-```
-
-Errors thrown within the error handler itself or within the renderer used to handle the error causes a fatal exception and our application will crash.
-
-For a better example of how to write an error handler see the existing one in this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
-
 # `createRenderer()`
 
 ```javascript
@@ -213,7 +197,7 @@ In the examples so far we are returning a payload and not rendering anything or 
 
 This is because when we `return` from a handle, a `renderer` is triggered which corresponds to the `'Content-Type'` header we have set. That is why after we set the `'Content-Type'` to `'application/json'` it is possible to return a simple javascript object.
 
-Some renderers are built-in already, there is one for `'text/*'` (which is also the default) and `'application/json'`. These can be overridden or extended by adding your own.
+Some renderers are built-in already, there is one for `'text/*'` (which is also the default) and `'application/json'`. These can be overridden or extended by adding our own.
 
 ```javascript
 // createRenderer
@@ -230,6 +214,22 @@ app.add(
 A renderer is always the last step of a request lifecycle. We need to be sure a response is finalized otherwise a `500` internal server error will be thrown by the framework.
 
 For examples of how to write a renderer see the existing ones in this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
+
+```javascript
+// createErrorHandler
+
+app.add(
+    createErrorHandler('text/*', (error, { res }) => {
+        const statusCode = error.statusCode || 500;
+        res.statusCode = statusCode;
+        return `${statusCode} ${error.message}`;
+    })
+);
+```
+
+Errors thrown within the error handler itself or within the renderer used to handle the error causes a fatal exception and our application will crash.
+
+For a better example of how to write an error handler see the existing one in this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
 
 # `Ex()`
 
@@ -295,7 +295,7 @@ app.add(
 
 # Bundle
 
-Properties such as `{ req, res, context }` are used throughout the above examples. These properties are provided on every request and provided to each handle, renderer, and error handler.
+Properties such as `{ req, res, context }` are used throughout the above examples. These properties are provided on every request and are available to each handle, renderer, and error handler.
 
 * **`req`**
 
@@ -323,9 +323,9 @@ createRoute('/hotels', ({ url }) => {
 
 * **`context`**
 
-A place to store variables derived by handlers, we might use these variables elsewhere in the handler lifecycle. We may make changes here whenever we want and populate it with anything.
+A place to store variables derived by handles, we might use these variables elsewhere in the request's lifecycle. We may make changes here whenever we want and populate it with anything.
 
-Useful for storing authentication details for example, or any information that is needed amongst other handlers.
+Useful for storing authentication details for example, or any information that is needed amongst other handles.
 
 * **`params`**
 
@@ -341,13 +341,13 @@ This method can be used in many ways so we will look at it in more detail in the
 
 # `getBody()`
 
-The `getBody()` method can retrieve, parse, and normalize data from client requests.
+The `getBody()` method is a convenience function which can retrieve, parse, and normalize data from client requests.
 
 ```javascript
 // getBody
 
 createRoute('POST', '/user', async ({ getBody }) => {
-    const body = await getBody();
+    const body = await getBody<{ name: string }>();
 
     // body ~= {
     //     name: 'April'
@@ -444,7 +444,7 @@ createRoute('POST', '/users', async ({ getBody }) => {
 
 * **`required`**
 
-The provided list of fields are not `null` or `undefined`. It's a quick way to throw a `422` unprocessable entity error. These fields might still be empty, but at least something was sent and we know we can operate on them. When a `required` field is also an `arrays` field the array is sure to have at least one value.
+The provided list of fields are not `null` or `undefined`. It's a quick way to throw a `422` unprocessable entity error. These fields might still be empty, but at least something was sent and we know we can operate on it. When a `required` field is also an `arrays` field the array is sure to have at least one value.
 
 * **`numbers`**
 
@@ -458,7 +458,7 @@ The provided list of fields are converted into `false` if the value is falsy, `'
 
 * **`validate`**
 
-After all other normalization is completed, this method is run which further ensures that the data is valid. Returning anything within this method causes a `422` unprocessable entity error.
+After all other normalization is complete, this method further ensures the validity of the data. Returning anything within this function causes a `422` unprocessable entity error to occur.
 
 ```javascript
 // validate
@@ -483,11 +483,11 @@ createRoute('POST', '/users', async ({ getBody }) => {
 });
 ```
 
-We know it is safe to use `result.ownedPets.length` because it is specified as an array and therefore is certain to exist.
+We know it is safe to use `result.ownedPets.length` in this example because it is specified as an array and therefore is certain to exist.
 
 * **`postProcess`**
 
-After all other normalization is completed and `validate` has passed, this method is run to further format the response in any way we need.
+After all other normalization is complete and `validate` has passed, this method is run to further format the response in any way we need.
 
 The returned value will be the final result.
 
@@ -515,11 +515,11 @@ createRoute('POST', '/users', async ({ getBody }) => {
 });
 ```
 
-We know it is safe to call `result.name.trim()` because it is specified as required and therefore is certain to exist.
+We know it is safe to call `result.name.trim()` in this example because it is specified as required and therefore is certain to exist. We also know it is a string because all fields are strings by default.
 
 * **`maxPayloadSize`**
 
-The max payload size is `1e6` by default (approximately 1mb), if this is exceeded the request will be terminated saving both memory and bandwidth. If you are absolutely sure you want to receive a payload of any size then a value of `Infinity` is accepted.
+The max payload size is `1e6` (approximately 1mb), if this is exceeded the request will be terminated saving both memory and bandwidth. If you are absolutely sure you want to receive a payload of any size then a value of `Infinity` is accepted.
 
 # `sendFile()`
 
@@ -531,7 +531,7 @@ const { sendFile } = require('kequapp');
 # sendFile(res: Res, asset: string, mime?: string): void;
 ```
 
-We can send a file directly to the client and automatically finalize a response. Mime type can optionally be provided as a third parameter otherwise the correct header to send is guessed based on file extension.
+We can send a file to the client and finalize a response automatically. A mime type may optionally be provided as a third parameter otherwise the correct header to send with the response is guessed based on the file extension.
 
 ```javascript
 // sendFile
@@ -552,7 +552,9 @@ const { staticFiles } = require('kequapp');
 # staticFiles(url = '/**', options = {}): Route;
 ```
 
-Pairs a directory location with a route that delivers files relative to our project directory. If no `dir` is specified then `'/public'` is used by default. Exclusions can be provided if we want to ignore some files or directories using `exclude`. If there are files included with unusual file extensions additional `mime` types can be added.
+Pairs a directory location with a route that delivers files relative to our project directory.
+
+If no `dir` is specified then `'/public'` is used by default. Exclusions can be provided if we want to ignore some files or directories using `exclude`. If there are files in the directory with unusual file extensions then additional `mime` types can be added.
 
 ```javascript
 // staticFiles
@@ -570,9 +572,9 @@ app.add(staticFiles('/assets', {
 
 A `OPTIONS` request is handled automatically by the framework.
 
-By default all routes attach a `'Access-Control-Allow-Origin'` header with a value of `'*'`. In addition, `OPTIONS` requests are given `'Access-Control-Allow-Headers'` and `'Access-Control-Allow-Methods'` headers. To change this behavior we add a handler to the branch which overrides them.
+By default all routes attach a `'Access-Control-Allow-Origin'` header with a value of `'*'`. In addition, `OPTIONS` requests are given `'Access-Control-Allow-Headers'` and `'Access-Control-Allow-Methods'`. To change this behavior we add a handler to the branch which overrides them.
 
-Modifying `'Access-Control-'` headers in this way is how we customize all aspects of CORS requests. It is possible to augment `OPTIONS` specifically by adding a wildcard route and including it in our branch, these responses do not need to be finalized as it will be done automatically by our application.
+Modifying `'Access-Control-'` headers in this way is how we customize all aspects of CORS requests. It is possible to augment `OPTIONS` specifically by adding a wildcard route and include it in our branch, these responses do not need to be finalized as it will be done automatically by our application.
 
 ```javascript
 // CORS
@@ -590,7 +592,7 @@ createBranch('/my-cors-api', strictCors).add(
 );
 ```
 
-We can disable CORS by removing the header, and if we really want to we can capture `OPTIONS` requests to neutralize them.
+We can disable CORS by removing the header, and if we really want to we can capture all `OPTIONS` requests to neutralize them.
 
 ```javascript
 // NO CORS
@@ -617,11 +619,9 @@ To disable default `HEAD` behavior capture those requests with a route.
 ```javascript
 // NO HEAD
 
-createBranch('/my-nohead-api').add(
-    createRoute('HEAD', '/**', () => {
-        throw Ex.NotFound();
-    })
-);
+createRoute('HEAD', '/**', () => {
+    throw Ex.NotFound();
+})
 ```
 
 # `inject()`
