@@ -6,7 +6,7 @@ import textRenderer from './built-in/text-renderer';
 import createBranch from './router/addable/create-branch';
 import createRouter from './router/create-router';
 import requestProcessor from './router/request-processor';
-import { IAddable, IKequapp, IRouter } from './types';
+import { IAddable, IKequapp, IRouter, THandle } from './types';
 export { default as createBranch } from './router/addable/create-branch';
 export { default as createErrorHandler } from './router/addable/create-error-handler';
 export { default as createRenderer } from './router/addable/create-renderer';
@@ -18,8 +18,8 @@ export { default as Ex } from './util/ex';
 export { default as inject } from './inject';
 export * from './types';
 
-export function createApp (): IKequapp {
-    const branch = createBranch().add(
+export function createApp (...handles: THandle[]): IKequapp {
+    const branch = createBranch(...handles).add(
         errorHandler,
         jsonRenderer,
         textRenderer

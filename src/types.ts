@@ -1,6 +1,7 @@
 import { RequestListener, IncomingMessage, ServerResponse } from 'http';
 
 export interface IKequapp extends RequestListener {
+    (...handles: THandle[]): IKequapp;
     add (...routers: IAddable[]): IKequapp;
 }
 

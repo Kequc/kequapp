@@ -4,9 +4,9 @@ Versatile, non-intrusive, tiny webapp framework
 
 # Introduction
 
-This is a request listener for use with the Node [`http`](https://nodejs.org/api/http.html) and [`https`](https://nodejs.org/api/https.html) library.
+This is a request listener for use with the Node's [`http`](https://nodejs.org/api/http.html) and [`https`](https://nodejs.org/api/https.html) libraries.
 
-When you use `createServer` in a node application it gives you a callback to make use of incoming requests and deliver server responses. This framework is a way to use all of the included features of `createServer` without overloading or changing any behavior or functionality.
+When you use `createServer` in a node application it gives you a callback to make use of incoming requests and deliver server responses. This framework is a way to use all of the included features of `createServer` without overloading or changing built-in behavior or functionality.
 
 **Features**
 
@@ -20,8 +20,8 @@ When you use `createServer` in a node application it gives you a callback to mak
 * Does not modify node features or functionality
 * Manageable learning curve
 * Fast
-* Inject for unit tests
 * No dependencies <3
+* Inject for unit tests
 
 # Hello world!
 
@@ -137,6 +137,16 @@ app.add(
 );
 ```
 
+Routes beginning with `'/api'` are returning `'application/json'` formatted responses and those with `'/admin'` require the user to be logged in.
+
+Our endpoints created are the following.
+
+```
+GET /api/user
+GET /api/user/:id
+GET /admin/dashboard
+```
+
 The example is better served by splitting these branches or routes into separate files for organization and readability.
 
 It is possible to simplify the example as it is verbose. We can omit the `'/api'` branch because it only exposes one branch, and we can omit the `'/admin'` branch because it only exposes one route.
@@ -157,16 +167,6 @@ app.add(
         return `Hello admin ${context.auth}!`;
     })
 );
-```
-
-Routes beginning with `'/api'` are returning `'application/json'` formatted responses and those with `'/admin'` require the user to be logged in.
-
-Our endpoints created are the following.
-
-```
-GET /api/user
-GET /api/user/:id
-GET /admin/dashboard
 ```
 
 # `createErrorHandler()`
@@ -195,7 +195,9 @@ app.add(
 );
 ```
 
-Errors thrown within the error handler itself or within the renderer used to handle the error causes a fatal exception and our application will crash. For a better example of how to write an error handler see the existing one in this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
+Errors thrown within the error handler itself or within the renderer used to handle the error causes a fatal exception and our application will crash.
+
+For a better example of how to write an error handler see the existing one in this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
 
 # `createRenderer()`
 
@@ -225,9 +227,9 @@ app.add(
 )
 ```
 
-A renderer is always the last step of a request lifecycle.
+A renderer is always the last step of a request lifecycle. We need to be sure a response is finalized otherwise a `500` internal server error will be thrown by the framework.
 
-We need to be sure a response is finalized otherwise a `500` internal server error will be thrown by our application. For examples of how to write a renderer see the existing ones in this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
+For examples of how to write a renderer see the existing ones in this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
 
 # `Ex()`
 
@@ -291,15 +293,15 @@ app.add(
 
 Properties such as `{ req, res, context }` are used throughout the above examples. These properties are provided on every request and provided to each handle, renderer, and error handler.
 
-* `req`
+* **`req`**
 
 The node [`ClientRequest`](https://nodejs.org/api/http.html#class-httpclientrequest) object. It is not modified by this framework so we can rely on the official documentation to use it. This represents the client request.
 
-* `res`
+* **`res`**
 
 The node [`ServerResponse`](https://nodejs.org/api/http.html#class-httpserverresponse) object. It is not modified by this framework so we can rely on the official documentation to use it. This represents our response.
 
-* `url`
+* **`url`**
 
 If we need to know more about what the client is looking at in the url bar we can do so here. It is a [`URL`](https://developer.mozilla.org/en-US/docs/Web/API/URL) instance generated from the `req` object.
 
@@ -315,19 +317,19 @@ createRoute('/hotels', ({ url }) => {
 });
 ```
 
-* `context`
+* **`context`**
 
 A place to store variables derived by handlers, we might use these variables elsewhere in the handler lifecycle. We may make changes here whenever we want and populate it with anything.
 
 Useful for storing authentication details for example, or any information that is needed amongst other handlers.
 
-* `params`
+* **`params`**
 
 When defining a route we can specify parameters to extract by prefixing a `':'` character in the url. If we specify a route such as `'/user/:userId'` we will have a parameter called `'userId'`. Use a double asterix `'**'` to accept anything for the remainder of the url.
 
 These values are always a string.
 
-* `getBody()`
+* **`getBody()`**
 
 Node delivers the body of a request in chunks. It is not always necessary to wait for the request to finish before we begin processing it. In most cases we just want the data and therefore a helper method `getBody()` is provided which we may use to await body parameters from the completed request.
 
@@ -351,7 +353,7 @@ createRoute('POST', '/user', async ({ getBody }) => {
 });
 ```
 
-* `multipart`
+* **`multipart`**
 
 Causes the function to return both `body` and `files`. If the client didn't send any files, or it wasn't a multipart request the second parameter will be an empty array.
 
@@ -379,7 +381,7 @@ createRoute('POST', '/users', async ({ getBody }) => {
 });
 ```
 
-* `raw`
+* **`raw`**
 
 The body is processed as minimally as possible and will return a single buffer as it arrived.
 
@@ -408,13 +410,13 @@ createRoute('POST', '/users', async ({ getBody }) => {
 });
 ```
 
-* `skipNormalize`
+* **`skipNormalize`**
 
 By default the data received is pushed through some body normalization. This is so that the body we receive is in a format we expect and becomes easier to work with.
 
 Disable body normalization with either `raw` or `skipNormalize`.
 
-* `arrays`
+* **`arrays`**
 
 The provided list of fields will be arrays.
 
@@ -436,21 +438,21 @@ createRoute('POST', '/users', async ({ getBody }) => {
 });
 ```
 
-* `required`
+* **`required`**
 
 The provided list of fields are not `null` or `undefined`. It's a quick way to throw a `422` unprocessable entity error. These fields might still be empty, but at least something was sent and we know we can operate on them. When a `required` field is also an `arrays` field the array is sure to have at least one value.
 
-* `numbers`
+* **`numbers`**
 
 The provided list of fields will throw a `422` unprocessable entity error if any value is provided which parses into `NaN`. Otherwise they are converted into numbers.
 
 When a `numbers` field is also an `arrays` field the array is all numbers.
 
-* `booleans`
+* **`booleans`**
 
 The provided list of fields are converted into `false` if the value is falsy, `'0'`, or `'false'`, otherwise `true`. When a `booleans` field is also an `arrays` field the array is all booleans.
 
-* `validate`
+* **`validate`**
 
 After all other normalization is completed, this method is run which further ensures that the data is valid. Returning anything within this method causes a `422` unprocessable entity error.
 
@@ -479,7 +481,7 @@ createRoute('POST', '/users', async ({ getBody }) => {
 
 We know it is safe to use `result.ownedPets.length` because it is specified as an array and therefore is certain to exist.
 
-* `postProcess`
+* **`postProcess`**
 
 After all other normalization is completed and `validate` has passed, this method is run to further format the response in any way we need.
 
@@ -511,7 +513,7 @@ createRoute('POST', '/users', async ({ getBody }) => {
 
 We know it is safe to call `result.name.trim()` because it is specified as required and therefore is certain to exist.
 
-* `maxPayloadSize`
+* **`maxPayloadSize`**
 
 The max payload size is `1e6` by default (approximately 1mb), if this is exceeded the request will be terminated saving both memory and bandwidth. If you are absolutely sure you want to receive a payload of any size then a value of `Infinity` is accepted.
 
