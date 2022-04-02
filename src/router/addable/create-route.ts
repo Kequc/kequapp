@@ -10,6 +10,7 @@ import {
     extractPathname,
     getParts
 } from '../../util/extract';
+import { validateExists } from '../../util/validate';
 
 interface ICreateRoute {
     (method: string, pathname: TPathname, ...handles: THandle[]): IAddable;
@@ -24,6 +25,8 @@ function createRoute (...params: unknown[]): IAddable {
     const method = extractMethod(params);
     const parts = getParts(extractPathname(params));
     const handles = extractHandles<THandle>(params);
+
+    validateExists(handles[0], 'Route handle');
 
     function route (): Partial<TAddableData> {
         return {

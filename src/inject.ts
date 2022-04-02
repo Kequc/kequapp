@@ -1,14 +1,6 @@
-import { IncomingMessage, ServerResponse } from 'http';
-import { Transform } from 'stream';
 import createGetResponse from './body/create-get-response';
-import { IGetResponse, IKequapp, TReqOptions } from './types';
+import { IKequapp, TInject, TReqOptions } from './types';
 import { FakeReq, FakeRes } from './util/fake-http';
-
-type TInject = {
-    req: IncomingMessage & Transform;
-    res: ServerResponse & Transform;
-    getResponse: IGetResponse;
-};
 
 export default function inject (app: IKequapp, options: TReqOptions): TInject {
     const req = new FakeReq(options) as any;

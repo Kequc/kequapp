@@ -185,6 +185,22 @@ As any other handle there is an `errorHandler`. This turns an exception into use
 
 This example manages a very basic custom response.
 
+```javascript
+// createErrorHandler
+
+app.add(
+    createErrorHandler('text/*', (error, { res }) => {
+        const statusCode = error.statusCode || 500;
+        res.statusCode = statusCode;
+        return `${statusCode} ${error.message}`;
+    })
+);
+```
+
+Errors thrown within the error handler itself or within the renderer used to handle the error causes a fatal exception and our application will crash.
+
+For a better example of how to write an error handler see the existing one in this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
+
 # `createRenderer()`
 
 ```javascript
@@ -216,22 +232,6 @@ app.add(
 A renderer is always the last step of a request lifecycle. We need to be sure a response is finalized otherwise a `500` internal server error will be thrown by the framework.
 
 For examples of how to write a renderer see the existing ones in this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
-
-```javascript
-// createErrorHandler
-
-app.add(
-    createErrorHandler('text/*', (error, { res }) => {
-        const statusCode = error.statusCode || 500;
-        res.statusCode = statusCode;
-        return `${statusCode} ${error.message}`;
-    })
-);
-```
-
-Errors thrown within the error handler itself or within the renderer used to handle the error causes a fatal exception and our application will crash.
-
-For a better example of how to write an error handler see the existing one in this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
 
 # `Ex()`
 

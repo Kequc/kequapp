@@ -1,5 +1,5 @@
-import { validateArray } from './validate';
-import { TPathname } from '../types';
+import { validateArray, validateExists, validateType } from './validate';
+import { TBundleParams, TPathname, TRouteData } from '../types';
 
 export function extractMethod (params: unknown[]): string {
     if (typeof params[0] !== 'string' || params[0][0] === '/') {
@@ -17,21 +17,9 @@ export function extractPathname (params: unknown[], url: TPathname = '/'): TPath
     return params.shift() as TPathname;
 }
 
-export function getParts (pathname: string): string[] {
-    const parts = pathname.split('/').filter(part => !!part);
-    const wildIndex = parts.indexOf('**');
-
-    if (wildIndex > -1) {
-        return parts.slice(0, wildIndex + 1);
-    }
-
-    return parts;
-}
-
-export function extractContentType (params: unknown[], contentType = '*'): string {
-    if (typeof params[0] !== 'string') {
-        return contentType;
-    }
+export function extractContentType (params: unknown[]): string {
+    validateExists(params[0], 'Content type');
+    validateType(params[0], 'Content type', 'string');
 
     return params.shift() as string;
 }
@@ -50,4 +38,34 @@ export function extractOptions<T> (params: unknown[], defaultOptions?: T): T {
     }
 
     return { ...defaultOptions, ...(params.shift() as T) };
+}
+
+export function getParts (pathname: string): string[] {
+    const parts = pathname.split('/').filter(part => !!part);
+    const wildIndex = parts.indexOf('**');
+
+    if (wildIndex > -1) {
+        return parts.slice(0, wildIndex + 1);
+    }
+
+    return parts;
+}
+
+export function getParams (pathname: string, route?: TRouteData): TBundleParams {
+    const clientParts = getParts(pathname);
+    const params: TBundleParams = {};
+    const parts = route?.parts || [];
+
+    for (let i = 0; i < parts.length; i++) {
+        if (parts[i] === '**') {
+            params['**'] = clientParts.slice(i);
+            return params;
+        }
+
+        if (parts[i][0] === ':') {
+            params[parts[i].substring(1)] = clientParts[i];
+        }
+    }
+
+    return params;
 }

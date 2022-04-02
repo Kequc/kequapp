@@ -1,4 +1,5 @@
 import { RequestListener, IncomingMessage, ServerResponse } from 'http';
+import { Transform } from 'stream';
 
 export interface IKequapp extends RequestListener {
     (...handles: THandle[]): IKequapp;
@@ -73,6 +74,8 @@ export type TBundle = {
     getBody: IGetBody;
 };
 
+export type TRawBundle = Omit<TBundle, 'params' | 'context'>;
+
 export type TBundleParams = TParams & {
     '**'?: string[];
 };
@@ -141,4 +144,10 @@ export type TBodyJson = {
 export type TServerError = Error & {
     statusCode: number;
     info: unknown[];
+};
+
+export type TInject = {
+    req: IncomingMessage & Transform;
+    res: ServerResponse & Transform;
+    getResponse: IGetResponse;
 };

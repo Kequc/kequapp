@@ -2,16 +2,14 @@ import { findErrorHandler, findRenderer, findRoute } from './search';
 import {
     IRouter,
     TBundle,
-    TBundleParams,
+    TRawBundle,
     TRendererData,
     TRouteData
 } from '../types';
 import Ex from '../util/ex';
-import { getParts } from '../util/extract';
+import { getParams } from '../util/extract';
 
-type TRaw = Omit<TBundle, 'params' | 'context'>;
-
-export default async function requestProcessor (router: IRouter, raw: TRaw): Promise<void> {
+export default async function requestProcessor (router: IRouter, raw: TRawBundle): Promise<void> {
     const { req, res, url } = raw;
     const method = req.method || 'GET';
     const pathname = url.pathname;
@@ -24,7 +22,7 @@ export default async function requestProcessor (router: IRouter, raw: TRaw): Pro
     const route = findRoute(routes, method);
     const bundle: TBundle = Object.freeze({
         ...raw,
-        params: getParams(getParts(pathname), route),
+        params: getParams(pathname, route),
         context: {}
     });
 
@@ -53,24 +51,6 @@ export default async function requestProcessor (router: IRouter, raw: TRaw): Pro
 
     // track request
     console.debug(res.statusCode, method, pathname);
-}
-
-function getParams (clientParts: string[], route?: TRouteData): TBundleParams {
-    const params: TBundleParams = {};
-    const parts = route?.parts || [];
-
-    for (let i = 0; i < parts.length; i++) {
-        if (parts[i] === '**') {
-            params['**'] = clientParts.slice(i);
-            return params;
-        }
-
-        if (parts[i][0] === ':') {
-            params[parts[i].substring(1)] = clientParts[i];
-        }
-    }
-
-    return params;
 }
 
 function cors ({ req, res }: TBundle, routes: TRouteData[]): void {

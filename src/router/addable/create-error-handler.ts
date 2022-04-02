@@ -15,8 +15,6 @@ import { validateExists } from '../../util/validate';
 interface ICreateErrorHandler {
     (contentType: string, pathname: TPathname, handle: TErrorHandler): IAddable;
     (contentType: string, handle: TErrorHandler): IAddable;
-    (pathname: TPathname, handle: TErrorHandler): IAddable;
-    (handle: TErrorHandler): IAddable;
 }
 
 export default createErrorHandler as ICreateErrorHandler;
@@ -26,7 +24,7 @@ function createErrorHandler (...params: unknown[]): IAddable {
     const parts = getParts(extractPathname(params, '/**'));
     const [handle] = extractHandles<TErrorHandler>(params);
 
-    validateExists(handle, 'Error handler');
+    validateExists(handle, 'Error handler handle');
 
     function errorHandler (): Partial<TAddableData> {
         return {

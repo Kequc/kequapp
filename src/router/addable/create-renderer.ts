@@ -24,7 +24,6 @@ function createRenderer (...params: unknown[]): IAddable {
     const parts = getParts(extractPathname(params, '/**'));
     const [handle] = extractHandles<TRenderer>(params);
 
-    validateExists(contentType, 'Renderer contentType');
     validateExists(handle, 'Renderer handle');
 
     function renderer (): Partial<TAddableData> {

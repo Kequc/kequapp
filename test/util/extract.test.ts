@@ -1,11 +1,13 @@
 import assert from 'assert';
 import 'kequtest';
+import { TRouteData } from '../../src/types';
 import {
     extractContentType,
     extractHandles,
     extractMethod,
     extractOptions,
     extractPathname,
+    getParams,
     getParts
 } from '../../src/util/extract';
 
@@ -71,17 +73,41 @@ describe('getParts', () => {
     });
 });
 
+describe('getParams', () => {
+    function buildRoute (...parts: string[]): TRouteData {
+        return { parts, handles: [], method: 'GET' };
+    }
+
+    it('extracts params from a path', () => {
+        const result = getParams('/hello/there/boo', buildRoute('hello', ':foo', ':bar'));
+        assert.deepStrictEqual(result, { foo: 'there', bar: 'boo' });
+    });
+
+    it('recovers if route is missing', () => {
+        const result = getParams('/hello/there/boo', undefined);
+        assert.deepStrictEqual(result, {});
+    });
+
+    it('returns no params', () => {
+        const result = getParams('/hello/there/boo', buildRoute('hello', 'there', 'boo'));
+        assert.deepStrictEqual(result, {});
+    });
+
+    it('extracts wild route params', () => {
+        const result = getParams('/hello/there/boo', buildRoute('hello', '**'));
+        assert.deepStrictEqual(result, { '**': ['there', 'boo'] });
+    });
+});
+
 describe('extractContentType', () => {
     it('gets the first string', () => {
         assert.strictEqual(extractContentType(['HELLO', 'BOO']), 'HELLO');
     });
 
-    it('defaults to *', () => {
-        assert.strictEqual(extractContentType([1, 'HELLO']), '*');
-    });
-
-    it('accepts a default', () => {
-        assert.strictEqual(extractContentType([1, 'HELLO'], 'YAY'), 'YAY');
+    it('throws error if missing content type', () => {
+        assert.throws(() => extractContentType([1, 'HELLO']), {
+            message: 'Content type must be a string'
+        });
     });
 
     it('modifies the params', () => {
