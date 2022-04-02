@@ -1,7 +1,7 @@
 import createErrorHandler from '../router/addable/create-error-handler';
 import { TServerError } from '../types';
 
-export default createErrorHandler((error, { res }) => {
+export default createErrorHandler('*', (error, { res }) => {
     const _error = error as TServerError;
     const statusCode = _error.statusCode || 500;
 
