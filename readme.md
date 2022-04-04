@@ -220,9 +220,9 @@ const { createErrorHandler } = require('kequapp');
 # createErrorHandler(handle: Handle): ErrorHandler;
 ```
 
-This turns an exception into useful information that should be delivered to the client. Invoke a renderer by returning a value or we may finalize the response directly. If no content type is provided the error handler will be used for all content types.
+If no content type is provided the error handler will be used for all content types. This turns an exception into useful information that should be delivered to the client. We may returnin a value to invoke a renderer or finalize the response directly.
 
-It must be added to a branch or to the base of an application.
+Error handlers must be added to a branch or to the base of an application.
 
 ```javascript
 // createErrorHandler
@@ -234,9 +234,9 @@ createErrorHandler('text/*', (error, { res }) => {
 });
 ```
 
-Errors thrown within an error handler or the renderer invoked after it, will cause a fatal exception and the application will crash.
+Errors thrown within an error handler or the renderer it invokes will cause a fatal exception and an empty `body` will be sent to the client.
 
-For a good example of how to write an error handler see the existing one in this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
+For a good example of how to write error handlers see this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
 
 # `createRenderer()`
 
@@ -253,7 +253,7 @@ const { createRenderer } = require('kequapp');
 
 If no content type is provided the renderer will be used for all content types. A renderer is always the last step of a request lifecycle. We need to be sure a response is finalized inside of a renderer otherwise an empty `body` will be sent to the client. Returning a value does not invoke a second renderer.
 
-It must be added to a branch or to the base of an application.
+Renderers must be added to a branch or to the base of an application.
 
 ```javascript
 // createRenderer
@@ -265,7 +265,7 @@ createRenderer('text/html', (payload, { res }) => {
 });
 ```
 
-For good examples of how to write a renderer see the existing ones in this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
+For good examples of how to write renderers see this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
 
 # `Ex()`
 
@@ -301,12 +301,12 @@ This makes it easy to utilize any status code `400` and above. These methods cre
 
 We can respond to a request whenever we want, remaining handles are ignored.
 
-Handles run in sequence and any of them may terminate the request one of three ways. By returning a value, a renderer is triggered and content will be sent to the client. Throwing an error causes an error handler to be triggered and thus an error will be sent to the client.
+Handles run in sequence and any of them may terminate the request one of three ways. By returning a value, a renderer is invoked and content will be sent to the client. Throwing an error causes an error handler to be invoked and thus an error will be sent to the client.
 
-Or, we can finalize the response manually.
+Or, we can finalize the response directly.
 
 ```javascript
-// Respond to request
+// Responding to requests
 
 const authenticated = createHandler(({ req, res }) => {
     // must be authenticated!
@@ -322,19 +322,18 @@ const authenticated = createHandler(({ req, res }) => {
     }
 });
 
-app.add(
-    createRoute('/api/user', authenticated, json, () => {
-        // trigger a renderer
-        return {
-            users: [{ name: 'April' }, { name: 'Leo' }]
-        };
-    })
-);
+createRoute('/api/user', authenticated, json, () => {
+    // return a value
+    // invoke a renderer
+    return {
+        users: [{ name: 'April' }, { name: 'Leo' }]
+    };
+});
 ```
 
 # Bundle
 
-Properties such as `{ req, res, context }` are used throughout the above examples. These properties are provided on every request and are available to each handle, renderer, and error handler.
+Properties such as `req`, `res`, and `context` are used throughout the examples above. These properties are generated for every request and are available to each route, renderer, and error handler.
 
 * **`req`**
 
@@ -342,7 +341,7 @@ The node [`ClientRequest`](https://nodejs.org/api/http.html#class-httpclientrequ
 
 * **`res`**
 
-The node [`ServerResponse`](https://nodejs.org/api/http.html#class-httpserverresponse) object. It is not modified by this framework so we can rely on the official documentation to use it. This represents our response.
+The node [`ServerResponse`](https://nodejs.org/api/http.html#class-httpserverresponse) object. It is not modified by this framework so we can rely on the official documentation to use it. This represents the server response.
 
 * **`url`**
 
@@ -364,29 +363,27 @@ createRoute('/hotels', ({ url }) => {
 
 A place to store variables derived by handles, we might use these variables elsewhere in the request's lifecycle. We may make changes here whenever we want and populate it with anything.
 
-Useful for storing authentication details for example, or any information that is needed amongst other handles.
+Useful for storing authentication details for example or any information.
 
 * **`params`**
 
-When defining a route we can specify parameters to extract by prefixing a `':'` character in the url. If we specify a route such as `'/user/:userId'` we will have a parameter called `'userId'`. Use a double asterix `'**'` to accept anything for the remainder of the url.
+When defining a route we can specify parameters to extract by prefixing a colon `'/:'` character in the url. If we specify a route such as `'/user/:userId'` we will have a parameter called `'userId'`. Use a double asterix `'/**'` to accept anything for the remainder of the url.
 
 These values are always a string.
 
 * **`getBody()`**
 
-Node delivers the body of a request in chunks. It is not always necessary to wait for the request to finish before we begin processing it. In most cases we just want the data and therefore a helper method `getBody()` is provided which we may use to await body parameters from the completed request.
-
-This method can be used in many ways so we will look at it in more detail in the next section.
+This method can be used in many ways so the next section will look at it in detail.
 
 # `getBody()`
 
-The `getBody()` method is a convenience function which can retrieve, parse, and normalize data from client requests.
+Node delivers the body of a request in parts. It is not always necessary to wait for the request to finish before we begin processing it. In most cases we just want the data and therefore a helper method `getBody()` is provided which we may use to await body parameters from the completed request.
 
 ```javascript
 // getBody
 
 createRoute('POST', '/user', async ({ getBody }) => {
-    const body = await getBody<{ name: string }>();
+    const body = await getBody();
 
     // body ~= {
     //     name: 'April'
@@ -395,6 +392,8 @@ createRoute('POST', '/user', async ({ getBody }) => {
     return `User creation ${body.name}!`;
 });
 ```
+
+It takes an options object which can be used to parse and normalize data a large number of ways from client requests with several parameters.
 
 * **`multipart`**
 
@@ -428,7 +427,7 @@ createRoute('POST', '/users', async ({ getBody }) => {
 
 The body is processed as minimally as possible and will return a single buffer as it arrived.
 
-When combined with `multipart`, the body is parsed as an array with all parts split into separate buffers with respective headers.
+When combined with `multipart`, the body is parsed into an array with all parts split into separate buffers with their respective headers.
 
 ```javascript
 // raw
@@ -461,9 +460,9 @@ Disable body normalization with either `raw` or `skipNormalize`.
 
 * **`arrays`**
 
-The provided list of fields will be arrays.
+The provided list of fields are converted into arrays.
 
-Fields which are expected to be arrays must be specified. We only know a field is an array when we receive more than one item with the same name from a client, which creates ambiguity in our object. Therefore fields that do not specify that they are an array will return the first value. Fields which specify they are an array but receive no data will be an empty array.
+Fields that are not specified will return only the first value. This is because the framework only knows that a field is an array when it receives more than one value with the same name from a client. It would be inconvenient if parameters are sometimes arrays, and therefore are explicit.
 
 ```javascript
 // arrays
@@ -497,7 +496,7 @@ The provided list of fields are converted into `false` if the value is falsy, `'
 
 * **`validate`**
 
-After all other normalization is complete, this method further ensures the validity of the data. Returning anything within this function causes a `422` unprocessable entity error to occur.
+After normalization is complete, this method further ensures the validity of the data. Returning anything from this function causes a `422` unprocessable entity error to occur.
 
 ```javascript
 // validate
@@ -505,7 +504,6 @@ After all other normalization is complete, this method further ensures the valid
 createRoute('POST', '/users', async ({ getBody }) => {
     const body = await getBody({
         arrays: ['ownedPets'],
-        required: ['name', 'age'],
         numbers: ['age'],
         validate (result) {
             if (result.ownedPets.length > 99) {
@@ -516,13 +514,12 @@ createRoute('POST', '/users', async ({ getBody }) => {
 
     // body ~= {
     //     ownedPets: ['Maggie', 'Ralph'],
-    //     age: 23,
-    //     name: 'April'
+    //     age: 23
     // }
 });
 ```
 
-We know it is safe to use `result.ownedPets.length` in this example because it is specified as an array and therefore is certain to exist.
+We know it is safe to use `result.ownedPets.length` because it is listed as an array and therefore certain to exist.
 
 * **`postProcess`**
 
@@ -554,11 +551,11 @@ createRoute('POST', '/users', async ({ getBody }) => {
 });
 ```
 
-We know it is safe to call `result.name.trim()` in this example because it is specified as required and therefore is certain to exist. We also know it is a string because all fields are strings by default.
+We know it is safe to call `result.name.trim()` because it is listed as required and therefore certain to exist. We also know it is a string because all fields are strings.
 
 * **`maxPayloadSize`**
 
-The max payload size is `1e6` (approximately 1mb), if this is exceeded the request will be terminated saving both memory and bandwidth. If you are absolutely sure you want to receive a payload of any size then a value of `Infinity` is accepted.
+The max payload size is `1e6` (approximately 1mb), if this is exceeded the request will be terminated saving our application both memory and bandwidth. If we are absolutely sure we want to receive a payload of any size then a value of `Infinity` is accepted.
 
 # `sendFile()`
 

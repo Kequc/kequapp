@@ -38,15 +38,21 @@ export default async function requestProcessor (router: IRouter, raw: TRawBundle
 
         await render(renderers, bundle, payload);
     } catch (error: unknown) {
-        const contentType = String(res.getHeader('Content-Type') || 'text/plain');
-        const errorHandler = findErrorHandler(errorHandlers, contentType);
-        const payload = await errorHandler(error, bundle);
+        try {
+            const contentType = String(res.getHeader('Content-Type') || 'text/plain');
+            const errorHandler = findErrorHandler(errorHandlers, contentType);
+            const payload = await errorHandler(error, bundle);
 
-        if (res.statusCode === 500) {
-            console.error(error);
+            await render(renderers, bundle, payload);
+
+            if (res.statusCode === 500) {
+                console.error(error);
+            }
+        } catch (fatal: unknown) {
+            console.error(fatal);
+
+            finalize(bundle, 500);
         }
-
-        await render(renderers, bundle, payload);
     }
 
     // track request
@@ -54,13 +60,20 @@ export default async function requestProcessor (router: IRouter, raw: TRawBundle
 }
 
 function cors ({ req, res }: TBundle, routes: TRouteData[]): void {
-    if (routes.length > 0) {
-        const allowMethods = [...new Set(routes.map(route => route.method))].join(',');
-        const allowHeaders = req.headers['access-control-request-headers'];
+    const allowMethods = calcAllowMethods(routes);
+    const allowHeaders = req.headers['access-control-request-headers'];
+    res.setHeader('Valid', allowMethods);
+    res.setHeader('Access-Control-Allow-Methods', allowMethods);
+    if (allowHeaders) res.setHeader('Access-Control-Allow-Headers', allowHeaders);
+}
 
-        res.setHeader('Access-Control-Allow-Methods', allowMethods);
-        if (allowHeaders) res.setHeader('Access-Control-Allow-Headers', allowHeaders);
-    }
+function calcAllowMethods (routes: TRouteData[]): string {
+    const result = new Set(routes.map(route => route.method));
+
+    if (result.has('GET')) result.add('HEAD');
+    result.add('OPTIONS');
+
+    return [...result].join(',');
 }
 
 async function lifecycle (bundle: TBundle, route?: TRouteData): Promise<unknown> {
@@ -79,24 +92,21 @@ async function lifecycle (bundle: TBundle, route?: TRouteData): Promise<unknown>
 }
 
 async function render (renderers: TRendererData[], bundle: TBundle, payload: unknown): Promise<void> {
-    const { req, res, url } = bundle;
+    const { res } = bundle;
 
-    if (!res.writableEnded) {
-        if (payload !== undefined) {
-            const contentType = String(res.getHeader('Content-Type') || 'text/plain');
-            const renderer = findRenderer(renderers, contentType);
-            await renderer(payload, bundle);
-        } else if (req.method === 'OPTIONS') {
-            res.statusCode = 204;
-            res.setHeader('Content-Length', 0);
-            res.end();
-        }
+    if (!res.writableEnded && payload !== undefined) {
+        const contentType = String(res.getHeader('Content-Type') || 'text/plain');
+        const renderer = findRenderer(renderers, contentType);
+        await renderer(payload, bundle);
     }
 
+    finalize(bundle, 204);
+}
+
+function finalize ({ res }: TBundle, statusCode: number): void {
     if (!res.writableEnded) {
-        throw Ex.InternalServerError('Response not finalized', {
-            method: req.method,
-            pathname: url.pathname
-        });
+        res.statusCode = statusCode;
+        res.setHeader('Content-Length', 0);
+        res.end();
     }
 }
