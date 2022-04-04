@@ -42,7 +42,7 @@ export default async function requestProcessor (router: IRouter, raw: TRawBundle
         await finalize(renderers, bundle, payload);
     } catch (error: unknown) {
         try {
-            const errorHandler = findErrorHandler(errorHandlers, getContentType(res));
+            const errorHandler = findErrorHandler(errorHandlers, res);
             const payload = await errorHandler(error, bundle);
 
             await finalize(renderers, bundle, payload);
@@ -79,7 +79,7 @@ async function finalize (renderers: TRendererData[], bundle: TBundle, payload: u
     const { res } = bundle;
 
     if (!res.writableEnded && payload !== undefined) {
-        const renderer = findRenderer(renderers, getContentType(res));
+        const renderer = findRenderer(renderers, res);
         await renderer(payload, bundle);
     }
 
@@ -92,8 +92,4 @@ function always (res: ServerResponse, statusCode: number): void {
         res.setHeader('Content-Length', 0);
         res.end();
     }
-}
-
-function getContentType (res: ServerResponse): string {
-    return String(res.getHeader('Content-Type') || 'text/plain');
 }

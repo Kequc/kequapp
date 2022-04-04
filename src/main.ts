@@ -32,14 +32,12 @@ export function createApp (...handles: THandle[]): IKequapp {
     let router: IRouter;
 
     function app (req: IncomingMessage, res: ServerResponse): void {
-        const url = new URL(req.url || '/', `${req.headers.protocol}://${req.headers.host}`);
-
         if (!router) router = createRouter(branch());
 
         requestProcessor(router, {
             req,
             res,
-            url,
+            url: new URL(req.url || '/', `${req.headers.protocol}://${req.headers.host}`),
             getBody: createGetBody(req)
         });
     }

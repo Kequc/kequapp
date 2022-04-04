@@ -1,3 +1,4 @@
+import { ServerResponse } from 'http';
 import {
     TErrorHandler,
     TErrorHandlerData,
@@ -17,7 +18,8 @@ export function findRoute (routes: TRouteData[], method: string): TRouteData | u
     return route;
 }
 
-export function findRenderer (renderers: TRendererData[], contentType: string): TRenderer {
+export function findRenderer (renderers: TRendererData[], res: ServerResponse): TRenderer {
+    const contentType = getContentType(res);
     const renderer = renderers.find(renderer => compareContentType(renderer.contentType, contentType));
 
     if (!renderer) {
@@ -30,7 +32,8 @@ export function findRenderer (renderers: TRendererData[], contentType: string): 
     return renderer.handle;
 }
 
-export function findErrorHandler (errorHandlers: TErrorHandlerData[], contentType: string): TErrorHandler {
+export function findErrorHandler (errorHandlers: TErrorHandlerData[], res: ServerResponse): TErrorHandler {
+    const contentType = getContentType(res);
     const errorHandler = errorHandlers.find(errorHandler => compareContentType(errorHandler.contentType, contentType));
 
     if (!errorHandler) {
@@ -41,6 +44,10 @@ export function findErrorHandler (errorHandlers: TErrorHandlerData[], contentTyp
     }
 
     return errorHandler.handle;
+}
+
+function getContentType (res: ServerResponse): string {
+    return String(res.getHeader('Content-Type') || 'text/plain');
 }
 
 function compareContentType (a: string, b: string): boolean {
