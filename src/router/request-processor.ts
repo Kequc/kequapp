@@ -1,14 +1,15 @@
+import { ServerResponse } from 'http';
+import cors from './cors';
 import { findErrorHandler, findRenderer, findRoute } from './search';
 import {
     IRouter,
     TBundle,
+    THandle,
     TRawBundle,
-    TRendererData,
-    TRouteData
+    TRendererData
 } from '../types';
 import Ex from '../util/ex';
 import { getParams } from '../util/extract';
-import cors from './cors';
 
 export default async function requestProcessor (router: IRouter, raw: TRawBundle): Promise<void> {
     const { req, res, url } = raw;
@@ -35,24 +36,24 @@ export default async function requestProcessor (router: IRouter, raw: TRawBundle
             throw Ex.NotFound();
         }
 
-        const payload = await lifecycle(bundle, route);
+        const handles = route?.handles || [];
+        const payload = await runHandles(bundle, handles);
 
-        await render(renderers, bundle, payload);
+        await finalize(renderers, bundle, payload);
     } catch (error: unknown) {
         try {
-            const contentType = String(res.getHeader('Content-Type') || 'text/plain');
-            const errorHandler = findErrorHandler(errorHandlers, contentType);
+            const errorHandler = findErrorHandler(errorHandlers, getContentType(res));
             const payload = await errorHandler(error, bundle);
 
-            await render(renderers, bundle, payload);
+            await finalize(renderers, bundle, payload);
 
             if (res.statusCode === 500) {
                 console.error(error);
             }
-        } catch (fatal: unknown) {
-            console.error(fatal);
+        } catch (fatalError: unknown) {
+            console.error(fatalError);
 
-            finalize(bundle, 500);
+            always(res, 500);
         }
     }
 
@@ -60,9 +61,8 @@ export default async function requestProcessor (router: IRouter, raw: TRawBundle
     console.debug(res.statusCode, method, pathname);
 }
 
-async function lifecycle (bundle: TBundle, route?: TRouteData): Promise<unknown> {
+async function runHandles (bundle: TBundle, handles: THandle[]): Promise<unknown> {
     let payload: unknown = undefined;
-    const handles = route?.handles || [];
 
     for (const handle of handles) {
         payload = await handle(bundle);
@@ -75,22 +75,25 @@ async function lifecycle (bundle: TBundle, route?: TRouteData): Promise<unknown>
     return payload;
 }
 
-async function render (renderers: TRendererData[], bundle: TBundle, payload: unknown): Promise<void> {
+async function finalize (renderers: TRendererData[], bundle: TBundle, payload: unknown): Promise<void> {
     const { res } = bundle;
 
     if (!res.writableEnded && payload !== undefined) {
-        const contentType = String(res.getHeader('Content-Type') || 'text/plain');
-        const renderer = findRenderer(renderers, contentType);
+        const renderer = findRenderer(renderers, getContentType(res));
         await renderer(payload, bundle);
     }
 
-    finalize(bundle, 204);
+    always(res, 204);
 }
 
-function finalize ({ res }: TBundle, statusCode: number): void {
+function always (res: ServerResponse, statusCode: number): void {
     if (!res.writableEnded) {
         res.statusCode = statusCode;
         res.setHeader('Content-Length', 0);
         res.end();
     }
+}
+
+function getContentType (res: ServerResponse): string {
+    return String(res.getHeader('Content-Type') || 'text/plain');
 }
