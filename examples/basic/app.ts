@@ -1,4 +1,4 @@
-import { createApp, createBranch, createRoute, Ex } from '../../src/main'; // 'kequapp'
+import { createApp, createBranch, createHandle, createRoute, Ex } from '../../src/main'; // 'kequapp'
 
 const app = createApp();
 
@@ -6,13 +6,13 @@ app.add(createRoute(() => {
     return 'Hello world!';
 }));
 
-function loggedIn ({ req, context }) {
+const loggedIn = createHandle(({ req, context }) => {
     if (req.headers.authorization !== 'mike') {
         throw Ex.Unauthorized();
     }
 
     context.auth = req.headers.authorization;
-}
+});
 
 app.add(createBranch('/users').add(
     createRoute(({ url }) => {

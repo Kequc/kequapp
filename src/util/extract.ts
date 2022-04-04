@@ -1,4 +1,4 @@
-import { validateArray, validateExists, validateType } from './validate';
+import { validateArray } from './validate';
 import { TBundleParams, TPathname, TRouteData } from '../types';
 
 export function extractMethod (params: unknown[]): string {
@@ -9,7 +9,7 @@ export function extractMethod (params: unknown[]): string {
     return params.shift() as string;
 }
 
-export function extractPathname (params: unknown[], url: TPathname = '/'): TPathname {
+export function extractUrl (params: unknown[], url: TPathname = '/'): TPathname {
     if (typeof params[0] !== 'string' || params[0][0] !== '/') {
         return url;
     }
@@ -17,9 +17,10 @@ export function extractPathname (params: unknown[], url: TPathname = '/'): TPath
     return params.shift() as TPathname;
 }
 
-export function extractContentType (params: unknown[]): string {
-    validateExists(params[0], 'Content type');
-    validateType(params[0], 'Content type', 'string');
+export function extractContentType (params: unknown[], contentType = '*'): string {
+    if (typeof params[0] !== 'string' || params[0][0] === '/') {
+        return contentType;
+    }
 
     return params.shift() as string;
 }

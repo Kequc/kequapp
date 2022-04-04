@@ -7,14 +7,14 @@ import {
 import {
     extractHandles,
     extractMethod,
-    extractPathname,
+    extractUrl,
     getParts
 } from '../../util/extract';
 import { validateExists } from '../../util/validate';
 
 interface ICreateRoute {
-    (method: string, pathname: TPathname, ...handles: THandle[]): IAddable;
-    (pathname: TPathname, ...handles: THandle[]): IAddable;
+    (method: string, url: TPathname, ...handles: THandle[]): IAddable;
+    (url: TPathname, ...handles: THandle[]): IAddable;
     (method: string, ...handles: THandle[]): IAddable;
     (...handles: THandle[]): IAddable;
 }
@@ -23,7 +23,7 @@ export default createRoute as ICreateRoute;
 
 function createRoute (...params: unknown[]): IAddable {
     const method = extractMethod(params);
-    const parts = getParts(extractPathname(params));
+    const parts = getParts(extractUrl(params));
     const handles = extractHandles<THandle>(params);
 
     validateExists(handles[0], 'Route handle');

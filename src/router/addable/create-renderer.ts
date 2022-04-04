@@ -7,21 +7,23 @@ import {
 import {
     extractContentType,
     extractHandles,
-    extractPathname,
+    extractUrl,
     getParts
 } from '../../util/extract';
 import { validateExists } from '../../util/validate';
 
 interface ICreateRenderer {
-    (contentType: string, pathname: TPathname, handle: TRenderer): IAddable;
+    (contentType: string, url: TPathname, handle: TRenderer): IAddable;
+    (url: TPathname, handle: TRenderer): IAddable;
     (contentType: string, handle: TRenderer): IAddable;
+    (handle: TRenderer): IAddable;
 }
 
 export default createRenderer as ICreateRenderer;
 
 function createRenderer (...params: unknown[]): IAddable {
     const contentType = extractContentType(params);
-    const parts = getParts(extractPathname(params, '/**'));
+    const parts = getParts(extractUrl(params, '/**'));
     const [handle] = extractHandles<TRenderer>(params);
 
     validateExists(handle, 'Renderer handle');

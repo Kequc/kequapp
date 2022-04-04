@@ -32,7 +32,7 @@ it('throws error if content type is undefined', () => {
     const handle = () => {};
     // @ts-ignore
     assert.throws(() => createRenderer(undefined, handle), {
-        message: 'Content type is undefined'
+        message: 'Renderer handle is undefined'
     });
 });
 
@@ -40,7 +40,7 @@ it('throws error if invalid content type', () => {
     const handle = () => {};
     // @ts-ignore
     assert.throws(() => createRenderer(1, handle), {
-        message: 'Content type must be a string'
+        message: 'Handle item must be a function'
     });
 });
 

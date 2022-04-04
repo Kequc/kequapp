@@ -3,7 +3,7 @@ import sendFile from './send-file';
 import createRoute from '../../router/addable/create-route';
 import { IAddable, TParams, TPathname } from '../../types';
 import Ex from '../../util/ex';
-import { extractOptions, extractPathname } from '../../util/extract';
+import { extractOptions, extractUrl } from '../../util/extract';
 import guessMime from '../../util/guess-mime';
 import { validateArray, validateObject, validatePathname } from '../../util/validate';
 
@@ -20,8 +20,8 @@ const DEFAULT_OPTIONS: TStaticFilesOptions = {
 };
 
 interface IStaticFiles {
-    (pathname: TPathname, options: Partial<TStaticFilesOptions>): IAddable;
-    (pathname: TPathname): IAddable;
+    (url: TPathname, options: Partial<TStaticFilesOptions>): IAddable;
+    (url: TPathname): IAddable;
     (options: Partial<TStaticFilesOptions>): IAddable;
     (): IAddable;
 }
@@ -29,13 +29,13 @@ interface IStaticFiles {
 export default staticFiles as IStaticFiles;
 
 function staticFiles (...params: unknown[]): IAddable {
-    const pathname = extractPathname(params, '/**');
+    const url = extractUrl(params, '/**');
     const options = extractOptions<TStaticFilesOptions>(params, DEFAULT_OPTIONS);
 
-    validatePathname(pathname, 'Static files pathname', true);
+    validatePathname(url, 'Static files url', true);
     validateOptions(options);
 
-    return createRoute(pathname, async ({ req, res, params }) => {
+    return createRoute(url, async ({ req, res, params }) => {
         const asset = path.join(options.dir, ...(params['**'] || []));
         const mime = guessMime(asset, options.mime);
 

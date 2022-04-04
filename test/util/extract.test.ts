@@ -6,7 +6,7 @@ import {
     extractHandles,
     extractMethod,
     extractOptions,
-    extractPathname,
+    extractUrl,
     getParams,
     getParts
 } from '../../src/util/extract';
@@ -31,26 +31,26 @@ describe('extractMethod', () => {
     });
 });
 
-describe('extractPathname', () => {
+describe('extractUrl', () => {
     it('gets the first pathname', () => {
-        assert.strictEqual(extractPathname(['/hello', '/boo'], '/yay'), '/hello');
+        assert.strictEqual(extractUrl(['/hello', '/boo'], '/yay'), '/hello');
     });
 
     it('defaults to /', () => {
-        assert.strictEqual(extractPathname([1, 'HELLO']), '/');
+        assert.strictEqual(extractUrl([1, 'HELLO']), '/');
     });
 
     it('ignores non-pathnames', () => {
-        assert.strictEqual(extractPathname(['HELLO', '/hello']), '/');
+        assert.strictEqual(extractUrl(['HELLO', '/hello']), '/');
     });
 
     it('accepts a default', () => {
-        assert.strictEqual(extractPathname([1, 'HELLO'], '/yay'), '/yay');
+        assert.strictEqual(extractUrl([1, 'HELLO'], '/yay'), '/yay');
     });
 
     it('modifies the params', () => {
         const params = ['/hello', '/boo'];
-        assert.strictEqual(extractPathname(params), '/hello');
+        assert.strictEqual(extractUrl(params), '/hello');
         assert.deepStrictEqual(params, ['/boo']);
     });
 });
@@ -104,10 +104,12 @@ describe('extractContentType', () => {
         assert.strictEqual(extractContentType(['HELLO', 'BOO']), 'HELLO');
     });
 
-    it('throws error if missing content type', () => {
-        assert.throws(() => extractContentType([1, 'HELLO']), {
-            message: 'Content type must be a string'
-        });
+    it('defaults to *', () => {
+        assert.strictEqual(extractContentType([1, 'HELLO']), '*');
+    });
+
+    it('accepts a default', () => {
+        assert.strictEqual(extractContentType([1, 'HELLO'], 'text/*'), 'text/*');
     });
 
     it('modifies the params', () => {

@@ -8,7 +8,7 @@ import {
     TRendererData,
     TRouteData
 } from '../../types';
-import { extractHandles, extractPathname, getParts } from '../../util/extract';
+import { extractHandles, extractUrl, getParts } from '../../util/extract';
 import {
     validateArray,
     validateErrorHandlers,
@@ -17,14 +17,14 @@ import {
 } from '../../util/validate';
 
 export interface ICreateBranch {
-    (pathname: TPathname, ...handles: THandle[]): IAddableBranch;
+    (url: TPathname, ...handles: THandle[]): IAddableBranch;
     (...handles: THandle[]): IAddableBranch;
 }
 
 export default createBranch as ICreateBranch;
 
 function createBranch (...params: unknown[]): IAddableBranch {
-    const parts = getParts(extractPathname(params));
+    const parts = getParts(extractUrl(params));
     const handles = extractHandles<THandle>(params);
 
     // we don't want wild
