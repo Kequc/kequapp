@@ -1,6 +1,6 @@
 import 'kequtest';
 import assert from 'assert';
-import createHandle from '../../src/router/create-handle';
+import createHandle from '../../../src/router/addable/create-handle';
 
 it('creates a handle', () => {
     const handle = () => {};

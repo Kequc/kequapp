@@ -1,5 +1,5 @@
-import { THandle } from '../types';
-import { validateExists, validateType } from '../util/validate';
+import { THandle } from '../../types';
+import { validateExists, validateType } from '../../util/validate';
 
 interface ICreateHandle {
     (handle: THandle): THandle;

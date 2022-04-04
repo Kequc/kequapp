@@ -6,14 +6,19 @@ import textRenderer from './built-in/text-renderer';
 import createBranch from './router/addable/create-branch';
 import createRouter from './router/create-router';
 import requestProcessor from './router/request-processor';
-import { IAddable, IKequapp, IRouter, THandle } from './types';
+import {
+    IAddable,
+    IKequapp,
+    IRouter,
+    THandle
+} from './types';
 export { default as createBranch } from './router/addable/create-branch';
 export { default as createErrorHandler } from './router/addable/create-error-handler';
 export { default as createRenderer } from './router/addable/create-renderer';
 export { default as createRoute } from './router/addable/create-route';
 export { default as sendFile } from './built-in/extra/send-file';
 export { default as staticFiles } from './built-in/extra/static-files';
-export { default as createHandle } from './router/create-handle';
+export { default as createHandle } from './router/addable/create-handle';
 export { default as Ex } from './util/ex';
 export { default as inject } from './inject';
 export * from './types';

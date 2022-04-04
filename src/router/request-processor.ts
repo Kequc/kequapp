@@ -8,6 +8,7 @@ import {
 } from '../types';
 import Ex from '../util/ex';
 import { getParams } from '../util/extract';
+import cors from './cors';
 
 export default async function requestProcessor (router: IRouter, raw: TRawBundle): Promise<void> {
     const { req, res, url } = raw;
@@ -57,23 +58,6 @@ export default async function requestProcessor (router: IRouter, raw: TRawBundle
 
     // track request
     console.debug(res.statusCode, method, pathname);
-}
-
-function cors ({ req, res }: TBundle, routes: TRouteData[]): void {
-    const allowMethods = calcAllowMethods(routes);
-    const allowHeaders = req.headers['access-control-request-headers'];
-    res.setHeader('Valid', allowMethods);
-    res.setHeader('Access-Control-Allow-Methods', allowMethods);
-    if (allowHeaders) res.setHeader('Access-Control-Allow-Headers', allowHeaders);
-}
-
-function calcAllowMethods (routes: TRouteData[]): string {
-    const result = new Set(routes.map(route => route.method));
-
-    if (result.has('GET')) result.add('HEAD');
-    result.add('OPTIONS');
-
-    return [...result].join(',');
 }
 
 async function lifecycle (bundle: TBundle, route?: TRouteData): Promise<unknown> {
