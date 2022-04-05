@@ -1,14 +1,9 @@
 import { ServerResponse } from 'http';
-import cors from './cors';
-import { findRoute } from './search';
-import {
-    IRouter,
-    TBundle,
-    TRawBundle
-} from '../types';
+import { options, renderError, renderRoute } from './actions';
+import { findRoute } from './find';
+import { IRouter, TBundle, TRawBundle } from '../types';
 import Ex from '../util/ex';
 import { getParams } from '../util/extract';
-import { handleError, handleRoute } from './runner';
 
 export default async function requestProcessor (router: IRouter, raw: TRawBundle): Promise<void> {
     const { req, res, url } = raw;
@@ -19,8 +14,8 @@ export default async function requestProcessor (router: IRouter, raw: TRawBundle
     res.setHeader('Content-Type', 'text/plain');
     res.setHeader('Access-Control-Allow-Origin', '*');
 
-    const addable = router(pathname);
-    const route = findRoute(addable.routes, method);
+    const collection = router(pathname);
+    const route = findRoute(collection.routes, method);
     const bundle: TBundle = Object.freeze({
         ...raw,
         params: getParams(pathname, route),
@@ -29,25 +24,23 @@ export default async function requestProcessor (router: IRouter, raw: TRawBundle
 
     try {
         if (method === 'OPTIONS') {
-            cors(bundle, addable.routes);
+            options(collection, bundle);
         } else if (!route) {
             // 404
             throw Ex.NotFound();
         }
 
-        await handleRoute(addable, bundle, route);
+        await renderRoute(collection, bundle, route);
 
         cleanup(res, 204);
     } catch (error) {
         try {
-            await handleError(addable, bundle, error);
-
-            cleanup(res, 204);
+            await renderError(collection, bundle, error);
         } catch (fatalError) {
             console.error(fatalError);
-
-            cleanup(res, 500);
         }
+
+        cleanup(res, 500);
     }
 
     // track request
