@@ -1,6 +1,7 @@
 import 'kequtest';
 import assert from 'assert';
-import { findRoute, findRenderer, findErrorHandler } from '../../src/router/search';
+import { ServerResponse } from 'http';
+import { findErrorHandler, findRenderer, findRoute } from '../../src/router/search';
 import { TErrorHandlerData, TRendererData, TRouteData } from '../../src/types';
 
 describe('findroute', () => {

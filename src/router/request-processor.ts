@@ -1,15 +1,14 @@
 import { ServerResponse } from 'http';
 import cors from './cors';
-import { findErrorHandler, findRenderer, findRoute } from './search';
+import { findRoute } from './search';
 import {
     IRouter,
     TBundle,
-    THandle,
-    TRawBundle,
-    TRendererData
+    TRawBundle
 } from '../types';
 import Ex from '../util/ex';
 import { getParams } from '../util/extract';
+import { handleError, handleRoute } from './runner';
 
 export default async function requestProcessor (router: IRouter, raw: TRawBundle): Promise<void> {
     const { req, res, url } = raw;
@@ -20,8 +19,8 @@ export default async function requestProcessor (router: IRouter, raw: TRawBundle
     res.setHeader('Content-Type', 'text/plain');
     res.setHeader('Access-Control-Allow-Origin', '*');
 
-    const { routes, renderers, errorHandlers } = router(pathname);
-    const route = findRoute(routes, method);
+    const addable = router(pathname);
+    const route = findRoute(addable.routes, method);
     const bundle: TBundle = Object.freeze({
         ...raw,
         params: getParams(pathname, route),
@@ -30,30 +29,24 @@ export default async function requestProcessor (router: IRouter, raw: TRawBundle
 
     try {
         if (method === 'OPTIONS') {
-            cors(bundle, routes);
+            cors(bundle, addable.routes);
         } else if (!route) {
             // 404
             throw Ex.NotFound();
         }
 
-        const handles = route?.handles || [];
-        const payload = await runHandles(bundle, handles);
+        await handleRoute(addable, bundle, route);
 
-        await finalize(renderers, bundle, payload);
-    } catch (error: unknown) {
+        cleanup(res, 204);
+    } catch (error) {
         try {
-            const errorHandler = findErrorHandler(errorHandlers, res);
-            const payload = await errorHandler(error, bundle);
+            await handleError(addable, bundle, error);
 
-            await finalize(renderers, bundle, payload);
-
-            if (res.statusCode === 500) {
-                console.error(error);
-            }
-        } catch (fatalError: unknown) {
+            cleanup(res, 204);
+        } catch (fatalError) {
             console.error(fatalError);
 
-            always(res, 500);
+            cleanup(res, 500);
         }
     }
 
@@ -61,32 +54,7 @@ export default async function requestProcessor (router: IRouter, raw: TRawBundle
     console.debug(res.statusCode, method, pathname);
 }
 
-async function runHandles (bundle: TBundle, handles: THandle[]): Promise<unknown> {
-    let payload: unknown = undefined;
-
-    for (const handle of handles) {
-        payload = await handle(bundle);
-
-        if (bundle.res.writableEnded || payload !== undefined) {
-            break;
-        }
-    }
-
-    return payload;
-}
-
-async function finalize (renderers: TRendererData[], bundle: TBundle, payload: unknown): Promise<void> {
-    const { res } = bundle;
-
-    if (!res.writableEnded && payload !== undefined) {
-        const renderer = findRenderer(renderers, res);
-        await renderer(payload, bundle);
-    }
-
-    always(res, 204);
-}
-
-function always (res: ServerResponse, statusCode: number): void {
+function cleanup (res: ServerResponse, statusCode: number): void {
     if (!res.writableEnded) {
         res.statusCode = statusCode;
         res.setHeader('Content-Length', 0);
