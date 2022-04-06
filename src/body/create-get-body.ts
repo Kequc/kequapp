@@ -28,7 +28,7 @@ export default function createGetBody (req: IncomingMessage): IGetBody {
             };
         }
 
-        const isMultipartRequest = String(_body.headers['content-type'] || '').startsWith('multipart/');
+        const isMultipartRequest = _body.headers['content-type'].startsWith('multipart/');
 
         if (options.raw === true) {
             if (options.multipart === true) {

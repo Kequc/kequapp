@@ -1,5 +1,5 @@
 import { validateArray } from './validate';
-import { TBundleParams, TPathname, TRouteData } from '../types';
+import { TParams, TPathname, TRouteData } from '../types';
 
 export function extractMethod (params: unknown[]): string {
     if (typeof params[0] !== 'string' || params[0][0] === '/') {
@@ -52,14 +52,14 @@ export function getParts (pathname: string): string[] {
     return parts;
 }
 
-export function getParams (pathname: string, route?: TRouteData): TBundleParams {
+export function getParams (pathname: string, route?: TRouteData): TParams {
     const clientParts = getParts(pathname);
-    const params: TBundleParams = {};
+    const params: TParams = {};
     const parts = route?.parts || [];
 
     for (let i = 0; i < parts.length; i++) {
         if (parts[i] === '**') {
-            params['**'] = clientParts.slice(i);
+            params['**'] = `/${clientParts.slice(i).join('/')}`;
             return params;
         }
 

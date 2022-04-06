@@ -7,13 +7,14 @@ import {
 } from '../types';
 
 export async function renderRoute ({ renderers }: TAddableData, bundle: TBundle, route?: TRouteData): Promise<void> {
+    const { res } = bundle;
     const handles = route?.handles || [];
     let payload: unknown = undefined;
 
     for (const handle of handles) {
         payload = await handle(bundle);
 
-        if (bundle.res.writableEnded || payload !== undefined) {
+        if (res.writableEnded || payload !== undefined) {
             break;
         }
     }
@@ -49,15 +50,15 @@ export function options ({ routes }: TAddableData, bundle: TBundle): void {
     const { req, res } = bundle;
 
     const allowMethods = getAllowMethods(routes);
-    if (!allowMethods) return;
-
-    res.setHeader('Valid', allowMethods);
-    res.setHeader('Access-Control-Allow-Methods', allowMethods);
+    if (allowMethods) {
+        res.setHeader('Valid', allowMethods);
+        res.setHeader('Access-Control-Allow-Methods', allowMethods);
+    }
 
     const allowHeaders = req.headers['access-control-request-headers'];
-    if (!allowHeaders) return;
-
-    res.setHeader('Access-Control-Allow-Headers', allowHeaders);
+    if (allowHeaders) {
+        res.setHeader('Access-Control-Allow-Headers', allowHeaders);
+    }
 }
 
 function getAllowMethods (routes: TRouteData[]): string {

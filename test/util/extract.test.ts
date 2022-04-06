@@ -95,7 +95,7 @@ describe('getParams', () => {
 
     it('extracts wild route params', () => {
         const result = getParams('/hello/there/boo', buildRoute('hello', '**'));
-        assert.deepStrictEqual(result, { '**': ['there', 'boo'] });
+        assert.deepStrictEqual(result, { '**': '/there/boo' });
     });
 });
 

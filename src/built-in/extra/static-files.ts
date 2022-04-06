@@ -36,7 +36,7 @@ function staticFiles (...params: unknown[]): IAddable {
     validateOptions(options);
 
     return createRoute(url, async ({ req, res, params }) => {
-        const asset = path.join(options.dir, ...(params['**'] || []));
+        const asset = path.join(options.dir, params['**']);
         const mime = guessMime(asset, options.mime);
 
         if (isExcluded(options.exclude, asset)) {

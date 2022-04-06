@@ -70,15 +70,11 @@ export type TBundle = {
     res: ServerResponse;
     url: URL;
     context: TBundleContext;
-    params: TBundleParams;
+    params: TParams;
     getBody: IGetBody;
 };
 
 export type TRawBundle = Omit<TBundle, 'params' | 'context'>;
-
-export type TBundleParams = TParams & {
-    '**'?: string[];
-};
 
 export type TBundleContext = {
     [k: string]: unknown;
