@@ -1,6 +1,6 @@
 import path from 'path';
 import sendFile from './send-file';
-import createRoute from '../../router/addable/create-route';
+import createRoute from '../../router/modules/create-route';
 import { IAddable, TParams, TPathname } from '../../types';
 import Ex from '../../util/ex';
 import { extractOptions, extractUrl } from '../../util/extract';

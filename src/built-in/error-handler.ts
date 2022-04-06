@@ -1,4 +1,4 @@
-import createErrorHandler from '../router/addable/create-error-handler';
+import createErrorHandler from '../router/modules/create-error-handler';
 import { TServerError } from '../types';
 
 export default createErrorHandler((error, { res }) => {

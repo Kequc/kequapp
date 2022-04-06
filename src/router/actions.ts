@@ -23,12 +23,13 @@ export async function renderRoute ({ renderers }: TAddableData, bundle: TBundle,
 }
 
 export async function renderError ({ errorHandlers, renderers }: TAddableData, bundle: TBundle, error: unknown): Promise<void> {
+    const { res } = bundle;
     const errorHandler = findErrorHandler(errorHandlers, getContentType(bundle));
     const payload = await errorHandler(error, bundle);
 
     await finalize(renderers, bundle, payload);
 
-    if (bundle.res.statusCode === 500) {
+    if (res.statusCode === 500) {
         console.error(error);
     }
 }

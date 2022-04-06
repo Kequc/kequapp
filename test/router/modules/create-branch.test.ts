@@ -1,9 +1,9 @@
 import 'kequtest';
 import assert from 'assert';
-import createBranch from '../../../src/router/addable/create-branch';
-import createRoute from '../../../src/router/addable/create-route';
-import createRenderer from '../../../src/router/addable/create-renderer';
-import createErrorHandler from '../../../src/router/addable/create-error-handler';
+import createBranch from '../../../src/router/modules/create-branch';
+import createRoute from '../../../src/router/modules/create-route';
+import createRenderer from '../../../src/router/modules/create-renderer';
+import createErrorHandler from '../../../src/router/modules/create-error-handler';
 
 it('creates a branch', () => {
     const addable = createBranch();

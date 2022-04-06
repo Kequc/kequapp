@@ -1,6 +1,6 @@
 import 'kequtest';
 import assert from 'assert';
-import createErrorHandler from '../../../src/router/addable/create-error-handler';
+import createErrorHandler from '../../../src/router/modules/create-error-handler';
 
 it('creates a error handler', () => {
     const handle = () => {};

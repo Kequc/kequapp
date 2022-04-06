@@ -1,6 +1,6 @@
 import 'kequtest';
 import assert from 'assert';
-import createRenderer from '../../../src/router/addable/create-renderer';
+import createRenderer from '../../../src/router/modules/create-renderer';
 
 it('creates a renderer', () => {
     const handle = () => {};

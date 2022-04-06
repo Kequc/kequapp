@@ -1,4 +1,4 @@
-import createRenderer from '../router/addable/create-renderer';
+import createRenderer from '../router/modules/create-renderer';
 import Ex from '../util/ex';
 
 export default createRenderer('text/*', (payload, { req, res }) => {
