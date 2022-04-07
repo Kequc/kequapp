@@ -109,7 +109,7 @@ function isEmpty (value: TBodyJsonValue): boolean {
 }
 
 function toNumber (value: TBodyJsonValue): number {
-    return parseInt(value as string, 10);
+    return parseFloat(value as string);
 }
 
 function toBoolean (value: TBodyJsonValue): boolean {

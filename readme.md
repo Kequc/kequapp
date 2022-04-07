@@ -6,7 +6,7 @@ Versatile, non-intrusive, tiny webapp framework
 
 This is a request listener for Node's [`http`](https://nodejs.org/api/http.html) and [`https`](https://nodejs.org/api/https.html) libraries.
 
-This framework manages three steps of a request's lifecycle. Each one is important to understand but aims to deliver the most amount of control while utilizing the full potential of Node's built-in features.
+This framework manages three stages of a request's lifecycle. First handling the route, then errors, and finally rendering a response for the client. Each step is intended to act as an aid while remaining unobtrusive as possible, so that all features of Node can be used without a lot of extra learning.
 
 **Features**
 
@@ -16,8 +16,7 @@ This framework manages three steps of a request's lifecycle. Each one is importa
 * Static file serving
 * Async await everywhere
 * Does not modify node features or functionality
-* Any request deliver any response
-* Manageable learning curve
+* Any request to deliver any response
 * Fast
 * No dependencies <3
 * Inject for unit tests
@@ -26,11 +25,19 @@ This framework manages three steps of a request's lifecycle. Each one is importa
 npm i kequapp
 ```
 
-# Concepts
+# Key concepts
 
 **handle**
 
-The incoming request is passed through a series of handles. Each handle is given a bundle that it may operate on, or may terminate the request at any time. Handles are run in sequence, performing all of the heavy lifting. Most of our code will be contained within handles.
+The incoming request is passed through a series of handles. They run in sequence performing all of the heavy lifting for our application. Most of our code will be in handles, they must be added to a route.
+
+**route**
+
+Each route is self contained, these direct the lifecycle of a request at a given url. They must be added to a branch or to the base of an application.
+
+**branch**
+
+Each branch is self contained, this is very convenient for reducing complexity and staying organized throughout development. For example we might separate a json api from client facing pages and functionality. They must be added to another branch or the base of an application.
 
 **error handler**
 
@@ -38,15 +45,7 @@ If a handle throws an error, then an appropriate error handler is invoked. The d
 
 **renderer**
 
-If a handle or error handler returns a value apart from `undefined` then an appropriate renderer is invoked. The renderer is chosen based on the `'Content-Type'` header set by our application. By default there are two renderers one for `'text/*'` and one for `'application/json'`. These are easy to override or add, for example `'text/html'` would be priorized over `'text/*'`.
-
-**branch**
-
-Each branch is self contained, but must be added to a branch or to the base of an application. We might separate a json api from the rest of client facing pages, or an administrative area. This is very convenient for reducing complexity and staying organized throughout development.
-
-**route**
-
-Each route is self contained, but must be added to a branch or to the base of an application. They are populated with handles which facilitate the lifecycle of a request at a given url.
+If a handle or error handler returns a value apart from `undefined` then an appropriate renderer is invoked. The renderer is chosen based on the `'Content-Type'` header set by our application. By default there are two renderers one for `'text/*'` and one for `'application/json'`.
 
 # Hello world!
 
@@ -67,17 +66,17 @@ createServer(app).listen(4000, () => {
 });
 ```
 
-This example responds to all `'GET'`, `'OPTIONS'`, and `'HEAD'` requests made to the base of our application at `'/'`. Otherwise a `404` not found error will be returned. The reason all three respond to requests made at the base of our application, it is the default for new routes.
+This example responds to all `'GET'`, `'OPTIONS'`, and `'HEAD'` requests made to the base of our application at `'/'`. Otherwise a `404` not found error will be returned. The reason all three respond to requests made at the base of our application, `'/'` is the default for new routes.
 
-Defining `'HEAD'` and `'OPTIONS'` routes will override the default behavior.
+Defining `'HEAD'` and `'OPTIONS'` routes will override default behavior.
 
 ```javascript
 app.add(
     createRoute('HEAD', '/car', () => {
-        // do something here
+        // custom handle
     }),
     createRoute('OPTIONS', '/car', () => {
-        // do something here
+        // custom handle
     }),
     createRoute('/car', () => {
         return 'Hello car!';
@@ -85,14 +84,14 @@ app.add(
 );
 ```
 
-# `createHandler()`
+# # `createHandle()`
 
 ```javascript
-const { createHandler } = require('kequapp');
+const { createHandle } = require('kequapp');
 ```
 
 ```
-# createHandler(handle: Handle): Handle;
+# createHandle(handle: Handle): Handle;
 ```
 
 This is useful for building handles that exist outside of other scopes. If we are using TypeScript this conveniently provides types, it is ultimately the same as defining a function without it.
@@ -100,11 +99,11 @@ This is useful for building handles that exist outside of other scopes. If we ar
 ```javascript
 // createHandler
 
-const json = createHandler(({ res }) => {
+const json = createHandle(({ res }) => {
     res.setHeader('Content-Type', 'application/json');
 });
 
-const loggedIn = createHandler(({ req, context }) => {
+const loggedIn = createHandle(({ req, context }) => {
     if (req.headers.authorization !== 'mike') {
         throw Ex.Unauthorized();
     }
@@ -113,7 +112,7 @@ const loggedIn = createHandler(({ req, context }) => {
 });
 ```
 
-# `createRoute()`
+# # `createRoute()`
 
 ```javascript
 const { createRoute } = require('kequapp');
@@ -138,7 +137,7 @@ createRoute('POST', '/admin/user', loggedIn, () => {
 });
 ```
 
-# `createBranch()`
+# # `createBranch()`
 
 ```javascript
 const { createBranch } = require('kequapp');
@@ -207,7 +206,7 @@ createBranch().add(
 
 This is better served being split into several files, but for the purpose of an example it's all in one place.
 
-# `createErrorHandler()`
+# # `createErrorHandler()`
 
 ```javascript
 const { createErrorHandler } = require('kequapp');
@@ -238,7 +237,7 @@ Errors thrown within an error handler or the renderer it invokes will cause a fa
 
 For a good example of how to write error handlers see this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
 
-# `createRenderer()`
+# # `createRenderer()`
 
 ```javascript
 const { createRenderer } = require('kequapp');
@@ -267,7 +266,7 @@ createRenderer('text/html', (payload, { res }) => {
 
 For good examples of how to write renderers see this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
 
-# `Ex()`
+# # `Ex()`
 
 ```javascript
 const { Ex } = require('kequapp');
@@ -297,7 +296,7 @@ createRoute('/throw-error', () => {
 
 This makes it easy to utilize any status code `400` and above. These methods create errors with correct stacktraces there is no reason to use `new`.
 
-# Responding to requests
+# Responding to a request
 
 We can respond to a request whenever we want, remaining handles are ignored.
 
@@ -375,7 +374,7 @@ These values are always a string.
 
 This method can be used in many ways so the next section will look at it in detail.
 
-# `getBody()`
+# # `getBody()`
 
 Node delivers the body of a request in parts. It is not always necessary to wait for the request to finish before we begin processing it. In most cases we just want the data and therefore a helper method `getBody()` is provided which we may use to await body parameters from the completed request.
 
@@ -557,7 +556,7 @@ We know it is safe to call `result.name.trim()` because it is listed as required
 
 The max payload size is `1e6` (approximately 1mb), if this is exceeded the request will be terminated saving our application both memory and bandwidth. If we are absolutely sure we want to receive a payload of any size then a value of `Infinity` is accepted.
 
-# `sendFile()`
+# # `sendFile()`
 
 ```javascript
 const { sendFile } = require('kequapp');
@@ -578,7 +577,7 @@ createRoute('/db.json', async ({ req, res }) => {
 });
 ```
 
-# `staticFiles()`
+# # `staticFiles()`
 
 ```javascript
 const { staticFiles } = require('kequapp');
@@ -660,7 +659,7 @@ createRoute('HEAD', '/**', () => {
 })
 ```
 
-# `inject()`
+# # `inject()`
 
 ```javascript
 const { inject } = require('kequapp');
