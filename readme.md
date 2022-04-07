@@ -6,7 +6,7 @@ Versatile, non-intrusive, tiny webapp framework
 
 This is a request listener for Node's [`http`](https://nodejs.org/api/http.html) and [`https`](https://nodejs.org/api/https.html) libraries.
 
-This framework manages three stages of a request's lifecycle. First handling the route, then errors, and finally rendering a response for the client. Each step is intended to act as an aid while remaining unobtrusive as possible, so that all features of Node can be used without a lot of extra learning.
+This framework manages three stages of a request's lifecycle. First handling the route, then errors, and finally rendering a response for the client. Each step is intended to be as unobtruded by the framework as possible, to act as an aid so that all features of Node can be used unchanged.
 
 **Features**
 
@@ -29,7 +29,7 @@ npm i kequapp
 
 **handle**
 
-The incoming request is passed through a series of handles. They run in sequence performing all of the heavy lifting for our application. Most of our code will be in handles, they must be added to a route.
+The incoming request is passed through a series of handles in sequence, performing all of the heavy lifting for our application. Most of the code written for our application will be in handles, these must be added to a route.
 
 **route**
 
@@ -37,15 +37,15 @@ Each route is self contained, these direct the lifecycle of a request at a given
 
 **branch**
 
-Each branch is self contained, this is very convenient for reducing complexity and staying organized throughout development. For example we might separate a json api from client facing pages and functionality. They must be added to another branch or the base of an application.
+Each branch is self contained, this is very convenient for reducing complexity and staying organized throughout development. For example we might separate a json api from client facing pages and functionality. These must be added to another branch or the base of an application.
 
 **error handler**
 
-If a handle throws an error, then an appropriate error handler is invoked. The default one structures a json formatted response that includes helpful information for debugging.
+If a handle throws an error, then an appropriate error handler is invoked. The default one structures a json formatted response that includes helpful information for debugging. These must be added to a branch or to the base of an application.
 
 **renderer**
 
-If a handle or error handler returns a value apart from `undefined` then an appropriate renderer is invoked. The renderer is chosen based on the `'Content-Type'` header set by our application. By default there are two renderers one for `'text/*'` and one for `'application/json'`.
+If a handle or error handler returns a value apart from `undefined` then an appropriate renderer is invoked. The renderer is chosen based on the `'Content-Type'` header set by our application. By default there are two renderers one for `'text/*'` and `'application/json'`. These must be added to a branch or to the base of an application.
 
 # Hello world!
 
