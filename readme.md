@@ -45,7 +45,7 @@ If a handle throws an error, then an appropriate error handler is invoked. The d
 
 **renderer**
 
-If a handle or error handler returns a value apart from `undefined` then an appropriate renderer is invoked. The renderer is chosen based on the `'Content-Type'` header set by our application. By default there are two renderers one for `'text/*'` and `'application/json'`. These must be added to a branch or to the base of an application.
+If a handle or error handler returns a value apart from `undefined` then an appropriate renderer is invoked. There are defaults available that render `'text/*'` and `'application/json'` responses to the client. These must be added to a branch or to the base of an application.
 
 # Hello world!
 
