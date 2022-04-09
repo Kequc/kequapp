@@ -25,7 +25,7 @@ This framework is easy to learn and use. It manages three stages of a request fi
 npm i kequapp
 ```
 
-# Key concepts
+# Concepts
 
 **handle**
 

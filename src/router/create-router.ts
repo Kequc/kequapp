@@ -1,5 +1,6 @@
+import { isDuplicate } from './find';
+import { IRouter, TAddableData, TRouteData } from '../types';
 import { getParts } from '../util/extract';
-import { IRouter, TAddableData } from '../types';
 
 type TSortable = { parts: string[], contentType?: string };
 
@@ -8,14 +9,16 @@ export default function createRouter (branchData: TAddableData): IRouter {
     const renderers = [...branchData.renderers].sort(priority);
     const errorHandlers = [...branchData.errorHandlers].sort(priority);
 
+    warnDuplicates(routes);
+
     function router (pathname?: string): TAddableData {
         if (pathname) {
             const clientParts = getParts(pathname);
 
             return {
-                routes: routes.filter(item => compareParts(item.parts, clientParts)),
-                renderers: renderers.filter(item => compareParts(item.parts, clientParts)),
-                errorHandlers: errorHandlers.filter(item => compareParts(item.parts, clientParts))
+                routes: routes.filter(item => compare(item.parts, clientParts)),
+                renderers: renderers.filter(item => compare(item.parts, clientParts)),
+                errorHandlers: errorHandlers.filter(item => compare(item.parts, clientParts))
             };
         }
 
@@ -62,7 +65,24 @@ function priority (a: TSortable, b: TSortable): number {
     return 0;
 }
 
-function compareParts (parts: string[], clientParts: string[]): boolean {
+function warnDuplicates (routes: TRouteData[]): void {
+    const checked: TRouteData[] = [];
+
+    for (const route of routes) {
+        const exists = checked.find(value => isDuplicate(value, route));
+        if (exists) {
+            console.warn('Duplicate route detected', {
+                method: route.method,
+                url: `/${route.parts.join('/')}`,
+                matches: `/${exists.parts.join('/')}`
+            });
+        }
+        checked.push(route);
+    }
+}
+
+
+function compare (parts: string[], clientParts: string[]): boolean {
     const isWild = parts.includes('**');
 
     if (!isWild && parts.length !== clientParts.length) {

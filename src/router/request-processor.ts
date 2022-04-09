@@ -22,10 +22,12 @@ export default async function requestProcessor (router: IRouter, raw: TRawBundle
         context: {}
     });
 
+    if (method === 'OPTIONS') {
+        options(collection, bundle);
+    }
+
     try {
-        if (method === 'OPTIONS') {
-            options(collection, bundle);
-        } else if (!route) {
+        if (!route) {
             // 404
             throw Ex.NotFound();
         }

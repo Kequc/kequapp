@@ -52,3 +52,21 @@ function compareContentType (a: string, b: string): boolean {
 
     return a === b;
 }
+
+export function isDuplicate (a: TRouteData, b: TRouteData): boolean {
+    if (a.method === 'OPTIONS' || a.method !== b.method || a.parts.length !== b.parts.length) {
+        return false;
+    }
+
+    const count = a.parts.length;
+
+    for (let i = 0; i < count; i++) {
+        const aa = a.parts[i];
+        const bb = b.parts[i];
+        if (aa === bb) continue;
+        if ((aa === '**' || aa[0] === ':') && (bb === '**' || bb[0] === ':')) return true;
+        return false;
+    }
+
+    return true;
+}
