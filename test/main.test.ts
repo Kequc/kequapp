@@ -1,15 +1,15 @@
-import 'kequtest';
 import assert from 'assert';
+import 'kequtest';
 import {
     createApp,
     createBranch,
     createErrorHandler,
+    createHandle,
     createRenderer,
     createRoute,
+    Ex,
     sendFile,
-    staticFiles,
-    createHandle,
-    Ex
+    staticFiles
 } from '../src/main';
 
 it('exports a lot of stuff', () => {

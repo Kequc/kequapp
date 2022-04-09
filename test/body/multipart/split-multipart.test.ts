@@ -1,5 +1,5 @@
-import 'kequtest';
 import assert from 'assert';
+import 'kequtest';
 import splitMultipart from '../../../src/body/multipart/split-multipart';
 
 it('reads buffer', () => {

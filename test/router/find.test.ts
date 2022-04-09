@@ -1,51 +1,7 @@
 import assert from 'assert';
 import 'kequtest';
-import {
-    findErrorHandler,
-    findRenderer,
-    findRoute,
-    isDuplicate
-} from '../../src/router/find';
+import { findErrorHandler, findRenderer, isDuplicate } from '../../src/router/find';
 import { TErrorHandlerData, TRendererData, TRouteData } from '../../src/types';
-
-describe('findroute', () => {
-    function buildRoute (method: string): TRouteData {
-        return { parts: [], handles: [], method };
-    }
-
-    it('returns a route', () => {
-        const routes = [
-            buildRoute('HEAD'),
-            buildRoute('GET')
-        ];
-        assert.strictEqual(findRoute(routes, 'GET'), routes[1]);
-    });
-
-    it('returns undefined when no route', () => {
-        const routes = [
-            buildRoute('POST'),
-            buildRoute('DELETE')
-        ];
-        assert.strictEqual(findRoute(routes, 'HEAD'), undefined);
-    });
-
-    it('returns available GET route when no HEAD', () => {
-        const routes = [
-            buildRoute('POST'),
-            buildRoute('GET')
-        ];
-        assert.strictEqual(findRoute(routes, 'HEAD'), routes[1]);
-    });
-
-    it('returns HEAD route when available', () => {
-        const routes = [
-            buildRoute('POST'),
-            buildRoute('GET'),
-            buildRoute('HEAD')
-        ];
-        assert.strictEqual(findRoute(routes, 'HEAD'), routes[2]);
-    });
-});
 
 describe('findRenderer', () => {
     function buildRenderer (contentType: string): TRendererData {

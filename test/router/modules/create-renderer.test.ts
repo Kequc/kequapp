@@ -1,5 +1,5 @@
-import 'kequtest';
 import assert from 'assert';
+import 'kequtest';
 import createRenderer from '../../../src/router/modules/create-renderer';
 
 it('creates a renderer', () => {

@@ -30,17 +30,13 @@ function createBranch (...params: unknown[]): IAddableBranch {
     // we don't want wild
     if (parts.includes('**')) parts.pop();
 
-    const routes: TRouteData[] = [{
-        parts: ['**'],
-        handles: [],
-        method: 'OPTIONS'
-    }];
+    const routes: TRouteData[] = [];
     const renderers: TRendererData[] = [];
     const errorHandlers: TErrorHandlerData[] = [];
 
     function branch (): TAddableData {
         return {
-            routes: routes.map(route => ({
+            routes: getRoutes(routes).map(route => ({
                 ...route,
                 parts: [...parts, ...route.parts],
                 handles: [...handles, ...route.handles],
@@ -81,6 +77,26 @@ function createBranch (...params: unknown[]): IAddableBranch {
     Object.assign(branch, { add });
 
     return branch as IAddableBranch;
+}
+
+function getRoutes (routes: TRouteData[]): TRouteData[] {
+    const result = [...routes];
+
+    result.push({
+        parts: ['**'],
+        handles: [],
+        method: 'OPTIONS'
+    });
+
+    for (const route of routes) {
+        if (route.method !== 'GET') continue;
+        result.push({
+            ...route,
+            method: 'HEAD'
+        });
+    }
+
+    return result;
 }
 
 function validateRoutes (routes: TRouteData[]): void {

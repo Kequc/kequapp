@@ -7,16 +7,6 @@ import {
 } from '../types';
 import Ex from '../util/ex';
 
-export function findRoute (routes: TRouteData[], method: string): TRouteData | undefined {
-    const route = routes.find(route => route.method === method);
-
-    if (!route && method === 'HEAD') {
-        return findRoute(routes, 'GET');
-    }
-
-    return route;
-}
-
 export function findRenderer (renderers: TRendererData[], contentType: string): TRenderer {
     const renderer = renderers.find(renderer => compareContentType(renderer.contentType, contentType));
 
@@ -54,7 +44,7 @@ function compareContentType (a: string, b: string): boolean {
 }
 
 export function isDuplicate (a: TRouteData, b: TRouteData): boolean {
-    if (a.method === 'OPTIONS' || a.method !== b.method || a.parts.length !== b.parts.length) {
+    if (a.method === 'OPTIONS' || a.method === 'HEAD' || a.method !== b.method || a.parts.length !== b.parts.length) {
         return false;
     }
 

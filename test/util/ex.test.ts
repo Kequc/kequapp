@@ -1,5 +1,5 @@
-import 'kequtest';
 import assert from 'assert';
+import 'kequtest';
 import Ex from '../../src/util/ex';
 
 it('exports a few common errors', () => {

@@ -1,5 +1,5 @@
-import 'kequtest';
 import assert from 'assert';
+import 'kequtest';
 import createRoute from '../../../src/router/modules/create-route';
 
 it('creates a route', () => {

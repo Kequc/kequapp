@@ -1,9 +1,9 @@
-import 'kequtest';
 import assert from 'assert';
+import 'kequtest';
 import createBranch from '../../../src/router/modules/create-branch';
-import createRoute from '../../../src/router/modules/create-route';
-import createRenderer from '../../../src/router/modules/create-renderer';
 import createErrorHandler from '../../../src/router/modules/create-error-handler';
+import createRenderer from '../../../src/router/modules/create-renderer';
+import createRoute from '../../../src/router/modules/create-route';
 
 it('creates a branch', () => {
     const addable = createBranch();

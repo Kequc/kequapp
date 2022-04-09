@@ -1,5 +1,5 @@
-import 'kequtest';
 import assert from 'assert';
+import 'kequtest';
 import inject from '../src/inject';
 import { createApp, createRoute } from '../src/main';
 

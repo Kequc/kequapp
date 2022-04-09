@@ -1,11 +1,16 @@
-import 'kequtest';
 import assert from 'assert';
+import 'kequtest';
 import createGetBody from '../../src/body/create-get-body';
 import createGetResponse from '../../src/body/create-get-response';
-import requestProcessor from '../../src/router/request-processor';
 import createRouter from '../../src/router/create-router';
+import requestProcessor from '../../src/router/request-processor';
+import {
+    TAddableData,
+    TErrorHandlerData,
+    TInject,
+    TReqOptions
+} from '../../src/types';
 import { FakeReq, FakeRes } from '../../src/util/fake-http';
-import { TAddableData, TErrorHandlerData, TInject, TReqOptions } from '../../src/types';
 
 function process (branchData: TAddableData, options: TReqOptions): TInject {
     const req = new FakeReq(options) as any;

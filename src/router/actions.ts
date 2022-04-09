@@ -6,10 +6,15 @@ import {
     TRouteData
 } from '../types';
 
-export async function renderRoute ({ renderers }: TAddableData, bundle: TBundle, route?: TRouteData): Promise<void> {
-    const { res } = bundle;
+export async function renderRoute (collection: TAddableData, bundle: TBundle, route?: TRouteData): Promise<void> {
+    const { routes, renderers } = collection;
+    const { req, res } = bundle;
     const handles = route?.handles || [];
     let payload: unknown = undefined;
+
+    if (req.method === 'OPTIONS') {
+        options(routes, bundle);
+    }
 
     for (const handle of handles) {
         payload = await handle(bundle);
@@ -22,7 +27,8 @@ export async function renderRoute ({ renderers }: TAddableData, bundle: TBundle,
     await finalize(renderers, bundle, payload);
 }
 
-export async function renderError ({ errorHandlers, renderers }: TAddableData, bundle: TBundle, error: unknown): Promise<void> {
+export async function renderError (collection: TAddableData, bundle: TBundle, error: unknown): Promise<void> {
+    const { errorHandlers, renderers } = collection;
     const { res } = bundle;
     const errorHandler = findErrorHandler(errorHandlers, getContentType(bundle));
     const payload = await errorHandler(error, bundle);
@@ -47,10 +53,10 @@ async function finalize (renderers: TRendererData[], bundle: TBundle, payload: u
     }
 }
 
-export function options ({ routes }: TAddableData, bundle: TBundle): void {
+function options (routes: TRouteData[], bundle: TBundle): void {
     const { req, res } = bundle;
 
-    const allowMethods = getAllowMethods(routes);
+    const allowMethods = [...new Set(routes.map(route => route.method))].join(', ');
     if (allowMethods) {
         res.setHeader('Valid', allowMethods);
         res.setHeader('Access-Control-Allow-Methods', allowMethods);
@@ -60,13 +66,4 @@ export function options ({ routes }: TAddableData, bundle: TBundle): void {
     if (allowHeaders) {
         res.setHeader('Access-Control-Allow-Headers', allowHeaders);
     }
-}
-
-function getAllowMethods (routes: TRouteData[]): string {
-    const result = new Set(routes.map(route => route.method));
-
-    if (result.has('GET')) result.add('HEAD');
-    if (result.size > 0) result.add('OPTIONS');
-
-    return [...result].join(', ');
 }

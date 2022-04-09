@@ -1,11 +1,11 @@
-import 'kequtest';
 import assert from 'assert';
+import 'kequtest';
 import {
-    validateObject,
     validateArray,
-    validateType,
+    validateExists,
+    validateObject,
     validatePathname,
-    validateExists
+    validateType
 } from '../../src/util/validate';
 
 describe('validateObject', () => {

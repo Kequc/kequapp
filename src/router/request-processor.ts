@@ -1,6 +1,5 @@
 import { ServerResponse } from 'http';
-import { options, renderError, renderRoute } from './actions';
-import { findRoute } from './find';
+import { renderError, renderRoute } from './actions';
 import { IRouter, TBundle, TRawBundle } from '../types';
 import Ex from '../util/ex';
 import { getParams } from '../util/extract';
@@ -15,16 +14,12 @@ export default async function requestProcessor (router: IRouter, raw: TRawBundle
     res.setHeader('Access-Control-Allow-Origin', '*');
 
     const collection = router(pathname);
-    const route = findRoute(collection.routes, method);
+    const route = collection.routes.find(route => route.method === method);
     const bundle: TBundle = Object.freeze({
         ...raw,
         params: getParams(pathname, route),
         context: {}
     });
-
-    if (method === 'OPTIONS') {
-        options(collection, bundle);
-    }
 
     try {
         if (!route) {

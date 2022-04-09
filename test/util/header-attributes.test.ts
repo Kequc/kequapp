@@ -1,5 +1,5 @@
-import 'kequtest';
 import assert from 'assert';
+import 'kequtest';
 import headerAttributes from '../../src/util/header-attributes';
 
 it('parses attributes', () => {

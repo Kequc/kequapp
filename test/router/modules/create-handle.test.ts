@@ -1,5 +1,5 @@
-import 'kequtest';
 import assert from 'assert';
+import 'kequtest';
 import createHandle from '../../../src/router/modules/create-handle';
 
 it('creates a handle', () => {

@@ -1,5 +1,5 @@
-import 'kequtest';
 import assert from 'assert';
+import 'kequtest';
 import guessMime from '../../src/util/guess-mime';
 
 it('guesses a mime type from a filename', () => {

@@ -1,5 +1,5 @@
-import 'kequtest';
 import assert from 'assert';
+import 'kequtest';
 import createErrorHandler from '../../../src/router/modules/create-error-handler';
 
 it('creates a error handler', () => {

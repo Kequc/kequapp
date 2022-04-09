@@ -1,5 +1,5 @@
-import 'kequtest';
 import assert from 'assert';
+import 'kequtest';
 import parseMultipart from '../../../src/body/multipart/parse-multipart';
 
 it('reads buffers', () => {

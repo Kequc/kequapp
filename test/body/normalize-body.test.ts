@@ -1,5 +1,5 @@
-import 'kequtest';
 import assert from 'assert';
+import 'kequtest';
 import normalizeBody from '../../src/body/normalize-body';
 
 describe('required', () => {
