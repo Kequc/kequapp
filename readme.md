@@ -66,17 +66,17 @@ createServer(app).listen(4000, () => {
 });
 ```
 
-This example responds to all `'GET'`, `'OPTIONS'`, and `'HEAD'` requests made to the base of our application at `'/'`. Otherwise a `404` not found error will be returned. The reason all three respond to requests made at the base of our application, `'/'` is the default for new routes.
+This example responds to all `'GET'`, `'OPTIONS'`, and `'HEAD'` requests made to the base of our application at `'/'`. Otherwise a `404` not found error will be returned. The reason all three respond to requests made at the base of our application at `'/'` is that is the default for new routes.
 
 Defining `'HEAD'` and `'OPTIONS'` routes will override default behavior.
 
 ```javascript
 app.add(
     createRoute('HEAD', '/car', () => {
-        // custom handle
+        // custom HEAD
     }),
     createRoute('OPTIONS', '/car', () => {
-        // custom handle
+        // custom OPTIONS
     }),
     createRoute('/car', () => {
         return 'Hello car!';
@@ -84,7 +84,7 @@ app.add(
 );
 ```
 
-The reason we do not need to create any error handler or renderer for this example is there are default ones that come with the app when it is created.
+We do not need to create any error handler or renderer for this example because our app comes with some defaults. We will look at how to create our own shortly.
 
 # # createHandle()
 
@@ -96,7 +96,7 @@ const { createHandle } = require('kequapp');
 # createHandle(handle: Handle): Handle;
 ```
 
-This is useful for building handles that exist outside of any scope, for example in another file. If we are using TypeScript this conveniently provides types, otherwise ultimately the same as defining a function.
+This is useful for building handles that exist outside of any scope, for example in another file. If we are using TypeScript this conveniently provides types, otherwise it is the same as simply defining a function.
 
 ```javascript
 // createHandle
@@ -114,7 +114,7 @@ const loggedIn = createHandle(({ req, context }) => {
 });
 ```
 
-Handles can be asyncronous functions and when used always run in sequence. These examples set the response `'Content-Type'`, and checks for an `authorization` header from the client.
+Handles can be asyncronous functions and when used always run in sequence. In these examples the `json` handle sets the `'Content-Type'`, and `loggedIn` checks for an `authorization` header from the client.
 
 # # createRoute()
 
@@ -129,7 +129,9 @@ const { createRoute } = require('kequapp');
 # createRoute(...handles: Handle[]): Route;
 ```
 
-A route may specify a method (`'GET'`, `'POST'`, ...) and url, followed by any number of handles. The url is a pathname that the route should respond to and when provided must always start with `'/'`.
+A route may specify a method (`'GET'`, `'POST'`, etc.) and url, followed by any number of handles. The url is a pathname that the route should respond to.
+
+When provided the url must always start with `'/'`.
 
 ```javascript
 // createRoute
@@ -141,7 +143,7 @@ createRoute('POST', '/admin/user', loggedIn, () => {
 });
 ```
 
-This example has two handles. One we defined earlier called `loggedIn` and a second that returns a value at the end of processing that will be sent to the renderer.
+This example has two handles. One which we defined earlier called `loggedIn` and a second that returns a value that will be sent to the renderer.
 
 # # createBranch()
 
@@ -156,7 +158,7 @@ const { createBranch } = require('kequapp');
 
 A branch of the application will cause routes to adopt the given url and handles.
 
-Every branch of our application exposes `add()`. This is an important function used to extend the branch with additional functionality. Usually this will be a route, another branch, an error handler, or renderer.
+Every branch of our application exposes `add()`. This is an important function used to extend the branch with added functionality. Usually this will be a route, another branch, an error handler, or renderer. All can be added in any order, they are organized later by the framework.
 
 ```javascript
 // createBranch
@@ -223,7 +225,11 @@ const { createErrorHandler } = require('kequapp');
 # createErrorHandler(handle: Handle): ErrorHandler;
 ```
 
-If no content type is provided the error handler will be used for all content types. This turns an exception into useful information that should be sent to the client. We may returnin a value to invoke a renderer or finalize the response directly inside the error handler. The default one structures a json formatted response with helpful information for debugging.
+If no content type is provided the error handler will be used for all content types.
+
+This turns an exception into useful information that should be sent to the client. We may returnin a value to invoke a renderer or finalize the response directly inside the error handler. The default one structures a json formatted response with helpful information for debugging.
+
+The following is a very simple plain text formatted one.
 
 ```javascript
 // createErrorHandler
@@ -235,7 +241,7 @@ createErrorHandler('text/*', (error, { res }) => {
 });
 ```
 
-Errors thrown within an error handler or the renderer it invokes will cause a fatal exception and an empty `body` will immediately be delivered to the client.
+Errors thrown within an error handler or the renderer it invokes will cause a fatal exception and an empty `body` will be delivered to the client.
 
 For a good example of how to write error handlers see this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
 
@@ -252,9 +258,13 @@ const { createRenderer } = require('kequapp');
 # createRenderer(handle: Handle): ErrorHandler;
 ```
 
-If no content type is provided the renderer will be used for all content types. Renderers need to be sure a response is finalized otherwise an empty `body` will be sent to the client. Returning a value does not invoke a second renderer.
+If no content type is provided the renderer will be used for all content types.
 
-There are default renderers for both `'text/*'` and `'application/json'`, however these can be overridden by defining new ones. The following is a simple example of what an html renderer might look like.
+Renderers are responsible for finalizing the response to the client. It is the last stage of a request and otherwise an empty `body` will be delivered to the client.
+
+There are default renderers that come built-in to the application for both `'text/*'` and `'application/json'`, however these can be overridden by defining our own.
+
+The following is a simple example of what an html renderer might look like.
 
 ```javascript
 // createRenderer
@@ -620,7 +630,9 @@ The correct `'Content-Type'` header is guessed based on file extension. If there
 
 # CORS and `OPTIONS` requests
 
-The framework attaches an `'Access-Control-Allow-Origin'` header with value of `'*'` by default to all responses. To change this behavior we use a handle to override it. The easiest place to override this header is at the base of the application. The `createApp` method accepts handles to use for all routes.
+An `'Access-Control-Allow-Origin'` header with value of `'*'` is attached by default to all responses.
+
+To change this behavior we use a handle to override it. The easiest place to override this header is at the base of the application. The `createApp` method accepts handles to use for all routes.
 
 ```javascript
 // CORS
@@ -691,7 +703,7 @@ createApp(cors).add(
 );
 ```
 
-The following would remove all CORS funcationality.
+The following would remove default CORS funcationality.
 
 ```javascript
 // CORS
@@ -728,7 +740,7 @@ In most cases `HEAD` and `GET` requests should run the same code, so we have not
 
 Occasionally we may need to differentiate between the two as it is generally understood that a `HEAD` request does not modify data. In this case looking at the value of `req.method` can be useful.
 
-The following removes default `HEAD` request functionality.
+The following would remove default `HEAD` request functionality.
 
 ```javascript
 // HEAD
