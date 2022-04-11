@@ -644,7 +644,9 @@ createBranch('/cors', cors).add(
 );
 ```
 
-The following is a standalone `OPTIONS` route which would use the same url as the example above, while still correctly setting the same `'Access-Control-Allow-Origin'` header. Creating a standalone route makes it possible to define only handles that are needed. As `OPTIONS` routes are often much simpler than other routes in the branch.
+Creating a standalone route makes it possible to define only handles that are needed as `OPTIONS` routes are often much simpler than other routes in the branch.
+
+The following is a standalone `OPTIONS` route which would use the same url as the example above, while still correctly setting the `'Access-Control-Allow-Origin'` header.
 
 ```javascript
 // CORS
@@ -689,7 +691,7 @@ createApp(cors).add(
 );
 ```
 
-The following would remove all default CORS funcationality.
+The following would remove all CORS funcationality.
 
 ```javascript
 // CORS
@@ -705,7 +707,7 @@ createApp(noCors).add(
 
         throw Ex.NotFound();
     })
-)
+);
 ```
 
 # `HEAD` requests
@@ -726,14 +728,16 @@ In most cases `HEAD` and `GET` requests should run the same code, so we have not
 
 Occasionally we may need to differentiate between the two as it is generally understood that a `HEAD` request does not modify data. In this case looking at the value of `req.method` can be useful.
 
-The following removes `HEAD` request functionality.
+The following removes default `HEAD` request functionality.
 
 ```javascript
 // HEAD
 
-createRoute('HEAD', '/**', () => {
-    throw Ex.NotFound();
-})
+createApp().add(
+    createRoute('HEAD', '/**', () => {
+        throw Ex.NotFound();
+    })
+);
 ```
 
 # # inject()
