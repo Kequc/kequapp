@@ -56,7 +56,7 @@ async function finalize (renderers: TRendererData[], bundle: TBundle, payload: u
 function options (routes: TRouteData[], bundle: TBundle): void {
     const { req, res } = bundle;
 
-    const allowMethods = [...new Set(routes.map(route => route.method))].join(', ');
+    const allowMethods = getAllowMethods(routes);
     if (allowMethods) {
         res.setHeader('Valid', allowMethods);
         res.setHeader('Access-Control-Allow-Methods', allowMethods);
@@ -66,4 +66,10 @@ function options (routes: TRouteData[], bundle: TBundle): void {
     if (allowHeaders) {
         res.setHeader('Access-Control-Allow-Headers', allowHeaders);
     }
+}
+
+function getAllowMethods (routes: TRouteData[]): string {
+    const result = new Set(routes.map(route => route.method));
+    if (result.has('GET')) result.add('HEAD');
+    return [...result].join(', ');
 }

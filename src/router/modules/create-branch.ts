@@ -16,6 +16,12 @@ import {
     validateType
 } from '../../util/validate';
 
+const OPTIONS = {
+    parts: ['**'],
+    handles: [],
+    method: 'OPTIONS'
+};
+
 export interface ICreateBranch {
     (url: TPathname, ...handles: THandle[]): IAddableBranch;
     (...handles: THandle[]): IAddableBranch;
@@ -36,7 +42,7 @@ function createBranch (...params: unknown[]): IAddableBranch {
 
     function branch (): TAddableData {
         return {
-            routes: getRoutes(routes).map(route => ({
+            routes: [...routes, OPTIONS].map(route => ({
                 ...route,
                 parts: [...parts, ...route.parts],
                 handles: [...handles, ...route.handles],
@@ -77,26 +83,6 @@ function createBranch (...params: unknown[]): IAddableBranch {
     Object.assign(branch, { add });
 
     return branch as IAddableBranch;
-}
-
-function getRoutes (routes: TRouteData[]): TRouteData[] {
-    const result = [...routes];
-
-    result.push({
-        parts: ['**'],
-        handles: [],
-        method: 'OPTIONS'
-    });
-
-    for (const route of routes) {
-        if (route.method !== 'GET') continue;
-        result.push({
-            ...route,
-            method: 'HEAD'
-        });
-    }
-
-    return result;
 }
 
 function validateRoutes (routes: TRouteData[]): void {

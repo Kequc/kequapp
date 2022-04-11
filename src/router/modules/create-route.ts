@@ -26,7 +26,9 @@ function createRoute (...params: unknown[]): IAddable {
     const parts = getParts(extractUrl(params));
     const handles = extractHandles<THandle>(params);
 
-    validateExists(handles[0], 'Route handle');
+    if (method !== 'OPTIONS') {
+        validateExists(handles[0], 'Route handle');
+    }
 
     function route (): Partial<TAddableData> {
         return {

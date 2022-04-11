@@ -86,7 +86,7 @@ app.add(
 
 The reason we do not need to create any error handler or renderer for this example is there are default ones that come with the app when it is created.
 
-# # `createHandle()`
+# # createHandle()
 
 ```javascript
 const { createHandle } = require('kequapp');
@@ -116,7 +116,7 @@ const loggedIn = createHandle(({ req, context }) => {
 
 Handles can be asyncronous functions and when used always run in sequence. These examples set the response `'Content-Type'`, and checks for an `authorization` header from the client.
 
-# # `createRoute()`
+# # createRoute()
 
 ```javascript
 const { createRoute } = require('kequapp');
@@ -143,7 +143,7 @@ createRoute('POST', '/admin/user', loggedIn, () => {
 
 This example has two handles. One we defined earlier called `loggedIn` and a second that returns a value at the end of processing that will be sent to the renderer.
 
-# # `createBranch()`
+# # createBranch()
 
 ```javascript
 const { createBranch } = require('kequapp');
@@ -210,7 +210,7 @@ createBranch().add(
 );
 ```
 
-# # `createErrorHandler()`
+# # createErrorHandler()
 
 ```javascript
 const { createErrorHandler } = require('kequapp');
@@ -239,7 +239,7 @@ Errors thrown within an error handler or the renderer it invokes will cause a fa
 
 For a good example of how to write error handlers see this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
 
-# # `createRenderer()`
+# # createRenderer()
 
 ```javascript
 const { createRenderer } = require('kequapp');
@@ -269,7 +269,7 @@ createRenderer('text/html', (payload, { res }) => {
 
 For good examples of how to write renderers see this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
 
-# # `Ex()`
+# # Ex.()
 
 ```javascript
 const { Ex } = require('kequapp');
@@ -386,7 +386,7 @@ Param values are always a string.
 
 This method can be used in many ways so the next section will look at it in detail.
 
-# # `getBody()`
+# # getBody()
 
 Node delivers the body of a request in chunks. It is not necessary to wait for the request to finish before we begin processing it. In most cases we just want the data and therefore a helper method `getBody()` is provided which we may use to await body parameters from the completed request.
 
@@ -564,7 +564,7 @@ We know it is safe to call `result.name.trim()` in this example because it is li
 
 The max payload size is `1e6` (approximately 1mb) by default. If this payload size is exceeded by the client the request will be terminated saving our application both memory and bandwidth. If we are absolutely sure we want to receive a payload of any size then a value of `Infinity` is accepted.
 
-# # `sendFile()`
+# # sendFile()
 
 ```javascript
 const { sendFile } = require('kequapp');
@@ -586,7 +586,7 @@ createRoute('/db.json', async ({ req, res }) => {
 });
 ```
 
-# # `staticFiles()`
+# # staticFiles()
 
 ```javascript
 const { staticFiles } = require('kequapp');
@@ -620,33 +620,46 @@ The correct `'Content-Type'` header is guessed based on file extension. If there
 
 # `OPTIONS` requests and CORS
 
-A `OPTIONS` request is handled automatically by the framework.
-
-All routes attach a `'Access-Control-Allow-Origin'` header with a value of `'*'`. To change this behavior we add a handle which overrides or removes this behavior.
+The framework attaches one `'Access-Control-Allow-Origin'` header with a value of `'*'` by default to all requests. To change this behavior we use a handle to override it. The easiest place to add these changes is at the base of the application. The `createApp` method accepts handles to use in all routes.
 
 ```javascript
 // CORS
 
 const cors = createHandle(({ res }) => {
     res.setHeader('Access-Control-Allow-Origin', 'https://foo.com');
-    res.setHeader('Access-Control-Allow-Credentials', true);
 });
 
-createBranch('/my-strict-cors-api', cors);
+createApp(
+    cors
+);
 ```
 
-Modifying `'Access-Control-*'` headers is how we customize all aspects of CORS requests.
+The framework attaches two additional headers to `OPTIONS` requests.
 
-All `OPTIONS` requests are given `'Access-Control-Allow-Methods'` and `'Access-Control-Allow-Headers'`, headers by the framework. We may add a route that extends this behavior.
+`'Access-Control-Allow-Headers'` will identify all headers that were requested by the client. `'Access-Control-Allow-Methods'` will correctly identify all methods available at the given url.
+
+An important limitation, the default `'OPTIONS'` route resides at the base of the application. It will not have access to any handles we have defined in our branches. So if we change headers in a branch that are relevant to `OPTIONS` requests, an additional `'OPTIONS'` route needs to be created, that way the handles will be used.
 
 ```javascript
 // CORS
 
-createRoute('OPTIONS', '/**', ({ res }) => {
+createBranch('/strict-cors', cors).add(
+    createRoute('OPTIONS', '/**')
+);
+```
+
+Often `OPTIONS` requests are simpler in their structure than the rest of the routes of a branch.
+
+Creating a standalone `OPTIONS` route makes it possible for requests to run only the handles it needs. The following example is a standalone `OPTIONS` route which correctly sets the `'Access-Control-Allow-Origin'` header, as well as making additional header modifications.
+
+```javascript
+// CORS
+
+createRoute('OPTIONS', '/strict-cors/**', cors, ({ res }) => {
     const allowMethods = res.getHeader('Access-Control-Allow-Methods');
 
-    // remove POST from the response
     if (allowMethods) {
+        // remove POST from the response
         res.setHeader('Access-Control-Allow-Methods', allowMethods
             .split(', ')
             .filter(method => method !== 'POST')
@@ -658,26 +671,27 @@ createRoute('OPTIONS', '/**', ({ res }) => {
 });
 ```
 
-These requests according to specification should not send a body in the response.
+These responses according to specification should not send a body.
 
 # `HEAD` requests
 
-A `HEAD` request is handled automatically by the framework.
-
-By default if no route matches a `HEAD` request our application will look for a corresponding `GET` route and use that instead. It becomes the responsibility of our application therefore to detect a `HEAD` request and treat it appropriately, this is already done automatically by the library's built-in renderers.
-
-To override a `HEAD` request capture it with a route.
+By default if a `HEAD` request has no matching route our application will look for a `GET` route to use in it's place. Therefore it is important to keep in mind that `HEAD` requests follow the same flow as `GET` requests in our application.
 
 ```javascript
-// NO HEAD
+// HEAD
 
-createRoute('HEAD', '/api/users', ({ res }) => {
-    // custom response
-    res.end();
-})
+createRoute('GET', '/api/users', ({ req }) => {
+    if (req.method === 'HEAD') {
+        // this is a HEAD request
+    }
+});
 ```
 
-# # `inject()`
+In most cases `HEAD` and `GET` requests should run the same code, so we have nothing to worry about. Detection of `HEAD` requests is already handled by the renderers that are built-in to the framework.
+
+Occasionally we may need to differentiate between the two as it is generally understood that a `HEAD` request does not modify data.
+
+# # inject()
 
 ```javascript
 const { inject } = require('kequapp');
