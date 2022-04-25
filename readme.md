@@ -66,7 +66,7 @@ createServer(app).listen(4000, () => {
 });
 ```
 
-This example responds to all `'GET'`, and `'HEAD'` requests made to the base of our application at `'/'`. Otherwise a `404` not found error will be returned. The reason this responds to requests at `'/'` is that is the default url for new routes.
+This example responds to all `'GET'`, and `'HEAD'` requests made to the base of our application at `'/'`. Otherwise a `404` not found error will be thrown. The reason this responds to requests at `'/'` is that is the default url for new routes.
 
 Defining a `'HEAD'` route will override default behavior for `HEAD` requests.
 
@@ -90,7 +90,7 @@ const { createHandle } = require('kequapp');
 # createHandle(handle: Handle): Handle;
 ```
 
-This is useful for building handles that exist outside of any scope, for example in another file. If we are using TypeScript this conveniently provides types, otherwise it is the same as simply defining a function.
+This is useful for building handles that exist outside of any scope, for example in another file. This conveniently provides types if we are using TypeScript, otherwise it is the same as simply creating a function.
 
 ```javascript
 // createHandle
@@ -108,7 +108,9 @@ const loggedIn = createHandle(({ req, context }) => {
 });
 ```
 
-Handles can be asyncronous functions and when used always run in sequence. In these examples the `json` handle sets the `'Content-Type'`, and `loggedIn` checks for an `authorization` header from the client.
+Handles can be asyncronous and when used always run in sequence.
+
+In these examples the `json` handle sets `'Content-Type'` to `'application/json'`, and the `loggedIn` handle checks for an `authorization` header from the client.
 
 # # createRoute()
 
@@ -152,7 +154,7 @@ const { createBranch } = require('kequapp');
 
 A branch of the application will cause routes to adopt the given url and handles.
 
-Every branch of our application exposes `add()`. This is an important function used to extend the branch with added functionality. Usually this will be a route, another branch, an error handler, or renderer. All can be added in any order, they are organized later by the framework.
+Every branch of our application exposes `add()`. This is an important function used to extend the branch with functionality. Usually this will be a route, another branch, an error handler, or renderer. All can be added in any order, they are rearranged and organized by the framework.
 
 ```javascript
 // createBranch
@@ -176,9 +178,9 @@ createBranch().add(
 );
 ```
 
-Routes beginning with `'/api'` are returning `'application/json'` formatted responses, we can see those routes are returning javascript objects, these are for the renderer.
+Routes beginning with `'/api'` are returning `'application/json'` formatted responses, we can see those routes are returning javascript objects.
 
-Routes beginning with `'/admin'` require the user to be logged in. Three routes are defined and therefore our endpoints are the following:
+Routes beginning with `'/admin'` require the user to be logged in. Three routes are defined in the example and therefore our endpoints are the following:
 
 ```
 GET /api/user
@@ -186,7 +188,7 @@ GET /api/user/:id
 GET /admin/dashboard
 ```
 
-This example is verbose. We can omit the `'/api'` branch because it only exposes one branch, and the `'/admin'` branch because it only exposes one route, leaving us the same result with less code.
+The example is verbose. We can omit the `'/api'` branch because it only exposes one branch, and the `'/admin'` branch because it only exposes one route, leaving us the same result with less code.
 
 ```javascript
 // createBranch
@@ -221,9 +223,9 @@ const { createErrorHandler } = require('kequapp');
 
 If no content type is provided the error handler will be used for all content types.
 
-This turns an exception into useful information that should be sent to the client. We may returnin a value to invoke a renderer or finalize the response directly inside the error handler. The default one structures a json formatted response with helpful information for debugging.
+This turns an exception into useful information that should be sent to the client. We may return a value to invoke a renderer or finalize the response directly inside the error handler. The default structures a json formatted response with helpful information for debugging.
 
-The following is a very simple plain text formatted one.
+The following is a very simple text error handler.
 
 ```javascript
 // createErrorHandler
@@ -256,7 +258,7 @@ If no content type is provided the renderer will be used for all content types.
 
 Renderers are responsible for finalizing the response to the client. It is the last stage of a request and otherwise an empty `body` will be delivered to the client.
 
-There are default renderers that come built-in to the application for both `'text/*'` and `'application/json'`, however these can be overridden by defining our own.
+There are default renderers that come built-in for both `'text/*'` and `'application/json'`, however these can be overridden by defining our own.
 
 The following is a simple example of what an html renderer might look like.
 
@@ -289,7 +291,7 @@ const { Ex } = require('kequapp');
 # Ex.StatusCode(statusCode: number): new Error;
 ```
 
-An unhandled exception from our application builds a `500` internal server error. If we would like to build an error with a different status code there is a helper tool.
+An unhandled exception from our application results in a `500` internal server error. If we would like an error with a different status code there is a helper tool.
 
 ```javascript
 // Ex
@@ -304,7 +306,7 @@ createRoute('/throw-error', () => {
 });
 ```
 
-This makes it easy to utilize any status code `400` and above. These methods create errors with a correct stacktrace there is no reason to use `new`.
+This makes it easy to utilize any status code `400` and above. These methods create errors with correct stacktraces there is no reason to use `new`.
 
 # Respond to a request
 
@@ -344,7 +346,7 @@ createRoute('/api/user', authenticated, json, () => {
 
 In this example if the client did not provide an `authorization` header, the `authenticated` handle will finalize the response. This terminates the request and skips all remaining handles. Otherwise the `json` handle sets `'Content-Type'` of the response to `'application/json'`.
 
-The last remaining handle returns a value. This invokes a renderer best matching the `'Content-Type'` of the response, in this example a renderer matching `'application/json'` will be used. The renderer will finalize a response to the client.
+The last remaining handle returns a value. This invokes a renderer best matching the `'Content-Type'` of the response, in this example a renderer matching `'application/json'` will be used. The renderer will finalize the response to the client.
 
 # Bundle
 
@@ -392,7 +394,9 @@ This method can be used in many ways so the next section will look at it in deta
 
 # # getBody()
 
-Node delivers the body of a request in chunks. It is not necessary to wait for the request to finish before we begin processing it. In most cases we just want the data and therefore a helper method `getBody()` is provided which we may use to await body parameters from the completed request.
+Node delivers the body of a request in chunks.
+
+It is not necessary to wait for the request to finish before we begin processing it. In most cases we just want the data and therefore a helper method `getBody()` is provided which we may use to await body parameters from the completed request.
 
 ```javascript
 // getBody
@@ -475,7 +479,7 @@ Disable body normalization with either `raw` or `skipNormalize`.
 
 The provided list of fields are converted into arrays.
 
-Fields that are not specified will return only the first value. This is because the framework only knows that a field is an array when it receives more than one value for a given name from the client. It would be inconvenient if parameters are sometimes arrays, and therefore we are explicit here.
+Fields that are not specified will return only the first value. This is because the framework only knows that a field is an array when it receives more than one value for a given name from the client. It would be inconvenient if parameters are sometimes arrays, and therefore we are explicit.
 
 ```javascript
 // arrays
@@ -579,7 +583,7 @@ const { sendFile } = require('kequapp');
 # sendFile(res: Res, asset: string): void;
 ```
 
-Send a file to the client and finalize the response immediately. This is asyncronous and must be awaited otherwise the application might get confused as it continues processing the request. If a mime type is not provided the correct `'Content-Type'` header is guessed based on file extension.
+Send a file finalize the response immediately. This is asyncronous and must be awaited otherwise the application might get confused as it continues processing the request. If a mime type is not provided the correct `'Content-Type'` header is guessed based on file extension.
 
 ```javascript
 // sendFile
@@ -608,13 +612,15 @@ Pair a `url` and a given set of `options` with a directory.
 ```javascript
 // staticFiles
 
-app.add(staticFiles('/assets', {
-    dir: '/my-assets-dir',
-    exclude: ['/my-assets-dir/private'],
-    mime: {
-        '.3gp': 'audio/3gpp'
-    }
-}));
+app.add(
+    staticFiles('/assets', {
+        dir: '/my-assets-dir',
+        exclude: ['/my-assets-dir/private'],
+        mime: {
+            '.3gp': 'audio/3gpp'
+        }
+    })
+);
 ```
 
 If no `dir` is specified then `'/public'` is used by default. Exclusions can be provided if we want to ignore some files or directories using `exclude`.
@@ -626,7 +632,9 @@ The correct `'Content-Type'` header is guessed based on file extension. If there
 
 CORS behavior is largely shaped by handles which alter the response headers as needed. The framework will automatically add default headers we can use for basic support.
 
-An `'Access-Control-Allow-Origin'` header with value of `'*'` is attached to all responses by default. The simplest place to override it is at the base of our application, the `createApp` method accepts handles that will affect all routes.
+An `'Access-Control-Allow-Origin'` header with value of `'*'` is attached to all responses by default.
+
+The simplest place to override it is at the base of our application, the `createApp` method accepts handles that will affect all routes.
 
 ```javascript
 // CORS
@@ -707,9 +715,9 @@ const { inject } = require('kequapp');
 
 We may unit test our application without starting a server by using the `inject()` tool. The first parameter is our app, then options used to populate the request.
 
-The returned `req` value is a simulations of node's built-in [`ClientRequest`](https://nodejs.org/api/http.html#class-httpclientrequest) object and can be written to. The returned `res` value os a simulation of node's built-in [`ServerResponse`](https://nodejs.org/api/http.html#class-httpserverresponse) object and can be read from.
+The returned `req` value is a simulation of node's built-in [`ClientRequest`](https://nodejs.org/api/http.html#class-httpclientrequest) object and is a `Transform` stream. The returned `res` value os a simulation of node's built-in [`ServerResponse`](https://nodejs.org/api/http.html#class-httpserverresponse) object and is also a `Transform` stream.
 
-The returned `getResponse()` tool waits for our application to finish, and then parses the response. We could inspect what our application is doing in realtime using the `req`, and `res` objects instead.
+The returned `getResponse()` tool waits for our application to finish, and then parses the response. We could inspect what our application is doing using the `req` and `res` objects in realtime instead if that's what we wanted to do.
 
 ```javascript
 // inject
@@ -729,12 +737,12 @@ it('reads the authorization header', async function () {
 });
 ```
 
-All requests are automatically finalized when using `inject()` unless the `body` parameter is set `null`. Doing this will allow us to write to the stream when more precise testing is required.
+All requests are automatically finalized when using `inject()` unless the `body` parameter is set `null`. Doing this will allow us to write to the stream in cases where more precise testing is necessary.
 
 The following two examples are the same.
 
 ```javascript
-// body
+// inject
 
 const { getResponse } = inject(app, {
     method: 'POST',
@@ -749,7 +757,7 @@ const body = await getResponse();
 ```
 
 ```javascript
-// body
+// inject
 
 const { getResponse, req } = inject(app, {
     method: 'POST',
@@ -766,7 +774,7 @@ req.end('{ "name": "April" }');
 const body = await getResponse();
 ```
 
-Note that `getResponse()` will not resolve unless the request is finalized.
+Note that `getResponse()` will not resolve until the request is finalized.
 
 # Conclusion
 
