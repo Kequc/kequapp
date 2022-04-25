@@ -16,7 +16,7 @@ This framework is easy to learn and use. It manages three stages of a request fi
 * Static file serving
 * Async await everywhere
 * Does not modify node features or functionality
-* Any request to deliver any response
+* Any request and any response
 * Unit testing tool
 * Fast
 * No dependencies <3
@@ -313,10 +313,10 @@ Handles may terminate a request at any time in one of three ways:
 | | |
 | ---- | ---- |
 | **Return a value** | A renderer is invoked. |
-| **Throw an exception** | An error handler is invoked. |
+| **Throw an error** | An error handler is invoked. |
 | **Finalize the response** |
 
-Finalizing the response is for ultimate control. The error handler and renderer are ultimately not required as we could theoretically finalize every request by the end of every route manually.
+Finalizing a response is for cases where we need the most control. It allows us to terminate the response any way we want without invoking a renderer.
 
 ```javascript
 // Respond to a request
@@ -335,7 +335,7 @@ const authenticated = createHandle(({ req, res }) => {
 });
 
 createRoute('/api/user', authenticated, json, () => {
-    // return a value invoke a renderer
+    // returning a value invokes a renderer
     return {
         users: [{ name: 'April' }, { name: 'Leo' }]
     };
@@ -344,7 +344,7 @@ createRoute('/api/user', authenticated, json, () => {
 
 In this example if the client did not provide an `authorization` header, the `authenticated` handle will finalize the response. This terminates the request and skips all remaining handles. Otherwise the `json` handle sets `'Content-Type'` of the response to `'application/json'`.
 
-The last remaining handle returns a value. This invokes a renderer best matching the `'Content-Type'` of the response, in this example a renderer matching `'application/json'` would be used.
+The last remaining handle returns a value. This invokes a renderer best matching the `'Content-Type'` of the response, in this example a renderer matching `'application/json'` will be used. The renderer will finalize a response to the client.
 
 # Bundle
 
@@ -648,7 +648,9 @@ createApp().add(
 );
 ```
 
-The framework automatically attaches three additional headers to `OPTIONS` responses. `'Valid'` and `'Access-Control-Allow-Methods'` will correctly identify all methods available at a requested url. `'Access-Control-Allow-Headers'` will identify headers that the client specified. Usually these headers can be left alone as their defaults.
+The framework automatically attaches three additional headers to `OPTIONS` responses.
+
+`'Valid'` and `'Access-Control-Allow-Methods'` will correctly identify all methods available at a requested url. `'Access-Control-Allow-Headers'` will return headers that the client specified.
 
 To change this behavior or add more headers to `OPTIONS` responses we use a handle.
 
@@ -689,7 +691,7 @@ createRoute('GET', '/api/users', ({ req }) => {
 });
 ```
 
-In most cases `HEAD` and `GET` requests should run the same code, so we have nothing to worry about. Detection of `HEAD` requests is already handled by the renderers that are built-in to the framework. Largely what will happen is no body will be sent in the client, which is what a `HEAD` request wanted.
+In most cases `HEAD` and `GET` requests should run the same code, so we have nothing to worry about. Detection of `HEAD` requests is already handled by the renderers that are built-in to the framework. Largely what will happen is no body will be sent to the client, which is what a `HEAD` request wanted.
 
 Occasionally we may need to differentiate between the two as it is generally understood that a `HEAD` request does not modify data. In this case looking at the value of `req.method` can be useful.
 
