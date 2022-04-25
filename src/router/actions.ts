@@ -6,13 +6,13 @@ import {
     TRouteData
 } from '../types';
 
-export async function renderRoute (collection: TAddableData, bundle: TBundle, route?: TRouteData): Promise<void> {
+export async function renderRoute (collection: TAddableData, bundle: TBundle, route: TRouteData): Promise<void> {
     const { routes, renderers } = collection;
-    const { req, res } = bundle;
-    const handles = route?.handles || [];
+    const { res } = bundle;
+    const handles = route.handles;
     let payload: unknown = undefined;
 
-    if (req.method === 'OPTIONS') {
+    if (route.method === 'OPTIONS') {
         options(routes, bundle);
     }
 

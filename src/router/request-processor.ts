@@ -15,8 +15,8 @@ export default async function requestProcessor (router: IRouter, raw: TRawBundle
     const pathname = url.pathname;
 
     res.statusCode = 200;
-    res.setHeader('Content-Type', 'text/plain');
     res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Content-Type', 'text/plain');
 
     const collection = router(pathname);
     const route = findRoute(collection.routes, method);
@@ -45,7 +45,7 @@ export default async function requestProcessor (router: IRouter, raw: TRawBundle
         cleanup(res, 500);
     }
 
-    // track request
+    // debug request
     console.debug(res.statusCode, method, pathname);
 }
 

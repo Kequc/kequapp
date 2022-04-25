@@ -66,25 +66,19 @@ createServer(app).listen(4000, () => {
 });
 ```
 
-This example responds to all `'GET'`, `'OPTIONS'`, and `'HEAD'` requests made to the base of our application at `'/'`. Otherwise a `404` not found error will be returned. The reason all three respond to requests made at the base of our application at `'/'` is that is the default for new routes.
+This example responds to all `'GET'`, and `'HEAD'` requests made to the base of our application at `'/'`. Otherwise a `404` not found error will be returned. The reason this responds to requests at `'/'` is that is the default url for new routes.
 
-Defining `'HEAD'` and `'OPTIONS'` routes will override default behavior.
+Defining a `'HEAD'` route will override default behavior for `HEAD` requests.
 
 ```javascript
 app.add(
-    createRoute('HEAD', '/car', () => {
+    createRoute('HEAD', () => {
         // custom HEAD
-    }),
-    createRoute('OPTIONS', '/car', () => {
-        // custom OPTIONS
-    }),
-    createRoute('/car', () => {
-        return 'Hello car!';
     })
 );
 ```
 
-We do not need to create any error handler or renderer for this example because our app comes with some defaults. We will look at how to create our own shortly.
+The framework comes with a built-in default error handler and some renderers. We will look at how to create our own shortly, but for now we don't need to worry about them.
 
 # # createHandle()
 
@@ -630,80 +624,46 @@ The correct `'Content-Type'` header is guessed based on file extension. If there
 
 # CORS and `OPTIONS` requests
 
-An `'Access-Control-Allow-Origin'` header with value of `'*'` is attached by default to all responses.
+CORS behavior is largely shaped by handles which alter the response headers as needed. The framework will automatically add default headers we can use for basic support.
 
-To change this behavior we use a handle to override it. The easiest place to override this header is at the base of the application. The `createApp` method accepts handles to use for all routes.
+An `'Access-Control-Allow-Origin'` header with value of `'*'` is attached to all responses by default. The simplest place to override it is at the base of our application, the `createApp` method accepts handles that will affect all routes.
 
 ```javascript
 // CORS
 
-const cors = createHandle(({ res }) => {
+const strictCors = createHandle(({ res }) => {
     res.setHeader('Access-Control-Allow-Origin', 'https://foo.com');
 });
 
-createApp(cors);
+createApp(strictCors);
 ```
 
-An important consideration, the default `'OPTIONS'` route resides at the base of our application. It will not know about any handles we have added to branches. So if we change headers in a branch that are relevant to `OPTIONS` requests, we should add an `'OPTIONS'` route to that location.
-
-That way all routes, including `'OPTIONS'`, will use the provided handles.
+To enable CORS our application needs to support preflight requests. In order to do this we must define an `OPTIONS` route.
 
 ```javascript
 // CORS
 
-createBranch('/cors', cors).add(
+createApp().add(
     createRoute('OPTIONS', '/**')
 );
 ```
 
-Creating a standalone route makes it possible to define only handles that are needed as `OPTIONS` routes are often much simpler than other routes in the branch.
+The framework automatically attaches three additional headers to `OPTIONS` responses. `'Valid'` and `'Access-Control-Allow-Methods'` will correctly identify all methods available at a requested url. `'Access-Control-Allow-Headers'` will identify headers that the client specified. Usually these headers can be left alone as their defaults.
 
-The following is a standalone `OPTIONS` route which would use the same url as the example above, while still correctly setting the `'Access-Control-Allow-Origin'` header.
-
-```javascript
-// CORS
-
-createRoute('OPTIONS', '/cors/**', cors);
-```
-
-The framework attaches two additional headers to `OPTIONS` responses.
-
-`'Access-Control-Allow-Headers'` will identify all headers that were requested by the client. `'Access-Control-Allow-Methods'` will correctly identify all methods available at the given url.
-
-Additional customization can be made in `OPTIONS` routes.
+To change this behavior or add more headers to `OPTIONS` responses we use a handle.
 
 ```javascript
 // CORS
 
-const options = createHandle(({ res }) => {
-    const allowMethods = res.getHeader('Access-Control-Allow-Methods');
-
-    if (allowMethods) {
-        // remove POST from the response
-        res.setHeader('Access-Control-Allow-Methods', allowMethods
-            .split(', ')
-            .filter(method => method !== 'POST')
-            .join(', '));
-    }
-
-    res.setHeader('Access-Control-Max-Age', 86400);
-    res.setHeader('Vary', 'Access-Control-Request-Headers');
-});
-
-createRoute('OPTIONS', '/cors/**', cors, options);
-```
-
-The same could be done anywhere, including at the base of the application.
-
-```javascript
-// CORS
-
-createApp(cors).add(
-    createRoute('OPTIONS', '/**', options)
+createApp().add(
+    createRoute('OPTIONS', '/**', ({ res }) => {
+        res.setHeader('Access-Control-Max-Age', 86400);
+        res.setHeader('Vary', 'Access-Control-Request-Headers');
+    })
 );
 ```
 
-The following would remove default CORS funcationality.
+The following would remove default CORS functionality.
 
 ```javascript
 // CORS
@@ -712,45 +672,26 @@ const noCors = createHandle(({ res }) => {
     res.removeHeader('Access-Control-Allow-Origin');
 });
 
-createApp(noCors).add(
-    createRoute('OPTIONS', '/**', ({ res }) => {
-        res.removeHeader('Access-Control-Allow-Headers');
-        res.removeHeader('Access-Control-Allow-Methods');
-
-        throw Ex.NotFound();
-    })
-);
+createApp(noCors);
 ```
 
 # `HEAD` requests
 
-By default if a `HEAD` request has no matching route our application will look for a `GET` route to use in it's place. Therefore it is important to keep in mind that `HEAD` requests follow the same flow as `GET` requests in our application.
+By default if a `HEAD` request has no matching route our application will use a matching `GET` route in it's place. Therefore it is important to keep in mind that `HEAD` requests follow the same flow as `GET` requests in our application.
 
 ```javascript
 // HEAD
 
 createRoute('GET', '/api/users', ({ req }) => {
     if (req.method === 'HEAD') {
-        // this is a HEAD request
+        // head request
     }
 });
 ```
 
-In most cases `HEAD` and `GET` requests should run the same code, so we have nothing to worry about. Detection of `HEAD` requests is already handled by the renderers that are built-in to the framework. Largely what will happen is no body will be sent in the client, which is what they requested.
+In most cases `HEAD` and `GET` requests should run the same code, so we have nothing to worry about. Detection of `HEAD` requests is already handled by the renderers that are built-in to the framework. Largely what will happen is no body will be sent in the client, which is what a `HEAD` request wanted.
 
 Occasionally we may need to differentiate between the two as it is generally understood that a `HEAD` request does not modify data. In this case looking at the value of `req.method` can be useful.
-
-The following would remove default `HEAD` request functionality.
-
-```javascript
-// HEAD
-
-createApp().add(
-    createRoute('HEAD', '/**', () => {
-        throw Ex.NotFound();
-    })
-);
-```
 
 # # inject()
 

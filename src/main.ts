@@ -4,7 +4,6 @@ import errorHandler from './built-in/error-handler';
 import jsonRenderer from './built-in/json-renderer';
 import textRenderer from './built-in/text-renderer';
 import createBranch from './router/modules/create-branch';
-import createRoute from './router/modules/create-route';
 import createRouter from './router/create-router';
 import requestProcessor from './router/request-processor';
 import {
@@ -28,8 +27,7 @@ export function createApp (...handles: THandle[]): IKequapp {
     const branch = createBranch(...handles).add(
         errorHandler,
         jsonRenderer,
-        textRenderer,
-        createRoute('OPTIONS', '/**')
+        textRenderer
     );
     let router: IRouter;
 
