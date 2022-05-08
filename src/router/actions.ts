@@ -12,8 +12,15 @@ export async function renderRoute (collection: TAddableData, bundle: TBundle, ro
     const handles = route.handles;
     let payload: unknown = undefined;
 
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'text/plain');
+
+    if (routes.some(route => route.method === 'OPTIONS')) {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+    }
+
     if (route.method === 'OPTIONS') {
-        options(routes, bundle);
+        defaultOptions(routes, bundle);
     }
 
     for (const handle of handles) {
@@ -40,10 +47,6 @@ export async function renderError (collection: TAddableData, bundle: TBundle, er
     }
 }
 
-function getContentType ({ res }: TBundle): string {
-    return String(res.getHeader('Content-Type') || 'text/plain');
-}
-
 async function finalize (renderers: TRendererData[], bundle: TBundle, payload: unknown): Promise<void> {
     const { res } = bundle;
 
@@ -53,7 +56,11 @@ async function finalize (renderers: TRendererData[], bundle: TBundle, payload: u
     }
 }
 
-function options (routes: TRouteData[], bundle: TBundle): void {
+function getContentType ({ res }: TBundle): string {
+    return String(res.getHeader('Content-Type') || 'text/plain');
+}
+
+function defaultOptions (routes: TRouteData[], bundle: TBundle): void {
     const { req, res } = bundle;
 
     const allowMethods = getAllowMethods(routes);
@@ -70,6 +77,8 @@ function options (routes: TRouteData[], bundle: TBundle): void {
 
 function getAllowMethods (routes: TRouteData[]): string {
     const result = new Set(routes.map(route => route.method));
+
     if (result.has('GET')) result.add('HEAD');
-    return [...result].join(', ');
+
+    return [...result].sort().join(', ');
 }

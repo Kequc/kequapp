@@ -52,8 +52,8 @@ An appropriate renderer is invoked whenever a handle or error handler returns a 
 ```javascript
 // hello world!
 
-const { createServer } = require('http');
-const { createApp, createRoute } = require('kequapp');
+import { createServer } from 'http';
+import { createApp, createRoute } from 'kequapp';
 
 const app = createApp().add(
     createRoute(() => {
@@ -83,7 +83,7 @@ The framework comes with a built-in default error handler and some renderers. We
 # # createHandle()
 
 ```javascript
-const { createHandle } = require('kequapp');
+import { createHandle } from 'kequapp';
 ```
 
 ```
@@ -115,7 +115,7 @@ In these examples the `json` handle sets `'Content-Type'` to `'application/json'
 # # createRoute()
 
 ```javascript
-const { createRoute } = require('kequapp');
+import { createRoute } from 'kequapp';
 ```
 
 ```
@@ -144,7 +144,7 @@ This example has two handles. One which we defined earlier called `loggedIn` and
 # # createBranch()
 
 ```javascript
-const { createBranch } = require('kequapp');
+import { createBranch } from 'kequapp';
 ```
 
 ```
@@ -211,7 +211,7 @@ createBranch().add(
 # # createErrorHandler()
 
 ```javascript
-const { createErrorHandler } = require('kequapp');
+import { createErrorHandler } from 'kequapp';
 ```
 
 ```
@@ -244,7 +244,7 @@ For a good example of how to write error handlers see this repo's [`/src/built-i
 # # createRenderer()
 
 ```javascript
-const { createRenderer } = require('kequapp');
+import { createRenderer } from 'kequapp';
 ```
 
 ```
@@ -278,7 +278,7 @@ For good examples of how to write renderers see this repo's [`/src/built-in`](ht
 # # Ex.()
 
 ```javascript
-const { Ex } = require('kequapp');
+import { Ex } from 'kequapp';
 ```
 
 ```
@@ -575,7 +575,7 @@ The max payload size is `1e6` (approximately 1mb) by default. If this payload si
 # # sendFile()
 
 ```javascript
-const { sendFile } = require('kequapp');
+import { sendFile } from 'kequapp';
 ```
 
 ```
@@ -597,7 +597,7 @@ createRoute('/db.json', async ({ req, res }) => {
 # # staticFiles()
 
 ```javascript
-const { staticFiles } = require('kequapp');
+import { staticFiles } from 'kequapp';
 ```
 
 ```
@@ -630,23 +630,9 @@ The correct `'Content-Type'` header is guessed based on file extension. If there
 
 # CORS and `OPTIONS` requests
 
-CORS behavior is largely shaped by handles which alter the response headers as needed. The framework will automatically add default headers we can use for basic support.
+CORS behavior is managed by headers as shaped by handles. The framework will automatically add default headers we can use for basic support.
 
-An `'Access-Control-Allow-Origin'` header with value of `'*'` is attached to all responses by default.
-
-The simplest place to override it is at the base of our application, the `createApp` method accepts handles that will affect all routes.
-
-```javascript
-// CORS
-
-const strictCors = createHandle(({ res }) => {
-    res.setHeader('Access-Control-Allow-Origin', 'https://foo.com');
-});
-
-createApp(strictCors);
-```
-
-To enable CORS our application needs to support preflight requests. In order to do this we must define an `OPTIONS` route.
+To enable CORS our application needs to respond to preflight requests, therefore we define an `OPTIONS` route. By default any url that has a matching `OPTIONS` route is decorated with `'Access-Control-Allow-Origin'` with value of `'*'`. This alone is enough to handle the majority of CORS related cases and functionality.
 
 ```javascript
 // CORS
@@ -658,9 +644,9 @@ createApp().add(
 
 The framework automatically attaches three additional headers to `OPTIONS` responses.
 
-`'Valid'` and `'Access-Control-Allow-Methods'` will correctly identify all methods available at a requested url. `'Access-Control-Allow-Headers'` will return headers that the client specified.
+`'Valid'` and `'Access-Control-Allow-Methods'` will correctly identify all methods available at the requested url. `'Access-Control-Allow-Headers'` will return headers that the client specified.
 
-To change this behavior or add more headers to `OPTIONS` responses we use a handle.
+To change this behavior or add more headers to `OPTIONS` responses we include a handle with our route.
 
 ```javascript
 // CORS
@@ -673,17 +659,21 @@ createApp().add(
 );
 ```
 
-The following would remove default CORS functionality.
+As `OPTIONS` responses do not need to include a body, we can safely leave the route like this without rendering.
+
+The simplest place to override `'Access-Control-Allow-Origin'` is at the base of the application, but we may adjust this as needed. The `createApp` method accepts handles and is a convenient place to set global headers.
 
 ```javascript
 // CORS
 
-const noCors = createHandle(({ res }) => {
-    res.removeHeader('Access-Control-Allow-Origin');
+const strictCors = createHandle(({ res }) => {
+    res.setHeader('Access-Control-Allow-Origin', 'https://foo.com');
 });
 
-createApp(noCors);
+createApp(strictCors);
 ```
+
+This would cause all responses to include `'Access-Control-Allow-Origin'` even if there is no `OPTIONS` route, one should be included for the mechanism to work correctly. Please see the [MDN documentation on CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) for more information about headers and expected behavior.
 
 # `HEAD` requests
 
@@ -706,7 +696,7 @@ Occasionally we may need to differentiate between the two as it is generally und
 # # inject()
 
 ```javascript
-const { inject } = require('kequapp');
+import { inject } from 'kequapp';
 ```
 
 ```

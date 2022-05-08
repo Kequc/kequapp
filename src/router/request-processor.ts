@@ -14,10 +14,6 @@ export default async function requestProcessor (router: IRouter, raw: TRawBundle
     const method = req.method || 'GET';
     const pathname = url.pathname;
 
-    res.statusCode = 200;
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Content-Type', 'text/plain');
-
     const collection = router(pathname);
     const route = findRoute(collection.routes, method);
     const bundle: TBundle = Object.freeze({

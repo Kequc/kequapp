@@ -52,7 +52,6 @@ it('renders a response', async () => {
 
     assert.strictEqual(res.statusCode, 200);
     assert.strictEqual(res.getHeader('Content-Type'), 'text/plain');
-    assert.strictEqual(res.getHeader('Access-Control-Allow-Origin'), '*');
     assert.strictEqual(result, 'hello there');
 });
 
@@ -67,4 +66,23 @@ it('returns error when route not found', async () => {
     const result = await getResponse();
 
     assert.deepStrictEqual(result, 'Not Found');
+});
+
+it('renders 204 when no body', async () => {
+    const branchData: TAddableData = {
+        routes: [{
+            parts: [],
+            handles: [],
+            method: 'GET'
+        }],
+        renderers: [],
+        errorHandlers: []
+    };
+
+    const { res, getResponse } = process(branchData, { url: '/' });
+    const result = await getResponse();
+
+    assert.strictEqual(res.statusCode, 204);
+    assert.strictEqual(res.getHeader('Content-Type'), 'text/plain');
+    assert.strictEqual(result, '');
 });
