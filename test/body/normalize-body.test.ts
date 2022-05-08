@@ -1,9 +1,9 @@
-import 'kequtest';
 import assert from 'assert';
+import 'kequtest';
 import normalizeBody from '../../src/body/normalize-body';
 
-describe('required', function () {
-    it('returns the body', function () {
+describe('required', () => {
+    it('returns the body', () => {
         const body = {
             name: 'April',
             age: '23'
@@ -16,7 +16,7 @@ describe('required', function () {
         });
     });
 
-    it('throws error on missing required parameter', function () {
+    it('throws error on missing required parameter', () => {
         const body = {
             name: 'April',
             age: '23'
@@ -31,7 +31,7 @@ describe('required', function () {
         });
     });
 
-    it('throws error on null required parameter', function () {
+    it('throws error on null required parameter', () => {
         const body = {
             name: 'April',
             age: '23',
@@ -47,7 +47,7 @@ describe('required', function () {
         });
     });
 
-    it('is okay with empty required parameter', function () {
+    it('is okay with empty required parameter', () => {
         const body = {
             name: 'April',
             age: '23',
@@ -64,7 +64,7 @@ describe('required', function () {
         });
     });
 
-    it('is okay with empty required parameter in array', function () {
+    it('is okay with empty required parameter in array', () => {
         const body = {
             name: 'April',
             age: '23',
@@ -82,7 +82,7 @@ describe('required', function () {
         });
     });
 
-    it('is okay with only spaces in required parameter', function () {
+    it('is okay with only spaces in required parameter', () => {
         const body = {
             name: 'April',
             age: '23',
@@ -100,8 +100,8 @@ describe('required', function () {
     });
 });
 
-describe('skipNormalize', function () {
-    it('skips normalization', function () {
+describe('skipNormalize', () => {
+    it('skips normalization', () => {
         const body = {
             name: 'April',
             age: '23'
@@ -118,8 +118,8 @@ describe('skipNormalize', function () {
     });
 });
 
-describe('arrays', function () {
-    it('converts value to an array', function () {
+describe('arrays', () => {
+    it('converts value to an array', () => {
         const body = {
             name: 'April',
             age: '23',
@@ -138,7 +138,7 @@ describe('arrays', function () {
         });
     });
 
-    it('converts empty value to an array', function () {
+    it('converts empty value to an array', () => {
         const body = {
             name: 'April',
             age: '23'
@@ -154,7 +154,7 @@ describe('arrays', function () {
         });
     });
 
-    it('converts null value to an array', function () {
+    it('converts null value to an array', () => {
         const body = {
             name: 'April',
             age: '23',
@@ -171,7 +171,7 @@ describe('arrays', function () {
         });
     });
 
-    it('handles empty parameter in required array', function () {
+    it('handles empty parameter in required array', () => {
         const body = {
             name: 'April',
             age: '23',
@@ -189,7 +189,7 @@ describe('arrays', function () {
         });
     });
 
-    it('throws error on missing required array parameter', function () {
+    it('throws error on missing required array parameter', () => {
         const body = {
             name: 'April',
             age: '23'
@@ -205,7 +205,7 @@ describe('arrays', function () {
         });
     });
 
-    it('does nothing to array value', function () {
+    it('does nothing to array value', () => {
         const body = {
             name: 'April',
             age: '23',
@@ -223,8 +223,8 @@ describe('arrays', function () {
     });
 });
 
-describe('numbers', function () {
-    it('converts a value to a number', function () {
+describe('numbers', () => {
+    it('converts a value to a number', () => {
         const body = {
             name: 'April',
             age: '23'
@@ -239,7 +239,7 @@ describe('numbers', function () {
         });
     });
 
-    it('converts an array to numbers', function () {
+    it('converts an array to numbers', () => {
         const body = {
             name: 'April',
             age: ['23', '32']
@@ -255,7 +255,7 @@ describe('numbers', function () {
         });
     });
 
-    it('handles missing number parameter', function () {
+    it('handles missing number parameter', () => {
         const body = {
             name: 'April'
         };
@@ -268,7 +268,7 @@ describe('numbers', function () {
         });
     });
 
-    it('throws error null number parameter', function () {
+    it('throws error null number parameter', () => {
         const body = {
             name: 'April',
             age: null
@@ -283,7 +283,7 @@ describe('numbers', function () {
         });
     });
 
-    it('throws error on invalid number parameter', function () {
+    it('throws error on invalid number parameter', () => {
         const body = {
             name: 'April',
             age: 'cat'
@@ -298,7 +298,7 @@ describe('numbers', function () {
         });
     });
 
-    it('throws error on invalid number parameter in array', function () {
+    it('throws error on invalid number parameter in array', () => {
         const body = {
             name: 'April',
             age: ['23', 'cat']
@@ -315,8 +315,8 @@ describe('numbers', function () {
     });
 });
 
-describe('booleans', function () {
-    it('converts a value to a boolean', function () {
+describe('booleans', () => {
+    it('converts a value to a boolean', () => {
         const body = {
             name: 'April',
             bool1: 'false',
@@ -343,7 +343,7 @@ describe('booleans', function () {
         });
     });
 
-    it('converts an array to booleans', function () {
+    it('converts an array to booleans', () => {
         const body = {
             name: 'April',
             age: ['false', 'true', '0', '1', '', 'cat', null, undefined]
@@ -360,8 +360,8 @@ describe('booleans', function () {
     });
 });
 
-describe('validate', function () {
-    it('runs external validation', function () {
+describe('validate', () => {
+    it('runs external validation', () => {
         const body = {
             name: 'April',
             age: '23',
@@ -380,7 +380,7 @@ describe('validate', function () {
         });
     });
 
-    it('passes successful external validation', function () {
+    it('passes successful external validation', () => {
         const body = {
             name: 'April',
             age: '23',
@@ -401,8 +401,8 @@ describe('validate', function () {
     });
 });
 
-describe('postProcess', function () {
-    it('runs post processing', function () {
+describe('postProcess', () => {
+    it('runs post processing', () => {
         const body = {
             name: 'April',
             age: '23',

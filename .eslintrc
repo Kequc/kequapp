@@ -27,19 +27,8 @@
       "rules": {
         "@typescript-eslint/no-non-null-assertion": "off",
         "@typescript-eslint/no-empty-function": "off",
-        "@typescript-eslint/no-explicit-any": "off"
-      }
-    },
-    {
-      "files": ["*.test.ts"],
-      "globals": {
-        "describe": "readonly",
-        "it": "readonly",
-        "util": "readonly",
-        "before": "readonly",
-        "beforeEach": "readonly",
-        "afterEach": "readonly",
-        "after": "readonly"
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/ban-ts-comment": "off"
       }
     }
   ]

@@ -1,6 +1,7 @@
 import path from 'path';
+import { TParams } from '../types';
 
-const DEFAULT_MIME = {
+const DEFAULT_MIME: TParams = {
     '.aac': 'audio/aac',
     '.abw': 'application/x-abiword',
     '.arc': 'application/x-freearc',
@@ -78,9 +79,8 @@ const DEFAULT_MIME = {
     '.7z': 'application/x-7z-compressed'
 };
 
-function detectMime (asset: string, mime: { [key: string]: string } = {}): string {
+export default function guessMime (asset: string, mime: TParams = {}): string {
     const ext: string = path.extname(asset).toLowerCase();
+
     return mime[ext] || DEFAULT_MIME[ext] || 'application/octet-stream';
 }
-
-export default detectMime;

@@ -1,112 +1,102 @@
-import { Bundle, Ex } from '../main';
-import { getParts } from '../utils/sanitize';
-import { findRoute } from './create-routes-helper';
+import { isDuplicate } from './find';
+import { IRouter, TAddableData, TRouteData } from '../types';
+import { getParts } from '../util/extract';
 
+type TSortable = { parts: string[], contentType?: string };
 
-export type Router = {
-    route: IRouterRoute;
-    branch: IRouterBranch;
-};
-export type RouteBuilder = {
-    parts: string[];
-    handles: Handle[];
-    isWild: boolean;
-};
-export type Route = RouteBuilder & {
-    method: string;
-};
-export type Handle = (bundle: Bundle) => Promise<any> | any;
-export interface IRouterRoute {
-    (method: string, pathname: string, ...handles: Handle[]): Router;
-    (method: string, ...handles: Handle[]): Router;
-    (pathname: string, ...handles: Handle[]): Router;
-    (...handles: Handle[]): Router;
-}
-export interface IRouterBranch {
-    (pathname: string, ...handles: Handle[]): Router;
-    (...handles: Handle[]): Router;
-}
+export default function createRouter (branchData: TAddableData): IRouter {
+    const routes = [...branchData.routes].sort(priority);
+    const renderers = [...branchData.renderers].sort(priority);
+    const errorHandlers = [...branchData.errorHandlers].sort(priority);
 
+    warnDuplicates(routes);
 
-function createRouter (routes: Route[], parent: RouteBuilder): Router {
-    const scope: any = {
-        route: undefined,
-        branch: undefined,
-    };
-    scope.route = buildRoute(routes, parent, scope);
-    scope.branch = buildBranch(routes, parent);
-    return scope as Router;
-}
+    function router (pathname?: string): TAddableData {
+        if (pathname) {
+            const clientParts = getParts(pathname);
 
-export default createRouter;
-
-function buildBranch (routes: Route[], parent: RouteBuilder): IRouterBranch {
-    return function branch (...params: unknown[]) {
-        const parts = extractParts(params);
-        const handles = params.flat(Infinity) as Handle[];
-
-        if (handles.find(handle => typeof handle !== 'function')) {
-            throw new Error('Handle must be a function');
+            return {
+                routes: routes.filter(item => compare(item.parts, clientParts)),
+                renderers: renderers.filter(item => compare(item.parts, clientParts)),
+                errorHandlers: errorHandlers.filter(item => compare(item.parts, clientParts))
+            };
         }
 
-        const newParent = routeMerge(parent, routeMake(parts, handles));
-        return createRouter(routes, newParent);
-    };
+        return {
+            routes,
+            renderers,
+            errorHandlers
+        };
+    }
+
+    return router;
 }
 
-function buildRoute (routes: Route[], parent: RouteBuilder, scope: Router): IRouterRoute {
-    return function route (...params: unknown[]) {
-        const method = extractMethod(params);
-        const parts = extractParts(params);
-        const handles = params.flat(Infinity) as Handle[];
+function priority (a: TSortable, b: TSortable): number {
+    const count = Math.max(a.parts.length, b.parts.length);
 
-        if (handles.find(handle => typeof handle !== 'function')) {
-            throw new Error('Handle must be a function');
-        }
+    for (let i = 0; i < count; i++) {
+        const aa = a.parts[i];
+        const bb = b.parts[i];
 
-        const newRoute = routeMerge(parent, routeMake(parts, handles));
-        const route: Route = { ...newRoute, method };
-        const exists = findRoute(routes, route.parts, method);
+        if (aa === bb) continue;
+        if (bb === undefined || aa === '**') return 1;
+        if (aa === undefined || bb === '**') return -1;
 
+        const aaa = aa[0] === ':';
+        const bbb = bb[0] === ':';
+
+        if (aaa && bbb) continue;
+        if (aaa) return 1;
+        if (bbb) return -1;
+
+        return aa.localeCompare(bb);
+    }
+
+    if (a.contentType && b.contentType) {
+        const aa = a.contentType.indexOf('*');
+        const bb = b.contentType.indexOf('*');
+
+        if (aa > -1 && bb > -1) return bb - aa;
+        if (aa > -1) return 1;
+        if (bb > -1) return -1;
+    }
+
+    return 0;
+}
+
+function warnDuplicates (routes: TRouteData[]): void {
+    const checked: TRouteData[] = [];
+
+    for (const route of routes) {
+        const exists = checked.find(value => isDuplicate(value, route));
         if (exists) {
-            throw Ex.InternalServerError('Route already exists', {
-                method,
-                pathname: '/' + route.parts.join('/'),
-                matches: '/' + exists.parts.join('/')
+            console.warn('Duplicate route detected', {
+                method: route.method,
+                url: `/${route.parts.join('/')}`,
+                matches: `/${exists.parts.join('/')}`
             });
         }
-
-        routes.push(route as Route);
-
-        return scope;
-    };
-}
-
-function extractMethod (params: unknown[]): string {
-    if (typeof params[0] !== 'string' || params[0][0] === '/') {
-        return 'GET';
+        checked.push(route);
     }
-    return params.shift() as string;
 }
 
-function extractParts (params: unknown[]): string[] {
-    if (typeof params[0] !== 'string' || params[0][0] !== '/') {
-        return [];
+
+function compare (parts: string[], clientParts: string[]): boolean {
+    const isWild = parts.includes('**');
+
+    if (!isWild && parts.length !== clientParts.length) {
+        return false;
     }
-    return getParts(params.shift() as string);
-}
 
-function routeMerge (parent: RouteBuilder, child: RouteBuilder): RouteBuilder {
-    const parts = [...parent.parts, ...child.parts];
-    const handles = parent.handles.concat(child.handles);
+    if (isWild && parts.length - 1 > clientParts.length) {
+        return false;
+    }
 
-    return routeMake(parts, handles);
-}
+    for (let i = 0; i < parts.length; i++) {
+        if (parts[i] === '**') return true;
+        if (parts[i][0] !== ':' && parts[i] !== clientParts[i]) return false;
+    }
 
-function routeMake (parts: string[], handles: Handle[]): RouteBuilder {
-    return {
-        parts,
-        handles,
-        isWild: parts.includes('**')
-    };
+    return true;
 }

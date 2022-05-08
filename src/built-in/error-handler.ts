@@ -1,9 +1,8 @@
-import { BodyJson } from '../body/create-get-body';
-import { Bundle } from '../main';
-import { ServerError } from '../utils/ex';
+import createErrorHandler from '../router/modules/create-error-handler';
+import { TServerError } from '../types';
 
-function errorHandler (error: unknown, { res }: Bundle): BodyJson {
-    const _error = error as ServerError;
+export default createErrorHandler((error, { res }) => {
+    const _error = error as TServerError;
     const statusCode = _error.statusCode || 500;
 
     res.statusCode = statusCode;
@@ -24,6 +23,4 @@ function errorHandler (error: unknown, { res }: Bundle): BodyJson {
     }
 
     return result;
-}
-
-export default errorHandler;
+});

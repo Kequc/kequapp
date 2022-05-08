@@ -1,9 +1,9 @@
 import 'kequtest';
 import assert from 'assert';
-import { inject } from '../../src/inject'; // 'kequapp/inject'
+import inject from '../../src/inject'; // 'kequapp'
 import app from './app';
 
-it('can access the root', async function () {
+it('can access the root', async () => {
     const { getResponse, res } = inject(app, {
         url: '/'
     });
@@ -15,7 +15,7 @@ it('can access the root', async function () {
     assert.strictEqual(body, 'Hello world!');
 });
 
-it('can open an image', async function () {
+it('can open an image', async () => {
     const { getResponse, res } = inject(app, {
         url: '/assets/cat.gif'
     });
@@ -26,7 +26,7 @@ it('can open an image', async function () {
     assert.ok(body.length > 0);
 });
 
-it('returns only head when requested', async function () {
+it('returns only head when requested', async () => {
     const { getResponse, res } = inject(app, {
         method: 'HEAD',
         url: '/assets/cat.gif'
@@ -38,7 +38,7 @@ it('returns only head when requested', async function () {
     assert.strictEqual(body.length, 0);
 });
 
-it('can open a css file', async function () {
+it('can open a css file', async () => {
     const { getResponse, res } = inject(app, {
         url: '/assets/css/test.css'
     });
@@ -49,7 +49,7 @@ it('can open a css file', async function () {
     assert.strictEqual(body, 'body {\n    margin: 0;\n}\n');
 });
 
-it('throws error accessing root directory', async function () {
+it('throws error accessing root directory', async () => {
     const { getResponse, res } = inject(app, {
         url: '/assets'
     });
@@ -61,7 +61,7 @@ it('throws error accessing root directory', async function () {
     assert.strictEqual(body.error.message, 'Not Found');
 });
 
-it('throws error accessing nested directory', async function () {
+it('throws error accessing nested directory', async () => {
     const { getResponse, res } = inject(app, {
         url: '/assets/css'
     });
@@ -73,7 +73,7 @@ it('throws error accessing nested directory', async function () {
     assert.strictEqual(body.error.message, 'Not Found');
 });
 
-it('throws error accessing missing file', async function () {
+it('throws error accessing missing file', async () => {
     const { getResponse, res } = inject(app, {
         url: '/assets/does-not-exist.exe'
     });
@@ -85,7 +85,7 @@ it('throws error accessing missing file', async function () {
     assert.strictEqual(body.error.message, 'Not Found');
 });
 
-it('throws error accessing excluded file', async function () {
+it('throws error accessing excluded file', async () => {
     const { getResponse, res } = inject(app, {
         url: '/assets/private.txt'
     });

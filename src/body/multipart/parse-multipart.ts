@@ -1,15 +1,19 @@
-import headerAttributes from '../../utils/header-attributes';
-import { sanitizeContentType } from '../../utils/sanitize';
-import { BodyJson, FilePart, RawPart } from '../create-get-body';
+import {
+    TBodyJson,
+    TBodyJsonValue,
+    TFilePart,
+    TRawPart
+} from '../../types';
+import headerAttributes from '../../util/header-attributes';
 
-function parseMultipart (parts: RawPart[]): [BodyJson, FilePart[]] {
-    const result: BodyJson = {};
-    const files: FilePart[] = [];
-    const visited: { [k: string]: number } = {};
+export default function parseMultipart (parts: TRawPart[]): [TBodyJson, TFilePart[]] {
+    const result: TBodyJson = {};
+    const files: TFilePart[] = [];
+    const counters: { [k: string]: number } = {};
 
     for (const part of parts) {
         const { filename, name } = headerAttributes(part.headers['content-disposition']);
-        const mime = sanitizeContentType(part.headers['content-type']);
+        const mime = getMime(part.headers['content-type']);
         const isFile = filename || !mime.startsWith('text/');
 
         if (isFile) {
@@ -20,13 +24,19 @@ function parseMultipart (parts: RawPart[]): [BodyJson, FilePart[]] {
         const key = name || 'undefined';
         const value = part.data.toString();
 
-        visited[key] = visited[key] || 0;
-        visited[key]++;
-        if (visited[key] === 2) result[key] = [result[key]];
+        counters[key] = counters[key] || 0;
+        counters[key]++;
 
-        if (visited[key] > 1) {
-            result[key].push(value);
+        if (counters[key] === 2) {
+            // convert to array
+            result[key] = [result[key]];
+        }
+
+        if (counters[key] > 1) {
+            // add to array
+            (result[key] as TBodyJsonValue[]).push(value);
         } else {
+            // set value
             result[key] = value;
         }
     }
@@ -34,4 +44,6 @@ function parseMultipart (parts: RawPart[]): [BodyJson, FilePart[]] {
     return [result, files];
 }
 
-export default parseMultipart;
+function getMime (contentType?: string): string {
+    return contentType?.split(';')[0].toLowerCase().trim() || 'text/plain';
+}

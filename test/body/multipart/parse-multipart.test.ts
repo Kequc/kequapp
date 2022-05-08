@@ -1,8 +1,8 @@
-import 'kequtest';
 import assert from 'assert';
+import 'kequtest';
 import parseMultipart from '../../../src/body/multipart/parse-multipart';
 
-it('reads buffers', function () {
+it('reads buffers', () => {
     const parts = [{
         headers: {
             'content-disposition': 'form-data; name="name"'
@@ -16,7 +16,7 @@ it('reads buffers', function () {
     }, {
         headers: {
             'content-disposition': 'form-data; name="secret"; filename="secrets.txt"',
-            'content-type': 'text/plain;', 
+            'content-type': 'text/plain;',
         },
         data: Buffer.from('contents of the file')
     }];

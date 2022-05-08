@@ -1,80 +1,54 @@
-import { IncomingMessage, RequestListener, ServerResponse } from 'http';
-import { URL } from 'url';
-import sendFile from './addons/send-file';
-import staticFiles from './addons/static-files';
-import createGetBody, { IGetBody } from './body/create-get-body';
-import createRouter, { Router } from './router/create-router';
-import createRoutesHelper, { RoutesHelper } from './router/create-routes-helper';
+import { IncomingMessage, ServerResponse } from 'http';
+import createGetBody from './body/create-get-body';
+import errorHandler from './built-in/error-handler';
+import jsonRenderer from './built-in/json-renderer';
+import textRenderer from './built-in/text-renderer';
+import createBranch from './router/modules/create-branch';
+import createRouter from './router/create-router';
 import requestProcessor from './router/request-processor';
 import {
-    ConfigInput,
-    extendConfig,
-    Logger,
-    setupConfig
-} from './utils/config';
-import Ex from './utils/ex';
+    IAddable,
+    IKequapp,
+    IRouter,
+    THandle
+} from './types';
+export { default as createBranch } from './router/modules/create-branch';
+export { default as createErrorHandler } from './router/modules/create-error-handler';
+export { default as createHandle } from './router/modules/create-handle';
+export { default as createRenderer } from './router/modules/create-renderer';
+export { default as createRoute } from './router/modules/create-route';
+export { default as sendFile } from './built-in/extra/send-file';
+export { default as staticFiles } from './built-in/extra/static-files';
+export { default as Ex } from './util/ex';
+export { default as inject } from './inject';
+export * from './types';
 
+export function createApp (...handles: THandle[]): IKequapp {
+    const branch = createBranch(...handles).add(
+        errorHandler,
+        jsonRenderer,
+        textRenderer
+    );
+    let router: IRouter;
 
-export interface IKequapp extends RequestListener, Router {
-    (req: IncomingMessage, res: ServerResponse, override?: ConfigInput): void;
-    routesHelper: RoutesHelper;
-}
-export type Bundle = {
-    req: IncomingMessage;
-    res: ServerResponse;
-    url: URL;
-    context: BundleContext;
-    params: BundleParams;
-    getBody: IGetBody;
-    logger: Logger;
-};
-export type BundleContext = {
-    [k: string]: unknown;
-};
-export type BundleParams = {
-    [k: string]: string;
-} & {
-    '**'?: string[];
-    '*'?: string[];
-};
+    function app (req: IncomingMessage, res: ServerResponse): void {
+        if (!router) router = createRouter(branch());
 
-
-function createApp (options?: ConfigInput): IKequapp {
-    const _routes = [];
-    const _config = setupConfig(options);
-
-    function app (req: IncomingMessage, res: ServerResponse, override?: ConfigInput) {
-        const config = extendConfig(_config, override);
-        const url = new URL(req.url || '/', `${req.headers.protocol}://${req.headers.host}`);
-
-        res.statusCode = 200; // default
-        res.setHeader('Content-Type', 'text/plain'); // default
-
-        requestProcessor(config, _routes, {
+        requestProcessor(router, {
             req,
             res,
-            url,
-            context: {},
-            params: {},
-            getBody: createGetBody(req),
-            logger: config.logger
+            url: new URL(req.url || '/', `${req.headers.protocol}://${req.headers.host}`),
+            getBody: createGetBody(req)
         });
     }
 
-    Object.assign(app, createRouter(_routes, {
-        parts: [],
-        handles: [],
-        isWild: false
-    }), {
-        routesHelper: createRoutesHelper(_routes)
-    });
+    function add (...params: IAddable[]): IKequapp {
+        branch.add(...params);
+
+        return app as IKequapp;
+    }
+
+    Object.assign(app, { add });
 
     return app as IKequapp;
 }
-
-export {
-    Ex,
-    createApp,
-    sendFile,
-    staticFiles
-};

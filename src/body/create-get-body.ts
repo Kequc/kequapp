@@ -6,60 +6,29 @@ import parseMultipart from './multipart/parse-multipart';
 import splitMultipart from './multipart/split-multipart';
 import normalizeBody from './normalize-body';
 import streamReader from './stream-reader';
-import { Ex } from '../main';
-import { getHeaders } from '../utils/sanitize';
-
-
-export interface IGetBody {
-    (format: BodyOptions & { raw: true, multipart: true }): Promise<RawPart[]>;
-    (format: BodyOptions & { raw: true }): Promise<Buffer>;
-    (format: BodyOptions & { multipart: true }): Promise<[BodyJson, FilePart[]]>;
-    (format?: BodyOptions): Promise<BodyJson>;
-    <T>(format: BodyOptions & { multipart: true }): Promise<[T, FilePart[]]>;
-    <T>(format?: BodyOptions): Promise<T>;
-}
-export type RawPart = {
-    headers: { [k: string]: string };
-    data: Buffer;
-};
-export type FilePart = RawPart & {
-    mime?: string;
-    name?: string;
-    filename?: string;
-};
-export type BodyOptions = {
-    raw?: boolean;
-    multipart?: boolean;
-    maxPayloadSize?: number;
-    skipNormalize?: boolean;
-    arrays?: string[];
-    numbers?: string[];
-    booleans?: string[];
-    required?: string[];
-    validate? (body: BodyJson): string | void;
-    postProcess? (body: BodyJson): BodyJson;
-};
-export type BodyJson = {
-    [k: string]: any;
-};
-
+import { IGetBody, TBodyOptions, TRawPart } from '../types';
+import Ex from '../util/ex';
 
 const parseBody = createParseBody({
     'application/x-www-form-urlencoded': parseUrlEncoded,
     'application/json': parseJson,
 });
 
-function createGetBody (req: IncomingMessage): IGetBody {
-    let _body: RawPart;
+export default function createGetBody (req: IncomingMessage): IGetBody {
+    let _body: TRawPart;
 
-    return async function (options: BodyOptions = {}): Promise<any> {
+    return async function (options: TBodyOptions = {}): Promise<any> {
         if (_body === undefined) {
-            const data = await streamReader(getStream(req), getMaxPayloadSize(options));
-            const headers = getHeaders(req, ['Content-Type', 'Content-Disposition']);
-            _body = { headers, data };
+            _body = {
+                headers: {
+                    'content-type': req.headers['content-type'] || '',
+                    'content-disposition': req.headers['content-disposition'] || ''
+                },
+                data: await streamReader(getStream(req), getMaxPayloadSize(options))
+            };
         }
 
-        const isMultipartRequest = _body.headers['content-type']?.startsWith('multipart/');
+        const isMultipartRequest = _body.headers['content-type'].startsWith('multipart/');
 
         if (options.raw === true) {
             if (options.multipart === true) {
@@ -84,8 +53,6 @@ function createGetBody (req: IncomingMessage): IGetBody {
     };
 }
 
-export default createGetBody;
-
 function getStream (req: IncomingMessage): Readable {
     const encoding = (req.headers['content-encoding'] || 'identity').toLowerCase();
 
@@ -101,13 +68,13 @@ function getStream (req: IncomingMessage): Readable {
     });
 }
 
-function getMaxPayloadSize (options: BodyOptions): number {
+function getMaxPayloadSize (options: TBodyOptions): number {
     if (typeof options.maxPayloadSize === 'number' && options.maxPayloadSize > 0) {
         return options.maxPayloadSize;
     }
     return 1e6;
 }
 
-function clone (body: RawPart): RawPart {
+function clone (body: TRawPart): TRawPart {
     return { ...body, headers: { ...body.headers } };
 }

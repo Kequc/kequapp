@@ -1,7 +1,7 @@
-import { Bundle } from '../main';
-import Ex from '../utils/ex';
+import createRenderer from '../router/modules/create-renderer';
+import Ex from '../util/ex';
 
-function jsonRenderer (payload: unknown, { req, res }: Bundle): void {
+export default createRenderer('application/json', (payload, { req, res }) => {
     const json = generateJson(payload);
 
     res.setHeader('Content-Length', Buffer.byteLength(json));
@@ -11,9 +11,7 @@ function jsonRenderer (payload: unknown, { req, res }: Bundle): void {
     } else {
         res.end(json);
     }
-}
-
-export default jsonRenderer;
+});
 
 function generateJson (payload: unknown): string {
     try {

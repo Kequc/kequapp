@@ -1,5 +1,7 @@
-function headerAttributes (header = ''): { [k: string]: string } {
-    const result: { [k: string]: string } = {};
+import { TParams } from '../types';
+
+export default function headerAttributes (header = ''): TParams {
+    const result: TParams = {};
 
     let inQuotes = false;
     let isAssignment = false;
@@ -22,23 +24,21 @@ function headerAttributes (header = ''): { [k: string]: string } {
             }
             continue;
         }
-
         if (/[?:;|, ]/.test(header[i]) && !inQuotes) {
             if (isAssignment) result[key] = value;
             reset();
             continue;
         }
-
         if (header[i] === '=' && !inQuotes) {
             isAssignment = true;
             continue;
         }
-
         if (isAssignment) {
             value += header[i];
-        } else {
-            key += header[i];
+            continue;
         }
+
+        key += header[i];
     }
 
     if (isAssignment && !inQuotes) {
@@ -47,5 +47,3 @@ function headerAttributes (header = ''): { [k: string]: string } {
 
     return result;
 }
-
-export default headerAttributes;

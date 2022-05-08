@@ -1,7 +1,7 @@
-import { Bundle } from '../main';
-import Ex from '../utils/ex';
+import createRenderer from '../router/modules/create-renderer';
+import Ex from '../util/ex';
 
-function textRenderer (payload: unknown, { req, res }: Bundle): void {
+export default createRenderer('text/*', (payload, { req, res }) => {
     const text = generateText(payload);
 
     res.setHeader('Content-Length', Buffer.byteLength(text));
@@ -11,9 +11,7 @@ function textRenderer (payload: unknown, { req, res }: Bundle): void {
     } else {
         res.end(text);
     }
-}
-
-export default textRenderer;
+});
 
 function generateText (payload: unknown): string {
     try {
