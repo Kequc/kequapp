@@ -2,11 +2,12 @@ import { findErrorHandler, findRenderer } from './find';
 import {
     TAddableData,
     TBundle,
+    TConfig,
     TRendererData,
     TRouteData
 } from '../types';
 
-export async function renderRoute (collection: TAddableData, bundle: TBundle, route: TRouteData): Promise<void> {
+export async function renderRoute (collection: TAddableData, bundle: TBundle, route: TRouteData, config: TConfig): Promise<void> {
     const { routes, renderers } = collection;
     const { res } = bundle;
     const handles = route.handles;
@@ -20,7 +21,7 @@ export async function renderRoute (collection: TAddableData, bundle: TBundle, ro
     }
 
     if (route.method === 'OPTIONS') {
-        defaultOptions(routes, bundle);
+        defaultOptions(routes, bundle, config);
     }
 
     for (const handle of handles) {
@@ -60,10 +61,10 @@ function getContentType ({ res }: TBundle): string {
     return String(res.getHeader('Content-Type') || 'text/plain');
 }
 
-function defaultOptions (routes: TRouteData[], bundle: TBundle): void {
+function defaultOptions (routes: TRouteData[], bundle: TBundle, config: TConfig): void {
     const { req, res } = bundle;
 
-    const allowMethods = getAllowMethods(routes);
+    const allowMethods = getAllowMethods(routes, config);
     if (allowMethods) {
         res.setHeader('Valid', allowMethods);
         res.setHeader('Access-Control-Allow-Methods', allowMethods);
@@ -75,10 +76,10 @@ function defaultOptions (routes: TRouteData[], bundle: TBundle): void {
     }
 }
 
-function getAllowMethods (routes: TRouteData[]): string {
+function getAllowMethods (routes: TRouteData[], config: TConfig): string {
     const result = new Set(routes.map(route => route.method));
 
-    if (result.has('GET')) result.add('HEAD');
+    if (result.has('GET') && config.autoHead) result.add('HEAD');
 
     return [...result].sort().join(', ');
 }

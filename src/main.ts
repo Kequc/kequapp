@@ -31,10 +31,15 @@ export function createApp (...handles: THandle[]): IKequapp {
     );
     let router: IRouter;
 
+    const config = {
+        silent: false,
+        autoHead: true,
+    };
+
     function app (req: IncomingMessage, res: ServerResponse): void {
         if (!router) router = createRouter(branch());
 
-        requestProcessor(router, {
+        requestProcessor(router, config, {
             req,
             res,
             url: new URL(req.url || '/', `${req.headers.protocol}://${req.headers.host}`),
@@ -48,7 +53,7 @@ export function createApp (...handles: THandle[]): IKequapp {
         return app as IKequapp;
     }
 
-    Object.assign(app, { add });
+    Object.assign(app, { add, config });
 
     return app as IKequapp;
 }

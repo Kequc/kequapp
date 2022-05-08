@@ -3,19 +3,20 @@ import { renderError, renderRoute } from './actions';
 import {
     IRouter,
     TBundle,
+    TConfig,
     TRawBundle,
     TRouteData
 } from '../types';
 import Ex from '../util/ex';
 import { getParams } from '../util/extract';
 
-export default async function requestProcessor (router: IRouter, raw: TRawBundle): Promise<void> {
+export default async function requestProcessor (router: IRouter, config: TConfig, raw: TRawBundle): Promise<void> {
     const { req, res, url } = raw;
     const method = req.method || 'GET';
     const pathname = url.pathname;
 
     const collection = router(pathname);
-    const route = findRoute(collection.routes, method);
+    const route = findRoute(collection.routes, config, method);
     const bundle: TBundle = Object.freeze({
         ...raw,
         params: getParams(pathname, route),
@@ -28,7 +29,7 @@ export default async function requestProcessor (router: IRouter, raw: TRawBundle
             throw Ex.NotFound();
         }
 
-        await renderRoute(collection, bundle, route);
+        await renderRoute(collection, bundle, route, config);
 
         cleanup(res, 204);
     } catch (error) {
@@ -41,15 +42,17 @@ export default async function requestProcessor (router: IRouter, raw: TRawBundle
         cleanup(res, 500);
     }
 
-    // debug request
-    console.debug(res.statusCode, method, pathname);
+    if (!config.silent) {
+        // debug request
+        console.debug(res.statusCode, method, pathname);
+    }
 }
 
-function findRoute (routes: TRouteData[], method: string): TRouteData | undefined {
+function findRoute (routes: TRouteData[], config: TConfig, method: string): TRouteData | undefined {
     const route = routes.find(route => route.method === method);
 
-    if (!route && method === 'HEAD') {
-        return findRoute(routes, 'GET');
+    if (!route && config.autoHead && method === 'HEAD') {
+        return findRoute(routes, config, 'GET');
     }
 
     return route;

@@ -4,7 +4,13 @@ import { Transform } from 'stream';
 export interface IKequapp extends RequestListener {
     (...handles: THandle[]): IKequapp;
     add (...routers: IAddable[]): IKequapp;
+    config: TConfig;
 }
+
+export type TConfig = {
+    silent: boolean;
+    autoHead: boolean;
+};
 
 export interface IAddable {
     (): Partial<TAddableData>;
