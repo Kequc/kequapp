@@ -583,7 +583,9 @@ import { sendFile } from 'kequapp';
 # sendFile(res: Res, asset: string): void;
 ```
 
-Send a file finalize the response immediately. This is asyncronous and must be awaited otherwise the application might get confused as it continues processing the request. If a mime type is not provided the correct `'Content-Type'` header is guessed based on file extension.
+Sends a file and finalizes the response immediately.
+
+This is asyncronous and must be awaited otherwise the application might get confused as it continues processing the request. If a mime type is not provided the correct `'Content-Type'` header is guessed based on file extension.
 
 ```javascript
 // sendFile
@@ -705,7 +707,7 @@ import { inject } from 'kequapp';
 
 We may unit test our application without starting a server by using the `inject()` tool. The first parameter is our app, then options used to populate the request.
 
-The returned `req` value is a simulation of node's built-in [`ClientRequest`](https://nodejs.org/api/http.html#class-httpclientrequest) object and is a `Transform` stream. The returned `res` value os a simulation of node's built-in [`ServerResponse`](https://nodejs.org/api/http.html#class-httpserverresponse) object and is also a `Transform` stream.
+The returned `req` value is a simulation of node's built-in [`ClientRequest`](https://nodejs.org/api/http.html#class-httpclientrequest) object and is a `Transform` stream. The returned `res` value is a simulation of node's built-in [`ServerResponse`](https://nodejs.org/api/http.html#class-httpserverresponse) object and is also a `Transform` stream.
 
 The returned `getResponse()` tool waits for our application to finish, and then parses the response. We could inspect what our application is doing using the `req` and `res` objects in realtime instead if that's what we wanted to do.
 
