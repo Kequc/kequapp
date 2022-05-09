@@ -17,6 +17,7 @@ export default async function requestProcessor (router: IRouter, config: TConfig
 
     const collection = router(pathname);
     const route = findRoute(collection.routes, config, method);
+    console.log(route);
     const bundle: TBundle = Object.freeze({
         ...raw,
         params: getParams(pathname, route),

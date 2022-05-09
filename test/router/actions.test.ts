@@ -1,11 +1,16 @@
 import assert from 'assert';
 import 'kequtest';
 import createGetBody from '../../src/body/create-get-body';
-import { renderRoute, renderError } from '../../src/router/actions';
-import { TAddableData, TBundle, TReqOptions, TRouteData } from '../../src/types';
-import { FakeReq, FakeRes } from '../../src/util/fake-http';
 import createGetResponse from '../../src/body/create-get-response';
+import { renderError, renderRoute } from '../../src/router/actions';
+import {
+    TAddableData,
+    TBundle,
+    TReqOptions,
+    TRouteData
+} from '../../src/types';
 import Ex from '../../src/util/ex';
+import { FakeReq, FakeRes } from '../../src/util/fake-http';
 
 function buildBundle (options: TReqOptions): TBundle {
     const req = new FakeReq(options) as any;
@@ -36,8 +41,9 @@ describe('renderRoute', () => {
             renderers: [],
             errorHandlers: []
         };
+        const config = { silent: false, autoHead: true };
 
-        await renderRoute(collection, bundle, route);
+        await renderRoute(collection, bundle, route, config);
 
         const { res } = bundle;
 
@@ -69,8 +75,9 @@ describe('renderRoute', () => {
             renderers: [],
             errorHandlers: []
         };
+        const config = { silent: false, autoHead: true };
 
-        await renderRoute(collection, bundle, route);
+        await renderRoute(collection, bundle, route, config);
 
         const { res } = bundle;
 
@@ -104,8 +111,9 @@ describe('renderRoute', () => {
             renderers: [],
             errorHandlers: []
         };
+        const config = { silent: false, autoHead: true };
 
-        await renderRoute(collection, bundle, route);
+        await renderRoute(collection, bundle, route, config);
 
         const { res } = bundle;
 
@@ -114,6 +122,42 @@ describe('renderRoute', () => {
         assert.strictEqual(res.getHeader('Content-Type'), 'text/plain');
         assert.strictEqual(res.getHeader('Valid'), 'GET, HEAD, OPTIONS');
         assert.strictEqual(res.getHeader('Access-Control-Allow-Methods'), 'GET, HEAD, OPTIONS');
+        assert.strictEqual(res.getHeader('Access-Control-Allow-Headers'), 'X-PINGOTHER, Content-Type');
+    });
+
+    it('ignored head when autoHead is set to false', async () => {
+        const route: TRouteData = {
+            parts: [],
+            handles: [],
+            method: 'OPTIONS'
+        };
+        const bundle = buildBundle({
+            url: '/',
+            method: 'OPTIONS',
+            headers: {
+                'access-control-request-headers': 'X-PINGOTHER, Content-Type'
+            }
+        });
+        const collection: TAddableData = {
+            routes: [route, {
+                parts: [],
+                handles: [],
+                method: 'GET'
+            }],
+            renderers: [],
+            errorHandlers: []
+        };
+        const config = { silent: false, autoHead: false };
+
+        await renderRoute(collection, bundle, route, config);
+
+        const { res } = bundle;
+
+        assert.strictEqual(res.getHeader('Access-Control-Allow-Origin'), '*');
+        assert.strictEqual(res.statusCode, 200);
+        assert.strictEqual(res.getHeader('Content-Type'), 'text/plain');
+        assert.strictEqual(res.getHeader('Valid'), 'GET, OPTIONS');
+        assert.strictEqual(res.getHeader('Access-Control-Allow-Methods'), 'GET, OPTIONS');
         assert.strictEqual(res.getHeader('Access-Control-Allow-Headers'), 'X-PINGOTHER, Content-Type');
     });
 });

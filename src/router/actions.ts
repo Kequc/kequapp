@@ -79,7 +79,7 @@ function defaultOptions (routes: TRouteData[], bundle: TBundle, config: TConfig)
 function getAllowMethods (routes: TRouteData[], config: TConfig): string {
     const result = new Set(routes.map(route => route.method));
 
-    if (result.has('GET') && config.autoHead) result.add('HEAD');
+    if (config.autoHead && result.has('GET')) result.add('HEAD');
 
     return [...result].sort().join(', ');
 }
