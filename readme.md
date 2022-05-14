@@ -4,8 +4,6 @@ Versatile, non-intrusive, tiny webapp framework
 
 # Introduction
 
-This is a request handler for Node's [`http`](https://nodejs.org/api/http.html) and [`https`](https://nodejs.org/api/https.html) libraries.
-
 This framework is easy to learn and use. It manages three stages of a request first handling the route, then errors, and finally rendering a response to the client. Each step is as non-obtrusive as possible, so that we can focus on creating applications from Node's built-in features.
 
 **Features**
@@ -67,16 +65,6 @@ createServer(app).listen(4000, () => {
 ```
 
 This example responds to all `'GET'`, and `'HEAD'` requests made to the base of our application at `'/'`. Otherwise a `404` not found error will be thrown. The reason this responds to requests at `'/'` is that is the default url for new routes.
-
-Defining a `'HEAD'` route will override default behavior for `HEAD` requests.
-
-```javascript
-app.add(
-    createRoute('HEAD', () => {
-        // custom HEAD
-    })
-);
-```
 
 The framework comes with a built-in default error handler and some renderers. We will look at how to create our own shortly, but for now we don't need to worry about them.
 
