@@ -59,7 +59,7 @@ export type THandle = (bundle: TBundle) => Promise<unknown> | unknown;
 
 export type TRenderer = (payload: unknown, bundle: TBundle) => Promise<void> | void;
 
-export type TErrorHandler = (error: unknown, bundle: TBundle) => Promise<unknown> | unknown;
+export type TErrorHandler = (ex: TServerEx, bundle: TBundle) => Promise<unknown> | unknown;
 
 export type TPathname = `/${string}`;
 

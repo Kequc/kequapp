@@ -4,8 +4,10 @@ import {
     TBundle,
     TConfig,
     TRendererData,
-    TRouteData
+    TRouteData,
+    TServerEx
 } from '../types';
+import Ex from '../util/ex';
 
 export async function renderRoute (collection: TAddableData, bundle: TBundle, route: TRouteData, config: TConfig): Promise<void> {
     const { routes, renderers } = collection;
@@ -19,7 +21,6 @@ export async function renderRoute (collection: TAddableData, bundle: TBundle, ro
     if (routes.some(route => route.method === 'OPTIONS')) {
         res.setHeader('Access-Control-Allow-Origin', '*');
     }
-
     if (route.method === 'OPTIONS') {
         defaultOptions(routes, bundle, config);
     }
@@ -39,7 +40,7 @@ export async function renderError (collection: TAddableData, bundle: TBundle, er
     const { errorHandlers, renderers } = collection;
     const { res } = bundle;
     const errorHandler = findErrorHandler(errorHandlers, getContentType(bundle));
-    const payload = await errorHandler(error, bundle);
+    const payload = await errorHandler(getServerEx(error), bundle);
 
     await finalize(renderers, bundle, payload);
 
@@ -61,6 +62,19 @@ function getContentType ({ res }: TBundle): string {
     return String(res.getHeader('Content-Type') || 'text/plain');
 }
 
+function getServerEx (error: unknown): TServerEx {
+    if (!(error instanceof Error)) {
+        const ex = Ex.InternalServerError('Unknown Problem');
+        delete ex.stack;
+        return ex;
+    }
+
+    const ex = error as TServerEx;
+    ex.statusCode = ex.statusCode || 500;
+    ex.info = ex.info || [];
+    return ex;
+}
+
 function defaultOptions (routes: TRouteData[], bundle: TBundle, config: TConfig): void {
     const { req, res } = bundle;
 
@@ -78,7 +92,6 @@ function defaultOptions (routes: TRouteData[], bundle: TBundle, config: TConfig)
 
 function getAllowMethods (routes: TRouteData[], config: TConfig): string {
     const result = new Set(routes.map(route => route.method));
-
     if (config.autoHead && result.has('GET')) result.add('HEAD');
 
     return [...result].sort().join(', ');
