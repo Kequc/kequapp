@@ -1,11 +1,10 @@
 import { STATUS_CODES } from 'http';
 import { TServerEx } from '../types';
 
-type TError = Error & { statusCode: number, info: unknown[] };
 type TStatusCode = (statusCode: number, message?: string, ...info: unknown[]) => TServerEx;
-type TServerErrorHelper = (message?: string, ...info: unknown[]) => TError;
+type TServerErrorHelper = (message?: string, ...info: unknown[]) => TServerEx;
 type TEx = {
-    StatusCode: (statusCode: number, message?: string, ...info: unknown[]) => TError;
+    StatusCode: (statusCode: number, message?: string, ...info: unknown[]) => TServerEx;
     BadRequest: TServerErrorHelper;                      // 400
     Unauthorized: TServerErrorHelper;                    // 401
     PaymentRequired: TServerErrorHelper;                 // 402
@@ -84,6 +83,28 @@ function _buildEx (parent: TStatusCode, name: string, statusCode: number, messag
     Error.captureStackTrace(ex, parent);
 
     return ex;
+}
+
+export function unknownToEx (error: unknown): TServerEx {
+    if (!(error instanceof Error)) {
+        const ex = StatusCode(500, createMessage(error));
+        delete ex.stack;
+        return ex;
+    }
+
+    const ex = error as TServerEx;
+    ex.statusCode = ex.statusCode || 500;
+    ex.info = ex.info || [];
+    ex.name = ex.name || createMethodName(ex.statusCode);
+    return ex;
+}
+
+function createMessage (message: unknown): string {
+    try {
+        return '[Unknown Problem] ' + String(message);
+    } catch (error) {
+        return '[Unknown Problem]';
+    }
 }
 
 function createMethodName (statusCode: number) {

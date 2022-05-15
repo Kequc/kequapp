@@ -236,10 +236,10 @@ The following is a very simple text error handler.
 ```javascript
 // createErrorHandler
 
-createErrorHandler('text/*', (error, { res }) => {
-    const statusCode = error.statusCode || 500;
-    res.statusCode = statusCode;
-    return `${statusCode} ${error.message}`;
+createErrorHandler('text/*', (ex, { res }) => {
+    const statusCode = ex.statusCode || 500;
+
+    return `${statusCode} ${ex.message}`;
 });
 ```
 

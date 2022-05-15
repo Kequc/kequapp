@@ -4,10 +4,9 @@ import {
     TBundle,
     TConfig,
     TRendererData,
-    TRouteData,
-    TServerEx
+    TRouteData
 } from '../types';
-import Ex from '../util/ex';
+import { unknownToEx } from '../util/ex';
 
 export async function renderRoute (collection: TAddableData, bundle: TBundle, route: TRouteData, config: TConfig): Promise<void> {
     const { routes, renderers } = collection;
@@ -40,7 +39,11 @@ export async function renderError (collection: TAddableData, bundle: TBundle, er
     const { errorHandlers, renderers } = collection;
     const { res } = bundle;
     const errorHandler = findErrorHandler(errorHandlers, getContentType(bundle));
-    const payload = await errorHandler(getServerEx(error), bundle);
+    const ex = unknownToEx(error);
+
+    res.statusCode = ex.statusCode;
+
+    const payload = await errorHandler(ex, bundle);
 
     await finalize(renderers, bundle, payload);
 
@@ -60,19 +63,6 @@ async function finalize (renderers: TRendererData[], bundle: TBundle, payload: u
 
 function getContentType ({ res }: TBundle): string {
     return String(res.getHeader('Content-Type') || 'text/plain');
-}
-
-function getServerEx (error: unknown): TServerEx {
-    if (!(error instanceof Error)) {
-        const ex = Ex.InternalServerError('Unknown Problem');
-        delete ex.stack;
-        return ex;
-    }
-
-    const ex = error as TServerEx;
-    ex.statusCode = ex.statusCode || 500;
-    ex.info = ex.info || [];
-    return ex;
 }
 
 function defaultOptions (routes: TRouteData[], bundle: TBundle, config: TConfig): void {

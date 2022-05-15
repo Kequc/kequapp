@@ -11,7 +11,6 @@ type TErrorResponse = {
 export default createErrorHandler((ex, { res }) => {
     const error = generateError(ex);
 
-    res.statusCode = ex.statusCode;
     res.setHeader('Content-Type', 'application/json');
 
     return { error };
