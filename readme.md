@@ -281,39 +281,6 @@ createRenderer('text/html', (payload, { res }) => {
 
 For good examples of how to write renderers see this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
 
-# # Ex.()
-
-```javascript
-import { Ex } from 'kequapp';
-```
-
-```
-# Ex.<NAME>(message: string, ...info: unknown[]): new Error;
-# Ex.<NAME>(message: string): new Error;
-# Ex.<NAME>(): new Error;
-
-# Ex.StatusCode(statusCode: number, message: string, ...info: unknown[]): new Error;
-# Ex.StatusCode(statusCode: number, message: string): new Error;
-# Ex.StatusCode(statusCode: number): new Error;
-```
-
-An unhandled exception from our application results in a `500` internal server error. If we would like an error with a different status code there is a helper tool.
-
-```javascript
-// Ex
-
-createRoute('/throw-error', () => {
-    throw Ex.NotFound();
-    throw Ex.NotFound('Custom message', { extra: 'info' });
-
-    // same as
-    throw Ex.StatusCode(404);
-    throw Ex.StatusCode(404, 'Custom message', { extra: 'info' });
-});
-```
-
-This makes it easy to utilize any status code `400` and above. These methods create errors with correct stacktraces there is no reason to use `new`.
-
 # Respond to a request
 
 Handles may terminate a request at any time in one of three ways:
@@ -635,6 +602,38 @@ If no `dir` is specified then `'/public'` is used by default. Exclusions can be 
 
 The correct `'Content-Type'` header is guessed based on file extension. If there are files in the directory with unusual file extensions then additional `mime` types can be added.
 
+# # Ex.()
+
+```javascript
+import { Ex } from 'kequapp';
+```
+
+```
+# Ex.<NAME>(message: string, ...info: unknown[]): new Error;
+# Ex.<NAME>(message: string): new Error;
+# Ex.<NAME>(): new Error;
+
+# Ex.StatusCode(statusCode: number, message: string, ...info: unknown[]): new Error;
+# Ex.StatusCode(statusCode: number, message: string): new Error;
+# Ex.StatusCode(statusCode: number): new Error;
+```
+
+An unhandled exception from our application results in a `500` internal server error. If we would like an error with a different status code there is a helper tool.
+
+```javascript
+// Ex
+
+createRoute('/throw-error', () => {
+    throw Ex.NotFound();
+    throw Ex.NotFound('Custom message', { extra: 'info' });
+
+    // same as
+    throw Ex.StatusCode(404);
+    throw Ex.StatusCode(404, 'Custom message', { extra: 'info' });
+});
+```
+
+This makes it easy to utilize any status code `400` and above. These methods create errors with correct stacktraces there is no reason to use `new`.
 
 # CORS and `OPTIONS` requests
 
