@@ -84,7 +84,7 @@ The framework comes with a built-in default error handler and some renderers. We
 
 # Modules
 
-The following modules [`createHandle()`](#-createhandle), [`createRoute()`](#-createroute), [`createBranch()`](#-createbranch), [`createErrorHandler()`](#-createerrorhandler), and [`createRouter()`](#-createrouter) all are added the same way to a branch or the base of the application.
+The following modules [`createHandle()`](#-createhandle), [`createRoute()`](#-createroute), [`createBranch()`](#-createbranch), [`createErrorHandler()`](#-createerrorhandler), and [`createRouter()`](#-createrouter) are all added the same way to a branch or the base of the application.
 
 # # createHandle()
 
