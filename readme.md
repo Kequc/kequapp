@@ -237,9 +237,7 @@ The following is a very simple text error handler.
 // createErrorHandler
 
 createErrorHandler('text/*', (ex, { res }) => {
-    const statusCode = ex.statusCode || 500;
-
-    return `${statusCode} ${ex.message}`;
+    return `${ex.statusCode} ${ex.message}`;
 });
 ```
 
