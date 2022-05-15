@@ -143,7 +143,7 @@ export type TBodyJson = {
     [k: string]: TBodyJsonValue;
 };
 
-export type TServerError = Error & {
+export type TServerEx = Error & {
     statusCode: number;
     info: unknown[];
 };

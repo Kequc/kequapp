@@ -1,26 +1,35 @@
 import createErrorHandler from '../router/modules/create-error-handler';
-import { TServerError } from '../types';
+import { TServerEx } from '../types';
 
-export default createErrorHandler((error, { res }) => {
-    const _error = error as TServerError;
-    const statusCode = _error.statusCode || 500;
+export default createErrorHandler((ex, { res }) => {
+    const error = generateError(ex as TServerEx);
 
-    res.statusCode = statusCode;
+    res.statusCode = error.statusCode;
     res.setHeader('Content-Type', 'application/json');
 
-    const result = {
-        error: {
-            statusCode,
-            message: _error.message,
-            stack: undefined as any,
-            info: undefined as any
-        }
+    return { error };
+});
+
+function generateError (ex: TServerEx) {
+    const error: {
+        statusCode: number;
+        message: string;
+        stack?: string[];
+        info?: unknown[];
+    } = {
+        statusCode: 500,
+        message: 'Internal Server Error'
     };
 
-    if (process.env.NODE_ENV !== 'production') {
-        result.error.stack = _error.stack?.split(/\r?\n/);
-        result.error.info = _error.info;
+    if (ex instanceof Error) {
+        error.statusCode = ex.statusCode || 500;
+        error.message = ex.message;
+
+        if (process.env.NODE_ENV !== 'production') {
+            error.stack = ex.stack?.split(/\r?\n/);
+            error.info = ex.info;
+        }
     }
 
-    return result;
-});
+    return error;
+}

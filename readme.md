@@ -1,14 +1,18 @@
-<img alt="kequtest" src="https://github.com/Kequc/kequapp/blob/0.2-wip/logo.png?raw=true" width="142" height="85" />
+<img alt="kequapp" src="https://github.com/Kequc/kequapp/blob/0.2-wip/logo.png?raw=true" width="142" height="85" />
+
+*\ `hek-yü-ap \\*
 
 Versatile, non-intrusive, tiny webapp framework
 
 # Introduction
 
-This framework is easy to learn and use. It manages three stages of a request first handling the route, then errors, and finally rendering a response to the client. Each step is as non-obtrusive as possible, so that we can focus on creating applications from Node's built-in features.
+This framework manages three stages of a request first handling the route, then errors, and finally rendering a response to the client. Each step is as non-obtrusive as possible, so that we can focus on creating applications from Node's features unchanged.
+
+Intended to be easy to learn and use.
 
 **Features**
 
-* Modular framework
+* Modern modular framework
 * CORS by default
 * Body parsing for multipart requests
 * Static file serving
@@ -23,7 +27,7 @@ This framework is easy to learn and use. It manages three stages of a request fi
 npm i kequapp
 ```
 
-# Concepts
+# General
 
 **handle**
 
@@ -31,19 +35,19 @@ A route is composed of one or more handles which run in sequence. Handles are re
 
 **route**
 
-Each route is a self contained collection of handles, these direct the lifecycle of a request at a given url. Add them to a branch or the base of an application.
+Each route is a self contained collection of handles, these direct the lifecycle of a request at a given url.
 
 **branch**
 
-Used for distributing behavior across multiple routes and helping to stay organized during development. We might separate a json api from client facing pages for example, and want different behaviors which are common to either area. Add them to another branch or the base of an application.
+Used for distributing behavior across multiple routes and helping to stay organized during development. We might separate a json api from client facing pages for example, and want different behaviors which are common to either area.
 
 **error handler**
 
-An appropriate error handler is invoked whenever a handle throws an exception. They behave much the same as a handle but only recover from the exception and should not throw. Add them to a branch or the base of an application.
+An appropriate error handler is invoked whenever a handle throws an exception. They behave much the same as a handle but only recover from the exception and should not throw one.
 
 **renderer**
 
-An appropriate renderer is invoked whenever a handle or error handler returns a value apart from `undefined`. These behave much the same as a handle but are always the last step of a request and should deliver a response to the client. Add them to a branch or to the base of an application.
+An appropriate renderer is invoked whenever a handle or error handler returns a value apart from `undefined`. These behave much the same as a handle but are always the last step of a request and should deliver a response to the client.
 
 # Hello world!
 
@@ -66,7 +70,21 @@ createServer(app).listen(4000, () => {
 
 This example responds to all `'GET'`, and `'HEAD'` requests made to the base of our application at `'/'`. Otherwise a `404` not found error will be thrown. The reason this responds to requests at `'/'` is that is the default url for new routes.
 
-The framework comes with a built-in default error handler and some renderers. We will look at how to create our own shortly, but for now we don't need to worry about them.
+It is the equivalent of the following.
+
+```javascript
+// hello world!
+
+createRoute('GET', '/', () => {
+    return 'Hello world!';
+});
+```
+
+The framework comes with a built-in default error handler and some renderers. We will look at how to create our own shortly, but for now we don't need to worry about it.
+
+# Modules
+
+The following modules [`createHandle()`](#-createhandle), [`createRoute()`](#-createroute), [`createBranch()`](#-createbranch), [`createErrorHandler()`](#-createerrorhandler), and [`createRouter()`](#-createrouter) all are added the same way to a branch or the base of the application.
 
 # # createHandle()
 
@@ -244,7 +262,7 @@ import { createRenderer } from 'kequapp';
 
 If no content type is provided the renderer will be used for all content types.
 
-Renderers are responsible for finalizing the response to the client. It is the last stage of a request and otherwise an empty `body` will be delivered to the client.
+Renderers are responsible for finalizing the response to the client. It is the last stage of a request and otherwise an empty `body` will be delivered.
 
 There are default renderers that come built-in for both `'text/*'` and `'application/json'`, however these can be overridden by defining our own.
 
@@ -571,7 +589,7 @@ import { sendFile } from 'kequapp';
 # sendFile(res: Res, asset: string): void;
 ```
 
-Sends a file and finalizes the response immediately.
+Sends a file and finalizes the response.
 
 This is asyncronous and must be awaited otherwise the application might get confused as it continues processing the request. If a mime type is not provided the correct `'Content-Type'` header is guessed based on file extension.
 

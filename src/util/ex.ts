@@ -1,8 +1,8 @@
 import { STATUS_CODES } from 'http';
-import { TServerError } from '../types';
+import { TServerEx } from '../types';
 
 type TError = Error & { statusCode: number, info: unknown[] };
-type TStatusCode = (statusCode: number, message?: string, ...info: unknown[]) => TServerError;
+type TStatusCode = (statusCode: number, message?: string, ...info: unknown[]) => TServerEx;
 type TServerErrorHelper = (message?: string, ...info: unknown[]) => TError;
 type TEx = {
     StatusCode: (statusCode: number, message?: string, ...info: unknown[]) => TError;
@@ -56,11 +56,11 @@ const Ex: any = {
 
 function StatusCode (statusCode: number, message?: string, ...info: unknown[]) {
     if (!STATUS_CODES[statusCode]) {
-        return _buildError(StatusCode, 'Error', statusCode, message, ...info);
+        return _buildEx(StatusCode, 'Error', statusCode, message, ...info);
     }
 
     const key = createMethodName(statusCode);
-    return _buildError(StatusCode, key, statusCode, message, ...info);
+    return _buildEx(StatusCode, key, statusCode, message, ...info);
 }
 
 for (const statusCode of statusCodes) {
@@ -69,21 +69,21 @@ for (const statusCode of statusCodes) {
     const key = createMethodName(statusCode);
 
     Ex[key] = function (message?: string, ...info: unknown[]) {
-        return _buildError(Ex[key], key, statusCode, message, ...info);
+        return _buildEx(Ex[key], key, statusCode, message, ...info);
     };
 }
 
 export default Ex as TEx;
 
-function _buildError (parent: TStatusCode, name: string, statusCode: number, message?: string, ...info: unknown[]) {
-    const error = new Error(message || STATUS_CODES[statusCode]) as TServerError;
-    error.name = name;
-    error.statusCode = statusCode;
-    error.info = info.map(normalize);
+function _buildEx (parent: TStatusCode, name: string, statusCode: number, message?: string, ...info: unknown[]) {
+    const ex = new Error(message || STATUS_CODES[statusCode]) as TServerEx;
+    ex.name = name;
+    ex.statusCode = statusCode;
+    ex.info = info.map(normalize);
 
-    Error.captureStackTrace(error, parent);
+    Error.captureStackTrace(ex, parent);
 
-    return error;
+    return ex;
 }
 
 function createMethodName (statusCode: number) {
