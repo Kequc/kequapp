@@ -1,8 +1,8 @@
 <img alt="kequapp" src="https://github.com/Kequc/kequapp/blob/0.2-wip/logo.png?raw=true" width="142" height="85" />
 
-*\ `hek-yü-ap \\*
-
 Versatile, non-intrusive, tiny webapp framework
+
+*\ `hek-yü-ap \\*
 
 # Introduction
 
