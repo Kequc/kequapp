@@ -70,17 +70,15 @@ createServer(app).listen(4000, () => {
 
 This example responds to all `'GET'`, and `'HEAD'` requests made to the base of our application at `'/'`. Otherwise a `404` not found error will be thrown. The reason this responds to requests at `'/'` is that is the default url for new routes.
 
-It is equivalent to the following.
+The defaults are the same as writing the following:
 
 ```javascript
-// hello world!
-
 createRoute('GET', '/', () => {
     return 'Hello world!';
 });
 ```
 
-The framework comes with a built-in default error handler and some renderers. We will look at how to create our own shortly, but for now we don't need to worry about it.
+The framework comes with a built-in error handler and some renderers. We will look at how to create our own, but for now we don't need to worry about it.
 
 # # createHandle()
 

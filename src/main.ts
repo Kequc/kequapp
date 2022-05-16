@@ -3,8 +3,8 @@ import createGetBody from './body/create-get-body';
 import errorHandler from './built-in/error-handler';
 import jsonRenderer from './built-in/json-renderer';
 import textRenderer from './built-in/text-renderer';
-import createBranch from './router/modules/create-branch';
 import createRouter from './router/create-router';
+import createBranch from './router/modules/create-branch';
 import requestProcessor from './router/request-processor';
 import {
     IAddable,
@@ -17,10 +17,10 @@ export { default as createErrorHandler } from './router/modules/create-error-han
 export { default as createHandle } from './router/modules/create-handle';
 export { default as createRenderer } from './router/modules/create-renderer';
 export { default as createRoute } from './router/modules/create-route';
-export { default as sendFile } from './built-in/extra/send-file';
-export { default as staticFiles } from './built-in/extra/static-files';
-export { default as Ex } from './util/ex';
-export { default as inject } from './inject';
+export { default as sendFile } from './built-in/helpers/send-file';
+export { default as staticFiles } from './built-in/helpers/static-files';
+export { default as Ex } from './util/tools/ex';
+export { default as inject } from './util/tools/inject';
 export * from './types';
 
 export function createApp (...handles: THandle[]): IKequapp {

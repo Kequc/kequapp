@@ -5,7 +5,7 @@ import {
     TRendererData,
     TRouteData
 } from '../types';
-import Ex from '../util/ex';
+import Ex from '../util/tools/ex';
 
 export function findRenderer (renderers: TRendererData[], contentType: string): TRenderer {
     const renderer = renderers.find(renderer => compareContentType(renderer.contentType, contentType));

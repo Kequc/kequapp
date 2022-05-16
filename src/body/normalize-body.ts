@@ -1,5 +1,5 @@
 import { TBodyJson, TBodyJsonValue, TBodyOptions } from '../types';
-import Ex from '../util/ex';
+import Ex from '../util/tools/ex';
 
 export default function normalizeBody (body: TBodyJson, options: TBodyOptions): TBodyJson {
     if (options.skipNormalize === true) return body;

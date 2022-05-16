@@ -1,5 +1,5 @@
 import createRenderer from '../router/modules/create-renderer';
-import Ex from '../util/ex';
+import Ex from '../util/tools/ex';
 
 export default createRenderer('text/*', (payload, { req, res }) => {
     const text = generateText(payload);

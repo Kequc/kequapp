@@ -6,7 +6,7 @@ import {
     TRendererData,
     TRouteData
 } from '../types';
-import { unknownToEx } from '../util/ex';
+import { unknownToEx } from '../util/tools/ex';
 
 export async function renderRoute (collection: TAddableData, bundle: TBundle, route: TRouteData, config: TConfig): Promise<void> {
     const { routes, renderers } = collection;

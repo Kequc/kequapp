@@ -1,6 +1,6 @@
 import 'kequtest';
 import assert from 'assert';
-import inject from '../../src/inject'; // 'kequapp'
+import { inject } from '../../src/main'; // 'kequapp'
 import app from './app';
 
 it('reads parameters from the url', async () => {

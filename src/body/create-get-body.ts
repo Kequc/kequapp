@@ -7,7 +7,7 @@ import splitMultipart from './multipart/split-multipart';
 import normalizeBody from './normalize-body';
 import streamReader from './stream-reader';
 import { IGetBody, TBodyOptions, TRawPart } from '../types';
-import Ex from '../util/ex';
+import Ex from '../util/tools/ex';
 
 const parseBody = createParseBody({
     'application/x-www-form-urlencoded': parseUrlEncoded,

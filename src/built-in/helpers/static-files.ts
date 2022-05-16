@@ -2,10 +2,10 @@ import path from 'path';
 import sendFile from './send-file';
 import createRoute from '../../router/modules/create-route';
 import { IAddable, TParams, TPathname } from '../../types';
-import Ex from '../../util/ex';
 import { extractOptions, extractUrl } from '../../util/extract';
 import guessMime from '../../util/guess-mime';
 import { validateArray, validateObject, validatePathname } from '../../util/validate';
+import Ex from '../../util/tools/ex';
 
 type TStaticFilesOptions = {
     dir: TPathname;

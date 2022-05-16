@@ -1,5 +1,5 @@
 import createRenderer from '../router/modules/create-renderer';
-import Ex from '../util/ex';
+import Ex from '../util/tools/ex';
 
 export default createRenderer('application/json', (payload, { req, res }) => {
     const json = generateJson(payload);

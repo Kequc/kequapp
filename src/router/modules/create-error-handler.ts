@@ -1,16 +1,16 @@
 import {
-    IAddable,
-    TAddableData,
-    TErrorHandler,
-    TPathname
-} from '../../types';
-import {
     extractContentType,
     extractHandles,
     extractUrl,
     getParts
 } from '../../util/extract';
 import { validateExists } from '../../util/validate';
+import {
+    IAddable,
+    TAddableData,
+    TErrorHandler,
+    TPathname
+} from '../../types';
 
 interface ICreateErrorHandler {
     (contentType: string, url: TPathname, handle: TErrorHandler): IAddable;

@@ -1,7 +1,7 @@
 import assert from 'assert';
 import 'kequtest';
-import inject from '../src/inject';
-import { createApp, createRoute } from '../src/main';
+import { createApp, createRoute } from '../../../src/main';
+import inject from '../../../src/util/tools/inject';
 
 it('can return a response from the app', async () => {
     const app = createApp().add(createRoute(() => 'hello'));

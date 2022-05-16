@@ -1,5 +1,5 @@
 import { STATUS_CODES } from 'http';
-import { TServerEx } from '../types';
+import { TServerEx } from '../../types';
 
 type TServerExHelper = (message?: string, ...info: unknown[]) => TServerEx;
 type TEx = {

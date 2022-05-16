@@ -1,5 +1,7 @@
 import { ServerResponse } from 'http';
 import { renderError, renderRoute } from './actions';
+import Ex from '../util/tools/ex';
+import { getParams } from '../util/extract';
 import {
     IRouter,
     TBundle,
@@ -7,8 +9,6 @@ import {
     TRawBundle,
     TRouteData
 } from '../types';
-import Ex from '../util/ex';
-import { getParams } from '../util/extract';
 
 export default async function requestProcessor (router: IRouter, config: TConfig, raw: TRawBundle): Promise<void> {
     const { req, res, url } = raw;

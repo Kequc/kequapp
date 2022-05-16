@@ -9,7 +9,7 @@ import {
     TReqOptions,
     TRouteData
 } from '../../src/types';
-import Ex from '../../src/util/ex';
+import Ex from '../../src/util/tools/ex';
 import { FakeReq, FakeRes } from '../../src/util/fake-http';
 
 function buildBundle (options: TReqOptions): TBundle {

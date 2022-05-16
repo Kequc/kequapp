@@ -1,5 +1,5 @@
 import { TParams, TRawPart } from '../../types';
-import Ex from '../../util/ex';
+import Ex from '../../util/tools/ex';
 import headerAttributes from '../../util/header-attributes';
 
 const CR = 0x0d;
