@@ -89,6 +89,7 @@ export function unknownToEx (error: unknown): TServerEx {
     if (!(error instanceof Error)) {
         const ex = StatusCode(500, createMessage(error));
         delete ex.stack;
+
         return ex;
     }
 
@@ -96,6 +97,7 @@ export function unknownToEx (error: unknown): TServerEx {
     ex.statusCode = ex.statusCode || 500;
     ex.info = ex.info || [];
     ex.name = ex.name || createMethodName(ex.statusCode);
+
     return ex;
 }
 
@@ -108,9 +110,15 @@ function createMessage (message: unknown): string {
 }
 
 function createMethodName (statusCode: number) {
-    const message = STATUS_CODES[statusCode]!;
+    return STATUS_CODES[statusCode]!
+        .replace('\'', '')
+        .split(/[\s-]+/)
+        .map(capitalize)
+        .join('');
+}
 
-    return message.replace('\'', '').split(/[\s-]+/).map(word => word.charAt(0).toUpperCase() + word.substr(1)).join('');
+function capitalize (word: string): string {
+    return word.charAt(0).toUpperCase() + word.substring(1);
 }
 
 function normalize (value: any): any {
