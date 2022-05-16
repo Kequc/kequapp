@@ -1,88 +1,83 @@
 import { STATUS_CODES } from 'http';
 import { TServerEx } from '../types';
 
-type TStatusCode = (statusCode: number, message?: string, ...info: unknown[]) => TServerEx;
-type TServerErrorHelper = (message?: string, ...info: unknown[]) => TServerEx;
+type TServerExHelper = (message?: string, ...info: unknown[]) => TServerEx;
 type TEx = {
     StatusCode: (statusCode: number, message?: string, ...info: unknown[]) => TServerEx;
-    BadRequest: TServerErrorHelper;                      // 400
-    Unauthorized: TServerErrorHelper;                    // 401
-    PaymentRequired: TServerErrorHelper;                 // 402
-    Forbidden: TServerErrorHelper;                       // 403
-    NotFound: TServerErrorHelper;                        // 404
-    MethodNotAllowed: TServerErrorHelper;                // 405
-    NotAcceptable: TServerErrorHelper;                   // 406
-    ProxyAuthenticationRequired: TServerErrorHelper;     // 407
-    RequestTimeout: TServerErrorHelper;                  // 408
-    Conflict: TServerErrorHelper;                        // 409
-    Gone: TServerErrorHelper;                            // 410
-    LengthRequired: TServerErrorHelper;                  // 411
-    PreconditionFailed: TServerErrorHelper;              // 412
-    PayloadTooLarge: TServerErrorHelper;                 // 413
-    URITooLong: TServerErrorHelper;                      // 414
-    UnsupportedMediaType: TServerErrorHelper;            // 415
-    RangeNotSatisfiable: TServerErrorHelper;             // 416
-    ExpectationFailed: TServerErrorHelper;               // 417
-    ImATeapot: TServerErrorHelper;                       // 418
-    MisdirectedRequest: TServerErrorHelper;              // 421
-    UnprocessableEntity: TServerErrorHelper;             // 422
-    Locked: TServerErrorHelper;                          // 423
-    FailedDependency: TServerErrorHelper;                // 424
-    TooEarly: TServerErrorHelper;                        // 425
-    UpgradeRequired: TServerErrorHelper;                 // 426
-    PreconditionRequired: TServerErrorHelper;            // 428
-    TooManyRequests: TServerErrorHelper;                 // 429
-    RequestHeaderFieldsTooLarge: TServerErrorHelper;     // 431
-    UnavailableForLegalReasons: TServerErrorHelper;      // 451
-    InternalServerError: TServerErrorHelper;             // 500
-    NotImplemented: TServerErrorHelper;                  // 501
-    BadGateway: TServerErrorHelper;                      // 502
-    ServiceUnavailable: TServerErrorHelper;              // 503
-    GatewayTimeout: TServerErrorHelper;                  // 504
-    HTTPVersionNotSupported: TServerErrorHelper;         // 505
-    VariantAlsoNegotiates: TServerErrorHelper;           // 506
-    InsufficientStorage: TServerErrorHelper;             // 507
-    LoopDetected: TServerErrorHelper;                    // 508
-    BandwidthLimitExceeded: TServerErrorHelper;          // 509
-    NotExtended: TServerErrorHelper;                     // 510
-    NetworkAuthenticationRequired: TServerErrorHelper;   // 511
+    BadRequest: TServerExHelper;                      // 400
+    Unauthorized: TServerExHelper;                    // 401
+    PaymentRequired: TServerExHelper;                 // 402
+    Forbidden: TServerExHelper;                       // 403
+    NotFound: TServerExHelper;                        // 404
+    MethodNotAllowed: TServerExHelper;                // 405
+    NotAcceptable: TServerExHelper;                   // 406
+    ProxyAuthenticationRequired: TServerExHelper;     // 407
+    RequestTimeout: TServerExHelper;                  // 408
+    Conflict: TServerExHelper;                        // 409
+    Gone: TServerExHelper;                            // 410
+    LengthRequired: TServerExHelper;                  // 411
+    PreconditionFailed: TServerExHelper;              // 412
+    PayloadTooLarge: TServerExHelper;                 // 413
+    URITooLong: TServerExHelper;                      // 414
+    UnsupportedMediaType: TServerExHelper;            // 415
+    RangeNotSatisfiable: TServerExHelper;             // 416
+    ExpectationFailed: TServerExHelper;               // 417
+    ImATeapot: TServerExHelper;                       // 418
+    MisdirectedRequest: TServerExHelper;              // 421
+    UnprocessableEntity: TServerExHelper;             // 422
+    Locked: TServerExHelper;                          // 423
+    FailedDependency: TServerExHelper;                // 424
+    TooEarly: TServerExHelper;                        // 425
+    UpgradeRequired: TServerExHelper;                 // 426
+    PreconditionRequired: TServerExHelper;            // 428
+    TooManyRequests: TServerExHelper;                 // 429
+    RequestHeaderFieldsTooLarge: TServerExHelper;     // 431
+    UnavailableForLegalReasons: TServerExHelper;      // 451
+    InternalServerError: TServerExHelper;             // 500
+    NotImplemented: TServerExHelper;                  // 501
+    BadGateway: TServerExHelper;                      // 502
+    ServiceUnavailable: TServerExHelper;              // 503
+    GatewayTimeout: TServerExHelper;                  // 504
+    HTTPVersionNotSupported: TServerExHelper;         // 505
+    VariantAlsoNegotiates: TServerExHelper;           // 506
+    InsufficientStorage: TServerExHelper;             // 507
+    LoopDetected: TServerExHelper;                    // 508
+    BandwidthLimitExceeded: TServerExHelper;          // 509
+    NotExtended: TServerExHelper;                     // 510
+    NetworkAuthenticationRequired: TServerExHelper;   // 511
 };
 
-const statusCodes = Object.keys(STATUS_CODES).map(statusCode => parseInt(statusCode, 10));
-const Ex: any = {
+const Ex = {
     StatusCode,
+    ...errorHelpers()
 };
 
 function StatusCode (statusCode: number, message?: string, ...info: unknown[]) {
     if (!STATUS_CODES[statusCode]) {
-        return _buildEx(StatusCode, 'Error', statusCode, message, ...info);
+        return buildException(StatusCode, 'Error', statusCode, message, ...info);
     }
 
     const key = createMethodName(statusCode);
-    return _buildEx(StatusCode, key, statusCode, message, ...info);
-}
-
-for (const statusCode of statusCodes) {
-    if (statusCode < 400) continue;
-
-    const key = createMethodName(statusCode);
-
-    Ex[key] = function (message?: string, ...info: unknown[]) {
-        return _buildEx(Ex[key], key, statusCode, message, ...info);
-    };
+    return buildException(StatusCode, key, statusCode, message, ...info);
 }
 
 export default Ex as TEx;
 
-function _buildEx (parent: TStatusCode, name: string, statusCode: number, message?: string, ...info: unknown[]) {
-    const ex = new Error(message || STATUS_CODES[statusCode]) as TServerEx;
-    ex.name = name;
-    ex.statusCode = statusCode;
-    ex.info = info.map(normalize);
+function errorHelpers () {
+    const errorHelpers: { [key: string]: TServerExHelper } = {};
+    const statusCodes = Object.keys(STATUS_CODES).map(statusCode => parseInt(statusCode, 10));
 
-    Error.captureStackTrace(ex, parent);
+    for (const statusCode of statusCodes) {
+        if (statusCode < 400) continue;
 
-    return ex;
+        const key = createMethodName(statusCode);
+
+        errorHelpers[key] = function (message?: string, ...info: unknown[]) {
+            return buildException(errorHelpers[key], key, statusCode, message, ...info);
+        };
+    }
+
+    return errorHelpers;
 }
 
 export function unknownToEx (error: unknown): TServerEx {
@@ -119,6 +114,17 @@ function createMethodName (statusCode: number) {
 
 function capitalize (word: string): string {
     return word.charAt(0).toUpperCase() + word.substring(1);
+}
+
+function buildException (parent: any, name: string, statusCode: number, message?: string, ...info: unknown[]) {
+    const ex = new Error(message || STATUS_CODES[statusCode]) as TServerEx;
+    ex.name = name;
+    ex.statusCode = statusCode;
+    ex.info = info.map(normalize);
+
+    Error.captureStackTrace(ex, parent);
+
+    return ex;
 }
 
 function normalize (value: any): any {
