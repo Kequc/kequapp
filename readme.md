@@ -796,6 +796,4 @@ Note that `getResponse()` will not resolve until the request is finalized.
 
 # Conclusion
 
-That's it. This should be able to handle construction of complicated applications that does anything we could want. At least for version `0.2.*` I think it's okay.
-
-Please feel free to contribute or create issue tickets on the github page. Tell me what needs improvement.
+This should be able to handle construction of complicated applications that does anything we could want. Please feel free to contribute or create issue tickets on the github page. Tell me what needs improvement.
