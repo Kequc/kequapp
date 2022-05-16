@@ -70,7 +70,7 @@ function errorHelpers () {
 
         const key = createMethodName(statusCode);
 
-        errorHelpers[key] = function (message?: string, ...info: unknown[]) {
+        errorHelpers[key] = (message?: string, ...info: unknown[]) => {
             return buildException(errorHelpers[key], key, statusCode, message, ...info);
         };
     }
