@@ -557,100 +557,6 @@ We know it is safe to call `result.name.trim()` in this example because it is li
 
 The max payload size is `1e6` (approximately 1mb) by default. If this payload size is exceeded by the client the request will be terminated saving our application both memory and bandwidth. If we are absolutely sure we want to receive a payload of any size then a value of `Infinity` is accepted.
 
-# Helpers
-
-The following helper tools [`sendFile()`](#-sendfile), [`staticFiles()`](#-staticfiles), and [`Ex()`](#-ex) are included to make application development easier. They are used within handles with the exception of `staticFiles()` which returns a route.
-
-# # sendFile()
-
-```javascript
-import { sendFile } from 'kequapp';
-```
-
-```
-# sendFile(res: Res, asset: string, mime: string): void;
-# sendFile(res: Res, asset: string): void;
-```
-
-Send a file and finalize the response.
-
-This is asyncronous and must be awaited otherwise the application might get confused as it continues processing the request. If a mime type is not provided a `'Content-Type'` header is guessed from the file extension.
-
-```javascript
-// sendFile
-
-createRoute('/db.json', async ({ req, res }) => {
-    // ...etc
-    await sendFile(res, '/db/my-db.json');
-});
-```
-
-# # staticFiles()
-
-```javascript
-import { staticFiles } from 'kequapp';
-```
-
-```
-# staticFiles(url: Pathname, options = Options): Route;
-# staticFiles(options: Options): Route;
-# staticFiles(url: Pathname): Route;
-# staticFiles(): Route;
-```
-
-Pair a `url` and a given set of `options` with a directory.
-
-```javascript
-// staticFiles
-
-app.add(
-    staticFiles('/assets', {
-        dir: '/my-assets-dir',
-        exclude: ['/my-assets-dir/private'],
-        mime: {
-            '.3gp': 'audio/3gpp'
-        }
-    })
-);
-```
-
-If no `dir` is specified then `'/public'` is used by default. Exclusions can be provided if we want to ignore some files or directories using `exclude`.
-
-A `'Content-Type'` header is guessed based on the file extension. If there are files in the directory with unusual file extensions then additional `mime` types can be added.
-
-# # Ex.()
-
-```javascript
-import { Ex } from 'kequapp';
-```
-
-```
-# Ex.<NAME>(message: string, ...info: unknown[]): new Error;
-# Ex.<NAME>(message: string): new Error;
-# Ex.<NAME>(): new Error;
-
-# Ex.StatusCode(statusCode: number, message: string, ...info: unknown[]): new Error;
-# Ex.StatusCode(statusCode: number, message: string): new Error;
-# Ex.StatusCode(statusCode: number): new Error;
-```
-
-An unhandled exception from our application results in a `500` internal server error. If we would like an error with a different status code there is a helper tool.
-
-```javascript
-// Ex
-
-createRoute('/throw-error', () => {
-    throw Ex.NotFound();
-    throw Ex.NotFound('Custom message', { extra: 'info' });
-
-    // same as
-    throw Ex.StatusCode(404);
-    throw Ex.StatusCode(404, 'Custom message', { extra: 'info' });
-});
-```
-
-This makes it easy to utilize any status code `400` and above. These methods create errors with correct stacktraces there is no reason to use `new`.
-
 # CORS and `OPTIONS` requests
 
 CORS behavior is managed by headers as shaped by handles. The framework will automatically add default headers we can use for basic support.
@@ -715,6 +621,105 @@ createRoute('GET', '/api/users', ({ req }) => {
 In most cases `HEAD` and `GET` requests should run the same code, so we have nothing to worry about. Detection of `HEAD` requests is already handled by the renderers that are built-in to the framework. Largely what will happen is no body will be sent to the client, which is what a `HEAD` request wanted.
 
 Occasionally we may need to differentiate between the two as it is generally understood that a `HEAD` request does not modify data. In this case looking at the value of `req.method` can be useful.
+
+# Helpers
+
+The following helper tools [`sendFile()`](#-sendfile), and [`staticFiles()`](#-staticfiles) are included to make application development easier.
+
+# # sendFile()
+
+```javascript
+import { sendFile } from 'kequapp';
+```
+
+```
+# sendFile(res: Res, asset: string, mime: string): void;
+# sendFile(res: Res, asset: string): void;
+```
+
+Send a file and finalize the response.
+
+This is asyncronous and must be awaited otherwise the application might get confused as it continues processing the request. If a mime type is not provided a `'Content-Type'` header is guessed from the file extension.
+
+```javascript
+// sendFile
+
+createRoute('/db.json', async ({ req, res }) => {
+    // ...etc
+    await sendFile(res, '/db/my-db.json');
+});
+```
+
+# # staticFiles()
+
+```javascript
+import { staticFiles } from 'kequapp';
+```
+
+```
+# staticFiles(url: Pathname, options = Options): Route;
+# staticFiles(options: Options): Route;
+# staticFiles(url: Pathname): Route;
+# staticFiles(): Route;
+```
+
+Pair a `url` and a given set of `options` with a directory.
+
+```javascript
+// staticFiles
+
+app.add(
+    staticFiles('/assets', {
+        dir: '/my-assets-dir',
+        exclude: ['/my-assets-dir/private'],
+        mime: {
+            '.3gp': 'audio/3gpp'
+        }
+    })
+);
+```
+
+If no `dir` is specified then `'/public'` is used by default. Exclusions can be provided if we want to ignore some files or directories using `exclude`.
+
+A `'Content-Type'` header is guessed based on the file extension. If there are files in the directory with unusual file extensions then additional `mime` types can be added.
+
+# Utilities
+
+The following utilities [`Ex()`](#-ex), and [`inject()`](#-inject) are used commonly across your application. They are essential for building a well working app.
+
+
+# # Ex.()
+
+```javascript
+import { Ex } from 'kequapp';
+```
+
+```
+# Ex.<NAME>(message: string, ...info: unknown[]): new Error;
+# Ex.<NAME>(message: string): new Error;
+# Ex.<NAME>(): new Error;
+
+# Ex.StatusCode(statusCode: number, message: string, ...info: unknown[]): new Error;
+# Ex.StatusCode(statusCode: number, message: string): new Error;
+# Ex.StatusCode(statusCode: number): new Error;
+```
+
+An unhandled exception from our application results in a `500` internal server error. If we would like an error with a different status code there is a helper tool.
+
+```javascript
+// Ex
+
+createRoute('/throw-error', () => {
+    throw Ex.NotFound();
+    throw Ex.NotFound('Custom message', { extra: 'info' });
+
+    // same as
+    throw Ex.StatusCode(404);
+    throw Ex.StatusCode(404, 'Custom message', { extra: 'info' });
+});
+```
+
+This makes it easy to utilize any status code `400` and above. These methods create errors with correct stacktraces there is no reason to use `new`.
 
 # # inject()
 
