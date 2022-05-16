@@ -171,10 +171,9 @@ describe('renderError', () => {
             errorHandlers: [{
                 parts: [],
                 contentType: '*',
-                handle (error, { res }) {
-                    res.statusCode = (error as any).statusCode || 500;
+                handle (ex, { res }) {
                     res.setHeader('Content-Type', 'text/plain');
-                    res.end((error as any).message);
+                    res.end(ex.message);
                 }
             }]
         };

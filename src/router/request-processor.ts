@@ -16,7 +16,7 @@ export default async function requestProcessor (router: IRouter, config: TConfig
     const pathname = url.pathname;
 
     const collection = router(pathname);
-    const route = findRoute(collection.routes, config, method);
+    const route = findRoute(config, collection.routes, method);
     const bundle: TBundle = Object.freeze({
         ...raw,
         params: getParams(pathname, route),
@@ -48,11 +48,11 @@ export default async function requestProcessor (router: IRouter, config: TConfig
     }
 }
 
-function findRoute (routes: TRouteData[], config: TConfig, method: string): TRouteData | undefined {
+function findRoute (config: TConfig, routes: TRouteData[], method: string): TRouteData | undefined {
     const route = routes.find(route => route.method === method);
 
-    if (!route && config.autoHead && method === 'HEAD') {
-        return findRoute(routes, config, 'GET');
+    if (config.autoHead && !route && method === 'HEAD') {
+        return findRoute(config, routes, 'GET');
     }
 
     return route;
@@ -61,7 +61,7 @@ function findRoute (routes: TRouteData[], config: TConfig, method: string): TRou
 function cleanup (res: ServerResponse, statusCode: number): void {
     if (!res.writableEnded) {
         res.statusCode = statusCode;
-        res.setHeader('Content-Length', 0);
+        if (!res.getHeader('Content-Length')) res.setHeader('Content-Length', 0);
         res.end();
     }
 }

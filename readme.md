@@ -43,7 +43,7 @@ Used for distributing behavior across multiple routes and helping to stay organi
 
 **error handler**
 
-An appropriate error handler is invoked whenever a handle throws an exception. They behave much the same as a handle but only recover from the exception and should not throw one.
+An appropriate error handler is invoked whenever a handle throws an exception. They behave much the same as a handle but should not throw an exception.
 
 **renderer**
 
@@ -70,7 +70,7 @@ createServer(app).listen(4000, () => {
 
 This example responds to all `'GET'`, and `'HEAD'` requests made to the base of our application at `'/'`. Otherwise a `404` not found error will be thrown. The reason this responds to requests at `'/'` is that is the default url for new routes.
 
-It is the equivalent of the following.
+It is equivalent to the following.
 
 ```javascript
 // hello world!
@@ -82,10 +82,6 @@ createRoute('GET', '/', () => {
 
 The framework comes with a built-in default error handler and some renderers. We will look at how to create our own shortly, but for now we don't need to worry about it.
 
-# Modules
-
-The following modules [`createHandle()`](#-createhandle), [`createRoute()`](#-createroute), [`createBranch()`](#-createbranch), [`createErrorHandler()`](#-createerrorhandler), and [`createRouter()`](#-createrouter) are all added the same way to a branch or the base of the application.
-
 # # createHandle()
 
 ```javascript
@@ -96,7 +92,7 @@ import { createHandle } from 'kequapp';
 # createHandle(handle: Handle): Handle;
 ```
 
-This is useful for building handles that exist outside of any scope, for example in another file. This conveniently provides types if we are using TypeScript, otherwise it is the same as simply creating a function.
+This is useful for building handles that exist outside of any scope, for example in another file. This provides types if we are using TypeScript.
 
 ```javascript
 // createHandle
@@ -114,9 +110,27 @@ const loggedIn = createHandle(({ req, context }) => {
 });
 ```
 
-Handles can be asyncronous and when used always run in sequence.
-
 In these examples the `json` handle sets `'Content-Type'` to `'application/json'`, and the `loggedIn` handle checks for an `authorization` header from the client.
+
+Handles can be asyncronous.
+
+# Modules
+
+The following modules [`createRoute()`](#-createroute), [`createBranch()`](#-createbranch), [`createErrorHandler()`](#-createerrorhandler), and [`createRouter()`](#-createrouter) are all added the same way to a branch or the base of the application.
+
+All can be added in any order, they are rearranged and organized by the framework based on specificity.
+
+```
+'/icecream'
+'/icecream/special_offers'
+'/icecream/:flavor'
+'/icecream/:flavor/toppings'
+'/icecream/:flavor/**'
+'/locations'
+'/**'
+```
+
+The more specific the url the more likely it will be chosen.
 
 # # createRoute()
 
@@ -138,7 +152,7 @@ When provided the url must always start with `'/'`.
 ```javascript
 // createRoute
 
-createRoute('POST', '/admin/user', loggedIn, () => {
+createRoute('POST', '/admin/users', loggedIn, () => {
     // do something here
 
     return `User created!`;
@@ -160,14 +174,14 @@ import { createBranch } from 'kequapp';
 
 A branch of the application will cause routes to adopt the given url and handles.
 
-Every branch of our application exposes `add()`. This is an important function used to extend the branch with functionality. Usually this will be a route, another branch, an error handler, or renderer. All can be added in any order, they are rearranged and organized by the framework.
+Every branch of our application exposes `add()`. This is an important function used to extend the branch with functionality. Usually this will be a route, another branch, an error handler, or renderer.
 
 ```javascript
 // createBranch
 
 createBranch().add(
     createBranch('/api', json).add(
-        createBranch('/user').add(
+        createBranch('/users').add(
             createRoute(() => {
                 return { result: [] };
             }),
@@ -189,8 +203,8 @@ Routes beginning with `'/api'` are returning `'application/json'` formatted resp
 Routes beginning with `'/admin'` require the user to be logged in. Three routes are defined in the example and therefore our endpoints are the following:
 
 ```
-GET /api/user
-GET /api/user/:id
+GET /api/users
+GET /api/users/:id
 GET /admin/dashboard
 ```
 
@@ -200,7 +214,7 @@ The example is verbose. We can omit the `'/api'` branch because it only exposes 
 // createBranch
 
 createBranch().add(
-    createBranch('/api/user', json).add(
+    createBranch('/api/users', json).add(
         createRoute(() => {
             return { result: [] };
         }),
@@ -307,7 +321,7 @@ const authenticated = createHandle(({ req, res }) => {
     }
 });
 
-createRoute('/api/user', authenticated, json, () => {
+createRoute('/api/users', authenticated, json, () => {
     // returning a value invokes a renderer
     return {
         users: [{ name: 'April' }, { name: 'Leo' }]
@@ -355,7 +369,7 @@ Maybe authentication details, a user object, or any data that's used in other pl
 
 * **`params`**
 
-When defining a route we can specify parameters to extract by prefixing a colon `'/:'` character in the url. If we specify a route such as `'/user/:userId'` we will have a parameter called `'userId'`. Use a double asterix `'/**'` to accept anything for the remainder of the url.
+When defining a route we can specify parameters to extract by prefixing a colon `'/:'` character in the url. If we specify a route such as `'/users/:userId'` we will have a parameter called `'userId'`. Use a double asterix `'/**'` to accept anything for the remainder of the url.
 
 Param values are always a string.
 
@@ -372,7 +386,7 @@ It is not necessary to wait for the request to finish before we begin processing
 ```javascript
 // getBody
 
-createRoute('POST', '/user', async ({ getBody }) => {
+createRoute('POST', '/users', async ({ getBody }) => {
     const body = await getBody();
 
     // body ~= {
@@ -480,7 +494,7 @@ When a `numbers` field is also an `arrays` field the array is all numbers.
 
 * **`booleans`**
 
-The provided list of fields are converted into `false` if the value is falsy, `'0'`, or `'false'`, otherwise `true`. When a `booleans` field is also an `arrays` field the array is all booleans.
+The provided list of fields are converted into `false` if the value is falsy, `'0'`, or `'false'`, otherwise `true`. When a `booleans` field is also an `arrays` field the array is all booleans. When a `booleans` field is also a `numbers` field the value is first converted to a number and then to a boolean this is not recommended.
 
 * **`validate`**
 

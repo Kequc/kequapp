@@ -110,6 +110,28 @@ it('ignores head routes when autoHead false', async () => {
     assert.deepStrictEqual(result, 'Not Found');
 });
 
+it('finalizes response when stream not ended', async () => {
+    const branchData: TAddableData = {
+        routes: [{
+            parts: [],
+            handles: [({ res }) => {
+                res.write('oops');
+            }],
+            method: 'GET'
+        }],
+        renderers: [],
+        errorHandlers: []
+    };
+
+    const { res, getResponse } = process(branchData, { url: '/' });
+    const result = await getResponse();
+
+    assert.strictEqual(res.statusCode, 204);
+    assert.strictEqual(res.getHeader('Content-Type'), 'text/plain');
+    assert.strictEqual(res.getHeader('Content-Length'), 0);
+    assert.strictEqual(result, 'oops');
+});
+
 it('renders 204 when no body', async () => {
     const branchData: TAddableData = {
         routes: [{
@@ -126,5 +148,6 @@ it('renders 204 when no body', async () => {
 
     assert.strictEqual(res.statusCode, 204);
     assert.strictEqual(res.getHeader('Content-Type'), 'text/plain');
+    assert.strictEqual(res.getHeader('Content-Length'), 0);
     assert.strictEqual(result, '');
 });
