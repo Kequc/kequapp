@@ -130,7 +130,7 @@ All can be added in any order, they are rearranged and organized by the framewor
 '/**'
 ```
 
-The more specific the url the more likely it will be chosen.
+The more specific the url the higher the priority.
 
 # # createRoute()
 
@@ -557,6 +557,10 @@ We know it is safe to call `result.name.trim()` in this example because it is li
 
 The max payload size is `1e6` (approximately 1mb) by default. If this payload size is exceeded by the client the request will be terminated saving our application both memory and bandwidth. If we are absolutely sure we want to receive a payload of any size then a value of `Infinity` is accepted.
 
+# Helpers
+
+The following tools [`sendFile()`](#-sendfile), [`staticFiles()`](#-staticfiles), and [`Ex()`](#-ex) are included to make application development easier. They are used within handles with the exception of `staticFiles()` which returns a route.
+
 # # sendFile()
 
 ```javascript
@@ -568,9 +572,9 @@ import { sendFile } from 'kequapp';
 # sendFile(res: Res, asset: string): void;
 ```
 
-Sends a file and finalizes the response.
+Send a file and finalize the response.
 
-This is asyncronous and must be awaited otherwise the application might get confused as it continues processing the request. If a mime type is not provided the correct `'Content-Type'` header is guessed based on file extension.
+This is asyncronous and must be awaited otherwise the application might get confused as it continues processing the request. If a mime type is not provided a `'Content-Type'` header is guessed from the file extension.
 
 ```javascript
 // sendFile
@@ -612,7 +616,7 @@ app.add(
 
 If no `dir` is specified then `'/public'` is used by default. Exclusions can be provided if we want to ignore some files or directories using `exclude`.
 
-The correct `'Content-Type'` header is guessed based on file extension. If there are files in the directory with unusual file extensions then additional `mime` types can be added.
+A `'Content-Type'` header is guessed based on the file extension. If there are files in the directory with unusual file extensions then additional `mime` types can be added.
 
 # # Ex.()
 
