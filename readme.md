@@ -559,7 +559,7 @@ The max payload size is `1e6` (approximately 1mb) by default. If this payload si
 
 # Helpers
 
-The following tools [`sendFile()`](#-sendfile), [`staticFiles()`](#-staticfiles), and [`Ex()`](#-ex) are included to make application development easier. They are used within handles with the exception of `staticFiles()` which returns a route.
+The following helper tools [`sendFile()`](#-sendfile), [`staticFiles()`](#-staticfiles), and [`Ex()`](#-ex) are included to make application development easier. They are used within handles with the exception of `staticFiles()` which returns a route.
 
 # # sendFile()
 
