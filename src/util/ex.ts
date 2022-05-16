@@ -61,8 +61,6 @@ function StatusCode (statusCode: number, message?: string, ...info: unknown[]) {
     return buildException(StatusCode, key, statusCode, message, ...info);
 }
 
-export default Ex as TEx;
-
 function errorHelpers () {
     const errorHelpers: { [key: string]: TServerExHelper } = {};
     const statusCodes = Object.keys(STATUS_CODES).map(statusCode => parseInt(statusCode, 10));
@@ -79,6 +77,8 @@ function errorHelpers () {
 
     return errorHelpers;
 }
+
+export default Ex as TEx;
 
 export function unknownToEx (error: unknown): TServerEx {
     if (!(error instanceof Error)) {
