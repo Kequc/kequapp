@@ -105,7 +105,7 @@ function createMessage (message: unknown): string {
 }
 
 function createMethodName (statusCode: number) {
-    return STATUS_CODES[statusCode]!
+    return (STATUS_CODES[statusCode] || 'Error')
         .replace('\'', '')
         .split(/[\s-]+/)
         .map(capitalize)
