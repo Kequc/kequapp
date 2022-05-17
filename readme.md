@@ -622,7 +622,7 @@ Occasionally we may need to differentiate between the two as it is generally und
 
 # Helpers
 
-The following helper tools [`sendFile()`](#-sendfile), and [`staticFiles()`](#-staticfiles) are included to make application development easier.
+The following helper tools [`sendFile()`](#-sendfile), and [`staticFiles()`](#-staticfiles) are included to make development of common features easier.
 
 # # sendFile()
 
@@ -683,7 +683,7 @@ A `'Content-Type'` header is guessed based on the file extension. If there are f
 
 # Utilities
 
-The following utilities [`Ex()`](#-ex), and [`inject()`](#-inject) are used commonly across your application. They are essential for building a well working app.
+The following utilities [`Ex()`](#-ex), and [`inject()`](#-inject) are used throughout your application. They are almost essential for building a well working app.
 
 
 # # Ex.()
@@ -794,4 +794,4 @@ Note that `getResponse()` will not resolve until the request is finalized.
 
 # Conclusion
 
-This should be able to handle construction of complicated applications that does anything we could want. Please feel free to contribute or create issue tickets on the github page. Tell me what needs improvement.
+This should be able to handle construction of complicated applications that does anything we could want. Please feel free to contribute or create issue tickets on the github page.
