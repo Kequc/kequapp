@@ -31,15 +31,17 @@ export default async function requestProcessor (router: IRouter, config: TConfig
 
         await renderRoute(collection, bundle, route, config);
 
-        cleanup(res, 204);
+        cleanup(res);
     } catch (error) {
         try {
             await renderError(collection, bundle, error);
         } catch (fatalError) {
+            res.statusCode = 500;
+
             console.error(fatalError);
         }
 
-        cleanup(res, 500);
+        cleanup(res);
     }
 
     if (!config.silent) {
@@ -58,10 +60,8 @@ function findRoute (config: TConfig, routes: TRouteData[], method: string): TRou
     return route;
 }
 
-function cleanup (res: ServerResponse, statusCode: number): void {
+function cleanup (res: ServerResponse): void {
     if (!res.writableEnded) {
-        res.statusCode = statusCode;
-        if (!res.getHeader('Content-Length')) res.setHeader('Content-Length', 0);
         res.end();
     }
 }

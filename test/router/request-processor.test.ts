@@ -126,28 +126,7 @@ it('finalizes response when stream not ended', async () => {
     const { res, getResponse } = process(branchData, { url: '/' });
     const result = await getResponse();
 
-    assert.strictEqual(res.statusCode, 204);
+    assert.strictEqual(res.statusCode, 200);
     assert.strictEqual(res.getHeader('Content-Type'), 'text/plain');
-    assert.strictEqual(res.getHeader('Content-Length'), 0);
     assert.strictEqual(result, 'oops');
-});
-
-it('renders 204 when no body', async () => {
-    const branchData: TAddableData = {
-        routes: [{
-            parts: [],
-            handles: [],
-            method: 'GET'
-        }],
-        renderers: [],
-        errorHandlers: []
-    };
-
-    const { res, getResponse } = process(branchData, { url: '/' });
-    const result = await getResponse();
-
-    assert.strictEqual(res.statusCode, 204);
-    assert.strictEqual(res.getHeader('Content-Type'), 'text/plain');
-    assert.strictEqual(res.getHeader('Content-Length'), 0);
-    assert.strictEqual(result, '');
 });

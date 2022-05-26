@@ -14,14 +14,18 @@ export async function renderRoute (collection: TAddableData, bundle: TBundle, ro
     const handles = route.handles;
     let payload: unknown = undefined;
 
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'text/plain');
-
     if (routes.some(route => route.method === 'OPTIONS')) {
         res.setHeader('Access-Control-Allow-Origin', '*');
     }
+
     if (route.method === 'OPTIONS') {
-        defaultOptions(routes, bundle, config);
+        res.statusCode = 204;
+        res.setHeader('Content-Length', 0);
+
+        addOptionsHeaders(getAllowMethods(routes, config), bundle);
+    } else {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'text/plain');
     }
 
     for (const handle of handles) {
@@ -65,16 +69,13 @@ function getContentType ({ res }: TBundle): string {
     return String(res.getHeader('Content-Type') || 'text/plain');
 }
 
-function defaultOptions (routes: TRouteData[], bundle: TBundle, config: TConfig): void {
-    const { req, res } = bundle;
+function addOptionsHeaders (allowMethods: string, { req, res }: TBundle): void {
+    const allowHeaders = req.headers['access-control-request-headers'];
 
-    const allowMethods = getAllowMethods(routes, config);
     if (allowMethods) {
         res.setHeader('Valid', allowMethods);
         res.setHeader('Access-Control-Allow-Methods', allowMethods);
     }
-
-    const allowHeaders = req.headers['access-control-request-headers'];
     if (allowHeaders) {
         res.setHeader('Access-Control-Allow-Headers', allowHeaders);
     }

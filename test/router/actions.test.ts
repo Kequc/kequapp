@@ -41,9 +41,11 @@ describe('renderRoute', () => {
             renderers: [],
             errorHandlers: []
         };
-        const config = { silent: false, autoHead: true };
 
-        await renderRoute(collection, bundle, route, config);
+        await renderRoute(collection, bundle, route, {
+            silent: false,
+            autoHead: true
+        });
 
         const { res } = bundle;
 
@@ -75,9 +77,11 @@ describe('renderRoute', () => {
             renderers: [],
             errorHandlers: []
         };
-        const config = { silent: false, autoHead: true };
 
-        await renderRoute(collection, bundle, route, config);
+        await renderRoute(collection, bundle, route, {
+            silent: false,
+            autoHead: true
+        });
 
         const { res } = bundle;
 
@@ -111,15 +115,17 @@ describe('renderRoute', () => {
             renderers: [],
             errorHandlers: []
         };
-        const config = { silent: false, autoHead: true };
 
-        await renderRoute(collection, bundle, route, config);
+        await renderRoute(collection, bundle, route, {
+            silent: false,
+            autoHead: true
+        });
 
         const { res } = bundle;
 
         assert.strictEqual(res.getHeader('Access-Control-Allow-Origin'), '*');
-        assert.strictEqual(res.statusCode, 200);
-        assert.strictEqual(res.getHeader('Content-Type'), 'text/plain');
+        assert.strictEqual(res.statusCode, 204);
+        assert.strictEqual(res.getHeader('Content-Length'), 0);
         assert.strictEqual(res.getHeader('Valid'), 'GET, HEAD, OPTIONS');
         assert.strictEqual(res.getHeader('Access-Control-Allow-Methods'), 'GET, HEAD, OPTIONS');
         assert.strictEqual(res.getHeader('Access-Control-Allow-Headers'), 'X-PINGOTHER, Content-Type');
@@ -147,15 +153,17 @@ describe('renderRoute', () => {
             renderers: [],
             errorHandlers: []
         };
-        const config = { silent: false, autoHead: false };
 
-        await renderRoute(collection, bundle, route, config);
+        await renderRoute(collection, bundle, route, {
+            silent: false,
+            autoHead: false
+        });
 
         const { res } = bundle;
 
         assert.strictEqual(res.getHeader('Access-Control-Allow-Origin'), '*');
-        assert.strictEqual(res.statusCode, 200);
-        assert.strictEqual(res.getHeader('Content-Type'), 'text/plain');
+        assert.strictEqual(res.statusCode, 204);
+        assert.strictEqual(res.getHeader('Content-Length'), 0);
         assert.strictEqual(res.getHeader('Valid'), 'GET, OPTIONS');
         assert.strictEqual(res.getHeader('Access-Control-Allow-Methods'), 'GET, OPTIONS');
         assert.strictEqual(res.getHeader('Access-Control-Allow-Headers'), 'X-PINGOTHER, Content-Type');

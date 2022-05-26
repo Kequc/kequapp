@@ -569,11 +569,11 @@ createApp().add(
 );
 ```
 
-The framework automatically attaches three additional headers to `OPTIONS` responses.
+The framework automatically attaches four additional headers to `OPTIONS` responses.
 
-`'Valid'` and `'Access-Control-Allow-Methods'` will correctly identify all methods available at the requested url. `'Access-Control-Allow-Headers'` will return headers that the client specified.
+`'Valid'` and `'Access-Control-Allow-Methods'` will correctly identify all methods available at the requested url. `'Access-Control-Allow-Headers'` will return headers that the client specified. `'Content-Length'` will be 0.
 
-To change this behavior or add more headers to `OPTIONS` responses we include a handle with our route.
+In addition the default response code for `OPTIONS` requests is `204`. To change any of this behavior or add more headers to `OPTIONS` responses we use a handle.
 
 ```javascript
 // CORS
