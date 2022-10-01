@@ -77,10 +77,11 @@ export type TBundle = {
     url: URL;
     context: TBundleContext;
     params: TParams;
+    methods: string[];
     getBody: IGetBody;
 };
 
-export type TRawBundle = Omit<TBundle, 'params' | 'context'>;
+export type TRawBundle = Omit<TBundle, 'params' | 'context' | 'methods'>;
 
 export type TBundleContext = {
     [k: string]: unknown;

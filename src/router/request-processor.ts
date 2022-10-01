@@ -20,6 +20,7 @@ export default async function requestProcessor (router: IRouter, config: TConfig
     const bundle: TBundle = Object.freeze({
         ...raw,
         params: getParams(pathname, route),
+        methods: getMethods(config, collection.routes),
         context: {}
     });
 
@@ -58,6 +59,14 @@ function findRoute (config: TConfig, routes: TRouteData[], method: string): TRou
     }
 
     return route;
+}
+
+function getMethods (config: TConfig, routes: TRouteData[]): string[] {
+    const result = new Set(routes.map(route => route.method));
+
+    if (config.autoHead && result.has('GET')) result.add('HEAD');
+
+    return [...result].sort();
 }
 
 function cleanup (res: ServerResponse): void {

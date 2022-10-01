@@ -9,12 +9,12 @@ import {
 import { unknownToEx } from '../util/tools/ex';
 
 export async function renderRoute (collection: TAddableData, bundle: TBundle, route: TRouteData, config: TConfig): Promise<void> {
-    const { routes, renderers } = collection;
+    const { renderers } = collection;
     const { res } = bundle;
     const handles = route.handles;
     let payload: unknown = undefined;
 
-    if (routes.some(route => route.method === 'OPTIONS')) {
+    if (bundle.methods.includes('OPTIONS')) {
         res.setHeader('Access-Control-Allow-Origin', '*');
     }
 
@@ -22,7 +22,7 @@ export async function renderRoute (collection: TAddableData, bundle: TBundle, ro
         res.statusCode = 204;
         res.setHeader('Content-Length', 0);
 
-        addOptionsHeaders(getAllowMethods(routes, config), bundle);
+        addOptionsHeaders(bundle);
     } else {
         res.statusCode = 200;
         res.setHeader('Content-Type', 'text/plain');
@@ -69,7 +69,8 @@ function getContentType ({ res }: TBundle): string {
     return String(res.getHeader('Content-Type') || 'text/plain');
 }
 
-function addOptionsHeaders (allowMethods: string, { req, res }: TBundle): void {
+function addOptionsHeaders ({ req, res, methods }: TBundle): void {
+    const allowMethods = methods.join(', ');
     const allowHeaders = req.headers['access-control-request-headers'];
 
     if (allowMethods) {
@@ -79,11 +80,4 @@ function addOptionsHeaders (allowMethods: string, { req, res }: TBundle): void {
     if (allowHeaders) {
         res.setHeader('Access-Control-Allow-Headers', allowHeaders);
     }
-}
-
-function getAllowMethods (routes: TRouteData[], config: TConfig): string {
-    const result = new Set(routes.map(route => route.method));
-    if (config.autoHead && result.has('GET')) result.add('HEAD');
-
-    return [...result].sort().join(', ');
 }

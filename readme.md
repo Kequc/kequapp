@@ -1,12 +1,12 @@
 <img alt="kequapp" src="https://github.com/Kequc/kequapp/blob/0.2-wip/logo.png?raw=true" width="142" height="85" />
 
-Versatile, non-intrusive, tiny webapp framework
+Versatile, non-intrusive webapp framework
 
 *\ `hek-yü-ap \\*
 
 # Introduction
 
-This framework manages three stages of a request first handling the route, then errors, and finally rendering a response to the client. Each step is as non-obtrusive as possible, so that we can focus on creating applications from Node's features unchanged.
+This framework manages three stages of a request separately. First the route, then handling errors if they come up, and finally rendering a response to the client. Each step is as non-obtrusive as possible, so that we can focus on creating applications using Node's built in features.
 
 Intended to be easy to learn and use.
 
@@ -18,9 +18,8 @@ Intended to be easy to learn and use.
 * Static file serving
 * Async await everywhere
 * Does not modify node features or functionality
-* Any request and any response
+* Handle any request and return any response
 * Unit testing tool
-* Fast
 * No dependencies <3
 
 ```
@@ -359,6 +358,10 @@ createRoute('/hotels', ({ url }) => {
 });
 ```
 
+* **`methods`**
+
+An array of methods available in our app at the current url.
+
 * **`context`**
 
 A place to store variables derived by handles, we might use these variables elsewhere in our code. Changes can be made here whenever we want and it may be populated with anything.
@@ -593,14 +596,18 @@ The simplest place to override `'Access-Control-Allow-Origin'` is at the base of
 ```javascript
 // CORS
 
-const strictCors = createHandle(({ res }) => {
-    res.setHeader('Access-Control-Allow-Origin', 'https://foo.com');
+const strictCors = createHandle(({ res, methods }) => {
+    if (methods.includes('OPTIONS')) {
+        res.setHeader('Access-Control-Allow-Origin', 'https://foo.com');
+    }
 });
 
 createApp(strictCors);
 ```
 
-This would cause all responses to include `'Access-Control-Allow-Origin'` even if there is no `OPTIONS` route, one should be included for the mechanism to work correctly. Please see the [MDN documentation on CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) for more information about headers and expected behavior.
+This would cause all responses to include `'Access-Control-Allow-Origin'` but only if there is an `OPTIONS` route, one should be included for the mechanism to work correctly.
+
+Please see the [MDN documentation on CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) for more information and which headers the browser expects to see.
 
 # `HEAD` requests
 
@@ -619,6 +626,14 @@ createRoute('GET', '/api/users', ({ req }) => {
 In most cases `HEAD` and `GET` requests should run the same code, so we have nothing to worry about. Detection of `HEAD` requests is already handled by the renderers that are built-in to the framework. Largely what will happen is no body will be sent to the client, which is what a `HEAD` request wanted.
 
 Occasionally we may need to differentiate between the two as it is generally understood that a `HEAD` request does not modify data. In this case looking at the value of `req.method` can be useful.
+
+# Config options
+
+There are a few simple configuration options that can be used by modifying the `app.config` object directly.
+
+Silent disables all logging `app.config.silent = true;`.
+
+Auto head allows the application to run a matching `GET` handler when a corresponding `HEAD` handler is not found, this is enabled by default. `app.config.autoHead = false;`.
 
 # Helpers
 

@@ -16,7 +16,7 @@ import {
     validateType
 } from '../../util/validate';
 
-const OPTIONS = {
+const OPTIONS: TRouteData = {
     parts: ['**'],
     handles: [],
     method: 'OPTIONS'
@@ -33,7 +33,7 @@ function createBranch (...params: unknown[]): IAddableBranch {
     const parts = getParts(extractUrl(params));
     const handles = extractHandles<THandle>(params);
 
-    // we don't want wild
+    // branches can't be wild
     if (parts.includes('**')) parts.pop();
 
     const routes: TRouteData[] = [];
@@ -45,15 +45,15 @@ function createBranch (...params: unknown[]): IAddableBranch {
             routes: [...routes, OPTIONS].map(route => ({
                 ...route,
                 parts: [...parts, ...route.parts],
-                handles: [...handles, ...route.handles],
+                handles: [...handles, ...route.handles]
             })),
             renderers: renderers.map(renderer => ({
                 ...renderer,
-                parts: [...parts, ...renderer.parts],
+                parts: [...parts, ...renderer.parts]
             })),
             errorHandlers: errorHandlers.map(errorHandler => ({
                 ...errorHandler,
-                parts: [...parts, ...errorHandler.parts],
+                parts: [...parts, ...errorHandler.parts]
             }))
         };
     }

@@ -22,7 +22,8 @@ function buildBundle (options: TReqOptions): TBundle {
         url: new URL('http://fake.domain'),
         getBody: createGetBody(req),
         context: {},
-        params: {}
+        params: {},
+        methods: []
     };
 }
 
@@ -78,6 +79,8 @@ describe('renderRoute', () => {
             errorHandlers: []
         };
 
+        bundle.methods.push('GET', 'HEAD', 'OPTIONS');
+
         await renderRoute(collection, bundle, route, {
             silent: false,
             autoHead: true
@@ -116,6 +119,8 @@ describe('renderRoute', () => {
             errorHandlers: []
         };
 
+        bundle.methods.push('GET', 'HEAD', 'OPTIONS');
+
         await renderRoute(collection, bundle, route, {
             silent: false,
             autoHead: true
@@ -128,44 +133,6 @@ describe('renderRoute', () => {
         assert.strictEqual(res.getHeader('Content-Length'), 0);
         assert.strictEqual(res.getHeader('Valid'), 'GET, HEAD, OPTIONS');
         assert.strictEqual(res.getHeader('Access-Control-Allow-Methods'), 'GET, HEAD, OPTIONS');
-        assert.strictEqual(res.getHeader('Access-Control-Allow-Headers'), 'X-PINGOTHER, Content-Type');
-    });
-
-    it('ignored head when autoHead is set to false', async () => {
-        const route: TRouteData = {
-            parts: [],
-            handles: [],
-            method: 'OPTIONS'
-        };
-        const bundle = buildBundle({
-            url: '/',
-            method: 'OPTIONS',
-            headers: {
-                'access-control-request-headers': 'X-PINGOTHER, Content-Type'
-            }
-        });
-        const collection: TAddableData = {
-            routes: [route, {
-                parts: [],
-                handles: [],
-                method: 'GET'
-            }],
-            renderers: [],
-            errorHandlers: []
-        };
-
-        await renderRoute(collection, bundle, route, {
-            silent: false,
-            autoHead: false
-        });
-
-        const { res } = bundle;
-
-        assert.strictEqual(res.getHeader('Access-Control-Allow-Origin'), '*');
-        assert.strictEqual(res.statusCode, 204);
-        assert.strictEqual(res.getHeader('Content-Length'), 0);
-        assert.strictEqual(res.getHeader('Valid'), 'GET, OPTIONS');
-        assert.strictEqual(res.getHeader('Access-Control-Allow-Methods'), 'GET, OPTIONS');
         assert.strictEqual(res.getHeader('Access-Control-Allow-Headers'), 'X-PINGOTHER, Content-Type');
     });
 });
