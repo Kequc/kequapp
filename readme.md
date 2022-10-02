@@ -6,9 +6,9 @@ Versatile, non-intrusive webapp framework
 
 # Introduction
 
-This framework manages three stages of a request separately. First the route, then handling errors if they come up, and finally rendering a response to the client. Each step is as non-obtrusive as possible, so that we can focus on creating applications using Node's built in features.
+This framework manages three stages of a request separately. First the route which is broken up into bite sized pieces, then handling errors if they come up, and finally rendering a response to the client. Each step is as non-obtrusive as possible, so that we can focus on creating applications using Node's built in features.
 
-Intended to be easy to learn and use.
+Intended to be simple to learn and use. While also being powerful and capable of doing it any way we need.
 
 **Features**
 
@@ -17,7 +17,7 @@ Intended to be easy to learn and use.
 * Body parsing for multipart requests
 * Static file serving
 * Async await everywhere
-* Does not modify node features or functionality
+* Does not modify Node features or functionality
 * Handle any request and return any response
 * Unit testing tool
 * No dependencies <3
@@ -254,6 +254,8 @@ createErrorHandler('text/*', (ex, { res }) => {
 
 Errors thrown within an error handler or the renderer it invokes will cause a fatal exception and an empty `body` will be delivered to the client.
 
+Error handlers are sorted by the framework in favor of specificity.
+
 For a good example of how to write error handlers see this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
 
 # # createRenderer()
@@ -288,7 +290,37 @@ createRenderer('text/html', (payload, { res }) => {
 });
 ```
 
+Renderers are sorted by the framework in favor of specificity.
+
 For good examples of how to write renderers see this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
+
+# # createApp()
+
+```javascript
+import { createApp } from 'kequapp';
+```
+
+```
+# createApp(config: Config, ...handles: Handle[]): Branch;
+# createApp(...handles: Handle[]): Branch;
+```
+
+The creates a branch but it is also the base of your application. Any handles that are specified here will be used with all routes. It is meant to be passed as the event handler into Node's `createServer` method.
+
+The config options available are very simple and only useful for changing some app wide configuration options.
+
+```javascript
+// createApp
+
+createApp({
+    silent: true,
+    autoHead: false
+});
+```
+
+Setting `silent` to true disables all logging in the framework.
+
+Disabling `autoHead` will mean that the framework doesn't automatically use `GET` routes for `HEAD` requests, we describe this functionality in [more detail](#head-requests) later.
 
 # Respond to a request
 
@@ -336,11 +368,11 @@ Properties such as `req`, `res`, and `context` are found throughout the examples
 
 * **`req`**
 
-The node [`ClientRequest`](https://nodejs.org/api/http.html#class-httpclientrequest) object. It is not modified by this framework so we can rely on the official documentation to use it. This represents the client request.
+Node's [`ClientRequest`](https://nodejs.org/api/http.html#class-httpclientrequest) object. It is not modified by this framework so we can rely on the official documentation to use it. This represents the client request.
 
 * **`res`**
 
-The node [`ServerResponse`](https://nodejs.org/api/http.html#class-httpserverresponse) object. It is not modified by this framework so we can rely on the official documentation to use it. This represents the server response.
+Node's [`ServerResponse`](https://nodejs.org/api/http.html#class-httpserverresponse) object. It is not modified by this framework so we can rely on the official documentation to use it. This represents the server response.
 
 * **`url`**
 
@@ -607,7 +639,7 @@ createApp(strictCors);
 
 This would cause all responses to include `'Access-Control-Allow-Origin'` but only if there is an `OPTIONS` route, one should be included for the mechanism to work correctly.
 
-Please see the [MDN documentation on CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) for more information and which headers the browser expects to see.
+Please see the [MDN documentation on CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) for more information about headers the browser expects to see.
 
 # `HEAD` requests
 
@@ -626,14 +658,6 @@ createRoute('GET', '/api/users', ({ req }) => {
 In most cases `HEAD` and `GET` requests should run the same code, so we have nothing to worry about. Detection of `HEAD` requests is already handled by the renderers that are built-in to the framework. Largely what will happen is no body will be sent to the client, which is what a `HEAD` request wanted.
 
 Occasionally we may need to differentiate between the two as it is generally understood that a `HEAD` request does not modify data. In this case looking at the value of `req.method` can be useful.
-
-# Config options
-
-There are a few simple configuration options that can be used by modifying the `app.config` object directly.
-
-Silent disables all logging `app.config.silent = true;`.
-
-Auto head allows the application to run a matching `GET` handler when a corresponding `HEAD` handler is not found, this is enabled by default. `app.config.autoHead = false;`.
 
 # Helpers
 
@@ -746,7 +770,7 @@ import { inject } from 'kequapp';
 
 We may unit test our application without starting a server by using the `inject()` tool. The first parameter is our app, then options used to populate the request.
 
-The returned `req` value is a simulation of node's built-in [`ClientRequest`](https://nodejs.org/api/http.html#class-httpclientrequest) object and is a `Transform` stream. The returned `res` value is a simulation of node's built-in [`ServerResponse`](https://nodejs.org/api/http.html#class-httpserverresponse) object and is also a `Transform` stream.
+The returned `req` value is a simulation of Node's built-in [`ClientRequest`](https://nodejs.org/api/http.html#class-httpclientrequest) object and is a `Transform` stream. The returned `res` value is a simulation of Node's built-in [`ServerResponse`](https://nodejs.org/api/http.html#class-httpserverresponse) object and is also a `Transform` stream.
 
 The returned `getResponse()` tool waits for our application to finish, and then parses the response. We could inspect what our application is doing using the `req` and `res` objects in realtime instead if that's what we wanted to do.
 

@@ -10,8 +10,10 @@ import {
     IAddable,
     IKequapp,
     IRouter,
+    TConfig,
     THandle
 } from './types';
+import { extractHandles, extractOptions } from './util/extract';
 export { default as createBranch } from './router/modules/create-branch';
 export { default as createErrorHandler } from './router/modules/create-error-handler';
 export { default as createHandle } from './router/modules/create-handle';
@@ -23,18 +25,18 @@ export { default as Ex } from './util/tools/ex';
 export { default as inject } from './util/tools/inject';
 export * from './types';
 
-export function createApp (...handles: THandle[]): IKequapp {
+export function createApp (...params: unknown[]): IKequapp {
+    const config = extractOptions<TConfig>(params, {
+        silent: false,
+        autoHead: true,
+    });
+    const handles = extractHandles<THandle>(params);
     const branch = createBranch(...handles).add(
         errorHandler,
         jsonRenderer,
         textRenderer
     );
     let router: IRouter;
-
-    const config = {
-        silent: false,
-        autoHead: true,
-    };
 
     function app (req: IncomingMessage, res: ServerResponse): void {
         if (!router) router = createRouter(branch());
