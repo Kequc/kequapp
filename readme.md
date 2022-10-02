@@ -538,8 +538,13 @@ After normalization, this method further ensures the validity of the data. Retur
 ```javascript
 // validate
 
+type TBody = {
+    ownedPets: string[];
+    age?: number;
+};
+
 createRoute('POST', '/users', async ({ getBody }) => {
-    const body = await getBody({
+    const body = await getBody<TBody>({
         arrays: ['ownedPets'],
         numbers: ['age'],
         validate (result) {
@@ -565,10 +570,16 @@ After normalization is complete and `validate` has passed, this method further f
 ```javascript
 // postProcess
 
+type TBody = {
+    ownedPets: string[];
+    age: number;
+    name: string;
+};
+
 createRoute('POST', '/users', async ({ getBody }) => {
-    const body = await getBody({
+    const body = await getBody<TBody>({
         arrays: ['ownedPets'],
-        required: ['name', 'age'],
+        required: ['age', 'name'],
         numbers: ['age'],
         postProcess (result) {
             return {
