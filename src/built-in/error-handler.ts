@@ -1,5 +1,4 @@
 import createErrorHandler from '../router/modules/create-error-handler';
-import { TServerEx } from '../types';
 
 type TErrorResponse = {
     statusCode: number;
@@ -9,14 +8,6 @@ type TErrorResponse = {
 };
 
 export default createErrorHandler((ex, { res }) => {
-    const error = generateError(ex);
-
-    res.setHeader('Content-Type', 'application/json');
-
-    return { error };
-});
-
-function generateError (ex: TServerEx): TErrorResponse {
     const error: TErrorResponse = {
         statusCode: ex.statusCode,
         message: ex.message
@@ -27,5 +18,7 @@ function generateError (ex: TServerEx): TErrorResponse {
         error.info = ex.info;
     }
 
-    return error;
-}
+    res.setHeader('Content-Type', 'application/json');
+
+    return { error };
+});

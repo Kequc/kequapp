@@ -240,7 +240,9 @@ import { createErrorHandler } from 'kequapp';
 
 If no content type is provided the error handler will be used for all content types.
 
-This turns an exception into useful information that should be sent to the client. We may return a value to invoke a renderer or finalize the response directly inside the error handler. The default structures a json formatted response with helpful information for debugging.
+The url is used if you only want it to be used for specific routes. For example `/api/**` would mean it is only used for routes in that location. Usually this isn't needed because it is easier to add the error handler to that branch of the application instead.
+
+Error handlers turn an exception into useful information that should be sent to the client. We may return a value to invoke a renderer or finalize the response directly inside the error handler. The default structures a json formatted response with helpful information for debugging.
 
 The following is a very simple text error handler.
 
@@ -271,7 +273,7 @@ import { createRenderer } from 'kequapp';
 # createRenderer(handle: Handle): ErrorHandler;
 ```
 
-If no content type is provided the renderer will be used for all content types.
+If no content type is provided the renderer will be used for all content types. The url is used in the same way as it is in error handlers.
 
 Renderers are responsible for finalizing the response to the client. It is the last stage of a request and otherwise an empty `body` will be delivered.
 
@@ -305,9 +307,9 @@ import { createApp } from 'kequapp';
 # createApp(...handles: Handle[]): Branch;
 ```
 
-The creates a branch but it is also the base of your application. Any handles that are specified here will be used with all routes. It is meant to be passed as the event handler into Node's `createServer` method.
+The creates a branch but it is also the base of our application. Any handles that are specified here will be used with all routes. It is meant to be passed as the event handler into Node's `createServer` method.
 
-The config options available are very simple and only useful for changing some app wide configuration options.
+The config options available are very simple and only useful for changing some app wide configuration.
 
 ```javascript
 // createApp
@@ -320,7 +322,7 @@ createApp({
 
 Setting `silent` to true disables all logging in the framework.
 
-Disabling `autoHead` will mean that the framework doesn't automatically use `GET` routes for `HEAD` requests, we describe this functionality in [more detail](#head-requests) later.
+Disabling `autoHead` will mean that the framework doesn't automatically use `GET` routes for `HEAD` requests, as described in [more detail](#head-requests) later.
 
 # Respond to a request
 
@@ -639,7 +641,7 @@ createApp(strictCors);
 
 This would cause all responses to include `'Access-Control-Allow-Origin'` but only if there is an `OPTIONS` route, one should be included for the mechanism to work correctly.
 
-Please see the [MDN documentation on CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) for more information about headers the browser expects to see.
+Please see the [MDN documentation on CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) for more information about headers that the browser expects to see.
 
 # `HEAD` requests
 
@@ -681,8 +683,7 @@ This is asyncronous and must be awaited otherwise the application might get conf
 ```javascript
 // sendFile
 
-createRoute('/db.json', async ({ req, res }) => {
-    // ...etc
+createRoute('/db.json', async ({ res }) => {
     await sendFile(res, '/db/my-db.json');
 });
 ```
