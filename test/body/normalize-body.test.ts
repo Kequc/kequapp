@@ -346,7 +346,7 @@ describe('booleans', () => {
     it('converts an array to booleans', () => {
         const body = {
             name: 'April',
-            age: ['false', 'true', '0', '1', '', 'cat', null, undefined]
+            age: ['false', 'true', '0', '1', '', 'cat', null]
         };
         const options = {
             arrays: ['age'],
@@ -355,7 +355,7 @@ describe('booleans', () => {
 
         assert.deepStrictEqual(normalizeBody(body, options), {
             name: 'April',
-            age: [false, true, false, true, false, true, false, false]
+            age: [false, true, false, true, false, true, false]
         });
     });
 });

@@ -240,9 +240,9 @@ import { createErrorHandler } from 'kequapp';
 
 If no content type is provided the error handler will be used for all content types.
 
-The url is used if you only want it to be used for specific routes. For example `/api/**` would mean it is only used for routes in that location. Usually this isn't needed because it is easier to add the error handler to that branch of the application instead.
+Set the url if you only want it to be used for specific routes. For example `/api/**` would mean it is only used for routes in that location. Usually this isn't needed because it is easier to add the error handler to the relevant branch instead.
 
-Error handlers turn an exception into useful information that should be sent to the client. We may return a value to invoke a renderer or finalize the response directly inside the error handler. The default structures a json formatted response with helpful information for debugging.
+Error handlers turn an exception into useful information that should be sent to the client. We may return a value to invoke a renderer or finalize the response directly. The default built-in structures a json formatted response with helpful information for debugging.
 
 The following is a very simple text error handler.
 
@@ -652,7 +652,7 @@ createApp(strictCors);
 
 This would cause all responses to include `'Access-Control-Allow-Origin'` but only if there is an `OPTIONS` route, one should be included for the mechanism to work correctly.
 
-Please see the [MDN documentation on CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) for more information about headers that the browser expects to see.
+Please see the [MDN documentation on CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) for more information about headers that the client expects to see.
 
 # `HEAD` requests
 

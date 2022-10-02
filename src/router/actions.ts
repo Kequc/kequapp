@@ -2,13 +2,12 @@ import { findErrorHandler, findRenderer } from './find';
 import {
     TAddableData,
     TBundle,
-    TConfig,
     TRendererData,
     TRouteData
 } from '../types';
 import { unknownToEx } from '../util/tools/ex';
 
-export async function renderRoute (collection: TAddableData, bundle: TBundle, route: TRouteData, config: TConfig): Promise<void> {
+export async function renderRoute (collection: TAddableData, bundle: TBundle, route: TRouteData): Promise<void> {
     const { renderers } = collection;
     const { res } = bundle;
     const handles = route.handles;

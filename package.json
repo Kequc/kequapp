@@ -9,7 +9,8 @@
     "start:basic": "ts-node ./examples/basic/server.ts",
     "start:file-server": "ts-node ./examples/file-server/server.ts",
     "test": "kequtest --ts",
-    "watch": "nodemon --watch \"**\" --ext \"ts\" --exec \"npm t\""
+    "watch": "nodemon --watch \"**\" --ext \"ts\" --exec \"npm t\"",
+    "lint": "eslint ."
   },
   "files": [
     "dist"

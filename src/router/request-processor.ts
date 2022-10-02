@@ -30,7 +30,7 @@ export default async function requestProcessor (router: IRouter, config: TConfig
             throw Ex.NotFound();
         }
 
-        await renderRoute(collection, bundle, route, config);
+        await renderRoute(collection, bundle, route);
 
         cleanup(res);
     } catch (error) {

@@ -43,10 +43,7 @@ describe('renderRoute', () => {
             errorHandlers: []
         };
 
-        await renderRoute(collection, bundle, route, {
-            silent: false,
-            autoHead: true
-        });
+        await renderRoute(collection, bundle, route);
 
         const { res } = bundle;
 
@@ -81,10 +78,7 @@ describe('renderRoute', () => {
 
         bundle.methods.push('GET', 'HEAD', 'OPTIONS');
 
-        await renderRoute(collection, bundle, route, {
-            silent: false,
-            autoHead: true
-        });
+        await renderRoute(collection, bundle, route);
 
         const { res } = bundle;
 
@@ -121,10 +115,7 @@ describe('renderRoute', () => {
 
         bundle.methods.push('GET', 'HEAD', 'OPTIONS');
 
-        await renderRoute(collection, bundle, route, {
-            silent: false,
-            autoHead: true
-        });
+        await renderRoute(collection, bundle, route);
 
         const { res } = bundle;
 
