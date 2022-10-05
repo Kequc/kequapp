@@ -6,7 +6,7 @@ import parseMultipart from './multipart/parse-multipart';
 import splitMultipart from './multipart/split-multipart';
 import normalizeBody from './normalize-body';
 import streamReader from './stream-reader';
-import { IGetBody, TBodyOptions, TRawPart } from '../types';
+import { IGetBody, TGetBodyOptions, TRawPart } from '../types';
 import Ex from '../util/tools/ex';
 
 const parseBody = createParseBody({
@@ -17,7 +17,7 @@ const parseBody = createParseBody({
 export default function createGetBody (req: IncomingMessage): IGetBody {
     let _body: TRawPart;
 
-    return async function (options: TBodyOptions = {}): Promise<any> {
+    return async function (options: TGetBodyOptions = {}): Promise<any> {
         if (_body === undefined) {
             _body = {
                 headers: {
@@ -68,7 +68,7 @@ function getStream (req: IncomingMessage): Readable {
     });
 }
 
-function getMaxPayloadSize (options: TBodyOptions): number {
+function getMaxPayloadSize (options: TGetBodyOptions): number {
     if (typeof options.maxPayloadSize === 'number' && options.maxPayloadSize > 0) {
         return options.maxPayloadSize;
     }

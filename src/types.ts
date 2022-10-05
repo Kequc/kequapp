@@ -57,19 +57,12 @@ export type TErrorHandlerData = {
 };
 
 export type THandle = (bundle: TBundle) => Promise<unknown> | unknown;
-
 export type TRenderer = (payload: unknown, bundle: TBundle) => Promise<void> | void;
-
 export type TErrorHandler = (ex: TServerEx, bundle: TBundle) => Promise<unknown> | unknown;
-
 export type TPathname = `/${string}`;
-
 export type TPathnameWild = TPathname & `${string}/**`;
-
 export type THeader = string | number | string[] | undefined;
-
 export type THeaders = { [key: string]: THeader };
-
 export type TParams = { [k: string]: string };
 
 export type TBundle = {
@@ -89,15 +82,15 @@ export type TBundleContext = {
 };
 
 export interface IGetBody {
-    (format: TBodyOptions & { raw: true, multipart: true }): Promise<TRawPart[]>;
-    (format: TBodyOptions & { raw: true }): Promise<Buffer>;
-    (format: TBodyOptions & { multipart: true }): Promise<[TBodyJson, TFilePart[]]>;
-    (format?: TBodyOptions): Promise<TBodyJson>;
-    <T>(format: TBodyOptions & { multipart: true }): Promise<[T, TFilePart[]]>;
-    <T>(format?: TBodyOptions): Promise<T>;
+    (format: TGetBodyOptions & { raw: true, multipart: true }): Promise<TRawPart[]>;
+    (format: TGetBodyOptions & { raw: true }): Promise<Buffer>;
+    (format: TGetBodyOptions & { multipart: true }): Promise<[TBodyJson, TFilePart[]]>;
+    (format?: TGetBodyOptions): Promise<TBodyJson>;
+    <T>(format: TGetBodyOptions & { multipart: true }): Promise<[T, TFilePart[]]>;
+    <T>(format?: TGetBodyOptions): Promise<T>;
 }
 
-export type TBodyOptions = {
+export type TGetBodyOptions = {
     raw?: boolean;
     multipart?: boolean;
     maxPayloadSize?: number;
