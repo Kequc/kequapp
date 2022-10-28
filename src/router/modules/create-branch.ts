@@ -16,12 +16,6 @@ import {
     validateType
 } from '../../util/validate';
 
-const OPTIONS: TRouteData = {
-    parts: ['**'],
-    handles: [],
-    method: 'OPTIONS'
-};
-
 export interface ICreateBranch {
     (url: TPathname, ...handles: THandle[]): IAddableBranch;
     (...handles: THandle[]): IAddableBranch;
@@ -42,7 +36,7 @@ function createBranch (...params: unknown[]): IAddableBranch {
 
     function branch (): TAddableData {
         return {
-            routes: [...routes, OPTIONS].map(route => ({
+            routes: routes.map(route => ({
                 ...route,
                 parts: [...parts, ...route.parts],
                 handles: [...handles, ...route.handles]
@@ -54,7 +48,7 @@ function createBranch (...params: unknown[]): IAddableBranch {
             errorHandlers: errorHandlers.map(errorHandler => ({
                 ...errorHandler,
                 parts: [...parts, ...errorHandler.parts]
-            }))
+            })),
         };
     }
 

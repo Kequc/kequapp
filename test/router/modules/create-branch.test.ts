@@ -9,11 +9,7 @@ it('creates a branch', () => {
     const addable = createBranch();
 
     assert.deepStrictEqual(addable(), {
-        routes: [{
-            parts: ['**'],
-            handles: [],
-            method: 'OPTIONS'
-        }],
+        routes: [],
         renderers: [],
         errorHandlers: []
     });
@@ -30,10 +26,6 @@ it('ignores wild pathnames', () => {
             parts: ['hello', 'there'],
             handles: [handle],
             method: 'POST'
-        }, {
-            parts: ['hello', 'there', '**'],
-            handles: [],
-            method: 'OPTIONS'
         }],
         renderers: [],
         errorHandlers: []
@@ -51,10 +43,6 @@ it('augments routes', () => {
             parts: ['hello', 'there', 'cat', 'car'],
             handles,
             method: 'POST'
-        }, {
-            parts: ['hello', 'there', '**'],
-            handles: [handles[0], handles[1]],
-            method: 'OPTIONS'
         }],
         renderers: [],
         errorHandlers: []
@@ -68,11 +56,7 @@ it('augments renderers', () => {
     );
 
     assert.deepStrictEqual(addable(), {
-        routes: [{
-            parts: ['hello', 'there', '**'],
-            handles: [handles[0], handles[1]],
-            method: 'OPTIONS'
-        }],
+        routes: [],
         renderers: [{
             parts: ['hello', 'there', 'cat', 'car'],
             handle: handles[2],
@@ -89,11 +73,7 @@ it('augments error handlers', () => {
     );
 
     assert.deepStrictEqual(addable(), {
-        routes: [{
-            parts: ['hello', 'there', '**'],
-            handles: [handles[0], handles[1]],
-            method: 'OPTIONS'
-        }],
+        routes: [],
         renderers: [],
         errorHandlers: [{
             parts: ['hello', 'there', 'cat', 'car'],
@@ -125,17 +105,9 @@ it('augments branches', () => {
             handles: [...handles, routeHandles[0], routeHandles[1]],
             method: 'POST1'
         }, {
-            parts: ['hello', 'there', 'cat', 'car', '**'],
-            handles: [handles[0], handles[1], handles[2], handles[3]],
-            method: 'OPTIONS'
-        }, {
             parts: ['hello', 'there', 'super', 'man4'],
             handles: [handles[0], handles[1], routeHandles[2], routeHandles[3]],
             method: 'POST4'
-        }, {
-            parts: ['hello', 'there', '**'],
-            handles: [handles[0], handles[1]],
-            method: 'OPTIONS'
         }],
         renderers: [{
             parts: ['hello', 'there', 'cat', 'car', 'super', 'man2'],

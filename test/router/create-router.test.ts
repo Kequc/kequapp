@@ -8,6 +8,7 @@ import {
     TRouteData
 } from '../../src/types';
 
+const config = { logger: console, autoHead: true };
 const handleA = () => {};
 const handleB = () => {};
 
@@ -23,7 +24,7 @@ function errorHandler (parts: string[], contentType = '*', handle = handleA): TE
     return { contentType, parts, handle };
 }
 
-const router = createRouter({
+const router = createRouter(config, {
     routes: [
         route('GET', ['free', 'stuff']),
         route('GET', []),

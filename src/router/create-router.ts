@@ -1,15 +1,15 @@
 import { isDuplicate } from './find';
-import { IRouter, TAddableData, TRouteData } from '../types';
+import { IRouter, TAddableData, TConfig, TRouteData } from '../types';
 import { getParts } from '../util/extract';
 
 type TSortable = { parts: string[], contentType?: string };
 
-export default function createRouter (branchData: TAddableData): IRouter {
+export default function createRouter (config: TConfig, branchData: TAddableData): IRouter {
     const routes = [...branchData.routes].sort(priority);
     const renderers = [...branchData.renderers].sort(priority);
     const errorHandlers = [...branchData.errorHandlers].sort(priority);
 
-    warnDuplicates(routes);
+    warnDuplicates(config, routes);
 
     function router (pathname?: string): TAddableData {
         if (pathname) {
@@ -65,13 +65,13 @@ function priority (a: TSortable, b: TSortable): number {
     return 0;
 }
 
-function warnDuplicates (routes: TRouteData[]): void {
+function warnDuplicates (config: TConfig, routes: TRouteData[]): void {
     const checked: TRouteData[] = [];
 
     for (const route of routes) {
         const exists = checked.find(value => isDuplicate(value, route));
         if (exists) {
-            console.warn('Duplicate route detected', {
+            config.logger.warn('Duplicate route detected', {
                 method: route.method,
                 url: `/${route.parts.join('/')}`,
                 matches: `/${exists.parts.join('/')}`

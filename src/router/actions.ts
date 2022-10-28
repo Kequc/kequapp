@@ -51,7 +51,7 @@ export async function renderError (collection: TAddableData, bundle: TBundle, er
     await finalize(renderers, bundle, payload);
 
     if (res.statusCode === 500) {
-        console.error(error);
+        bundle.logger.error(error);
     }
 }
 

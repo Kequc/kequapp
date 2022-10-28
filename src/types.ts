@@ -2,15 +2,25 @@ import { RequestListener, IncomingMessage, ServerResponse } from 'http';
 import { Transform } from 'stream';
 
 export interface IKequapp extends RequestListener {
-    (config: TConfig, ...handles: THandle[]): IKequapp;
+    (config: TConfigInput, ...handles: THandle[]): IKequapp;
     (...handles: THandle[]): IKequapp;
     add (...routers: IAddable[]): IKequapp;
     config: TConfig;
 }
 
-export type TConfig = {
-    silent: boolean;
+export type TConfigInput = {
+    logger: TLogger | boolean;
     autoHead: boolean;
+};
+export type TConfig = {
+    logger: TLogger;
+    autoHead: boolean;
+};
+export type TLogger = {
+    log: (...params: unknown[]) => void;
+    error: (...params: unknown[]) => void;
+    warn: (...params: unknown[]) => void;
+    debug: (...params: unknown[]) => void;
 };
 
 export interface IAddable {
@@ -73,9 +83,8 @@ export type TBundle = {
     params: TParams;
     methods: string[];
     getBody: IGetBody;
+    logger: TLogger;
 };
-
-export type TRawBundle = Omit<TBundle, 'params' | 'context' | 'methods'>;
 
 export type TBundleContext = {
     [k: string]: unknown;

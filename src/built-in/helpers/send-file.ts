@@ -3,8 +3,9 @@ import { ServerResponse } from 'http';
 import path from 'path';
 import Ex from '../../util/tools/ex';
 import guessMime from '../../util/guess-mime';
+import { TPathname } from '../../types';
 
-export default async function sendFile (res: ServerResponse, asset: string, mime?: string): Promise<void> {
+export default async function sendFile (res: ServerResponse, asset: TPathname, mime?: string): Promise<void> {
     const location: string = path.join(process.cwd(), asset);
 
     try {

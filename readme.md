@@ -315,12 +315,12 @@ The config options available are very simple and only useful for changing some a
 // createApp
 
 createApp({
-    silent: true,
+    logger: false,
     autoHead: false
 });
 ```
 
-Setting `silent` to true disables all logging in the framework.
+The `logger` can disable logging by setting `false`. Alternatively a custom logger can be set, by default it is `console`. It must be an object containing methods for `log`, `error`, `warn`, and `debug`.
 
 Disabling `autoHead` will mean that the framework doesn't automatically use `GET` routes for `HEAD` requests, as described in [more detail](#head-requests) later.
 
@@ -407,6 +407,10 @@ Maybe authentication details, a user object, or any data that's used in other pl
 When defining a route we can specify parameters to extract by prefixing a colon `'/:'` character in the url. If we specify a route such as `'/users/:userId'` we will have a parameter called `'userId'`. Use a double asterix `'/**'` to accept anything for the remainder of the url.
 
 Param values are always a string.
+
+* **`logger`**
+
+The logger being used by the application.
 
 * **`getBody()`**
 
@@ -674,51 +678,28 @@ Occasionally we may need to differentiate between the two as it is generally und
 
 # Helpers
 
-The following helper tools [`sendFile()`](#-sendfile), and [`staticFiles()`](#-staticfiles) are included to make development of common features easier.
+The following helper tools [`staticDirectory()`](#-staticdirectory), [`staticFile()`](#-sendfile), and [`sendFile()`](#-sendfile) are included to make file delivery easier.
 
-# # sendFile()
-
-```javascript
-import { sendFile } from 'kequapp';
-```
-
-```
-# sendFile(res: Res, asset: string, mime: string): void;
-# sendFile(res: Res, asset: string): void;
-```
-
-Send a file and finalize the response.
-
-This is asyncronous and must be awaited otherwise the application might get confused as it continues processing the request. If a mime type is not provided a `'Content-Type'` header is guessed from the file extension.
+# # staticDirectory()
 
 ```javascript
-// sendFile
-
-createRoute('/db.json', async ({ res }) => {
-    await sendFile(res, '/db/my-db.json');
-});
+import { staticDirectory } from 'kequapp';
 ```
 
-# # staticFiles()
+```
+# staticDirectory(url: Pathname, options: Options): Route;
+# staticDirectory(options: Options): Route;
+# staticDirectory(url: Pathname): Route;
+# staticDirectory(): Route;
+```
+
+Pair a `url` and a set of `options` with a directory.
 
 ```javascript
-import { staticFiles } from 'kequapp';
-```
-
-```
-# staticFiles(url: Pathname, options = Options): Route;
-# staticFiles(options: Options): Route;
-# staticFiles(url: Pathname): Route;
-# staticFiles(): Route;
-```
-
-Pair a `url` and a given set of `options` with a directory.
-
-```javascript
-// staticFiles
+// staticDirectory
 
 app.add(
-    staticFiles('/assets', {
+    staticDirectory('/assets/**', {
         dir: '/my-assets-dir',
         exclude: ['/my-assets-dir/private'],
         mime: {
@@ -728,9 +709,59 @@ app.add(
 );
 ```
 
-If no `dir` is specified then `'/public'` is used by default. Exclusions can be provided if we want to ignore some files or directories using `exclude`.
+The `url` must be wild if provided, meaning it ends in `'/**'` capturing all possible paths at the given location.
 
-A `'Content-Type'` header is guessed based on the file extension. If there are files in the directory with unusual file extensions then additional `mime` types can be added.
+If no `dir` is specified then `'/public'` is used by default. Exclusions can be provided if we want to ignore some files or directories using `exclude`. A `'Content-Type'` header is guessed based on every file's extension. If there are files in the directory with unusual file extensions then additional `mime` types can be added.
+
+# # staticFile()
+
+```javascript
+import { staticFile } from 'kequapp';
+```
+
+```
+# staticFile(url: Pathname, asset: Pathname, mime: string): Route;
+# staticFile(url: Pathname, asset: Pathname): Route;
+```
+
+Pair a `url` and an `asset`. This asset will be delivered to the client when accessed.
+
+```javascript
+// staticFile
+
+app.add(
+    staticFile('/db.json', '/db/my-db.json')
+);
+```
+
+If a mime type is not provided a `'Content-Type'` header is guessed from the file extension.
+
+# # sendFile()
+
+```javascript
+import { sendFile } from 'kequapp';
+```
+
+```
+# sendFile(res: Res, asset: Pathname, mime: string): void;
+# sendFile(res: Res, asset: Pathname): void;
+```
+
+Send a file and finalize the response.
+
+This is asyncronous and must be awaited otherwise the application might get confused as it continues processing the request. If a mime type is not provided a `'Content-Type'` header is guessed from the file extension.
+
+The following example is the same as the `staticFile()` example above.
+
+```javascript
+// sendFile
+
+app.add(
+    createRoute('/db.json', async ({ res }) => {
+        await sendFile(res, '/db/my-db.json');
+    })
+);
+```
 
 # Utilities
 

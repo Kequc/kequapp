@@ -1,6 +1,5 @@
 import assert from 'assert';
 import 'kequtest';
-import createGetBody from '../../src/body/create-get-body';
 import createGetResponse from '../../src/body/create-get-response';
 import createRouter from '../../src/router/create-router';
 import requestProcessor from '../../src/router/request-processor';
@@ -17,13 +16,8 @@ function process (branchData: TAddableData, options: TReqOptions, config: Partia
     const req = new FakeReq(options) as any;
     const res = new FakeRes() as any;
     const getResponse = createGetResponse(res);
-    const _config = Object.assign({ silent: false, autoHead: true }, config);
-    requestProcessor(createRouter(branchData), _config, {
-        req,
-        res,
-        url: new URL('http://fake.domain'),
-        getBody: createGetBody(req)
-    });
+    const _config = Object.assign({ logger: console, autoHead: true }, config);
+    requestProcessor(createRouter(_config, branchData), _config, req, res);
     return { req, res, getResponse };
 }
 

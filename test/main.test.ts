@@ -9,7 +9,8 @@ import {
     createRoute,
     Ex,
     sendFile,
-    staticFiles
+    staticDirectory,
+    staticFile
 } from '../src/main';
 
 it('exports a lot of stuff', () => {
@@ -19,7 +20,8 @@ it('exports a lot of stuff', () => {
     assert.strictEqual(typeof createRenderer, 'function');
     assert.strictEqual(typeof createRoute, 'function');
     assert.strictEqual(typeof sendFile, 'function');
-    assert.strictEqual(typeof staticFiles, 'function');
+    assert.strictEqual(typeof staticDirectory, 'function');
+    assert.strictEqual(typeof staticFile, 'function');
     assert.strictEqual(typeof createHandle, 'function');
     assert.strictEqual(typeof Ex, 'object');
 });
@@ -41,11 +43,11 @@ it('throws error on invalid handlers', () => {
 });
 
 it('accepts configuration options and handlers', () => {
-    createApp({ silent: true, autoHead: false }, () => {}, () => {});
+    createApp({ logger: false, autoHead: false }, () => {}, () => {});
 });
 
 it('throws error on invalid configuration options', () => {
-    assert.throws(() => createApp({ silent: 1, autoHead: 'foo' }), {
-        message: 'Config silent must be a boolean'
+    assert.throws(() => createApp({ logger: 1, autoHead: 'foo' }), {
+        message: 'Config logger must be an object'
     });
 });
