@@ -22,7 +22,7 @@ interface ICreateRenderer {
 export default createRenderer as ICreateRenderer;
 
 function createRenderer (...params: unknown[]): IAddable {
-    const contentType = extractContentType(params);
+    const contentType = extractContentType(params, '*');
     const parts = getParts(extractUrl(params, '/**'));
     const [handle] = extractHandles<TRenderer>(params);
 

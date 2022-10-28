@@ -10,9 +10,11 @@ it('can access the root', async () => {
 
     const body = await getResponse();
 
-    assert.strictEqual(res.getHeader('Content-Type'), 'text/plain');
-    assert.strictEqual(res.getHeader('Content-Length'), body.length);
-    assert.strictEqual(body, 'Hello world!');
+    assert.strictEqual(res.getHeader('Content-Type'), 'text/html');
+    assert.strictEqual(body, `<html>
+    <body>Hello world!</body>
+</html>
+`);
 });
 
 it('can open an image', async () => {

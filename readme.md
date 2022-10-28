@@ -678,7 +678,7 @@ Occasionally we may need to differentiate between the two as it is generally und
 
 # Helpers
 
-The following helper tools [`staticDirectory()`](#-staticdirectory), [`staticFile()`](#-sendfile), and [`sendFile()`](#-sendfile) are included to make file delivery easier.
+The following helper tools [`staticDirectory()`](#-staticdirectory), [`staticFile()`](#-staticfile), and [`sendFile()`](#-sendfile) are included to make file delivery easier.
 
 # # staticDirectory()
 
@@ -711,7 +711,7 @@ app.add(
 
 The `url` must be wild if provided, meaning it ends in `'/**'` capturing all possible paths at the given location.
 
-If no `dir` is specified then `'/public'` is used by default. Exclusions can be provided if we want to ignore some files or directories using `exclude`. A `'Content-Type'` header is guessed based on every file's extension. If there are files in the directory with unusual file extensions then additional `mime` types can be added.
+If no `dir` is specified then `'/public'` is used by default. Exclusions can be provided if we want to ignore some files or directories using `exclude`. A `'Content-Type'` header is guessed based on every asset's file extension. If there are assets in the directory with unusual file extensions then additional `mime` types can be added.
 
 # # staticFile()
 
@@ -722,9 +722,11 @@ import { staticFile } from 'kequapp';
 ```
 # staticFile(url: Pathname, asset: Pathname, mime: string): Route;
 # staticFile(url: Pathname, asset: Pathname): Route;
+# staticFile(asset: Pathname, mime: string): Route;
+# staticFile(asset: Pathname): Route;
 ```
 
-Pair a `url` and an `asset`. This asset will be delivered to the client when accessed.
+Pair a `url` and an `asset`. This asset will be delivered to the client.
 
 ```javascript
 // staticFile

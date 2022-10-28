@@ -22,7 +22,7 @@ interface ICreateErrorHandler {
 export default createErrorHandler as ICreateErrorHandler;
 
 function createErrorHandler (...params: unknown[]): IAddable {
-    const contentType = extractContentType(params);
+    const contentType = extractContentType(params, '*');
     const parts = getParts(extractUrl(params, '/**'));
     const [handle] = extractHandles<TErrorHandler>(params);
 

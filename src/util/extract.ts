@@ -17,12 +17,12 @@ export function extractUrl (params: unknown[], url: TPathname = '/'): TPathname 
     return params.shift() as TPathname;
 }
 
-export function extractContentType (params: unknown[], contentType = '*'): string {
+export function extractContentType<T> (params: unknown[], contentType: T): string | T {
     if (typeof params[0] !== 'string' || params[0][0] === '/') {
         return contentType;
     }
 
-    return params.shift() as string;
+    return params.shift() as T;
 }
 
 export function extractHandles<T> (params: unknown[]): T[] {

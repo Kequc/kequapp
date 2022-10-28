@@ -101,11 +101,7 @@ describe('getParams', () => {
 
 describe('extractContentType', () => {
     it('gets the first string', () => {
-        assert.strictEqual(extractContentType(['HELLO', 'BOO']), 'HELLO');
-    });
-
-    it('defaults to *', () => {
-        assert.strictEqual(extractContentType([1, 'HELLO']), '*');
+        assert.strictEqual(extractContentType(['HELLO', 'BOO'], '*'), 'HELLO');
     });
 
     it('accepts a default', () => {
@@ -114,7 +110,7 @@ describe('extractContentType', () => {
 
     it('modifies the params', () => {
         const params = ['HELLO', 'BOO'];
-        assert.strictEqual(extractContentType(params), 'HELLO');
+        assert.strictEqual(extractContentType(params, '*'), 'HELLO');
         assert.deepStrictEqual(params, ['BOO']);
     });
 });
