@@ -37,18 +37,12 @@ function staticDirectory (...params: unknown[]): IAddable {
 
     return createRoute(url, async ({ req, res, params }) => {
         const asset = path.join(options.dir, params['**']) as TPathname;
-        const mime = guessMime(asset, options.mime);
 
         if (isExcluded(options.exclude, asset)) {
             throw Ex.NotFound();
         }
 
-        if (req.method === 'HEAD') {
-            res.setHeader('Content-Type', mime);
-            res.end();
-        } else {
-            await sendFile(res, asset, mime);
-        }
+        await sendFile(req, res, asset, guessMime(asset, options.mime));
     });
 }
 
@@ -67,5 +61,6 @@ function isExcluded (values: string[], asset: string): boolean {
     for (const value of values) {
         if (asset.startsWith(value)) return true;
     }
+
     return false;
 }

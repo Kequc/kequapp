@@ -1,20 +1,21 @@
 import fs from 'fs';
-import { ServerResponse } from 'http';
+import { IncomingMessage, ServerResponse } from 'http';
 import path from 'path';
 import Ex from '../../util/tools/ex';
 import guessMime from '../../util/guess-mime';
 import { TPathname } from '../../types';
 
-export default async function sendFile (res: ServerResponse, asset: TPathname, mime?: string): Promise<void> {
-    const location: string = path.join(process.cwd(), asset);
-
-    try {
-        if (!fs.statSync(location).isFile()) throw new Error();
-    } catch (error) {
-        throw Ex.NotFound();
-    }
+export default async function sendFile (req: IncomingMessage, res: ServerResponse, asset: TPathname, mime?: string): Promise<void> {
+    const location = path.join(process.cwd(), asset);
+    const stats = getStats(location);
 
     res.setHeader('Content-Type', mime || guessMime(asset));
+    res.setHeader('Content-Length', stats.size);
+
+    if (req.method === 'HEAD') {
+        res.end();
+        return;
+    }
 
     try {
         await new Promise((resolve, reject) => {
@@ -32,4 +33,15 @@ export default async function sendFile (res: ServerResponse, asset: TPathname, m
             error
         });
     }
+}
+
+function getStats (location: string): fs.Stats {
+    try {
+        const stats = fs.statSync(location);
+        if (stats.isFile()) return stats;
+    } catch (error) {
+        // fail
+    }
+
+    throw Ex.NotFound();
 }

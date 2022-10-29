@@ -27,7 +27,7 @@ function staticFile (...params: unknown[]): IAddable {
     validatePathname(asset, 'Static file asset');
     validateType(mime, 'Static file mime', 'string');
 
-    return createRoute(url, async ({ res }) => {
-        await sendFile(res, asset, mime);
+    return createRoute(url, async ({ req, res }) => {
+        await sendFile(req, res, asset, mime);
     });
 }

@@ -17,8 +17,8 @@ Intended to be simple to learn and use. While also being powerful and capable of
 * Body parsing for multipart requests
 * Static file serving
 * Async await everywhere
-* Does not modify Node features or functionality
 * Handle any request and return any response
+* Does not modify Node features or functionality
 * Unit testing tool
 * No dependencies <3
 
@@ -736,7 +736,7 @@ app.add(
 );
 ```
 
-If a mime type is not provided a `'Content-Type'` header is guessed from the file extension.
+If `mime` is not provided a `'Content-Type'` header is guessed from the file extension.
 
 # # sendFile()
 
@@ -745,25 +745,27 @@ import { sendFile } from 'kequapp';
 ```
 
 ```
-# sendFile(res: Res, asset: Pathname, mime: string): void;
-# sendFile(res: Res, asset: Pathname): void;
+# sendFile(req: Req, res: Res, asset: Pathname, mime: string): void;
+# sendFile(req: Req, res: Res, asset: Pathname): void;
 ```
 
 Send a file and finalize the response.
 
-This is asyncronous and must be awaited otherwise the application might get confused as it continues processing the request. If a mime type is not provided a `'Content-Type'` header is guessed from the file extension.
+This is asyncronous and must be awaited otherwise the application might get confused as it continues processing the request.
 
-The following example is the same as the `staticFile()` example above.
+The following is the same as the `staticFile()` example above.
 
 ```javascript
 // sendFile
 
 app.add(
-    createRoute('/db.json', async ({ res }) => {
-        await sendFile(res, '/db/my-db.json');
+    createRoute('/db.json', async ({ req, res }) => {
+        await sendFile(req, res, '/db/my-db.json');
     })
 );
 ```
+
+If `mime` is not provided a `'Content-Type'` header is guessed from the file extension.
 
 # Utilities
 
