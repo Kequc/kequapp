@@ -122,7 +122,7 @@ import { createApp } from 'kequapp';
 # createApp(...handles: Handle[]): Branch;
 ```
 
-The creates a branch but it is also the base of our application. Any handles that are specified here will be used with all routes. It is meant to be passed as the event handler into Node's `createServer` method.
+This creates a branch but it is also the base of our application. Any handles that are specified here will be used with all routes. It is meant to be passed as the event handler into Node's `createServer` method.
 
 # Modules
 
@@ -321,9 +321,9 @@ import { createConfig } from 'kequapp';
 # createConfig(): Branch;
 ```
 
-The options available are very simple and only useful for changing a limited set of options. If provided the url most likely should be wild (ending in `'/**'`) in order to capture the most amount of routes.
+The options available are very simple and only useful for changing a limited number of options. If provided the url most likely should be wild (ending in `'/**'`) in order to capture the most amount of routes.
 
-Any provided config will override all options from a lesser priority config.
+Any config will override all options from lesser priority configs.
 
 ```javascript
 // createConfig
@@ -353,7 +353,7 @@ Disabling `autoHead` will mean that the application doesn't automatically use `G
 
 # Responding to a request
 
-Handles may terminate a request at any time in one of three ways:
+Any handle may terminate a request one of three ways:
 
 | | |
 | ---- | ---- |
