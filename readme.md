@@ -118,7 +118,6 @@ import { createApp } from 'kequapp';
 ```
 
 ```
-# createApp(config: Config, ...handles: Handle[]): Branch;
 # createApp(...handles: Handle[]): Branch;
 ```
 
@@ -126,7 +125,7 @@ This creates a branch but it is also the base of our application. Any handles th
 
 # Modules
 
-The following modules [`createRoute()`](#-createroute), [`createBranch()`](#-createbranch), [`createErrorHandler()`](#-createerrorhandler), [`createRouter()`](#-createrouter), and [`createConfig()`](#-createconfig) are all added the same way to a branch or the base of the application.
+The following modules [`createRoute()`](#-createroute), [`createBranch()`](#-createbranch), [`createConfig()`](#-createconfig), [`createErrorHandler()`](#-createerrorhandler), and [`createRouter()`](#-createrouter) are added the same way to a branch or the base of the application.
 
 All can be added in any order, they are rearranged and organized by the framework based on specificity.
 
@@ -238,6 +237,48 @@ createBranch().add(
 );
 ```
 
+# # createConfig()
+
+```javascript
+import { createConfig } from 'kequapp';
+```
+
+```
+# createConfig(url: Pathname, config: Config): Branch;
+# createConfig(config: Config): Branch;
+# createConfig(): Branch;
+```
+
+The options available are only useful for a limited number of features. If provided the url most likely should be wild (ending in `'/**'`) in order to capture the most amount of our routes.
+
+Any config will override all options from lesser priority configs.
+
+```javascript
+// createConfig
+
+createConfig({
+    logger: false,
+    autoHead: false
+});
+```
+
+The following options are available:
+
+| name | type | default |
+| ---- | ---- | ---- |
+| **logger** | *Logger / boolean* | `console` |
+| **autoHead** | *boolean* | `true` |
+
+* **`logger`**
+
+If a boolean is provided the app will use either the default logger (`console`) if `true`, or a silent logger. The silent logger ignores all logging inside the application.
+
+Alternatively a custom logger can be set. It must be an object containing methods for `debug`, `log`, `warn`, and `error`.
+
+* **`autoHead`**
+
+Disabling `autoHead` will mean that the application doesn't automatically use `GET` routes when `HEAD` is requested as described in [more detail](#head-requests) later.
+
 # # createErrorHandler()
 
 ```javascript
@@ -309,57 +350,15 @@ Renderers are sorted by the framework in favor of specificity.
 
 For good examples of how to write renderers see this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
 
-# # createConfig()
-
-```javascript
-import { createConfig } from 'kequapp';
-```
-
-```
-# createConfig(url: Pathname, config: Config): Branch;
-# createConfig(config: Config): Branch;
-# createConfig(): Branch;
-```
-
-The options available are very simple and only useful for changing a limited number of options. If provided the url most likely should be wild (ending in `'/**'`) in order to capture the most amount of routes.
-
-Any config will override all options from lesser priority configs.
-
-```javascript
-// createConfig
-
-createConfig({
-    logger: false,
-    autoHead: false
-});
-```
-
-The following options are available:
-
-| | | |
-| ---- | ---- | ---- |
-| **logger** | *Logger / boolean* | `console` |
-| **autoHead** | *boolean* | `true` |
-
-* **`logger`**
-
-If a boolean is provided the app will use either the default logger (`console`) if `true`, or a silent logger. The silent logger ignores all logging inside the application.
-
-Alternatively a custom logger can be set. It must be an object containing methods for `debug`, `log`, `warn`, and `error`.
-
-* **`autoHead`**
-
-Disabling `autoHead` will mean that the application doesn't automatically use `GET` routes when `HEAD` is requested as described in [more detail](#head-requests) later.
-
 # Responding to a request
 
 Any handle may terminate a request one of three ways:
 
-| | |
+| action | result |
 | ---- | ---- |
 | **Return a value** | A renderer is invoked. |
 | **Throw an error** | An error handler is invoked. |
-| **Finalize the response** |
+| **Finalize the response** | ... |
 
 Finalizing a response is for cases where we need the most control. It allows us to terminate the response any way we want without invoking a renderer.
 
