@@ -36,6 +36,7 @@ export type TAddableData = {
     routes: TRouteData[];
     renderers: TRendererData[];
     errorHandlers: TErrorHandlerData[];
+    configs: TConfigData[];
 };
 
 export interface IRouter {
@@ -53,17 +54,19 @@ export type TRouteData = {
     handles: THandle[];
     method: string;
 };
-
 export type TRendererData = {
     parts: string[];
     contentType: string;
     handle: TRenderer;
 };
-
 export type TErrorHandlerData = {
     parts: string[];
     contentType: string;
     handle: TErrorHandler;
+};
+export type TConfigData = {
+    parts: string[];
+    config: TConfig;
 };
 
 export type THandle = (bundle: TBundle) => Promise<unknown> | unknown;

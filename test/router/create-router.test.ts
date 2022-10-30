@@ -8,7 +8,6 @@ import {
     TRouteData
 } from '../../src/types';
 
-const config = { logger: console, autoHead: true };
 const handleA = () => {};
 const handleB = () => {};
 
@@ -24,7 +23,7 @@ function errorHandler (parts: string[], contentType = '*', handle = handleA): TE
     return { contentType, parts, handle };
 }
 
-const router = createRouter(config, {
+const router = createRouter({
     routes: [
         route('GET', ['free', 'stuff']),
         route('GET', []),
@@ -60,7 +59,8 @@ const router = createRouter(config, {
         errorHandler(['halloween', '**'], 'application/json', handleA),
         errorHandler(['halloween', '**'], 'application/json', handleB),
         errorHandler(['halloween', '**'])
-    ]
+    ],
+    configs: []
 });
 
 describe('priority', () => {

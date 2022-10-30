@@ -1,23 +1,18 @@
 import { findErrorHandler, findRenderer } from './find';
-import {
-    TAddableData,
-    TBundle,
-    TRendererData,
-    TRouteData
-} from '../types';
+import { TAddableData, TBundle, TRendererData, TRouteData } from '../types';
 import { unknownToEx } from '../util/tools/ex';
 
 export async function renderRoute (collection: TAddableData, bundle: TBundle, route: TRouteData): Promise<void> {
     const { renderers } = collection;
-    const { res } = bundle;
-    const handles = route.handles;
+    const { res, methods } = bundle;
+    const { handles, method } = route;
+
     let payload: unknown = undefined;
 
-    if (bundle.methods.includes('OPTIONS')) {
+    if (methods.includes('OPTIONS')) {
         res.setHeader('Access-Control-Allow-Origin', '*');
     }
-
-    if (route.method === 'OPTIONS') {
+    if (method === 'OPTIONS') {
         res.statusCode = 204;
         res.setHeader('Content-Length', 0);
 
@@ -40,10 +35,10 @@ export async function renderRoute (collection: TAddableData, bundle: TBundle, ro
 
 export async function renderError (collection: TAddableData, bundle: TBundle, error: unknown): Promise<void> {
     const { errorHandlers, renderers } = collection;
-    const { res } = bundle;
+    const { res, logger } = bundle;
+
     const errorHandler = findErrorHandler(errorHandlers, getContentType(bundle));
     const ex = unknownToEx(error);
-
     res.statusCode = ex.statusCode;
 
     const payload = await errorHandler(ex, bundle);
@@ -51,16 +46,7 @@ export async function renderError (collection: TAddableData, bundle: TBundle, er
     await finalize(renderers, bundle, payload);
 
     if (res.statusCode === 500) {
-        bundle.logger.error(error);
-    }
-}
-
-async function finalize (renderers: TRendererData[], bundle: TBundle, payload: unknown): Promise<void> {
-    const { res } = bundle;
-
-    if (!res.writableEnded && payload !== undefined) {
-        const renderer = findRenderer(renderers, getContentType(bundle));
-        await renderer(payload, bundle);
+        logger.error(error);
     }
 }
 
@@ -78,5 +64,14 @@ function addOptionsHeaders ({ req, res, methods }: TBundle): void {
     }
     if (allowHeaders) {
         res.setHeader('Access-Control-Allow-Headers', allowHeaders);
+    }
+}
+
+async function finalize (renderers: TRendererData[], bundle: TBundle, payload: unknown): Promise<void> {
+    const { res } = bundle;
+
+    if (!res.writableEnded && payload !== undefined) {
+        const renderer = findRenderer(renderers, getContentType(bundle));
+        await renderer(payload, bundle);
     }
 }

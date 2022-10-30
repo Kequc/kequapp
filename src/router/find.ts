@@ -1,4 +1,5 @@
 import {
+    TConfig,
     TErrorHandler,
     TErrorHandlerData,
     TRenderer,
@@ -43,8 +44,24 @@ function compareContentType (a: string, b: string): boolean {
     return a === b;
 }
 
+export function warnDuplicates ({ logger }: TConfig, routes: TRouteData[]): void {
+    const checked: TRouteData[] = [];
+
+    for (const route of routes) {
+        const exists = checked.find(value => isDuplicate(value, route));
+        if (exists) {
+            logger.warn('Duplicate route detected', {
+                method: route.method,
+                url: `/${route.parts.join('/')}`,
+                matches: `/${exists.parts.join('/')}`
+            });
+        }
+        checked.push(route);
+    }
+}
+
 export function isDuplicate (a: TRouteData, b: TRouteData): boolean {
-    if (a.method === 'OPTIONS' || a.method === 'HEAD' || a.method !== b.method || a.parts.length !== b.parts.length) {
+    if (a.method !== b.method || a.parts.length !== b.parts.length) {
         return false;
     }
 

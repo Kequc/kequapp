@@ -1,6 +1,7 @@
 import assert from 'assert';
 import 'kequtest';
 import createBranch from '../../../src/router/modules/create-branch';
+import createConfig, { DEFAULT_CONFIG } from '../../../src/router/modules/create-config';
 import createErrorHandler from '../../../src/router/modules/create-error-handler';
 import createRenderer from '../../../src/router/modules/create-renderer';
 import createRoute from '../../../src/router/modules/create-route';
@@ -11,7 +12,8 @@ it('creates a branch', () => {
     assert.deepStrictEqual(addable(), {
         routes: [],
         renderers: [],
-        errorHandlers: []
+        errorHandlers: [],
+        configs: []
     });
 });
 
@@ -28,7 +30,8 @@ it('ignores wild pathnames', () => {
             method: 'POST'
         }],
         renderers: [],
-        errorHandlers: []
+        errorHandlers: [],
+        configs: []
     });
 });
 
@@ -45,7 +48,8 @@ it('augments routes', () => {
             method: 'POST'
         }],
         renderers: [],
-        errorHandlers: []
+        errorHandlers: [],
+        configs: []
     });
 });
 
@@ -62,7 +66,8 @@ it('augments renderers', () => {
             handle: handles[2],
             contentType: 'text/html'
         }],
-        errorHandlers: []
+        errorHandlers: [],
+        configs: []
     });
 });
 
@@ -79,7 +84,8 @@ it('augments error handlers', () => {
             parts: ['hello', 'there', 'cat', 'car'],
             handle: handles[2],
             contentType: 'text/html'
-        }]
+        }],
+        configs: []
     });
 });
 
@@ -88,15 +94,18 @@ it('augments branches', () => {
     const routeHandles = [() => {}, () => {}, () => {}, () => {}];
     const rendererHandles = [() => {}, () => {}];
     const errorHandlerHandles = [() => {}, () => {}];
+    const configs = [{ ...DEFAULT_CONFIG, autoHead: false }, { ...DEFAULT_CONFIG, autoHead: true }];
     const addable = createBranch('/hello/there', handles[0], handles[1]).add(
         createBranch('/cat/car', handles[2], handles[3]).add(
             createRoute('POST1', '/super/man1', routeHandles[0], routeHandles[1]),
             createRenderer('text/html2', '/super/man2', rendererHandles[0]),
-            createErrorHandler('text/html3', '/super/man3', errorHandlerHandles[0])
+            createErrorHandler('text/html3', '/super/man3', errorHandlerHandles[0]),
+            createConfig('/super/man4', configs[0])
         ),
         createRoute('POST4', '/super/man4', routeHandles[2], routeHandles[3]),
         createRenderer('text/html5', '/super/man5', rendererHandles[1]),
-        createErrorHandler('text/html6', '/super/man6', errorHandlerHandles[1])
+        createErrorHandler('text/html6', '/super/man6', errorHandlerHandles[1]),
+        createConfig('/super/man7', configs[1])
     );
 
     assert.deepStrictEqual(addable(), {
@@ -126,6 +135,14 @@ it('augments branches', () => {
             parts: ['hello', 'there', 'super', 'man6'],
             handle: errorHandlerHandles[1],
             contentType: 'text/html6'
+        }],
+        configs: [{
+            parts: ['hello', 'there', 'cat', 'car', 'super', 'man4'],
+            config: configs[0]
+        },
+        {
+            parts: ['hello', 'there', 'super', 'man7'],
+            config: configs[1]
         }]
     });
 });

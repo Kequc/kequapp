@@ -8,16 +8,16 @@ Versatile, non-intrusive webapp framework
 
 This framework manages three stages of a request separately. First the route which is broken up into bite sized pieces, then handling errors if they come up, and finally rendering a response to the client. Each step is as non-obtrusive as possible, so that we can focus on creating applications using Node's built in features.
 
-Intended to be simple to learn and use. While also being powerful and capable of doing it any way we need.
+Intended to be simple to learn and use. While also being powerful and letting us interject any time we need.
 
 **Features**
 
 * Modern modular framework
-* CORS by default
+* CORS default
 * Body parsing for multipart requests
 * Static file serving
+* Handle any HTTP request
 * Async await everywhere
-* Handle any request and return any response
 * Does not modify Node features or functionality
 * Unit testing tool
 * No dependencies <3
@@ -111,9 +111,22 @@ In these examples the `json` handle sets `'Content-Type'` to `'application/json'
 
 Handles can be asyncronous.
 
+# # createApp()
+
+```javascript
+import { createApp } from 'kequapp';
+```
+
+```
+# createApp(config: Config, ...handles: Handle[]): Branch;
+# createApp(...handles: Handle[]): Branch;
+```
+
+The creates a branch but it is also the base of our application. Any handles that are specified here will be used with all routes. It is meant to be passed as the event handler into Node's `createServer` method.
+
 # Modules
 
-The following modules [`createRoute()`](#-createroute), [`createBranch()`](#-createbranch), [`createErrorHandler()`](#-createerrorhandler), and [`createRouter()`](#-createrouter) are all added the same way to a branch or the base of the application.
+The following modules [`createRoute()`](#-createroute), [`createBranch()`](#-createbranch), [`createErrorHandler()`](#-createerrorhandler), [`createRouter()`](#-createrouter), and [`createConfig()`](#-createconfig) are all added the same way to a branch or the base of the application.
 
 All can be added in any order, they are rearranged and organized by the framework based on specificity.
 
@@ -296,35 +309,49 @@ Renderers are sorted by the framework in favor of specificity.
 
 For good examples of how to write renderers see this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
 
-# # createApp()
+# # createConfig()
 
 ```javascript
-import { createApp } from 'kequapp';
+import { createConfig } from 'kequapp';
 ```
 
 ```
-# createApp(config: Config, ...handles: Handle[]): Branch;
-# createApp(...handles: Handle[]): Branch;
+# createConfig(url: Pathname, config: Config): Branch;
+# createConfig(config: Config): Branch;
+# createConfig(): Branch;
 ```
 
-The creates a branch but it is also the base of our application. Any handles that are specified here will be used with all routes. It is meant to be passed as the event handler into Node's `createServer` method.
+The options available are very simple and only useful for changing a limited set of options. If provided the url most likely should be wild (ending in `'/**'`) in order to capture the most amount of routes.
 
-The config options available are very simple and only useful for changing some app wide configuration.
+Any provided config will override all options from a lesser priority config.
 
 ```javascript
-// createApp
+// createConfig
 
-createApp({
+createConfig({
     logger: false,
     autoHead: false
 });
 ```
 
-The `logger` can disable logging by setting `false`. Alternatively a custom logger can be set, by default it is `console`. It must be an object containing methods for `log`, `error`, `warn`, and `debug`.
+The following options are available:
 
-Disabling `autoHead` will mean that the framework doesn't automatically use `GET` routes for `HEAD` requests, as described in [more detail](#head-requests) later.
+| | | |
+| ---- | ---- | ---- |
+| **logger** | *Logger / boolean* | `console` |
+| **autoHead** | *boolean* | `true` |
 
-# Respond to a request
+* **`logger`**
+
+If a boolean is provided the app will use either the default logger (`console`) if `true`, or a silent logger. The silent logger ignores all logging inside the application.
+
+Alternatively a custom logger can be set. It must be an object containing methods for `debug`, `log`, `warn`, and `error`.
+
+* **`autoHead`**
+
+Disabling `autoHead` will mean that the application doesn't automatically use `GET` routes when `HEAD` is requested as described in [more detail](#head-requests) later.
+
+# Responding to a request
 
 Handles may terminate a request at any time in one of three ways:
 

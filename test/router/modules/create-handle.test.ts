@@ -8,6 +8,7 @@ it('creates a handle', () => {
 });
 
 it('throws error if undefined', () => {
+    // @ts-ignore
     assert.throws(() => createHandle(undefined), {
         message: 'Handle is undefined'
     });

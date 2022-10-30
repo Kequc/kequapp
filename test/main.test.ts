@@ -41,13 +41,3 @@ it('throws error on invalid handlers', () => {
         message: 'Handle item must be a function'
     });
 });
-
-it('accepts configuration options and handlers', () => {
-    createApp({ logger: false, autoHead: false }, () => {}, () => {});
-});
-
-it('throws error on invalid configuration options', () => {
-    assert.throws(() => createApp({ logger: 1, autoHead: 'foo' }), {
-        message: 'Config logger must be an object'
-    });
-});

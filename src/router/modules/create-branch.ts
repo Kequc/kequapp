@@ -2,6 +2,8 @@ import {
     IAddable,
     IAddableBranch,
     TAddableData,
+    TConfig,
+    TConfigData,
     TErrorHandlerData,
     THandle,
     TPathname,
@@ -33,6 +35,7 @@ function createBranch (...params: unknown[]): IAddableBranch {
     const routes: TRouteData[] = [];
     const renderers: TRendererData[] = [];
     const errorHandlers: TErrorHandlerData[] = [];
+    const configs: TConfigData[] = [];
 
     function branch (): TAddableData {
         return {
@@ -49,6 +52,10 @@ function createBranch (...params: unknown[]): IAddableBranch {
                 ...errorHandler,
                 parts: [...parts, ...errorHandler.parts]
             })),
+            configs: configs.map(config => ({
+                ...config,
+                parts: [...parts, ...config.parts]
+            }))
         };
     }
 
@@ -62,14 +69,17 @@ function createBranch (...params: unknown[]): IAddableBranch {
         const newRoutes = addablesData.map(addableData => addableData.routes || []).flat();
         const newRenderers = addablesData.map(addableData => addableData.renderers || []).flat();
         const newErrorHandlers = addablesData.map(addableData => addableData.errorHandlers || []).flat();
+        const newConfigs = addablesData.map(addableData => addableData.configs || []).flat();
 
         validateRoutes(newRoutes);
         validateRenderers(newRenderers);
         validateErrorHandlers(newErrorHandlers);
+        validateConfigs(newConfigs);
 
         routes.unshift(...newRoutes);
         renderers.unshift(...newRenderers);
         errorHandlers.unshift(...newErrorHandlers);
+        configs.unshift(...newConfigs);
 
         return branch as IAddableBranch;
     }
@@ -113,7 +123,7 @@ function validateRenderers (renderers: TRendererData[]): void {
 }
 
 function validateErrorHandlers (errorHandlers: TErrorHandlerData[]): void {
-    validateArray(errorHandlers, 'Error handler', 'object');
+    validateArray(errorHandlers, 'Error handlers', 'object');
 
     for (const errorHandler of errorHandlers || []) {
         validateExists(errorHandler.parts, 'Error handler parts');
@@ -125,4 +135,29 @@ function validateErrorHandlers (errorHandlers: TErrorHandlerData[]): void {
         validateExists(errorHandler.handle, 'Error handler handle');
         validateType(errorHandler.handle, 'Error handler handle', 'function');
     }
+}
+
+function validateConfigs (configs: TConfigData[]): void {
+    validateArray(configs, 'Configs', 'object');
+
+    for (const config of configs || []) {
+        validateExists(config.parts, 'Error handler parts');
+        validateArray(config.parts, 'Error handler parts', 'string');
+
+        validateConfig(config.config);
+    }
+}
+
+function validateConfig (config: TConfig): void {
+    validateExists(config, 'Config');
+    validateObject(config, 'Config');
+
+    validateExists(config.logger, 'Config logger');
+    validateObject(config.logger, 'Config logger', 'function');
+    validateExists(config.logger.debug, 'Config logger debug');
+    validateExists(config.logger.log, 'Config logger log');
+    validateExists(config.logger.warn, 'Config logger warn');
+    validateExists(config.logger.error, 'Config logger error');
+
+    validateType(config.autoHead, 'Config autoHead', 'boolean');
 }

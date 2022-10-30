@@ -2,22 +2,21 @@ import assert from 'assert';
 import 'kequtest';
 import createGetResponse from '../../src/body/create-get-response';
 import createRouter from '../../src/router/create-router';
+import { DEFAULT_CONFIG } from '../../src/router/modules/create-config';
 import requestProcessor from '../../src/router/request-processor';
 import {
     TAddableData,
-    TConfig,
     TErrorHandlerData,
     TInject,
     TReqOptions
 } from '../../src/types';
 import { FakeReq, FakeRes } from '../../src/util/fake-http';
 
-function process (branchData: TAddableData, options: TReqOptions, config: Partial<TConfig> = {}): TInject {
+function process (branchData: TAddableData, options: TReqOptions): TInject {
     const req = new FakeReq(options) as any;
     const res = new FakeRes() as any;
     const getResponse = createGetResponse(res);
-    const _config = Object.assign({ logger: console, autoHead: true }, config);
-    requestProcessor(createRouter(_config, branchData), _config, req, res);
+    requestProcessor(createRouter(branchData), req, res);
     return { req, res, getResponse };
 }
 
@@ -40,7 +39,8 @@ it('renders a response', async () => {
             method: 'GET'
         }],
         renderers: [],
-        errorHandlers: []
+        errorHandlers: [],
+        configs: []
     };
 
     const { res, getResponse } = process(branchData, { url: '/' });
@@ -61,7 +61,8 @@ it('renders head routes', async () => {
             method: 'GET'
         }],
         renderers: [],
-        errorHandlers: []
+        errorHandlers: [],
+        configs: []
     };
 
     const { res, getResponse } = process(branchData, { url: '/', method: 'HEAD' });
@@ -76,7 +77,8 @@ it('returns error when route not found', async () => {
     const branchData: TAddableData = {
         routes: [],
         renderers: [],
-        errorHandlers: [errorHandler]
+        errorHandlers: [errorHandler],
+        configs: []
     };
 
     const { getResponse } = process(branchData, { url: '/' });
@@ -95,10 +97,17 @@ it('ignores head routes when autoHead false', async () => {
             method: 'GET'
         }],
         renderers: [],
-        errorHandlers: [errorHandler]
+        errorHandlers: [errorHandler],
+        configs: [{
+            parts: [],
+            config: {
+                ...DEFAULT_CONFIG,
+                autoHead: false
+            }
+        }]
     };
 
-    const { getResponse } = process(branchData, { url: '/', method: 'HEAD' }, { autoHead: false });
+    const { getResponse } = process(branchData, { url: '/', method: 'HEAD' });
     const result = await getResponse();
 
     assert.deepStrictEqual(result, 'Not Found');
@@ -114,7 +123,8 @@ it('finalizes response when stream not ended', async () => {
             method: 'GET'
         }],
         renderers: [],
-        errorHandlers: []
+        errorHandlers: [],
+        configs: []
     };
 
     const { res, getResponse } = process(branchData, { url: '/' });

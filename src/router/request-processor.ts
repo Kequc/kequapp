@@ -2,15 +2,21 @@ import { IncomingMessage, ServerResponse } from 'http';
 import { renderError, renderRoute } from './actions';
 import Ex from '../util/tools/ex';
 import { getParams } from '../util/extract';
-import { IRouter, TBundle, TConfig, TRouteData } from '../types';
+import { IRouter, TBundle, TConfig, TConfigData, TRouteData } from '../types';
 import createGetBody from '../body/create-get-body';
+import { DEFAULT_CONFIG } from './modules/create-config';
+import { warnDuplicates } from './find';
 
-export default async function requestProcessor (router: IRouter, config: TConfig, req: IncomingMessage, res: ServerResponse): Promise<void> {
+export default async function requestProcessor (router: IRouter, req: IncomingMessage, res: ServerResponse): Promise<void> {
     const url = new URL(req.url || '/', `${req.headers.protocol}://${req.headers.host}`);
     const method = req.method || 'GET';
     const pathname = url.pathname;
     const collection = router(pathname);
-    const route = findRoute(config, collection.routes, method);
+
+    const config = getConfig(collection.configs);
+    const methods = getMethods(config, collection.routes);
+    const route = getRoute(config, collection.routes, method);
+    const { logger } = config;
 
     const bundle: TBundle = Object.freeze({
         req,
@@ -18,10 +24,14 @@ export default async function requestProcessor (router: IRouter, config: TConfig
         url,
         context: {},
         params: getParams(pathname, route),
-        methods: getMethods(config, collection.routes),
+        methods,
         getBody: createGetBody(req),
-        logger: config.logger
+        logger
     });
+
+    if (process.env.NODE_ENV !== 'production') {
+        warnDuplicates(config, collection.routes);
+    }
 
     try {
         if (!route) {
@@ -30,44 +40,42 @@ export default async function requestProcessor (router: IRouter, config: TConfig
         }
 
         await renderRoute(collection, bundle, route);
-
-        cleanup(res);
     } catch (error) {
         try {
             await renderError(collection, bundle, error);
         } catch (fatalError) {
             res.statusCode = 500;
 
-            config.logger.error(fatalError);
+            logger.error(fatalError);
         }
+    }
 
-        cleanup(res);
+    if (!res.writableEnded) {
+        res.end();
     }
 
     // debug request
-    config.logger.debug(res.statusCode, method, pathname);
+    logger.debug(res.statusCode, method, pathname);
 }
 
-function findRoute (config: TConfig, routes: TRouteData[], method: string): TRouteData | undefined {
-    const route = routes.find(route => route.method === method);
-
-    if (config.autoHead && !route && method === 'HEAD') {
-        return routes.find(route => route.method === 'GET');
-    }
-
-    return route;
+function getConfig (configs: TConfigData[]): TConfig {
+    return configs[0]?.config || DEFAULT_CONFIG;
 }
 
-function getMethods (config: TConfig, routes: TRouteData[]): string[] {
+function getMethods ({ autoHead }: TConfig, routes: TRouteData[]): string[] {
     const result = new Set(routes.map(route => route.method));
 
-    if (config.autoHead && result.has('GET')) result.add('HEAD');
+    if (autoHead && result.has('GET')) result.add('HEAD');
 
     return [...result].sort();
 }
 
-function cleanup (res: ServerResponse): void {
-    if (!res.writableEnded) {
-        res.end();
+function getRoute ({ autoHead }: TConfig, routes: TRouteData[], method: string): TRouteData | undefined {
+    const route = routes.find(route => route.method === method);
+
+    if (autoHead && !route && method === 'HEAD') {
+        return routes.find(route => route.method === 'GET');
     }
+
+    return route;
 }
