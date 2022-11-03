@@ -2,10 +2,8 @@ import { RequestListener, IncomingMessage, ServerResponse } from 'http';
 import { Transform } from 'stream';
 
 export interface IKequapp extends RequestListener {
-    (config: TConfigInput, ...handles: THandle[]): IKequapp;
     (...handles: THandle[]): IKequapp;
     add (...routers: IAddable[]): IKequapp;
-    config: TConfig;
 }
 
 export type TConfigInput = {

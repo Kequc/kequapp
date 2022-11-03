@@ -43,5 +43,5 @@ function getStats (location: string): fs.Stats {
         // fail
     }
 
-    throw Ex.NotFound();
+    throw Ex.NotFound(undefined, { location });
 }

@@ -8,7 +8,7 @@ Versatile, non-intrusive webapp framework
 
 This framework manages three stages of a request separately. First the route which is broken up into bite sized pieces, then handling errors if they come up, and finally rendering a response to the client. Each step is as non-obtrusive as possible, so that we can focus on creating applications using Node's built in features.
 
-Intended to be simple to learn and use. While also being powerful and letting us interject any time we need.
+Intended to be simple to learn and use. While being powerful and allowing us to interject any time we need.
 
 **Features**
 
@@ -18,8 +18,8 @@ Intended to be simple to learn and use. While also being powerful and letting us
 * Static file serving
 * Handle any HTTP request
 * Async await everywhere
-* Does not modify Node features or functionality
 * Unit testing tool
+* Does not modify Node features or functionality
 * No dependencies <3
 
 ```
@@ -28,23 +28,23 @@ npm i kequapp
 
 # General
 
-**handle**
+#### **handle**
 
 A route is composed of one or more handles which run in sequence. Handles are responsible for all of the heavy lifting and contain most of our application code.
 
-**route**
+#### **route**
 
 Each route is a self contained collection of handles, these direct the lifecycle of a request at a given url.
 
-**branch**
+#### **branch**
 
 Used for distributing behavior across multiple routes and helping to stay organized during development. We might separate a json api from client facing pages for example, and want different behaviors which are common to either area.
 
-**error handler**
+#### **error handler**
 
 An appropriate error handler is invoked whenever a handle throws an exception. They behave much the same as a handle but should not throw an exception.
 
-**renderer**
+#### **renderer**
 
 An appropriate renderer is invoked whenever a handle or error handler returns a value apart from `undefined`. These behave much the same as a handle but are always the last step of a request and should deliver a response to the client.
 
@@ -269,13 +269,13 @@ The following options are available:
 | **logger** | *Logger / boolean* | `console` |
 | **autoHead** | *boolean* | `true` |
 
-* **`logger`**
+#### **`logger`**
 
 If a boolean is provided the app will use either the default logger (`console`) if `true`, or a silent logger. The silent logger ignores all logging inside the application.
 
 Alternatively a custom logger can be set. It must be an object containing methods for `debug`, `log`, `warn`, and `error`.
 
-* **`autoHead`**
+#### **`autoHead`**
 
 Disabling `autoHead` will mean that the application doesn't automatically use `GET` routes when `HEAD` is requested as described in [more detail](#head-requests) later.
 
@@ -394,15 +394,15 @@ The last remaining handle returns a value. This invokes a renderer best matching
 
 Properties such as `req`, `res`, and `context` are found throughout the examples above. These properties are generated for every request and are available in every route, renderer, and error handler.
 
-* **`req`**
+#### **`req`**
 
 Node's [`ClientRequest`](https://nodejs.org/api/http.html#class-httpclientrequest) object. It is not modified by this framework so we can rely on the official documentation to use it. This represents the client request.
 
-* **`res`**
+#### **`res`**
 
 Node's [`ServerResponse`](https://nodejs.org/api/http.html#class-httpserverresponse) object. It is not modified by this framework so we can rely on the official documentation to use it. This represents the server response.
 
-* **`url`**
+#### **`url`**
 
 If we need to know more about what the client is looking at in the url bar we can do so here. It is a [`URL`](https://developer.mozilla.org/en-US/docs/Web/API/URL) instance generated from the `req` object.
 
@@ -418,27 +418,27 @@ createRoute('/hotels', ({ url }) => {
 });
 ```
 
-* **`methods`**
+#### **`methods`**
 
 An array of methods available in our app at the current url.
 
-* **`context`**
+#### **`context`**
 
 A place to store variables derived by handles, we might use these variables elsewhere in our code. Changes can be made here whenever we want and it may be populated with anything.
 
 Maybe authentication details, a user object, or any data that's used in other places.
 
-* **`params`**
+#### **`params`**
 
 When defining a route we can specify parameters to extract by prefixing a colon `'/:'` character in the url. If we specify a route such as `'/users/:userId'` we will have a parameter called `'userId'`. Use a double asterix `'/**'` to accept anything for the remainder of the url.
 
 Param values are always a string.
 
-* **`logger`**
+#### **`logger`**
 
 The logger being used by the application.
 
-* **`getBody()`**
+#### **`getBody()`**
 
 This method can be used in many ways so the next section will look at it in detail.
 
@@ -795,8 +795,7 @@ If `mime` is not provided a `'Content-Type'` header is guessed from the file ext
 
 # Utilities
 
-The following utilities [`Ex()`](#-ex), and [`inject()`](#-inject) are used throughout your application. They are almost essential for building a well working app.
-
+The following utilities [`Ex()`](#-ex), and [`inject()`](#-inject) will likely be used throughout our application. These are very useful for building a well working app.
 
 # # Ex.()
 

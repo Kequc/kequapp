@@ -26,8 +26,7 @@ export default function normalizeBody (body: TBodyJson, options: TGetBodyOptions
         if (arrays.includes(key)) continue;
 
         if (Array.isArray(result[key])) {
-            const value = (result[key] as TBodyJsonValue[])[0];
-            result[key] = value;
+            result[key] = (result[key] as TBodyJsonValue[])[0];
         }
     }
 
@@ -51,24 +50,20 @@ export default function normalizeBody (body: TBodyJson, options: TGetBodyOptions
     for (const key of numbers) {
         if (!(key in result)) continue;
 
-        let failed = false;
-
         if (arrays.includes(key)) {
             const values = (result[key] as TBodyJsonValue[]).map(toNumber);
             result[key] = values;
-            failed = values.some(value => isNaN(value));
+            if (!values.some(value => isNaN(value))) continue;
         } else {
             const value = toNumber(result[key]);
             result[key] = value;
-            failed = isNaN(value);
+            if (!isNaN(value)) continue;
         }
 
-        if (failed) {
-            throw Ex.UnprocessableEntity(`Value ${key} must be a number`, {
-                body,
-                numbers
-            });
-        }
+        throw Ex.UnprocessableEntity(`Value ${key} must be a number`, {
+            body,
+            numbers
+        });
     }
 
     // booleans
@@ -94,8 +89,8 @@ export default function normalizeBody (body: TBodyJson, options: TGetBodyOptions
         }
     }
 
+    // post process
     if (typeof postProcess === 'function') {
-        // post process
         return postProcess(result);
     } else {
         return result;

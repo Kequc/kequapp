@@ -127,10 +127,35 @@ describe('validatePathname', () => {
         assert.doesNotThrow(() => validatePathname('/hello/there/**', 'Test', true));
     });
 
+    it('does nothing if pathname includes extra slashes', () => {
+        assert.doesNotThrow(() => validatePathname('//hello///there/', 'Test'));
+    });
+
     it('throws error if not wild pathname', () => {
         assert.throws(() => validatePathname('/hello/there', 'Test', true), {
             message: 'Test must end with \'/**\''
         });
+    });
+
+    it('throws error if invalid format', () => {
+        const tests = [
+            '/hello/:',
+            '/hello/:/there',
+            '/hello/there*',
+            '/hello/:id*',
+            '/hello/::',
+            '/hello/:*',
+            '/hel lo',
+            '/hello:',
+            '/hello/*',
+            '/hello/***'
+        ];
+
+        for (const test of tests) {
+            assert.throws(() => validatePathname(test, 'Test'), {
+                message: `Test invalid format '${test}'`
+            });
+        }
     });
 });
 

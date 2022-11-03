@@ -78,7 +78,7 @@ function compare (parts: string[], clientParts: string[]): boolean {
 
     for (let i = 0; i < parts.length; i++) {
         if (parts[i] === '**') return true;
-        if (parts[i][0] !== ':' && parts[i] !== clientParts[i]) return false;
+        if (parts[i] !== clientParts[i] && parts[i][0] !== ':') return false;
     }
 
     return true;

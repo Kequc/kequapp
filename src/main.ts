@@ -7,6 +7,7 @@ import createBranch from './router/modules/create-branch';
 import requestProcessor from './router/request-processor';
 import { IAddable, IKequapp, THandle } from './types';
 import { extractHandles } from './util/extract';
+
 export { default as createBranch } from './router/modules/create-branch';
 export { default as createConfig } from './router/modules/create-config';
 export { default as createErrorHandler } from './router/modules/create-error-handler';

@@ -36,6 +36,8 @@ export function validateType (topic: unknown, name: string, type: string): void 
     }
 }
 
+const PATHNAME_REGEX = /^(?:\/:[^/: *]+|\/[^/: *]*|\/\*{2})+$/;
+
 export function validatePathname (topic: unknown, name: string, isWild = false): void {
     if (topic !== undefined) {
         validateType(topic, name, 'string');
@@ -45,6 +47,9 @@ export function validatePathname (topic: unknown, name: string, isWild = false):
         }
         if (isWild && !(topic as string).endsWith('/**')) {
             throw new Error(`${name} must end with '/**'`);
+        }
+        if (!(topic as string).match(PATHNAME_REGEX)) {
+            throw new Error(`${name} invalid format '${topic}'`);
         }
     }
 }
