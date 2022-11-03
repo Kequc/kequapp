@@ -1,6 +1,6 @@
 {
   "name": "kequapp",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Versatile, non-intrusive webapp framework",
   "main": "dist/main.js",
   "types": "dist/main.d.ts",
