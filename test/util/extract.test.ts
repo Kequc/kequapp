@@ -1,6 +1,5 @@
 import assert from 'assert';
 import 'kequtest';
-import { TRouteData } from '../../src/types';
 import {
     extractContentType,
     extractHandles,
@@ -74,27 +73,18 @@ describe('getParts', () => {
 });
 
 describe('getParams', () => {
-    function buildRoute (...parts: string[]): TRouteData {
-        return { parts, handles: [], method: 'GET' };
-    }
-
     it('extracts params from a path', () => {
-        const result = getParams('/hello/there/boo', buildRoute('hello', ':foo', ':bar'));
+        const result = getParams(['hello', 'there', 'boo'], ['hello', ':foo', ':bar']);
         assert.deepStrictEqual(result, { foo: 'there', bar: 'boo' });
     });
 
-    it('recovers if route is missing', () => {
-        const result = getParams('/hello/there/boo', undefined);
-        assert.deepStrictEqual(result, {});
-    });
-
     it('returns no params', () => {
-        const result = getParams('/hello/there/boo', buildRoute('hello', 'there', 'boo'));
+        const result = getParams(['hello', 'there', 'boo'], ['hello', 'there', 'boo']);
         assert.deepStrictEqual(result, {});
     });
 
     it('extracts wild route params', () => {
-        const result = getParams('/hello/there/boo', buildRoute('hello', '**'));
+        const result = getParams(['hello', 'there', 'boo'], ['hello', '**']);
         assert.deepStrictEqual(result, { '**': '/there/boo' });
     });
 });

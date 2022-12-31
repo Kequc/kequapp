@@ -1,5 +1,5 @@
 import { TBodyJson, TRawPart } from '../types';
-import Ex from '../util/tools/ex';
+import Ex from '../built-in/tools/ex';
 
 type TParser = (body: TRawPart) => any;
 

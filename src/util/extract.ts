@@ -1,5 +1,5 @@
 import { validateArray } from './validate';
-import { TParams, TPathname, TRouteData } from '../types';
+import { TParams, TPathname, TRoute } from '../types';
 
 export function extractMethod (params: unknown[]): string {
     if (typeof params[0] !== 'string' || params[0][0] === '/') {
@@ -41,7 +41,9 @@ export function extractOptions<T> (params: unknown[], defaultOptions?: T): T {
     return { ...defaultOptions, ...(params.shift() as T) };
 }
 
-export function getParts (pathname: string): string[] {
+export function getParts (pathname?: string): string[] {
+    if (pathname === undefined) return [];
+
     const parts = pathname.split('/').filter(part => !!part);
     const wildIndex = parts.indexOf('**');
 
@@ -52,10 +54,8 @@ export function getParts (pathname: string): string[] {
     return parts;
 }
 
-export function getParams (pathname: string, route?: TRouteData): TParams {
-    const clientParts = getParts(pathname);
+export function getParams (clientParts: string[], parts: string[]): TParams {
     const params: TParams = {};
-    const parts = route?.parts || [];
 
     for (let i = 0; i < parts.length; i++) {
         if (parts[i] === '**') {

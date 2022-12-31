@@ -1,5 +1,5 @@
 import { TBodyJson, TBodyJsonValue, TGetBodyOptions } from '../types';
-import Ex from '../util/tools/ex';
+import Ex from '../built-in/tools/ex';
 
 export default function normalizeBody (body: TBodyJson, options: TGetBodyOptions): TBodyJson {
     if (options.skipNormalize === true) return body;
@@ -10,8 +10,7 @@ export default function normalizeBody (body: TBodyJson, options: TGetBodyOptions
         arrays = [],
         numbers = [],
         booleans = [],
-        validate,
-        postProcess
+        validate
     } = options;
 
     // arrays
@@ -89,12 +88,7 @@ export default function normalizeBody (body: TBodyJson, options: TGetBodyOptions
         }
     }
 
-    // post process
-    if (typeof postProcess === 'function') {
-        return postProcess(result);
-    } else {
-        return result;
-    }
+    return result;
 }
 
 function isEmpty (value: TBodyJsonValue): boolean {

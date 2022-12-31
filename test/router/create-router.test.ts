@@ -1,12 +1,8 @@
 import assert from 'assert';
 import 'kequtest';
 import createRouter from '../../src/router/create-router';
-import {
-    TErrorHandlerData,
-    THandle,
-    TRendererData,
-    TRouteData
-} from '../../src/types';
+import { TErrorHandlerData, TRendererData, TRouteData } from '../../src/router/types';
+import { THandle } from '../../src/types';
 
 const handleA = () => {};
 const handleB = () => {};

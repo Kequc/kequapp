@@ -1,15 +1,18 @@
-import createRenderer from '../router/modules/create-renderer';
-import Ex from '../util/tools/ex';
+import { createRenderer } from '../router/modules';
+import Ex from '../built-in/tools/ex';
 
-export default createRenderer('text/*', (payload, { req, res }) => {
-    const text = generateText(payload);
+export default createRenderer({
+    contentType: 'text/*',
+    handle (payload, { req, res }) {
+        const text = generateText(payload);
 
-    res.setHeader('Content-Length', Buffer.byteLength(text));
+        res.setHeader('Content-Length', Buffer.byteLength(text));
 
-    if (req.method === 'HEAD') {
-        res.end();
-    } else {
-        res.end(text);
+        if (req.method === 'HEAD') {
+            res.end();
+        } else {
+            res.end(text);
+        }
     }
 });
 

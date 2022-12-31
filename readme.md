@@ -576,46 +576,15 @@ type TBody = {
 createRoute('POST', '/users', async ({ getBody }) => {
     const body = await getBody<TBody>({
         arrays: ['ownedPets'],
+        required: ['age', 'name']
         numbers: ['age'],
         validate (result) {
             if (result.ownedPets.length > 99) {
                 return 'Too many pets';
             }
-        }
-    });
-
-    // body ~= {
-    //     ownedPets: ['Maggie', 'Ralph'],
-    //     age: 23
-    // }
-});
-```
-
-We know it is safe to use `result.ownedPets.length` in this example because it is listed as an `arrays` field and therefore certain to be an array.
-
-* **`postProcess`**
-
-After normalization is complete and `validate` has passed, this method further formats the response in any way we need. The returned value will be the final result.
-
-```javascript
-// postProcess
-
-type TBody = {
-    ownedPets: string[];
-    age: number;
-    name: string;
-};
-
-createRoute('POST', '/users', async ({ getBody }) => {
-    const body = await getBody<TBody>({
-        arrays: ['ownedPets'],
-        required: ['age', 'name'],
-        numbers: ['age'],
-        postProcess (result) {
-            return {
-                ...result,
-                name: result.name.trim()
-            };
+            if (result.name.length < 3) {
+                return 'Name is too short';
+            }
         }
     });
 
@@ -627,7 +596,7 @@ createRoute('POST', '/users', async ({ getBody }) => {
 });
 ```
 
-We know it is safe to call `result.name.trim()` in this example because it is listed as a `required` field and therefore certain to exist.
+We know it is safe to use `result.ownedPets.length` in this example because it is listed as an `arrays` field and therefore certain to be an array. `result.name` is listed as a `required` field and therefore certain to exist.
 
 * **`maxPayloadSize`**
 

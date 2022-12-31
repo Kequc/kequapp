@@ -1,75 +1,22 @@
-import { RequestListener, IncomingMessage, ServerResponse } from 'http';
+import { IncomingMessage, ServerResponse } from 'http';
 import { Transform } from 'stream';
-
-export interface IKequapp extends RequestListener {
-    (...handles: THandle[]): IKequapp;
-    add (...routers: IAddable[]): IKequapp;
-}
 
 export type TConfigInput = {
     logger: TLogger | boolean;
     autoHead: boolean;
 };
-export type TConfig = {
-    logger: TLogger;
-    autoHead: boolean;
-};
 export type TLogger = {
     log: (...params: unknown[]) => void;
-    error: (...params: unknown[]) => void;
-    warn: (...params: unknown[]) => void;
     debug: (...params: unknown[]) => void;
-};
-
-export interface IAddable {
-    (): Partial<TAddableData>;
-}
-
-export interface IAddableBranch {
-    (): TAddableData;
-    add (...routers: IAddable[]): IAddableBranch;
-}
-
-export type TAddableData = {
-    routes: TRouteData[];
-    renderers: TRendererData[];
-    errorHandlers: TErrorHandlerData[];
-    configs: TConfigData[];
-};
-
-export interface IRouter {
-    (pathname?: string): TAddableData;
-}
-
-export type TRoute = {
-    parts: string[];
-    method: string;
-    lifecycle: (req: IncomingMessage, res: ServerResponse) => void;
-};
-
-export type TRouteData = {
-    parts: string[];
-    handles: THandle[];
-    method: string;
-};
-export type TRendererData = {
-    parts: string[];
-    contentType: string;
-    handle: TRenderer;
-};
-export type TErrorHandlerData = {
-    parts: string[];
-    contentType: string;
-    handle: TErrorHandler;
-};
-export type TConfigData = {
-    parts: string[];
-    config: TConfig;
+    info: (...params: unknown[]) => void;
+    warn: (...params: unknown[]) => void;
+    error: (...params: unknown[]) => void;
 };
 
 export type THandle = (bundle: TBundle) => Promise<unknown> | unknown;
 export type TRenderer = (payload: unknown, bundle: TBundle) => Promise<void> | void;
 export type TErrorHandler = (ex: TServerEx, bundle: TBundle) => Promise<unknown> | unknown;
+
 export type TPathname = `/${string}`;
 export type TPathnameWild = TPathname & `${string}/**`;
 export type THeader = string | number | string[] | undefined;
@@ -96,11 +43,11 @@ export interface IGetBody {
     (format: TGetBodyOptions & { raw: true }): Promise<Buffer>;
     (format: TGetBodyOptions & { multipart: true }): Promise<[TBodyJson, TFilePart[]]>;
     (format?: TGetBodyOptions): Promise<TBodyJson>;
-    <T>(format: TGetBodyOptions & { multipart: true }): Promise<[T, TFilePart[]]>;
-    <T>(format?: TGetBodyOptions): Promise<T>;
+    <T>(format: TGetBodyOptions<T> & { multipart: true }): Promise<[T, TFilePart[]]>;
+    <T>(format?: TGetBodyOptions<T>): Promise<T>;
 }
 
-export type TGetBodyOptions = {
+export type TGetBodyOptions<T = TBodyJson> = {
     raw?: boolean;
     multipart?: boolean;
     maxPayloadSize?: number;
@@ -109,8 +56,7 @@ export type TGetBodyOptions = {
     numbers?: string[];
     booleans?: string[];
     required?: string[];
-    validate? (body: TBodyJson): string | void;
-    postProcess? (body: TBodyJson): TBodyJson;
+    validate? (body: T): string | void;
 };
 
 export interface IGetResponse {
@@ -158,3 +104,47 @@ export type TInject = {
     res: ServerResponse & Transform;
     getResponse: IGetResponse;
 };
+
+export interface IRouter {
+    (method: string, parts: string[]): [TRoute, string[]];
+}
+
+export type TBranchData = {
+    url?: TPathname;
+    handles?: THandle[];
+    branches?: TBranchData[];
+    routes?: TRouteData[];
+    errorHandlers?: TErrorHandlerData[];
+    renderers?: TRendererData[];
+    logger?: TLogger;
+    autoHead?: boolean;
+};
+export type TRouteData = {
+    method: string;
+    url: TPathname;
+    handles?: THandle[];
+    logger?: TLogger;
+    autoHead?: boolean;
+};
+export type TRendererData = {
+    contentType: string;
+    handle: TRenderer;
+};
+export type TErrorHandlerData = {
+    contentType: string;
+    handle: TErrorHandler;
+};
+
+export type TCacheBranch = {
+    parts: string[];
+    handles: THandle[];
+    errorHandlers: TErrorHandlerData[];
+    renderers: TRendererData[];
+    autoHead?: boolean;
+    logger?: TLogger;
+};
+export type TCacheRoute = TCacheBranch & {
+    method: string;
+};
+export type TBranch = Required<TCacheBranch> & { regex: RegExp };
+export type TRoute = Required<TCacheRoute> & { regex: RegExp };

@@ -400,28 +400,3 @@ describe('validate', () => {
         });
     });
 });
-
-describe('postProcess', () => {
-    it('runs post processing', () => {
-        const body = {
-            name: 'April',
-            age: '23',
-            ownedPets: 'cat'
-        };
-        const options = {
-            arrays: ['ownedPets'],
-            postProcess: (result) => {
-                return {
-                    ...result,
-                    ownedPets: result.ownedPets.length
-                };
-            }
-        };
-
-        assert.deepStrictEqual(normalizeBody(body, options), {
-            name: 'April',
-            age: '23',
-            ownedPets: 1
-        });
-    });
-});
