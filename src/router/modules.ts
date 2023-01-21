@@ -20,9 +20,9 @@ export function createHandle (handle: THandle): THandle {
     return handle;
 }
 
-export function createRoute (route: TRouteData): TRouteData {
-    validateRoute(route);
-    return route;
+export function createRoute (data: TRouteData): TRouteData {
+    validateRoute(data);
+    return data;
 }
 
 export function createBranch (branch: TBranchData): TBranchData {

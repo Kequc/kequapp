@@ -1,5 +1,5 @@
-import { validateArray } from './validate';
-import { TParams, TPathname, TRoute } from '../types';
+import { validateArray } from '../../util/validate';
+import { TParams, TPathname } from '../../types';
 
 export function extractMethod (params: unknown[]): string {
     if (typeof params[0] !== 'string' || params[0][0] === '/') {

@@ -1,11 +1,11 @@
 import path from 'path';
 import sendFile from './send-file';
-import createRoute from '../../router/modules/create-route';
-import { IAddable, TParams, TPathname, TPathnameWild } from '../../types';
-import { extractOptions, extractUrl } from '../../util/extract';
+import { createHandle, createRoute } from '../../router/modules';
+import { TRouteData, TParams, TPathname, TPathnameWild } from '../../types';
+import { extractOptions, extractUrl } from '../../router/util/extract';
 import guessMime from '../../util/guess-mime';
 import { validateArray, validateObject, validatePathname } from '../../util/validate';
-import Ex from '../../util/tools/ex';
+import Ex from '../tools/ex';
 
 type TStaticDirectoryOptions = {
     dir: TPathname;
@@ -20,22 +20,22 @@ const DEFAULT_OPTIONS: TStaticDirectoryOptions = {
 };
 
 interface IStaticDirectory {
-    (url: TPathnameWild, options: Partial<TStaticDirectoryOptions>): IAddable;
-    (url: TPathnameWild): IAddable;
-    (options: Partial<TStaticDirectoryOptions>): IAddable;
-    (): IAddable;
+    (url: TPathnameWild, options: Partial<TStaticDirectoryOptions>): TRouteData;
+    (url: TPathnameWild): TRouteData;
+    (options: Partial<TStaticDirectoryOptions>): TRouteData;
+    (): TRouteData;
 }
 
 export default staticDirectory as IStaticDirectory;
 
-function staticDirectory (...params: unknown[]): IAddable {
+function staticDirectory (...params: unknown[]): TRouteData {
     const url = extractUrl(params, '/**');
     const options = extractOptions<TStaticDirectoryOptions>(params, DEFAULT_OPTIONS);
 
     validatePathname(url, 'Static directory url', true);
     validateOptions(options);
 
-    return createRoute(url, async ({ req, res, params }) => {
+    const handle = createHandle(async ({ req, res, params }) => {
         const asset = path.join(options.dir, params['**']) as TPathname;
 
         if (isExcluded(options.exclude, asset)) {
@@ -43,6 +43,12 @@ function staticDirectory (...params: unknown[]): IAddable {
         }
 
         await sendFile(req, res, asset, guessMime(asset, options.mime));
+    });
+
+    return createRoute({
+        method: 'GET',
+        url,
+        handles: [handle]
     });
 }
 

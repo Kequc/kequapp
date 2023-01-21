@@ -1,6 +1,6 @@
 import { createHandle, createRoute } from '../../router/modules';
 import { TPathname, TRouteData } from '../../types';
-import { extractContentType, extractUrl } from '../../util/extract';
+import { extractContentType, extractUrl } from '../../router/util/extract';
 import { validatePathname, validateType } from '../../util/validate';
 import sendFile from './send-file';
 

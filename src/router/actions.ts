@@ -13,8 +13,6 @@ export async function renderRoute (route: TRoute, bundle: TBundle): Promise<void
     }
     if (method === 'OPTIONS') {
         res.statusCode = 204;
-        res.setHeader('Content-Length', 0);
-
         addOptionsHeaders(bundle);
     } else {
         res.statusCode = 200;
@@ -64,6 +62,8 @@ function addOptionsHeaders ({ req, res, methods }: TBundle): void {
     if (allowHeaders) {
         res.setHeader('Access-Control-Allow-Headers', allowHeaders);
     }
+
+    res.setHeader('Content-Length', 0);
 }
 
 async function finalize (renderers: TRendererData[], bundle: TBundle, payload: unknown): Promise<void> {

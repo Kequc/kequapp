@@ -8,7 +8,7 @@ import {
     extractUrl,
     getParams,
     getParts
-} from '../../src/util/extract';
+} from '../../../src/router/util/extract';
 
 describe('extractMethod', () => {
     it('gets the first string', () => {

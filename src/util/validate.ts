@@ -1,5 +1,11 @@
-import { TBranchData, TErrorHandlerData, TRendererData, TRouteData } from '../router/types';
-import { TLogger } from '../types';
+import {
+    TBranchData,
+    TErrorHandlerData,
+    TLogger,
+    TRendererData,
+    TRouteData
+} from '../types';
+import { getParts } from '../router/util/extract';
 
 export function validateObject (topic: unknown, name: string, type?: string): void {
     if (topic !== undefined) {
@@ -39,7 +45,7 @@ export function validateType (topic: unknown, name: string, type: string): void 
     }
 }
 
-const PATHNAME_REGEX = /^(?:\/:[^/: *]+|\/[^/: *]*|\/\*{2})+$/;
+const PATHNAME_REGEX = /^(?:\/:[a-zA-Z_]\w*|\/[\w-]*|\/\*{2})+$/;
 
 export function validatePathname (topic: unknown, name: string, isWild = false): void {
     if (topic !== undefined) {
@@ -51,8 +57,21 @@ export function validatePathname (topic: unknown, name: string, isWild = false):
         if (isWild && !(topic as string).endsWith('/**')) {
             throw new Error(`${name} must end with '/**'`);
         }
-        if (!(topic as string).match(PATHNAME_REGEX)) {
+        if (!PATHNAME_REGEX.test(topic as string)) {
             throw new Error(`${name} invalid format '${topic}'`);
+        }
+
+        const existing: string[] = [];
+
+        for (const part of getParts(topic as string)) {
+            if (!part.startsWith(':')) continue;
+            if (part === ':wild') {
+                throw new Error(`${name} cannot contain :wild '${topic}'`);
+            }
+            if (existing.includes(part)) {
+                throw new Error(`${name} duplicate ${part} '${topic}'`);
+            }
+            existing.push(part);
         }
     }
 }
@@ -93,7 +112,6 @@ export function validateErrorHandler (errorHandler: TErrorHandlerData): void {
     validateObject(errorHandler, 'Error handler');
     validateExists(errorHandler.contentType, 'Error handler contentType');
     validateType(errorHandler.contentType, 'Error handler contentType', 'string');
-    validatePathname(errorHandler.url, 'Error handler url');
     validateExists(errorHandler.handle, 'Error handler handle');
     validateType(errorHandler.handle, 'Error handler handle', 'function');
 }
@@ -103,16 +121,21 @@ export function validateRenderer (renderer: TRendererData): void {
     validateObject(renderer, 'Renderer');
     validateExists(renderer.contentType, 'Renderer contentType');
     validateType(renderer.contentType, 'Renderer contentType', 'string');
-    validatePathname(renderer.url, 'Renderer url');
     validateExists(renderer.handle, 'Renderer handle');
     validateType(renderer.handle, 'Renderer handle', 'function');
 }
 
-export function validateLogger (logger?: TLogger): void {
-    validateObject(logger, 'Logger', 'function');
-    if (!logger) return;
-    validateExists(logger.debug, 'Logger debug');
-    validateExists(logger.log, 'Logger log');
-    validateExists(logger.warn, 'Logger warn');
-    validateExists(logger.error, 'Logger error');
+export function validateLogger (logger?: Partial<TLogger>): void {
+    validateObject(logger, 'Logger');
+
+    if (logger !== undefined) {
+        validateType(logger.error, 'Logger error', 'function');
+        validateType(logger.warn, 'Logger warn', 'function');
+        validateType(logger.info, 'Logger info', 'function');
+        validateType(logger.http, 'Logger http', 'function');
+        validateType(logger.verbose, 'Logger verbose', 'function');
+        validateType(logger.debug, 'Logger debug', 'function');
+        validateType(logger.silly, 'Logger silly', 'function');
+        validateType(logger.log, 'Logger log', 'function');
+    }
 }

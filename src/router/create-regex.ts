@@ -1,23 +1,30 @@
-export const WILD = '[^: *]*';
-export const PARA = '[^/: *]+';
+import { getParts } from './util/extract';
 
-export default function createRegex (parts: string[], forceWild = false): RegExp {
-    return new RegExp('^/' + getConverted(parts, forceWild) + '$', 'i');
+export const WILD = '[\\w\\/-]*';
+export const PARA = '[a-zA-Z_]\\w*';
+
+export default function createRegex (url: string, isWild = false): RegExp {
+    return new RegExp('^/' + getConverted(url, isWild) + '$', 'i');
 }
 
-function getConverted (parts: string[], forceWild: boolean): string {
-    const wildIndex = getWildIndex(parts, forceWild);
+function getConverted (url: string, isWild: boolean): string {
+    const parts = getParts(url);
+    const wildIndex = getWildIndex(parts, isWild);
     const hasWild = wildIndex > -1;
     const trimmed = hasWild ? parts.slice(0, wildIndex) : parts;
-    const converted = trimmed.map(replaceParam).join('/');
-    return hasWild ? converted + WILD : converted;
+    const converted = trimmed.map(replaceParam).join('/+');
+    return hasWild ? `${converted}(?<wild>${WILD})` : converted;
 }
 
-function getWildIndex (parts: string[], forceWild: boolean): number {
+function getWildIndex (parts: string[], isWild: boolean): number {
     const wildIndex = parts.indexOf('**');
-    return wildIndex > -1 || !forceWild ? wildIndex : parts.length;
+    return (wildIndex > -1 || !isWild) ? wildIndex : parts.length;
 }
 
 function replaceParam (part: string): string {
-    return part.startsWith(':') ? PARA : part;
+    if (part.startsWith(':')) {
+        return `(?<${part.substring(1)}>${PARA})`;
+    }
+
+    return part;
 }

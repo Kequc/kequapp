@@ -1,16 +1,16 @@
 import { IncomingMessage, ServerResponse } from 'http';
 import { Transform } from 'stream';
 
-export type TConfigInput = {
-    logger: TLogger | boolean;
-    autoHead: boolean;
-};
+export type TLoggerLvl = (...params: unknown[]) => void;
 export type TLogger = {
-    log: (...params: unknown[]) => void;
-    debug: (...params: unknown[]) => void;
-    info: (...params: unknown[]) => void;
-    warn: (...params: unknown[]) => void;
-    error: (...params: unknown[]) => void;
+    log: TLoggerLvl;
+    error: TLoggerLvl;
+    warn: TLoggerLvl;
+    info: TLoggerLvl;
+    http: TLoggerLvl;
+    verbose: TLoggerLvl;
+    debug: TLoggerLvl;
+    silly: TLoggerLvl;
 };
 
 export type THandle = (bundle: TBundle) => Promise<unknown> | unknown;
@@ -89,7 +89,6 @@ export type TFilePart = TRawPart & {
 };
 
 export type TBodyJsonValue = string | number | boolean | Date | null | TBodyJson | TBodyJsonValue[];
-
 export type TBodyJson = {
     [k: string]: TBodyJsonValue;
 };
@@ -106,7 +105,7 @@ export type TInject = {
 };
 
 export interface IRouter {
-    (method: string, parts: string[]): [TRoute, string[]];
+    (method: string, url: string): [TRoute, TParams, string[]];
 }
 
 export type TBranchData = {
@@ -116,14 +115,14 @@ export type TBranchData = {
     routes?: TRouteData[];
     errorHandlers?: TErrorHandlerData[];
     renderers?: TRendererData[];
-    logger?: TLogger;
+    logger?: Partial<TLogger>;
     autoHead?: boolean;
 };
 export type TRouteData = {
     method: string;
     url: TPathname;
     handles?: THandle[];
-    logger?: TLogger;
+    logger?: Partial<TLogger>;
     autoHead?: boolean;
 };
 export type TRendererData = {
@@ -136,15 +135,15 @@ export type TErrorHandlerData = {
 };
 
 export type TCacheBranch = {
-    parts: string[];
+    url: TPathname;
     handles: THandle[];
     errorHandlers: TErrorHandlerData[];
     renderers: TRendererData[];
     autoHead?: boolean;
-    logger?: TLogger;
+    logger?: Partial<TLogger>;
 };
 export type TCacheRoute = TCacheBranch & {
     method: string;
 };
-export type TBranch = Required<TCacheBranch> & { regex: RegExp };
-export type TRoute = Required<TCacheRoute> & { regex: RegExp };
+export type TBranch = Required<Omit<TCacheBranch, 'url'>> & { regex: RegExp, logger: TLogger };
+export type TRoute = Required<Omit<TCacheRoute, 'url'>> & { regex: RegExp, logger: TLogger };

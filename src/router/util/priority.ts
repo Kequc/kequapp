@@ -1,11 +1,15 @@
-type TSortableParts = { parts: string[] };
+import { getParts } from './extract';
 
-export function priorityParts (a: TSortableParts, b: TSortableParts): number {
-    const count = Math.max(a.parts.length, b.parts.length);
+type TSortableUrl = { url: string };
+
+export function priorityUrl (a: TSortableUrl, b: TSortableUrl): number {
+    const partsa = getParts(a.url);
+    const partsb = getParts(b.url);
+    const count = Math.max(partsa.length, partsb.length);
 
     for (let i = 0; i < count; i++) {
-        const aa = a.parts[i];
-        const bb = b.parts[i];
+        const aa = partsa[i];
+        const bb = partsb[i];
 
         if (aa === bb) continue;
         if (bb === undefined || aa === '**') return 1;

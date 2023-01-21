@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { IncomingMessage, ServerResponse } from 'http';
 import path from 'path';
-import Ex from '../../util/tools/ex';
+import Ex from '../tools/ex';
 import guessMime from '../../util/guess-mime';
 import { TPathname } from '../../types';
 
