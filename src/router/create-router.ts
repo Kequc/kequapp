@@ -24,6 +24,7 @@ export default function createRouter (structure: TBranchData): IRouter {
         const route = getRoute(matchedRoutes, method) ?? generate404(branches, url, method);
         const params = url.match(route.regex)?.groups ?? {};
         const methods = getMethods(matchedRoutes, route.autoHead);
+
         return [route, params, methods];
     };
 }
@@ -58,6 +59,8 @@ function generate404 (branches: TBranch[], key: string, method: string): TRoute 
 
 function getMethods (routes: TRoute[], autoHead: boolean): string[] {
     const set = new Set(routes.map(item => item.method));
+
     if (autoHead && set.has('GET')) set.add('HEAD');
+
     return [...set];
 }

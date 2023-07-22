@@ -27,7 +27,7 @@ function pick (obj: Tpojo): Partial<TLogger> {
     const result: Tpojo = {};
 
     for (const key of Object.keys(logger)) {
-        result[key] = obj[key];
+        if (key in obj) result[key] = obj[key];
     }
 
     return result;

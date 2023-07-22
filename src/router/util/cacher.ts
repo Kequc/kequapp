@@ -27,10 +27,6 @@ export function cacheRoutes (structure: TBranchData): TRoute[] {
     }));
 }
 
-export function cacheBranches (structure: TBranchData): TBranch[] {
-    return cacheBranchesMeta(structure).map(sanitize);
-}
-
 function cacheRoutesMeta (target: TBranchData): TCacheRoute[] {
     const routes: TCacheRoute[] = [];
 
@@ -53,6 +49,10 @@ function cacheRoutesMeta (target: TBranchData): TCacheRoute[] {
     }
 
     return routes;
+}
+
+export function cacheBranches (structure: TBranchData): TBranch[] {
+    return cacheBranchesMeta(structure).map(sanitize);
 }
 
 function cacheBranchesMeta (target: TBranchData): TCacheBranch[] {
@@ -101,6 +101,6 @@ function extendRoute (target: TBranchData, route: TRouteData) {
     };
 }
 
-function extendUrl (target: TPathname | undefined, source: TPathname): TPathname {
-    return path.join('/', target ?? '/', source) as TPathname;
+function extendUrl (target: TPathname = '/', source: TPathname = '/'): TPathname {
+    return path.join('/', target, source) as TPathname;
 }

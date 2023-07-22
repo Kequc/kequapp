@@ -59,8 +59,8 @@ describe('getParts', () => {
         assert.deepStrictEqual(getParts('/hello/there'), ['hello', 'there']);
     });
 
-    it('ignores too many separators', () => {
-        assert.deepStrictEqual(getParts('//hello///there'), ['hello', 'there']);
+    it('ignores too many starting separators', () => {
+        assert.deepStrictEqual(getParts('//hello///there'), ['', 'hello', '', '', 'there']);
     });
 
     it('accepts wildcard', () => {
@@ -91,7 +91,7 @@ describe('getParams', () => {
 
 describe('extractContentType', () => {
     it('gets the first string', () => {
-        assert.strictEqual(extractContentType(['HELLO', 'BOO'], '*'), 'HELLO');
+        assert.strictEqual(extractContentType(['HELLO/*', 'BOO'], '*'), 'HELLO/*');
     });
 
     it('accepts a default', () => {
@@ -99,8 +99,8 @@ describe('extractContentType', () => {
     });
 
     it('modifies the params', () => {
-        const params = ['HELLO', 'BOO'];
-        assert.strictEqual(extractContentType(params, '*'), 'HELLO');
+        const params = ['HELLO/*', 'BOO'];
+        assert.strictEqual(extractContentType(params, '*'), 'HELLO/*');
         assert.deepStrictEqual(params, ['BOO']);
     });
 });

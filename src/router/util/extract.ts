@@ -1,28 +1,28 @@
-import { validateArray } from '../../util/validate';
+import { CONTENT_TYPE_REGEX, PATHNAME_REGEX, validateArray } from '../../util/validate';
 import { TParams, TPathname } from '../../types';
 
-export function extractMethod (params: unknown[]): string {
-    if (typeof params[0] !== 'string' || params[0][0] === '/') {
-        return 'GET';
+export function extractMethod (params: unknown[], method = 'GET'): string {
+    if (typeof params[0] !== 'string' || params[0].includes('/')) {
+        return method;
     }
 
     return params.shift() as string;
 }
 
 export function extractUrl (params: unknown[], url: TPathname = '/'): TPathname {
-    if (typeof params[0] !== 'string' || params[0][0] !== '/') {
+    if (typeof params[0] !== 'string' || !PATHNAME_REGEX.test(params[0])) {
         return url;
     }
 
     return params.shift() as TPathname;
 }
 
-export function extractContentType<T> (params: unknown[], contentType: T): string | T {
-    if (typeof params[0] !== 'string' || params[0][0] === '/') {
+export function extractContentType (params: unknown[], contentType?: string): string | undefined {
+    if (typeof params[0] !== 'string' || !CONTENT_TYPE_REGEX.test(params[0])) {
         return contentType;
     }
 
-    return params.shift() as T;
+    return params.shift() as string;
 }
 
 export function extractHandles<T> (params: unknown[]): T[] {
@@ -33,7 +33,7 @@ export function extractHandles<T> (params: unknown[]): T[] {
     return handles as T[];
 }
 
-export function extractOptions<T> (params: unknown[], defaultOptions?: T): T {
+export function extractOptions<T> (params: unknown[], defaultOptions?: Partial<T>): T {
     if (typeof params[0] !== 'object' || params[0] === null || Array.isArray(params[0])) {
         return { ...defaultOptions } as T;
     }
@@ -44,9 +44,10 @@ export function extractOptions<T> (params: unknown[], defaultOptions?: T): T {
 export function getParts (pathname?: string): string[] {
     if (pathname === undefined) return [];
 
-    const parts = pathname.split('/').filter(part => !!part);
-    const wildIndex = parts.indexOf('**');
+    const parts = pathname.split('/');
+    if (parts[0] === '') parts.shift();
 
+    const wildIndex = parts.indexOf('**');
     if (wildIndex > -1) {
         return parts.slice(0, wildIndex + 1);
     }

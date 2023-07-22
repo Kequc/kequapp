@@ -108,22 +108,18 @@ export interface IRouter {
     (method: string, url: string): [TRoute, TParams, string[]];
 }
 
-export type TBranchData = {
+export type TRouteData = {
+    method: string;
     url?: TPathname;
     handles?: THandle[];
-    branches?: TBranchData[];
-    routes?: TRouteData[];
-    errorHandlers?: TErrorHandlerData[];
-    renderers?: TRendererData[];
     logger?: Partial<TLogger>;
     autoHead?: boolean;
 };
-export type TRouteData = {
-    method: string;
-    url: TPathname;
-    handles?: THandle[];
-    logger?: Partial<TLogger>;
-    autoHead?: boolean;
+export type TBranchData = Omit<TRouteData, 'method'> & {
+    routes?: TRouteData[];
+    branches?: TBranchData[];
+    errorHandlers?: TErrorHandlerData[];
+    renderers?: TRendererData[];
 };
 export type TRendererData = {
     contentType: string;
@@ -145,5 +141,13 @@ export type TCacheBranch = {
 export type TCacheRoute = TCacheBranch & {
     method: string;
 };
-export type TBranch = Required<Omit<TCacheBranch, 'url'>> & { regex: RegExp, logger: TLogger };
-export type TRoute = Required<Omit<TCacheRoute, 'url'>> & { regex: RegExp, logger: TLogger };
+export type TBranch = Omit<TCacheBranch, 'url'> & {
+    regex: RegExp;
+    autoHead: boolean;
+    logger: TLogger;
+};
+export type TRoute = Omit<TCacheRoute, 'url'> & {
+    regex: RegExp;
+    autoHead: boolean;
+    logger: TLogger;
+};

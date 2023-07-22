@@ -1,11 +1,11 @@
 import assert from 'assert';
 import 'kequtest';
-import { findErrorHandler, findRenderer, isDuplicate } from '../../src/router/find';
-import { TErrorHandlerData, TRendererData, TRouteData } from '../../src/types';
+import { findErrorHandler, findRenderer } from '../../src/router/find';
+import { TErrorHandlerData, TRendererData } from '../../src/types';
 
 describe('findRenderer', () => {
     function buildRenderer (contentType: string): TRendererData {
-        return { parts: [], handle: () => {}, contentType };
+        return { handle: () => {}, contentType };
     }
 
     it('returns a renderer', () => {
@@ -58,7 +58,7 @@ describe('findRenderer', () => {
 
 describe('findErrorHandler', () => {
     function buildErrorHandler (contentType: string): TErrorHandlerData {
-        return { parts: [], handle: () => {}, contentType };
+        return { handle: () => {}, contentType };
     }
 
     it('returns a errorHandler', () => {
@@ -106,60 +106,5 @@ describe('findErrorHandler', () => {
         ];
         assert.strictEqual(findErrorHandler(errorHandlers, 'text/plain'), errorHandlers[2].handle);
         assert.strictEqual(findErrorHandler(errorHandlers, 'text/html'), errorHandlers[1].handle);
-    });
-});
-
-describe('isDuplicate', () => {
-    function route (method: string, parts: string[]): TRouteData {
-        return { method, parts, handles: [] };
-    }
-
-    function findDuplicates (routes: TRouteData[]) {
-        const checked: TRouteData[] = [];
-        const result: TRouteData[] = [];
-
-        for (const route of routes) {
-            const exists = checked.find(value => isDuplicate(value, route));
-            if (exists) {
-                result.push(route, exists);
-            }
-            checked.push(route);
-        }
-
-        return result;
-    }
-
-    it('does nothing when no duplicates', () => {
-        const duplicates = findDuplicates([
-            route('GET', ['free', 'stuff']),
-            route('GET', []),
-            route('GET', ['cats', '**']),
-            route('GET', ['cats', 'tiffany']),
-            route('GET', ['other', ':userId'])
-        ]);
-
-        assert.strictEqual(duplicates.length, 0);
-    });
-
-    it('finds duplicates', () => {
-        const duplicates = findDuplicates([
-            route('GET', ['free', 'stuff']),
-            route('GET', []),
-            route('GET', ['cats', '**']),
-            route('GET', ['cats', 'tiffany']),
-            route('GET', ['cats', ':userId']),
-            route('GET', ['cats', 'tiffany', ':userId']),
-            route('GET', ['cats', 'tiffany', ':carId']),
-            route('GET', ['free', 'stuff'])
-        ]);
-
-        assert.deepStrictEqual(duplicates, [
-            route('GET', ['cats', ':userId']),
-            route('GET', ['cats', '**']),
-            route('GET', ['cats', 'tiffany', ':carId']),
-            route('GET', ['cats', 'tiffany', ':userId']),
-            route('GET', ['free', 'stuff']),
-            route('GET', ['free', 'stuff'])
-        ]);
     });
 });

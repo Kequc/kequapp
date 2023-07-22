@@ -2,21 +2,25 @@ import { TCacheRoute, TLoggerLvl } from '../../types';
 import { getParts } from './extract';
 
 export default function warnDuplicates (routes: TCacheRoute[], warn: TLoggerLvl): void {
+    const found: number[] = [];
+
     for (let i = 0; i < routes.length; i++) {
         const partsi = getParts(routes[i].url);
         for (let j = 0; j < routes.length; j++) {
-            if (i === j) continue;
+            if (i === j || found.includes(j)) continue;
+            if (routes[i].method !== routes[j].method) continue;
             const partsj = getParts(routes[j].url);
             if (!isMatch(partsi, partsj)) continue;
 
+            found.push(i);
             const a = partsi.join('/');
             const b = partsj.join('/');
-            warn(`Duplicate route detected: '/${a}' '/${b}'`);
+            warn(`Duplicate route detected: ${routes[i].method} '/${a}' '/${b}'`);
         }
     }
 }
 
-export function isMatch (aa: string[], bb: string[]): boolean {
+function isMatch (aa: string[], bb: string[]): boolean {
     let aIsWild = false;
     let bIsWild = false;
 
@@ -26,7 +30,7 @@ export function isMatch (aa: string[], bb: string[]): boolean {
         if (a === '**') aIsWild = true;
         if (b === '**') bIsWild = true;
 
-        if ((aIsWild || a.startsWith(':')) && (bIsWild || b.startsWith(':'))) continue;
+        if ((aIsWild || a?.startsWith(':')) && (bIsWild || b?.startsWith(':'))) continue;
         if (a === b) continue;
 
         return false;

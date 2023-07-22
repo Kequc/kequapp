@@ -12,12 +12,14 @@ function getConverted (url: string, isWild: boolean): string {
     const wildIndex = getWildIndex(parts, isWild);
     const hasWild = wildIndex > -1;
     const trimmed = hasWild ? parts.slice(0, wildIndex) : parts;
-    const converted = trimmed.map(replaceParam).join('/+');
+    const converted = trimmed.map(replaceParam).join('/');
+
     return hasWild ? `${converted}(?<wild>${WILD})` : converted;
 }
 
 function getWildIndex (parts: string[], isWild: boolean): number {
     const wildIndex = parts.indexOf('**');
+
     return (wildIndex > -1 || !isWild) ? wildIndex : parts.length;
 }
 

@@ -1,6 +1,6 @@
 <img alt="kequapp" src="https://github.com/Kequc/kequapp/blob/0.2-wip/logo.png?raw=true" width="142" height="85" />
 
-Versatile, non-intrusive webapp framework
+Non-intrusive javascript web app framework
 
 *\ `hek-yü-ap \\*
 

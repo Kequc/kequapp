@@ -7,6 +7,9 @@ import {
 } from '../types';
 import { getParts } from '../router/util/extract';
 
+export const PATHNAME_REGEX = /^(?:\/:[a-zA-Z_]\w*|\/[\w-]*|\/\*{2})+$/;
+export const CONTENT_TYPE_REGEX = /^[a-zA-Z]+\/(?:[a-zA-Z]+|\*)|\*$/;
+
 export function validateObject (topic: unknown, name: string, type?: string): void {
     if (topic !== undefined) {
         if (typeof topic !== 'object' || topic === null || Array.isArray(topic)) {
@@ -45,8 +48,6 @@ export function validateType (topic: unknown, name: string, type: string): void 
     }
 }
 
-const PATHNAME_REGEX = /^(?:\/:[a-zA-Z_]\w*|\/[\w-]*|\/\*{2})+$/;
-
 export function validatePathname (topic: unknown, name: string, isWild = false): void {
     if (topic !== undefined) {
         validateType(topic, name, 'string');
@@ -76,6 +77,16 @@ export function validatePathname (topic: unknown, name: string, isWild = false):
     }
 }
 
+export function validateContentType (topic: unknown, name: string): void {
+    if (topic !== undefined) {
+        validateType(topic, name, 'string');
+
+        if (!CONTENT_TYPE_REGEX.test(topic as string)) {
+            throw new Error(`${name} invalid format '${topic}'`);
+        }
+    }
+}
+
 export function validateExists (topic: unknown, name: string): void {
     if (topic === undefined) {
         throw new Error(`${name} is undefined`);
@@ -100,7 +111,6 @@ export function validateRoute (route: TRouteData): void {
     validateObject(route, 'Route');
     validateExists(route.method, 'Route method');
     validateType(route.method, 'Route method', 'string');
-    validateExists(route.url, 'Route url');
     validatePathname(route.url, 'Route url');
     validateArray(route.handles, 'Route handles', 'function');
     validateLogger(route.logger);
@@ -111,7 +121,7 @@ export function validateErrorHandler (errorHandler: TErrorHandlerData): void {
     validateExists(errorHandler, 'Error handler');
     validateObject(errorHandler, 'Error handler');
     validateExists(errorHandler.contentType, 'Error handler contentType');
-    validateType(errorHandler.contentType, 'Error handler contentType', 'string');
+    validateContentType(errorHandler.contentType, 'Error handler contentType');
     validateExists(errorHandler.handle, 'Error handler handle');
     validateType(errorHandler.handle, 'Error handler handle', 'function');
 }
@@ -120,7 +130,7 @@ export function validateRenderer (renderer: TRendererData): void {
     validateExists(renderer, 'Renderer');
     validateObject(renderer, 'Renderer');
     validateExists(renderer.contentType, 'Renderer contentType');
-    validateType(renderer.contentType, 'Renderer contentType', 'string');
+    validateContentType(renderer.contentType, 'Renderer contentType');
     validateExists(renderer.handle, 'Renderer handle');
     validateType(renderer.handle, 'Renderer handle', 'function');
 }
