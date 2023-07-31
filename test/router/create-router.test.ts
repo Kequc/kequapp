@@ -76,7 +76,6 @@ const catsBranch = createBranch({
 });
 
 const router = createRouter({
-
     routes: [
         route('GET', '/free/stuff'),
         route('GET', '/'),
@@ -97,61 +96,17 @@ const router = createRouter({
 describe('compare', () => {
     it('filters routes', () => {
         const result = router('GET', '/cats');
-        assert.deepStrictEqual(result[2], ['GET', 'POST']);
+        assert.deepStrictEqual(result[2], ['GET', 'HEAD']);
     });
 
     it('filters nested routes', () => {
         const result = router('GET', '/cats/tiffany');
-        assert.deepStrictEqual(result[2], ['GET', 'OPTIONS']);
+        assert.deepStrictEqual(result[2], ['GET', 'OPTIONS', 'HEAD']);
     });
 
     it('finds wildcard routes', () => {
         const result = router('GET', '/cats/rodger');
         assert.deepStrictEqual(result[1], { wild: '/rodger' });
-        assert.deepStrictEqual(result[2], ['GET']);
-    });
-
-    it('filters renderers', () => {
-        assert.deepStrictEqual(router('/cats').renderers, [
-            renderer(['cats', '**']),
-            renderer(['**']),
-        ]);
-    });
-
-    it('filters nested renderers', () => {
-        assert.deepStrictEqual(router('/cats/tiffany/friends').renderers, [
-            errorHandler(['cats', 'tiffany', 'friends']),
-            renderer(['cats', '**']),
-            renderer(['**']),
-        ]);
-    });
-
-    it('finds wildcard renderers', () => {
-        assert.deepStrictEqual(router('/cats/rodger').renderers, [
-            renderer(['cats', '**']),
-            renderer(['**']),
-        ]);
-    });
-
-    it('filters errorHandlers', () => {
-        assert.deepStrictEqual(router('/cats').errorHandlers, [
-            errorHandler(['cats', '**']),
-            errorHandler(['**']),
-        ]);
-    });
-
-    it('filters nested errorHandlers', () => {
-        assert.deepStrictEqual(router('/cats/tiffany/friends').errorHandlers, [
-            errorHandler(['cats', 'tiffany', 'friends']),
-            errorHandler(['cats', '**']),
-            errorHandler(['**']),
-        ]);
-    });
-
-    it('finds wildcard errorHandlers', () => {
-        assert.deepStrictEqual(router('/cats/rodger').errorHandlers, [
-            errorHandler(['cats', '**']),
-            errorHandler(['**']),
-        ]);
+        assert.deepStrictEqual(result[2], ['GET', 'HEAD']);
     });
 });

@@ -3,11 +3,11 @@ import { getParts } from './util/extract';
 export const WILD = '[\\w\\/-]*';
 export const PARA = '[a-zA-Z_]\\w*';
 
-export default function createRegex (url: string, isWild = false): RegExp {
-    return new RegExp('^/' + getConverted(url, isWild) + '$', 'i');
+export default function createRegexp (url: string, isWild = false): RegExp {
+    return new RegExp('^/' + convertUrl(url, isWild) + '$', 'i');
 }
 
-function getConverted (url: string, isWild: boolean): string {
+function convertUrl (url: string, isWild: boolean): string {
     const parts = getParts(url);
     const wildIndex = getWildIndex(parts, isWild);
     const hasWild = wildIndex > -1;

@@ -1,4 +1,4 @@
-import createRegex from './create-regex';
+import createRegexp from './create-regexp';
 import { Ex } from '../main';
 import {
     IRouter,
@@ -20,9 +20,9 @@ export default function createRouter (structure: TBranchData): IRouter {
     const branches = cacheBranches(structure);
 
     return function router (method: string, url: string) {
-        const matchedRoutes = routes.filter(item => item.regex.test(url));
+        const matchedRoutes = routes.filter(item => item.regexp.test(url));
         const route = getRoute(matchedRoutes, method) ?? generate404(branches, url, method);
-        const params = url.match(route.regex)?.groups ?? {};
+        const params = Object.assign({}, url.match(route.regexp)?.groups);
         const methods = getMethods(matchedRoutes, route.autoHead);
 
         return [route, params, methods];
@@ -33,16 +33,15 @@ function getRoute (routes: TRoute[], method: string): TRoute | undefined {
     const route = routes.find(item => item.method === method);
 
     if (route === undefined && method === 'HEAD') {
-        const altRoute = routes.find(item => item.method === 'GET');
-        if (altRoute?.autoHead) return altRoute;
+        return routes.find(item => item.autoHead && item.method === 'GET');
     }
 
     return route;
 }
 
 function generate404 (branches: TBranch[], key: string, method: string): TRoute {
-    const branch: TBranch = branches.find(item => item.regex.test(key)) ?? {
-        regex: createRegex('/**'),
+    const branch: TBranch = branches.find(item => item.regexp.test(key)) ?? {
+        regexp: createRegexp('/**'),
         handles: [],
         errorHandlers: [],
         renderers: [],

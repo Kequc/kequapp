@@ -1,5 +1,5 @@
 import path from 'path';
-import createRegex from '../create-regex';
+import createRegexp from '../create-regexp';
 import warnDuplicates from './warn-duplicates';
 import errorHandler from '../../built-in/error-handler';
 import jsonRenderer from '../../built-in/json-renderer';
@@ -73,7 +73,7 @@ function cacheBranchesMeta (target: TBranchData): TCacheBranch[] {
 function sanitize (item: TCacheBranch): TBranch {
     return {
         handles: item.handles,
-        regex: createRegex(item.url),
+        regexp: createRegexp(item.url),
         errorHandlers: [...item.errorHandlers.sort(priorityContentType), errorHandler],
         renderers: [...item.renderers.sort(priorityContentType), jsonRenderer, textRenderer],
         autoHead: item.autoHead ?? true,

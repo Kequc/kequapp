@@ -142,12 +142,12 @@ export type TCacheRoute = TCacheBranch & {
     method: string;
 };
 export type TBranch = Omit<TCacheBranch, 'url'> & {
-    regex: RegExp;
+    regexp: RegExp;
     autoHead: boolean;
     logger: TLogger;
 };
 export type TRoute = Omit<TCacheRoute, 'url'> & {
-    regex: RegExp;
+    regexp: RegExp;
     autoHead: boolean;
     logger: TLogger;
 };
