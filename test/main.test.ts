@@ -38,7 +38,7 @@ it('throws error on invalid handles', () => {
         // @ts-ignore
         handles: [() => {}, 'foo']
     }), {
-        message: 'Handle item must be a function'
+        message: 'Branch handles item must be a function'
     });
 });
 

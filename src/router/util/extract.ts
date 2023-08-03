@@ -71,3 +71,7 @@ export function getParams (clientParts: string[], parts: string[]): TParams {
 
     return params;
 }
+
+export function matchGroups (url: string, regexp: RegExp): TParams {
+    return Object.assign({}, url.match(regexp)?.groups);
+}

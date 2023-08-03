@@ -1,6 +1,6 @@
 import assert from 'assert';
 import 'kequtest';
-import Ex from '../../../src/util/tools/ex';
+import Ex from '../../../src/built-in/tools/ex';
 
 it('exports a few common errors', () => {
     const keys = ['Unauthorized', 'NotFound', 'BadRequest'];

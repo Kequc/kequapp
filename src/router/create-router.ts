@@ -9,6 +9,7 @@ import {
 import logger from '../util/logger';
 import { validateBranch } from '../util/validate';
 import { cacheBranches, cacheRoutes } from './util/cacher';
+import { matchGroups } from './util/extract';
 
 // TODO:
 // create tests for new files
@@ -22,7 +23,7 @@ export default function createRouter (structure: TBranchData): IRouter {
     return function router (method: string, url: string) {
         const matchedRoutes = routes.filter(item => item.regexp.test(url));
         const route = getRoute(matchedRoutes, method) ?? generate404(branches, url, method);
-        const params = Object.assign({}, url.match(route.regexp)?.groups);
+        const params = matchGroups(url, route.regexp);
         const methods = getMethods(matchedRoutes, route.autoHead);
 
         return [route, params, methods];
