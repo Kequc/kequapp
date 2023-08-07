@@ -44,8 +44,7 @@ export function extractOptions<T> (params: unknown[], defaultOptions?: Partial<T
 export function getParts (pathname?: string): string[] {
     if (pathname === undefined) return [];
 
-    const parts = pathname.split('/');
-    if (parts[0] === '') parts.shift();
+    const parts = pathname.split('/').filter((value) => value !== '');
 
     const wildIndex = parts.indexOf('**');
     if (wildIndex > -1) {

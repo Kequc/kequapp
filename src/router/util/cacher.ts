@@ -52,7 +52,18 @@ function cacheRoutesMeta (target: TBranchData): TCacheRoute[] {
 }
 
 export function cacheBranches (structure: TBranchData): TBranch[] {
-    return cacheBranchesMeta(structure).map(sanitize);
+    const branches = cacheBranchesMeta(structure);
+
+    branches.push({
+        handles: [...structure.handles ?? []],
+        errorHandlers: [...structure.errorHandlers ?? []],
+        renderers: [...structure.renderers ?? []],
+        autoHead: structure.autoHead,
+        logger: { ...structure.logger },
+        url: '/**'
+    });
+
+    return branches.map(sanitize);
 }
 
 function cacheBranchesMeta (target: TBranchData): TCacheBranch[] {
@@ -87,7 +98,7 @@ function extendBranch (target: TBranchData, source: TCacheBranch) {
         errorHandlers: [...source.errorHandlers, ...target.errorHandlers ?? []],
         renderers: [...source.renderers, ...target.renderers ?? []],
         autoHead: source.autoHead ?? target.autoHead,
-        logger: source.logger
+        logger: source.logger ?? target.logger
     };
 }
 
@@ -96,8 +107,8 @@ function extendRoute (target: TBranchData, route: TRouteData) {
         handles: [...target.handles ?? [], ...route.handles ?? []],
         errorHandlers: [...target.errorHandlers ?? []],
         renderers: [...target.renderers ?? []],
-        autoHead: route.autoHead,
-        logger: route.logger
+        autoHead: route.autoHead ?? target.autoHead,
+        logger: route.logger ?? target.logger
     };
 }
 

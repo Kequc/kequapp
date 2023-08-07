@@ -83,7 +83,7 @@ const errorHandler = createErrorHandler({
 
 it('returns error when route not found', async () => {
     const app = createApp({
-        errorHandlers: [errorHandler],
+        errorHandlers: [errorHandler]
     });
 
     const { getResponse } = inject(app, { url: '/' });
@@ -98,7 +98,26 @@ it('ignores head routes when autoHead false', async () => {
             method: 'GET',
             handles: [({ req, res }) => { res.end(req.method); }]
         }],
-        errorHandlers: [errorHandler]
+        errorHandlers: [errorHandler],
+        autoHead: false
+    });
+
+    const { getResponse } = inject(app, { url: '/', method: 'HEAD' });
+    const result = await getResponse();
+
+    assert.deepStrictEqual(result, 'Not Found');
+});
+
+it('ignores head routes when nested autoHead false', async () => {
+    const app = createApp({
+        branches: [{
+            routes: [{
+                method: 'GET',
+                handles: [({ req, res }) => { res.end(req.method); }]
+            }]
+        }],
+        errorHandlers: [errorHandler],
+        autoHead: false
     });
 
     const { getResponse } = inject(app, { url: '/', method: 'HEAD' });

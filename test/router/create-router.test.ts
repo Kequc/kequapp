@@ -38,7 +38,7 @@ const halloweenBranch = createBranch({
         errorHandler()
     ],
     routes: [
-        route('GET'),
+        route('GET')
     ]
 });
 
@@ -51,25 +51,25 @@ const catsBranch = createBranch({
         route('POST', undefined, [handleB]),
         route('GET', '/tiffany'),
         route('OPTIONS', '/tiffany/**', [handleA]),
-        route('OPTIONS', '/tiffany/**', [handleB]),
+        route('OPTIONS', '/tiffany/**', [handleB])
     ],
     renderers: [
-        renderer(),
+        renderer()
     ],
     errorHandlers: [
-        errorHandler(),
+        errorHandler()
     ],
     branches: [
         {
             url: '/tiffany/friends',
             routes: [
-                route('POST', '/**'),
+                route('POST', '/**')
             ],
             renderers: [
-                renderer(),
+                renderer()
             ],
             errorHandlers: [
-                errorHandler(),
+                errorHandler()
             ]
         }
     ]
@@ -79,13 +79,13 @@ const router = createRouter({
     routes: [
         route('GET', '/free/stuff'),
         route('GET', '/'),
-        route('GET', '/**'),
+        route('GET', '/**')
     ],
     renderers: [
-        renderer(),
+        renderer()
     ],
     errorHandlers: [
-        errorHandler(),
+        errorHandler()
     ],
     branches: [
         halloweenBranch,
@@ -96,7 +96,7 @@ const router = createRouter({
 describe('compare', () => {
     it('filters routes', () => {
         const result = router('GET', '/cats');
-        assert.deepStrictEqual(result[2], ['GET', 'HEAD']);
+        assert.deepStrictEqual(result[2], ['GET', 'POST', 'HEAD']);
     });
 
     it('filters nested routes', () => {

@@ -60,7 +60,7 @@ describe('getParts', () => {
     });
 
     it('ignores too many starting separators', () => {
-        assert.deepStrictEqual(getParts('//hello///there'), ['', 'hello', '', '', 'there']);
+        assert.deepStrictEqual(getParts('//hello///there'), ['hello', 'there']);
     });
 
     it('accepts wildcard', () => {

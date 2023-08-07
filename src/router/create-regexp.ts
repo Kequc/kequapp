@@ -1,7 +1,7 @@
 import { getParts } from './util/extract';
 
 export const WILD = '[\\w\\/-]*';
-export const PARA = '[a-zA-Z_]\\w*';
+export const PARA = '[0-9a-zA-Z_]\\w*';
 
 export default function createRegexp (url: string, isWild = false): RegExp {
     return new RegExp('^/' + convertUrl(url, isWild) + '$', 'i');
