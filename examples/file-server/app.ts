@@ -2,11 +2,14 @@ import { createApp, staticDirectory, staticFile } from '../../src/main'; // 'keq
 
 const app = createApp({
     routes: [
-        staticDirectory('/assets/**', {
+        staticDirectory({
+            url: '/assets/**',
             dir: '/examples/file-server/assets',
             exclude: ['/examples/file-server/assets/private.txt']
         }),
-        staticFile('/examples/file-server/assets/index.html')
+        staticFile({
+            asset: '/examples/file-server/assets/index.html'
+        })
     ]
 });
 

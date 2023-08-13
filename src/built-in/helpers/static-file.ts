@@ -1,39 +1,46 @@
 import { createHandle, createRoute } from '../../router/modules';
 import { TPathname, TRouteData } from '../../types';
-import { extractContentType, extractUrl } from '../../router/util/extract';
-import { validatePathname, validateType } from '../../util/validate';
+import { extractOptions } from '../../router/util/extract';
+import { validateObject, validatePathname, validateType } from '../../util/validate';
 import sendFile from './send-file';
 
+type TStaticFileOptions = {
+    url: TPathname;
+    asset: TPathname;
+    mime?: string;
+};
+
+const DEFAULT_OPTIONS: TStaticFileOptions = {
+    url: '/**',
+    asset: '/public'
+};
+
 interface IStaticFile {
-    (url: TPathname, asset: TPathname, mime: string): TRouteData;
-    (url: TPathname, asset: TPathname): TRouteData;
-    (asset: TPathname, mime: string): TRouteData;
-    (asset: TPathname): TRouteData;
+    (options: Partial<TStaticFileOptions>): TRouteData;
+    (): TRouteData;
 }
 
 export default staticFile as IStaticFile;
 
 function staticFile (...params: unknown[]): TRouteData {
-    let url = extractUrl(params);
-    let asset = extractUrl(params);
-    const mime = extractContentType(params, undefined);
+    const options = extractOptions<TStaticFileOptions>(params, DEFAULT_OPTIONS);
 
-    if (asset === '/') {
-        asset = url;
-        url = '/';
-    }
-
-    validatePathname(url, 'Static file url');
-    validatePathname(asset, 'Static file asset');
-    validateType(mime, 'Static file mime', 'string');
+    validateOptions(options);
 
     const handle = createHandle(async ({ req, res }) => {
-        await sendFile(req, res, asset, mime);
+        await sendFile(req, res, options.asset, options.mime);
     });
 
     return createRoute({
         method: 'GET',
-        url,
+        url: options.url,
         handles: [handle]
     });
+}
+
+function validateOptions (options: TStaticFileOptions): void {
+    validateObject(options, 'Static file options');
+    validatePathname(options.url, 'Static file url');
+    validatePathname(options.asset, 'Static file asset');
+    validateType(options.mime, 'Static file mime', 'string');
 }
