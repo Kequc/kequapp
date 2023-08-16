@@ -40,7 +40,7 @@ const app = createApp({
         {
             method: 'GET',
             url: '/',
-            handles: [() => 'Hello world']
+            handles: [() => 'Hello world!']
         }
     ]
 });
@@ -60,7 +60,7 @@ import { createApp } from 'kequapp';
 
 This prepares our application for use as the event handler in Node's `createServer()` method. It is otherwise identical to the `createBranch()` method.
 
-All methods [`createBranch()`](#-createbranch), [`createRoute()`](#-createroute), [`createHandle()`](#-createhandle), [`createErrorHandler()`](#-createerrorhandler), [`createRenderer()`](#-createrenderer) described are useful for building elements that exist outside of scope. For example in another file. This provides types if we are using TypeScript.
+All methods [`createBranch()`](#-createbranch), [`createRoute()`](#-createroute), [`createHandle()`](#-createhandle), [`createErrorHandler()`](#-createerrorhandler), [`createRenderer()`](#-createrenderer) described below are useful for building elements that exist outside of scope. For example in another file. This provides types if we are using TypeScript.
 
 # # createBranch()
 
@@ -204,7 +204,7 @@ createRoute({
 });
 ```
 
-This example has two handles. One called `loggedIn`, then a second that returns a value which is therefore delivered to a renderer.
+This example has two handles. One called `loggedIn()`, then a second that returns a value which is therefore delivered to a renderer.
 
 # # createHandle()
 
@@ -212,7 +212,7 @@ This example has two handles. One called `loggedIn`, then a second that returns 
 import { createHandle } from 'kequapp';
 ```
 
-A simple wrapper for a function that provides types in case we are using TypeScript.
+A simple wrapper for a handle the purpose for which is to provide types.
 
 ```javascript
 // createHandle
@@ -225,12 +225,11 @@ const loggedIn = createHandle(({ req, context }) => {
     if (req.headers.authorization !== 'mike') {
         throw Ex.Unauthorized();
     }
-
     context.auth = req.headers.authorization;
 });
 ```
 
-In these examples the `json()` handle sets `'Content-Type'` to `'application/json'`, and the `loggedIn()` handle checks for an `authorization` header from the client. Handles can be asyncronous and always run in sequence. They will wait for the previous handle to finish before moving forward.
+In these examples the `json()` handle sets the `'Content-Type'` header to `'application/json'`, and the `loggedIn()` handle checks for an `'authorization'` header from the client. Handles can be asyncronous and always run in sequence. They will wait for the previous handle to finish before moving forward.
 
 # # createErrorHandler()
 
@@ -245,7 +244,7 @@ import { createErrorHandler } from 'kequapp';
 
 An appropriate error handler is invoked whenever a handle throws an exception.
 
-Error handlers turn an exception into useful information that should be sent to the client. We may return a value to invoke a renderer or finalize the response ourselves directly inside the error handler. The default built-in error handler structures a json formatted response with helpful information for debugging.
+Error handlers turn an exception into useful information that should be sent to the client. We may return a value to invoke a renderer or finalize the response ourselves directly. The default built-in error handler structures a json formatted response with helpful information for debugging.
 
 The `'Content-Type'` header set by our application determines the correct error handler to use. Error handlers are sorted by the framework in favor of content type and hierarchical specificity. The following is a very simple error handler for text based responses.
 
@@ -333,7 +332,7 @@ createRoute({
 });
 ```
 
-In this example if the client did not provide an `authorization` header, the `authenticated` handle will finalize the response. This terminates the request and skips all remaining handles. Otherwise the `json` handle sets the `'Content-Type'` header of the response to `'application/json'`.
+In this example if the client did not provide an `'authorization'` header, the `authenticated()` handle will finalize the response. This terminates the request and skips all remaining handles. Otherwise the `json()` handle sets the `'Content-Type'` header of the response to `'application/json'`.
 
 The last remaining handle returns a value. This invokes a renderer best matching the `'Content-Type'` header, in this example a renderer matching `'application/json'` will be used. The appropriate renderer will finalize a response to the client.
 
@@ -381,7 +380,7 @@ Maybe authentication details, a user object, or any data that's used in other pl
 
 #### **`params`**
 
-When defining a route we can specify parameters to extract by prefixing a colon `':'` character in the url. If we specify a route such as `'/users/:userId'` we will have a params item called `'userId'`. Use a double asterix `'/**'` to accept anything for the remainder of the url.
+When defining a route we can specify parameters to extract by prefixing a colon `':'` character in the url. If we specify a route such as `'/users/:userId'` we will have a `params` item called `'userId'`. Use a double asterix `'/**'` to accept anything for the remainder of the url, we will have a `params` item called `'wild'`.
 
 Param values are always a string.
 
@@ -421,7 +420,7 @@ It takes an options object which can be used to parse and normalize a client req
 
 #### **`multipart`**
 
-Causes the function to return both `body` and `files`. If the client didn't send any files, or it wasn't a multipart request the second parameter will be an empty array.
+Causes the method to return both `body` and `files`. If the client didn't send any files, or it wasn't a multipart request the second parameter will be an empty array.
 
 ```javascript
 // multipart
@@ -440,7 +439,7 @@ createRoute({
         //         'content-disposition': 'form-data; name="avatar" filename="my-cat.png"',
         //         'content-type': 'image/png;'
         //     },
-        //     mime: 'image/png',
+        //     contentType: 'image/png',
         //     name: 'avatar',
         //     filename: 'my-cat.png',
         //     data: Buffer <...>
@@ -453,7 +452,7 @@ createRoute({
 
 #### **`raw`**
 
-The body is processed as minimally as possible and returns a single buffer. When combined with `multipart`, the body is parsed into an array of separate buffers with their respective headers.
+Causes the body to be processed as minimally as possible and return a single buffer. When combined with `multipart`, the body is parsed into an array of separate buffers with their respective headers.
 
 ```javascript
 // raw
@@ -530,14 +529,15 @@ The provided list of fields are converted into `false` if the value is falsy, `'
 
 #### **`validate`**
 
-After normalization, this method further ensures the validity of the data. Returning anything from this function throws a `422 Unprocessable Entity` error.
+After normalization, this method further ensures the validity of the data. Returning anything throws a `422 Unprocessable Entity` error.
 
 ```javascript
 // validate
 
 type TBody = {
     ownedPets: string[];
-    age?: number;
+    age: number;
+    name: string;
 };
 
 createRoute({
@@ -567,7 +567,7 @@ createRoute({
 });
 ```
 
-We know it is safe to use `result.ownedPets.length` in this example because it is listed as an `arrays` field and therefore certain to be an array. `result.name` is listed as a `required` field and therefore certain to exist.
+We know it is safe to use `result.ownedPets.length` in this example because it is listed as an `arrays` field and therefore certain to be an array. `result.name` is also safe to use because it is listed as a `required` field and therefore certain to exist.
 
 #### **`maxPayloadSize`**
 
@@ -592,9 +592,7 @@ createApp({
 });
 ```
 
-The framework automatically attaches four additional headers to `OPTIONS` responses.
-
-`'Valid'` and `'Access-Control-Allow-Methods'` will correctly identify all methods available at the requested url. `'Access-Control-Allow-Headers'` will return headers that the client specified. `'Content-Length'` will be 0.
+The framework automatically attaches four additional headers to `OPTIONS` responses. `'Valid'` and `'Access-Control-Allow-Methods'` will correctly identify all methods available at the requested url. `'Access-Control-Allow-Headers'` will return headers that the client specified. `'Content-Length'` will be 0.
 
 In addition the default response code for `OPTIONS` requests is `204`. To change any of this behavior or add more headers to `OPTIONS` responses we use a handle.
 
@@ -617,7 +615,7 @@ createApp({
 
 As `OPTIONS` responses do not need to include a body, we can safely leave the route like this without rendering.
 
-The simplest place to override `'Access-Control-Allow-Origin'` is at the base of the application, but we may adjust this as needed. The `createApp` method accepts handles and is a convenient place to set global headers.
+The simplest place to override `'Access-Control-Allow-Origin'` is at the base of the application but we may adjust this as needed. The `createApp()` method accepts handles and is a convenient place to set global headers.
 
 ```javascript
 // CORS
@@ -641,6 +639,8 @@ Please see the [MDN documentation on CORS](https://developer.mozilla.org/en-US/d
 
 By default if a `HEAD` request has no matching route our application will use a matching `GET` route in it's place. Therefore it is important to keep in mind that `HEAD` requests follow the same flow as `GET` requests in our application.
 
+Occasionally we may need to differentiate between the two as it is generally understood that a `HEAD` request does not modify data. In this case looking at the value of `req.method` can be useful.
+
 ```javascript
 // HEAD
 
@@ -656,8 +656,6 @@ createRoute({
 ```
 
 In most cases `HEAD` and `GET` requests should run the same code, so we have nothing to worry about. Detection of `HEAD` requests is already handled by the renderers that are built-in to the framework. Largely what will happen is no body will be sent to the client, which is what a `HEAD` request wanted.
-
-Occasionally we may need to differentiate between the two as it is generally understood that a `HEAD` request does not modify data. In this case looking at the value of `req.method` can be useful.
 
 # # staticDirectory()
 
@@ -693,7 +691,7 @@ createApp({
 
 The `url` must end with `'/**'` capturing all possible paths.
 
-Exclusions can be provided if we want to ignore some files or directories using `exclude`. A `'Content-Type'` header is guessed based on every asset's file extension. If there are assets in the directory with unusual file extensions then additional `contentTypes` can be provided.
+Exclusions can be provided if we want to ignore some files or directories using `exclude`. A `'Content-Type'` header is guessed based on every asset's file extension. If there are assets in the directory with unusual file extensions then additional `contentTypes` may be provided.
 
 # # staticFile()
 
@@ -715,14 +713,14 @@ Pairs a `url` and a local file. This asset will be delivered to the client.
 createApp({
     routes: [
         staticFile({
-            asset: '/db/my-db.json',
-            url: '/db.json'
+            url: '/db.json',
+            asset: '/db/my-db.json'
         })
     ]
 );
 ```
 
-If `mime` is not provided a `'Content-Type'` header will be guessed from the file extension.
+If `contentType` is not provided a `'Content-Type'` header will be guessed from the file extension.
 
 # # sendFile()
 
@@ -732,7 +730,7 @@ import { sendFile } from 'kequapp';
 
 Send a file and finalize the response.
 
-This is asyncronous and must be awaited otherwise the application might get confused as it continues processing handles.
+This is asyncronous and must be awaited otherwise the application might get confused as it continues processing the request unexpectedly.
 
 The following is the same as the `staticFile()` example above.
 
@@ -752,7 +750,7 @@ createApp({
 );
 ```
 
-If a third parameter is not provided a `'Content-Type'` header is guessed from the file extension.
+If a third parameter may be provided defining a `'Content-Type'`, this header is otherwise guessed from the file extension.
 
 # # Ex()
 
@@ -760,7 +758,7 @@ If a third parameter is not provided a `'Content-Type'` header is guessed from t
 import { Ex } from 'kequapp';
 ```
 
-An unhandled exception from our application results in a `500 Internal Server Error`. If we would like an error with a different status code there is a helper tool that makes this easy.
+An unhandled exception from our application results in a `500 Internal Server Error`. If we would like an error with a different status code there is a helper tool for that.
 
 ```javascript
 // Ex
@@ -778,7 +776,7 @@ createRoute({
 });
 ```
 
-This makes it easy to utilize any status code `400` and above. These methods create errors with correct stacktraces there is no reason to use `new`.
+This makes it easy to utilize any status code `400` and above. These methods create errors with correct stacktraces we can throw directly without the use of `new`.
 
 # # inject()
 
@@ -788,14 +786,12 @@ import { inject } from 'kequapp';
 
 We may unit test our application without starting a server by using the `inject()` tool. The first parameter is our app, then options used to populate the request.
 
-The returned `req` value is a simulation of Node's built-in [`ClientRequest`](https://nodejs.org/api/http.html#class-httpclientrequest) object and is a `Transform` stream. The returned `res` value is a simulation of Node's built-in [`ServerResponse`](https://nodejs.org/api/http.html#class-httpserverresponse) object and is also a `Transform` stream.
-
-The returned `getResponse()` tool waits for our application to finish, and then parses the response. We could inspect what our application is doing using the `req` and `res` objects in realtime instead if that's what we wanted to do.
+The returned `req` value is a simulation of Node's built-in [`ClientRequest`](https://nodejs.org/api/http.html#class-httpclientrequest) object and is a `Transform` stream. The returned `res` value is a simulation of Node's built-in [`ServerResponse`](https://nodejs.org/api/http.html#class-httpserverresponse) object and is also a `Transform` stream. The returned `getResponse()` tool waits for our application to finish, and then parses the response. It is very similar to `getBody()` as described earlier. We could inspect what our application is doing using the `req` and `res` objects in realtime instead if that's what we want.
 
 ```javascript
 // inject
 
-it('reads the authorization header', async function () {
+it('reads the authorization header', async () => {
     const { getResponse, res } = inject(app, {
         url: '/admin/dashboard',
         headers: {
