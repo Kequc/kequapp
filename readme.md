@@ -6,17 +6,14 @@ Non-intrusive javascript web app framework
 
 # Introduction
 
-This framework manages three stages of a request separately. First the route which is broken up into bite sized pieces, then handling errors if they come up, and finally rendering a response to the client. Each step is as non-obtrusive as possible, so that we can focus on creating applications using Node's built in features.
-
-Intended to be simple to learn and use. While being powerful and allowing us to interject any time we need.
+This framework does it's best to stay out of the way and allows you to use Node's built in features as much as possible. It comes with a great deal of convenience which makes it easy to stroucture an application, for example with regard to modularity, body parsing, testing, handling any request and returning any response. Intended to be simple to learn and use while being powerful and allowing us to interceed at any time.
 
 **Features**
 
 * Modern modular framework
-* CORS default
+* CORS
 * Body parsing for multipart requests
 * Static file serving
-* Handle any HTTP request
 * Async await everywhere
 * Unit testing tool
 * Does not modify Node features or functionality
@@ -25,6 +22,196 @@ Intended to be simple to learn and use. While being powerful and allowing us to 
 ```
 npm i kequapp
 ```
+
+# Hello world!
+
+```javascript
+// hello world!
+
+import { createServer } from 'http';
+import { createApp } from 'kequapp';
+
+const app = createApp({
+    routes: [
+        {
+            method: 'GET',
+            url: '/',
+            handles: [() => 'Hello world']
+        }
+    ]
+});
+
+createServer(app).listen(4000, () => {
+    console.log('Server running at http://localhost:4000');
+});
+```
+
+This example responds to all `'GET'`, and `'HEAD'` requests made to the base of our application at `'/'`. Otherwise a `404` not found error will be thrown. The framework comes with a built-in error handler and some renderers. We will look at how to create our own, but for now we don't need to worry about it.
+
+# # createApp()
+
+```javascript
+import { createApp } from 'kequapp';
+```
+
+This finalizes our application and prepares it for use as the event handler in Node's `createServer` method. It is otherwise identical to the `createBranch` method.
+
+# # createBranch()
+
+```javascript
+import { createBranch } from 'kequapp';
+```
+
+A branch of the application will cause nested routes and branches to adopt the given route options, error handlers, and renderers. It is the most convenient way of giving a subset of your application a general set of rules.
+
+```javascript
+// createBranch
+
+createBranch({
+    branches: [
+        {
+            url: '/api/users',
+            handles: [json],
+            routes: [
+                {
+                    method: 'GET',
+                    url: '/',
+                    handles: [() => ({ result: [] })]
+                },
+                {
+                    method: 'GET',
+                    url: '/:id',
+                    handles: [({ params }) => ({ userId: params.id })]
+                }
+            ]
+        }
+    ],
+    routes: [
+        {
+            method: 'GET',
+            url: '/admin/dashboard',
+            handles: [loggedIn, ({ context }) => `Hello admin ${context.auth}`]
+        }
+    ]
+});
+```
+
+Three routes are defined in the example and therefore our endpoints are the following:
+
+```
+GET /api/users
+GET /api/users/:id
+GET /admin/dashboard
+```
+
+The example is concise. We can define an `'/api'` branch and an `'/admin'` branch, giving us the same result in a more verbose way.
+
+```javascript
+// createBranch
+
+createBranch({
+    branches: [
+        {
+            url: '/api',
+            handles: [json],
+            branches: [
+                {
+                    url: '/users',
+                    routes: [
+                        {
+                            method: 'GET',
+                            url: '/',
+                            handles: [() => ({ result: [] })]
+                        },
+                        {
+                            method: 'GET',
+                            url: '/:id',
+                            handles: [({ params }) => ({ userId: params.id })]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            url: '/admin',
+            handles: [loggedIn],
+            routes: [
+                {
+                    method: 'GET',
+                    url: '/dashboard',
+                    handles: [({ context }) => `Hello admin ${context.auth}`]
+                }
+            ]
+        }
+    ]
+});
+```
+
+All routes and branches can be added in any order, they are rearranged and organized by the framework based on specificity.
+
+```
+'/icecream'
+'/icecream/special_offers'
+'/icecream/:flavor'
+'/icecream/:flavor/toppings'
+'/icecream/:flavor/**'
+'/locations'
+'/**'
+```
+
+The more specific the url the higher the priority.
+
+# # createRoute()
+
+```javascript
+import { createRoute } from 'kequapp';
+```
+
+A route must specify a method (`'GET'`, `'POST'`, etc.) and a url. The url is a pathname that the route should respond to and must always start with `'/'`.
+
+```javascript
+// createRoute
+
+createRoute({
+    method: 'POST',
+    url: '/admin/users',
+    handles: [loggedIn, () => 'User created!']
+});
+```
+
+This example has two handles. One called `loggedIn`, then a second one that returns a value meaning it is therefore delivered to a renderer.
+
+# # createHandle()
+
+```javascript
+import { createHandle } from 'kequapp';
+```
+
+This is useful for building handles that exist outside of any scope, for example in another file. This provides types if we are using TypeScript.
+
+```javascript
+// createHandle
+
+const json = createHandle(({ res }) => {
+    res.setHeader('Content-Type', 'application/json');
+});
+
+const loggedIn = createHandle(({ req, context }) => {
+    if (req.headers.authorization !== 'mike') {
+        throw Ex.Unauthorized();
+    }
+
+    context.auth = req.headers.authorization;
+});
+```
+
+In these examples the `json` handle sets `'Content-Type'` to `'application/json'`, and the `loggedIn` handle checks for an `authorization` header from the client. Handles can be asyncronous, it is important to remember handles are run in sequence and will wait for the previous handle to finish before moving forward.
+
+
+
+
+
+
 
 # General
 
@@ -47,195 +234,6 @@ An appropriate error handler is invoked whenever a handle throws an exception. T
 #### **renderer**
 
 An appropriate renderer is invoked whenever a handle or error handler returns a value apart from `undefined`. These behave much the same as a handle but are always the last step of a request and should deliver a response to the client.
-
-# Hello world!
-
-```javascript
-// hello world!
-
-import { createServer } from 'http';
-import { createApp, createRoute } from 'kequapp';
-
-const app = createApp().add(
-    createRoute(() => {
-        return 'Hello world!';
-    })
-);
-
-createServer(app).listen(4000, () => {
-    console.log('Server running at http://localhost:4000');
-});
-```
-
-This example responds to all `'GET'`, and `'HEAD'` requests made to the base of our application at `'/'`. Otherwise a `404` not found error will be thrown. The reason this responds to requests at `'/'` is that is the default url for new routes.
-
-The defaults are the same as writing the following:
-
-```javascript
-createRoute('GET', '/', () => {
-    return 'Hello world!';
-});
-```
-
-The framework comes with a built-in error handler and some renderers. We will look at how to create our own, but for now we don't need to worry about it.
-
-# # createHandle()
-
-```javascript
-import { createHandle } from 'kequapp';
-```
-
-```
-# createHandle(handle: Handle): Handle;
-```
-
-This is useful for building handles that exist outside of any scope, for example in another file. This provides types if we are using TypeScript.
-
-```javascript
-// createHandle
-
-const json = createHandle(({ res }) => {
-    res.setHeader('Content-Type', 'application/json');
-});
-
-const loggedIn = createHandle(({ req, context }) => {
-    if (req.headers.authorization !== 'mike') {
-        throw Ex.Unauthorized();
-    }
-
-    context.auth = req.headers.authorization;
-});
-```
-
-In these examples the `json` handle sets `'Content-Type'` to `'application/json'`, and the `loggedIn` handle checks for an `authorization` header from the client.
-
-Handles can be asyncronous.
-
-# # createApp()
-
-```javascript
-import { createApp } from 'kequapp';
-```
-
-```
-# createApp(...handles: Handle[]): Branch;
-```
-
-This creates a branch but it is also the base of our application. Any handles that are specified here will be used with all routes. It is meant to be passed as the event handler into Node's `createServer` method.
-
-# Modules
-
-The following modules [`createRoute()`](#-createroute), [`createBranch()`](#-createbranch), [`createConfig()`](#-createconfig), [`createErrorHandler()`](#-createerrorhandler), and [`createRouter()`](#-createrouter) are added the same way to a branch or the base of the application.
-
-All can be added in any order, they are rearranged and organized by the framework based on specificity.
-
-```
-'/icecream'
-'/icecream/special_offers'
-'/icecream/:flavor'
-'/icecream/:flavor/toppings'
-'/icecream/:flavor/**'
-'/locations'
-'/**'
-```
-
-The more specific the url the higher the priority.
-
-# # createRoute()
-
-```javascript
-import { createRoute } from 'kequapp';
-```
-
-```
-# createRoute(method: string, url: Pathname, ...handles: Handle[]): Route;
-# createRoute(url: Pathname, ...handles: Handle[]): Route;
-# createRoute(method: string, ...handles: Handle[]): Route;
-# createRoute(...handles: Handle[]): Route;
-```
-
-A route may specify a method (`'GET'`, `'POST'`, etc.) and url, followed by any number of handles. The url is a pathname that the route should respond to.
-
-When provided the url must always start with `'/'`.
-
-```javascript
-// createRoute
-
-createRoute('POST', '/admin/users', loggedIn, () => {
-    // do something here
-
-    return `User created!`;
-});
-```
-
-This example has two handles. One which we defined earlier called `loggedIn` and a second that returns a value that will be sent to the renderer.
-
-# # createBranch()
-
-```javascript
-import { createBranch } from 'kequapp';
-```
-
-```
-# createBranch(url: Pathname, ...handles: Handle[]): Branch;
-# createBranch(...handles: Handle[]): Branch;
-```
-
-A branch of the application will cause routes to adopt the given url and handles.
-
-Every branch of our application exposes `add()`. This is an important function used to extend the branch with functionality. Usually this will be a route, another branch, an error handler, or renderer.
-
-```javascript
-// createBranch
-
-createBranch().add(
-    createBranch('/api', json).add(
-        createBranch('/users').add(
-            createRoute(() => {
-                return { result: [] };
-            }),
-            createRoute('/:id', ({ params }) => {
-                return { userId: params.id };
-            })
-        )
-    ),
-    createBranch('/admin', loggedIn).add(
-        createRoute('/dashboard', ({ context }) => {
-            return `Hello admin ${context.auth}!`;
-        })
-    )
-);
-```
-
-Routes beginning with `'/api'` are returning `'application/json'` formatted responses, we can see those routes are returning javascript objects.
-
-Routes beginning with `'/admin'` require the user to be logged in. Three routes are defined in the example and therefore our endpoints are the following:
-
-```
-GET /api/users
-GET /api/users/:id
-GET /admin/dashboard
-```
-
-The example is verbose. We can omit the `'/api'` branch because it only exposes one branch, and the `'/admin'` branch because it only exposes one route, leaving us the same result with less code.
-
-```javascript
-// createBranch
-
-createBranch().add(
-    createBranch('/api/users', json).add(
-        createRoute(() => {
-            return { result: [] };
-        }),
-        createRoute('/:id', ({ params }) => {
-            return { userId: params.id };
-        })
-    ),
-    createRoute('/admin/dashboard', loggedIn, ({ context }) => {
-        return `Hello admin ${context.auth}!`;
-    })
-);
-```
 
 # # createConfig()
 
