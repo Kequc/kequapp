@@ -23,8 +23,8 @@ export function createApp (structure: TBranchData): RequestListener {
 
 async function requestProcessor (router: IRouter, req: IncomingMessage, res: ServerResponse): Promise<void> {
     const startedAt = Date.now();
-    const url = new URL(req.url || '/', `${req.headers.protocol}://${req.headers.host}`);
-    const method = req.method || 'GET';
+    const url = new URL(req.url ?? '/', `${req.headers.protocol}://${req.headers.host}`);
+    const method = req.method ?? 'GET';
     const [route, params, methods] = router(method, url.pathname);
     const { logger } = route;
 

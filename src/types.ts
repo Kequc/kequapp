@@ -83,7 +83,7 @@ export type TRawPart = {
 };
 
 export type TFilePart = TRawPart & {
-    mime?: string;
+    contentType?: string;
     name?: string;
     filename?: string;
 };

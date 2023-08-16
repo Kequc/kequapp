@@ -23,6 +23,7 @@ it('can open an image', async () => {
     });
 
     const body = await getResponse();
+    console.log(body);
 
     assert.strictEqual(res.getHeader('Content-Type'), 'image/gif');
     assert.ok(body.length > 0);

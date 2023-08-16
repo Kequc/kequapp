@@ -2,14 +2,14 @@ import fs from 'fs';
 import { IncomingMessage, ServerResponse } from 'http';
 import path from 'path';
 import Ex from '../tools/ex';
-import guessMime from '../../util/guess-mime';
+import guessContentType from '../../util/guess-content-type';
 import { TPathname } from '../../types';
 
-export default async function sendFile (req: IncomingMessage, res: ServerResponse, asset: TPathname, mime?: string): Promise<void> {
+export default async function sendFile (req: IncomingMessage, res: ServerResponse, asset: TPathname, contentType?: string): Promise<void> {
     const location = path.join(process.cwd(), asset);
     const stats = getStats(location);
 
-    res.setHeader('Content-Type', mime || guessMime(asset));
+    res.setHeader('Content-Type', contentType ?? guessContentType(asset));
     res.setHeader('Content-Length', stats.size);
 
     if (req.method === 'HEAD') {

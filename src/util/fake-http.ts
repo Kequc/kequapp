@@ -16,8 +16,8 @@ export class FakeReq extends Transform {
             this[key] = options[key];
         }
 
-        this.method = options.method || 'GET';
-        this.url = options.url || '';
+        this.method = options.method ?? 'GET';
+        this.url = options.url ?? '';
         this.headers = {};
         this.rawHeaders = [];
 
@@ -91,7 +91,7 @@ export class FakeRes extends Transform {
         }
 
         this.statusCode = statusCode;
-        this.statusMessage = statusMessage as string || STATUS_CODES[statusCode] || 'unknown';
+        this.statusMessage = statusMessage ?? STATUS_CODES[statusCode] ?? 'unknown';
 
         if (!headers) return;
 

@@ -16,7 +16,7 @@ it('reads buffers', () => {
     }, {
         headers: {
             'content-disposition': 'form-data; name="secret"; filename="secrets.txt"',
-            'content-type': 'text/plain;',
+            'content-type': 'text/plain;'
         },
         data: Buffer.from('contents of the file')
     }];
@@ -31,7 +31,7 @@ it('reads buffers', () => {
             'content-disposition': 'form-data; name="secret"; filename="secrets.txt"',
             'content-type': 'text/plain;'
         },
-        mime: 'text/plain',
+        contentType: 'text/plain',
         name: 'secret',
         filename: 'secrets.txt',
         data: parts[2]?.data

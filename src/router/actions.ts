@@ -48,7 +48,7 @@ export async function renderError (route: TRoute, bundle: TBundle, error: unknow
 }
 
 function getContentType ({ res }: TBundle): string {
-    return String(res.getHeader('Content-Type') || 'text/plain');
+    return String(res.getHeader('Content-Type') ?? 'text/plain');
 }
 
 function addOptionsHeaders ({ req, res, methods }: TBundle): void {

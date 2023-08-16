@@ -21,7 +21,6 @@ export default function createRouter (structure: TBranchData): IRouter {
     const branches = cacheBranches(structure);
 
     return function router (method: string, url: string) {
-        console.log(routes);
         const matchedRoutes = routes.filter(item => item.regexp.test(url));
         const route = getRoute(matchedRoutes, method) ?? generate404(branches, url, method);
         const params = matchGroups(url, route.regexp);
