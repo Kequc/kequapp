@@ -1,12 +1,14 @@
 <img alt="kequapp" src="https://github.com/Kequc/kequapp/blob/0.2-wip/logo.png?raw=true" width="142" height="85" />
 
-Non-intrusive javascript web app framework
+Non-intrusive JavaScript web app framework
 
 *\ `hek-yü-ap \\*
 
 # Introduction
 
-Does it's best to stay out of the way and leverage Node's built in features. It comes with a great deal of conveniences which makes it easy to structure an application. With regard to modularity, body parsing, testing, handling any request, and returning any response. Intended to be simple,  powerful, and allows us to interceed at any time.
+Does the best it can to stay out of the way and leverage Node's built in features. It comes with a great deal of conveniences which makes it easy to structure an application. With regard to modularity, body parsing, testing, handling any request, and returning any response.
+
+Intended to be simple,  powerful, and allows us to interceed at any time.
 
 **Features**
 
@@ -48,7 +50,7 @@ createServer(app).listen(4000, () => {
 });
 ```
 
-This example responds to all `'GET'`, and `'HEAD'` requests made to `'/'` otherwise a `404` not found error will be thrown. The framework comes with a built-in error handler and some renderers. We will look at how to create our own, but for now we don't need to worry about it.
+This example responds to all `'GET'`, and `'HEAD'` requests made to `'/'` otherwise a `404 Not Found` error will be thrown. The framework comes with a built-in error handler and some renderers. We will look at how to create our own, but for now we don't need to worry about it.
 
 # # createApp()
 
@@ -56,7 +58,7 @@ This example responds to all `'GET'`, and `'HEAD'` requests made to `'/'` otherw
 import { createApp } from 'kequapp';
 ```
 
-This prepares our application for use as the event handler in Node's `createServer` method. It is otherwise identical to the `createBranch` method.
+This prepares our application for use as the event handler in Node's `createServer()` method. It is otherwise identical to the `createBranch()` method.
 
 All methods [`createBranch()`](#-createbranch), [`createRoute()`](#-createroute), [`createHandle()`](#-createhandle), [`createErrorHandler()`](#-createerrorhandler), [`createRenderer()`](#-createrenderer) described are useful for building elements that exist outside of scope. For example in another file. This provides types if we are using TypeScript.
 
@@ -190,7 +192,7 @@ import { createRoute } from 'kequapp';
 | **logger** | *Logger* | `console` |
 | **autoHead** | *HEAD request* | `true` |
 
-A route must specify a method (`'GET'`, `'POST'`, etc.) and a url. The url is a pathname that the route should respond to and must always start with `'/'`.
+A route must specify a `method` (`'GET'`, `'POST'`, etc.) and a `url`. The `url` is a pathname that the route should respond to and must always start with `'/'`.
 
 ```javascript
 // createRoute
@@ -202,7 +204,7 @@ createRoute({
 });
 ```
 
-This example has two handles. One called `loggedIn`, then a second that returns a value therefore delivered to a renderer.
+This example has two handles. One called `loggedIn`, then a second that returns a value which is therefore delivered to a renderer.
 
 # # createHandle()
 
@@ -228,7 +230,7 @@ const loggedIn = createHandle(({ req, context }) => {
 });
 ```
 
-In these examples the `json()` handle sets `'Content-Type'` to `'application/json'`, and the `loggedIn()` handle checks for an `authorization` header from the client. Handles can be asyncronous, handles when run occur in sequence and will wait for the previous handle to finish before moving forward.
+In these examples the `json()` handle sets `'Content-Type'` to `'application/json'`, and the `loggedIn()` handle checks for an `authorization` header from the client. Handles can be asyncronous and always run in sequence. They will wait for the previous handle to finish before moving forward.
 
 # # createErrorHandler()
 
@@ -243,9 +245,9 @@ import { createErrorHandler } from 'kequapp';
 
 An appropriate error handler is invoked whenever a handle throws an exception.
 
-Error handlers turn an exception into useful information that should be sent to the client. We may return a value to invoke a renderer or finalize the response directly. The default built-in error handler structures a json formatted response with helpful information for debugging.
+Error handlers turn an exception into useful information that should be sent to the client. We may return a value to invoke a renderer or finalize the response ourselves directly inside the error handler. The default built-in error handler structures a json formatted response with helpful information for debugging.
 
-The `contentType` specified determines the correct error handler for the application to use. Error handlers are sorted by the framework in favor of content type and hierarchical specificity. The following is a very simple error handler for text based responses.
+The `'Content-Type'` header set by our application determines the correct error handler to use. Error handlers are sorted by the framework in favor of content type and hierarchical specificity. The following is a very simple error handler for text based responses.
 
 ```javascript
 // createErrorHandler
@@ -256,7 +258,7 @@ createErrorHandler({
 });
 ```
 
-Errors thrown within an error handler or the renderer it invokes would cause a fatal exception and an empty `body` will be delivered to the client.
+Errors thrown within an error handler or the renderer it invokes will cause a fatal exception and an empty `body` delivered to the client.
 
 For a good example of how to write an error handler see this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
 
@@ -273,9 +275,9 @@ import { createRenderer } from 'kequapp';
 
 An appropriate renderer is invoked whenever a handle returns a value apart from `undefined`.
 
-Renderers are responsible for finalizing the response to the client. It is the last stage of a request and without one an empty `body` would be delivered. There are default renderers that come built-in for both `'text/*'` and `'application/json'`, however these can be overridden by defining our own.
+Renderers are responsible for finalizing the response to the client. It is the last stage of a request and without one an empty `body` will be delivered. There are default renderers that come built-in for both `'text/*'` and `'application/json'`, however these can be overridden by defining our own.
 
-The `contentType` specified determines the correct renderer for the application to use. Error handlers are sorted by the framework in favor of content type and hierarchical specificity. The following is a simple example of what an html renderer might look like.
+The `'Content-Type'` header set by our application determines the correct renderer to use. Error handlers are sorted by the framework in favor of content type and hierarchical specificity. The following is a simple example of what an html renderer might look like.
 
 ```javascript
 // createRenderer
@@ -284,6 +286,7 @@ createRenderer({
     contentType: 'text/html',
     handle: (payload, { res }) => {
         const html = myMarkupRenderer(payload);
+
         // finalize response
         res.end(html);
     }
@@ -313,7 +316,7 @@ const authenticated = createHandle(({ req, res }) => {
         res.statusCode = 302;
         res.setHeader('Location', '/login');
 
-        // finalize response ignore remaining handles
+        // finalize response to ignore remaining handles
         res.end();
     }
 });
@@ -322,7 +325,7 @@ createRoute({
     method: 'GET',
     url: '/api/users',
     handles: [authenticated, json, () => {
-        // returning a value invokes a renderer
+        // return a value to invoke a renderer
         return {
             users: [{ name: 'April' }, { name: 'Leo' }]
         };
@@ -330,9 +333,9 @@ createRoute({
 });
 ```
 
-In this example if the client did not provide an `authorization` header, the `authenticated` handle will finalize the response. This terminates the request and skips all remaining handles. Otherwise the `json` handle sets `'Content-Type'` of the response to `'application/json'`.
+In this example if the client did not provide an `authorization` header, the `authenticated` handle will finalize the response. This terminates the request and skips all remaining handles. Otherwise the `json` handle sets the `'Content-Type'` header of the response to `'application/json'`.
 
-The last remaining handle returns a value. This invokes a renderer best matching the `'Content-Type'` of the response, in this example a renderer matching `'application/json'` will be used. The appropriate renderer will finalize a response to the client.
+The last remaining handle returns a value. This invokes a renderer best matching the `'Content-Type'` header, in this example a renderer matching `'application/json'` will be used. The appropriate renderer will finalize a response to the client.
 
 # Bundle properties
 
@@ -513,11 +516,11 @@ createRoute({
 
 #### **`required`**
 
-The provided list of fields are not `null` or `undefined`. It's a quick way to throw a `422` unprocessable entity error. These fields might still be empty, but at least something was sent and we know we can operate on them. When a `required` field is also an `arrays` field the array is sure to have at least one value.
+The provided list of fields are not `null` or `undefined`. It's a quick way to throw a `422 Unprocessable Entity` error. These fields might still be empty, but at least something was sent and we know we can operate on them. When a `required` field is also an `arrays` field the array is sure to have at least one value.
 
 #### **`numbers`**
 
-The provided list of fields will throw a `422` unprocessable entity error if any value is provided which parses into `NaN`. Otherwise they are converted into numbers.
+The provided list of fields will throw a `422 Unprocessable Entity` error if any value is provided which parses into `NaN`. Otherwise they are converted into numbers.
 
 When a `numbers` field is also an `arrays` field the array is all numbers.
 
@@ -527,7 +530,7 @@ The provided list of fields are converted into `false` if the value is falsy, `'
 
 #### **`validate`**
 
-After normalization, this method further ensures the validity of the data. Returning anything from this function throws a `422` unprocessable entity error.
+After normalization, this method further ensures the validity of the data. Returning anything from this function throws a `422 Unprocessable Entity` error.
 
 ```javascript
 // validate
@@ -757,7 +760,7 @@ If a third parameter is not provided a `'Content-Type'` header is guessed from t
 import { Ex } from 'kequapp';
 ```
 
-An unhandled exception from our application results in a `500` internal server error. If we would like an error with a different status code there is a helper tool that makes this easy.
+An unhandled exception from our application results in a `500 Internal Server Error`. If we would like an error with a different status code there is a helper tool that makes this easy.
 
 ```javascript
 // Ex
