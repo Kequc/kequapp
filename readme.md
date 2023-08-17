@@ -212,7 +212,7 @@ This example has two handles. One called `loggedIn()`, then a second that return
 import { createHandle } from 'kequapp';
 ```
 
-A simple wrapper for a handle the purpose for which is to provide types.
+A simple wrapper for a handle the purpose of which is to provide types.
 
 ```javascript
 // createHandle
@@ -229,7 +229,7 @@ const loggedIn = createHandle(({ req, context }) => {
 });
 ```
 
-In these examples the `json()` handle sets the `'Content-Type'` header to `'application/json'`, and the `loggedIn()` handle checks for an `'authorization'` header from the client. Handles can be asyncronous and always run in sequence. They will wait for the previous handle to finish before moving forward.
+In these examples the `json()` handle sets the `'Content-Type'` header to `'application/json'`, and the `loggedIn()` handle checks for an `'authorization'` header from the client. Handles can be asyncronous and always run in sequence.
 
 # # createErrorHandler()
 
@@ -257,7 +257,7 @@ createErrorHandler({
 });
 ```
 
-Errors thrown within an error handler or the renderer it invokes will cause a fatal exception and an empty `body` delivered to the client.
+Errors thrown within an error handler or the renderer it invokes will cause a fatal exception and an empty `body` will be delivered to the client.
 
 For a good example of how to write an error handler see this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
 
@@ -573,6 +573,12 @@ We know it is safe to use `result.ownedPets.length` in this example because it i
 
 The max payload size is `1e6` (approximately 1mb) by default. If this payload size is exceeded by the client the request will be terminated saving our application both memory and bandwidth. If we are absolutely sure we want to receive a payload of any size then a value of `Infinity` is accepted.
 
+# Logger
+
+One of the options provided to `createBranch()` is a `logger` parameter. The default logger for the application is a simple object with methods for `error`, `warn`, `info`, `http`, `verbose`, `debug`, `silly`, and `log`. Each mapping roughly to console.
+
+Overriding this logger requires an object with some or all of the same methods.
+
 # CORS and OPTIONS requests
 
 CORS behavior is managed by headers as shaped by handles. The framework will automatically add default headers we can use for basic support.
@@ -702,7 +708,7 @@ import { staticFile } from 'kequapp';
 | key | description | default |
 | ---- | ---- | ---- |
 | **asset \*** | *Local* | |
-| **url** | *Pathname* | `'/**'` |
+| **url** | *Pathname* | `'/'` |
 | **contentType** | *Content type* | |
 
 Pairs a `url` and a local file. This asset will be delivered to the client.
@@ -728,7 +734,7 @@ If `contentType` is not provided a `'Content-Type'` header will be guessed from 
 import { sendFile } from 'kequapp';
 ```
 
-Send a file and finalize the response.
+Sends a file and finalizes the response.
 
 This is asyncronous and must be awaited otherwise the application might get confused as it continues processing the request unexpectedly.
 
@@ -750,7 +756,7 @@ createApp({
 );
 ```
 
-If a third parameter may be provided defining a `'Content-Type'`, this header is otherwise guessed from the file extension.
+A third parameter may be provided defining a `'Content-Type'`, this header is otherwise guessed from the file extension.
 
 # # Ex()
 

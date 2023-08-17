@@ -1,9 +1,10 @@
 import assert from 'assert';
 import 'kequtest';
 import parseMultipart from '../../../src/body/multipart/parse-multipart';
+import { TRawPart } from '../../../src/types';
 
 it('reads buffers', () => {
-    const parts = [{
+    const parts: TRawPart[] = [{
         headers: {
             'content-disposition': 'form-data; name="name"'
         },
