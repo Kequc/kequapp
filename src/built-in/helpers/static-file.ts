@@ -1,12 +1,19 @@
 import { createHandle, createRoute } from '../../router/modules';
-import { TPathname, TRouteData } from '../../types';
-import { validateContentType, validateExists, validateObject, validatePathname } from '../../util/validate';
+import { THandle, TPathname, TRouteData } from '../../types';
+import {
+    validateArray,
+    validateContentType,
+    validateExists,
+    validateObject,
+    validatePathname
+} from '../../util/validate';
 import sendFile from './send-file';
 
 type TStaticFileOptions = {
     url?: TPathname;
     asset: TPathname;
     contentType?: string;
+    handles?: THandle[];
 };
 
 export default function staticFile (options: TStaticFileOptions): TRouteData {
@@ -19,7 +26,7 @@ export default function staticFile (options: TStaticFileOptions): TRouteData {
     return createRoute({
         method: 'GET',
         url: options.url,
-        handles: [handle]
+        handles: [...options.handles ?? [], handle]
     });
 }
 
@@ -30,4 +37,5 @@ function validateOptions (options: TStaticFileOptions): void {
     validateExists(options.asset, 'Static file asset');
     validatePathname(options.asset, 'Static file asset');
     validateContentType(options.contentType, 'Static file contentType');
+    validateArray(options.handles, 'Static file handles', 'function');
 }

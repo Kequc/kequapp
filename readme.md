@@ -675,6 +675,7 @@ import { staticDirectory } from 'kequapp';
 | **dir** | *Local* | `'/public'` |
 | **exclude** | *Exclusions* | `[]` |
 | **contentTypes** | *Additions* | `{}` |
+| **handles** | *Sequence* | `[]` |
 
 Pairs a `url` with a static directory.
 
@@ -710,6 +711,7 @@ import { staticFile } from 'kequapp';
 | **asset \*** | *Local* | |
 | **url** | *Pathname* | `'/'` |
 | **contentType** | *Content type* | |
+| **handles** | *Sequence* | `[]` |
 
 Pairs a `url` and a local file. This asset will be delivered to the client.
 
@@ -756,7 +758,7 @@ createApp({
 );
 ```
 
-A third parameter may be provided defining a `'Content-Type'`, this header is otherwise guessed from the file extension.
+A fourth parameter may be provided defining a `'Content-Type'`, this header is otherwise guessed from the file extension.
 
 # # Ex()
 
