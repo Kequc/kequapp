@@ -1,184 +1,112 @@
 import assert from 'assert';
 import 'kequtest';
+import { createBranch } from '../../src/main';
 import createRouter from '../../src/router/create-router';
-import {
-    TErrorHandlerData,
-    THandle,
-    TRendererData,
-    TRouteData
-} from '../../src/types';
+import { TErrorHandlerData, THandle, TPathname, TRendererData, TRouteData } from '../../src/types';
 
 const handleA = () => {};
 const handleB = () => {};
 
-function route (method: string, parts: string[], handles: THandle[] = []): TRouteData {
-    return { method, parts, handles };
+function route (method: string, url?: TPathname, handles: THandle[] = []): TRouteData {
+    return { method, url, handles };
 }
 
-function renderer (parts: string[], contentType = '*', handle = handleA): TRendererData {
-    return { contentType, parts, handle };
+function renderer (contentType = '*', handle = handleA): TRendererData {
+    return { contentType, handle };
 }
 
-function errorHandler (parts: string[], contentType = '*', handle = handleA): TErrorHandlerData {
-    return { contentType, parts, handle };
+function errorHandler (contentType = '*', handle = handleA): TErrorHandlerData {
+    return { contentType, handle };
 }
+
+const halloweenBranch = createBranch({
+    url: '/halloween',
+    renderers: [
+        renderer('text/html'),
+        renderer('application/*'),
+        renderer('text/plain'),
+        renderer('application/json', handleA),
+        renderer('application/json', handleB),
+        renderer()
+    ],
+    errorHandlers: [
+        errorHandler('text/html'),
+        errorHandler('application/*'),
+        errorHandler('text/plain'),
+        errorHandler('application/json', handleA),
+        errorHandler('application/json', handleB),
+        errorHandler()
+    ],
+    routes: [
+        route('GET')
+    ]
+});
+
+const catsBranch = createBranch({
+    url: '/cats',
+    routes: [
+        route('GET'),
+        route('GET', '/**'),
+        route('POST', undefined, [handleA]),
+        route('POST', undefined, [handleB]),
+        route('GET', '/tiffany'),
+        route('OPTIONS', '/tiffany/**', [handleA]),
+        route('OPTIONS', '/tiffany/**', [handleB])
+    ],
+    renderers: [
+        renderer()
+    ],
+    errorHandlers: [
+        errorHandler()
+    ],
+    branches: [
+        {
+            url: '/tiffany/friends',
+            routes: [
+                route('POST', '/**')
+            ],
+            renderers: [
+                renderer()
+            ],
+            errorHandlers: [
+                errorHandler()
+            ]
+        }
+    ]
+});
 
 const router = createRouter({
     routes: [
-        route('GET', ['free', 'stuff']),
-        route('GET', []),
-        route('GET', ['cats', '**']),
-        route('GET', ['cats', 'tiffany']),
-        route('OPTIONS', ['cats', 'tiffany', '**'], [handleA]),
-        route('OPTIONS', ['cats', 'tiffany', '**'], [handleB]),
-        route('POST', ['cats', 'tiffany', 'friends', '**']),
-        route('GET', ['halloween']),
-        route('GET', ['cats']),
-        route('GET', ['**']),
-        route('POST', ['cats'], [handleA]),
-        route('POST', ['cats'], [handleB])
+        route('GET', '/free/stuff'),
+        route('GET', '/'),
+        route('GET', '/**')
     ],
     renderers: [
-        renderer(['**']),
-        renderer(['halloween', '**'], 'text/html'),
-        renderer(['halloween', '**'], 'application/*'),
-        renderer(['cats', '**']),
-        renderer(['cats', 'tiffany', 'friends']),
-        renderer(['halloween', '**'], 'text/plain'),
-        renderer(['halloween', '**'], 'application/json', handleA),
-        renderer(['halloween', '**'], 'application/json', handleB),
-        renderer(['halloween', '**'])
+        renderer()
     ],
     errorHandlers: [
-        errorHandler(['**']),
-        errorHandler(['halloween', '**'], 'text/html'),
-        errorHandler(['halloween', '**'], 'application/*'),
-        errorHandler(['cats', '**']),
-        errorHandler(['cats', 'tiffany', 'friends']),
-        errorHandler(['halloween', '**'], 'text/plain'),
-        errorHandler(['halloween', '**'], 'application/json', handleA),
-        errorHandler(['halloween', '**'], 'application/json', handleB),
-        errorHandler(['halloween', '**'])
+        errorHandler()
     ],
-    configs: []
-});
-
-describe('priority', () => {
-    it('sorts routes', () => {
-        assert.deepStrictEqual(router().routes, [
-            route('GET', []),
-            route('GET', ['cats']),
-            route('POST', ['cats'], [handleA]),
-            route('POST', ['cats'], [handleB]),
-            route('GET', ['cats', 'tiffany']),
-            route('POST', ['cats', 'tiffany', 'friends', '**']),
-            route('OPTIONS', ['cats', 'tiffany', '**'], [handleA]),
-            route('OPTIONS', ['cats', 'tiffany', '**'], [handleB]),
-            route('GET', ['cats', '**']),
-            route('GET', ['free', 'stuff']),
-            route('GET', ['halloween']),
-            route('GET', ['**'])
-        ]);
-    });
-
-    it('sorts renderers', () => {
-        assert.deepStrictEqual(router().renderers, [
-            renderer(['cats', 'tiffany', 'friends']),
-            renderer(['cats', '**']),
-            renderer(['halloween', '**'], 'text/html'),
-            renderer(['halloween', '**'], 'text/plain'),
-            renderer(['halloween', '**'], 'application/json', handleA),
-            renderer(['halloween', '**'], 'application/json', handleB),
-            renderer(['halloween', '**'], 'application/*'),
-            renderer(['halloween', '**']),
-            renderer(['**']),
-        ]);
-    });
-
-    it('sorts errorHandlers', () => {
-        assert.deepStrictEqual(router().errorHandlers, [
-            errorHandler(['cats', 'tiffany', 'friends']),
-            errorHandler(['cats', '**']),
-            errorHandler(['halloween', '**'], 'text/html'),
-            errorHandler(['halloween', '**'], 'text/plain'),
-            errorHandler(['halloween', '**'], 'application/json', handleA),
-            errorHandler(['halloween', '**'], 'application/json', handleB),
-            errorHandler(['halloween', '**'], 'application/*'),
-            errorHandler(['halloween', '**']),
-            errorHandler(['**']),
-        ]);
-    });
+    branches: [
+        halloweenBranch,
+        catsBranch
+    ]
 });
 
 describe('compare', () => {
     it('filters routes', () => {
-        assert.deepStrictEqual(router('/cats').routes, [
-            route('GET', ['cats']),
-            route('POST', ['cats'], [handleA]),
-            route('POST', ['cats'], [handleB]),
-            route('GET', ['cats', '**']),
-            route('GET', ['**'])
-        ]);
+        const result = router('GET', '/cats');
+        assert.deepStrictEqual(result[2], ['GET', 'POST', 'HEAD']);
     });
 
     it('filters nested routes', () => {
-        assert.deepStrictEqual(router('/cats/tiffany').routes, [
-            route('GET', ['cats', 'tiffany']),
-            route('OPTIONS', ['cats', 'tiffany', '**'], [handleA]),
-            route('OPTIONS', ['cats', 'tiffany', '**'], [handleB]),
-            route('GET', ['cats', '**']),
-            route('GET', ['**'])
-        ]);
+        const result = router('GET', '/cats/tiffany');
+        assert.deepStrictEqual(result[2], ['GET', 'OPTIONS', 'HEAD']);
     });
 
     it('finds wildcard routes', () => {
-        assert.deepStrictEqual(router('/cats/rodger').routes, [
-            route('GET', ['cats', '**']),
-            route('GET', ['**'])
-        ]);
-    });
-
-    it('filters renderers', () => {
-        assert.deepStrictEqual(router('/cats').renderers, [
-            renderer(['cats', '**']),
-            renderer(['**']),
-        ]);
-    });
-
-    it('filters nested renderers', () => {
-        assert.deepStrictEqual(router('/cats/tiffany/friends').renderers, [
-            errorHandler(['cats', 'tiffany', 'friends']),
-            renderer(['cats', '**']),
-            renderer(['**']),
-        ]);
-    });
-
-    it('finds wildcard renderers', () => {
-        assert.deepStrictEqual(router('/cats/rodger').renderers, [
-            renderer(['cats', '**']),
-            renderer(['**']),
-        ]);
-    });
-
-    it('filters errorHandlers', () => {
-        assert.deepStrictEqual(router('/cats').errorHandlers, [
-            errorHandler(['cats', '**']),
-            errorHandler(['**']),
-        ]);
-    });
-
-    it('filters nested errorHandlers', () => {
-        assert.deepStrictEqual(router('/cats/tiffany/friends').errorHandlers, [
-            errorHandler(['cats', 'tiffany', 'friends']),
-            errorHandler(['cats', '**']),
-            errorHandler(['**']),
-        ]);
-    });
-
-    it('finds wildcard errorHandlers', () => {
-        assert.deepStrictEqual(router('/cats/rodger').errorHandlers, [
-            errorHandler(['cats', '**']),
-            errorHandler(['**']),
-        ]);
+        const result = router('GET', '/cats/rodger');
+        assert.deepStrictEqual(result[1], { wild: '/rodger' });
+        assert.deepStrictEqual(result[2], ['GET', 'HEAD']);
     });
 });

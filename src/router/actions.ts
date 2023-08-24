@@ -1,11 +1,10 @@
 import { findErrorHandler, findRenderer } from './find';
-import { TAddableData, TBundle, TRendererData, TRouteData } from '../types';
-import { unknownToEx } from '../util/tools/ex';
+import { unknownToEx } from '../built-in/tools/ex';
+import { TBundle, TRendererData, TRoute } from '../types';
 
-export async function renderRoute (collection: TAddableData, bundle: TBundle, route: TRouteData): Promise<void> {
-    const { renderers } = collection;
+export async function renderRoute (route: TRoute, bundle: TBundle): Promise<void> {
     const { res, methods } = bundle;
-    const { handles, method } = route;
+    const { handles, method, renderers } = route;
 
     let payload: unknown = undefined;
 
@@ -14,8 +13,6 @@ export async function renderRoute (collection: TAddableData, bundle: TBundle, ro
     }
     if (method === 'OPTIONS') {
         res.statusCode = 204;
-        res.setHeader('Content-Length', 0);
-
         addOptionsHeaders(bundle);
     } else {
         res.statusCode = 200;
@@ -33,8 +30,8 @@ export async function renderRoute (collection: TAddableData, bundle: TBundle, ro
     await finalize(renderers, bundle, payload);
 }
 
-export async function renderError (collection: TAddableData, bundle: TBundle, error: unknown): Promise<void> {
-    const { errorHandlers, renderers } = collection;
+export async function renderError (route: TRoute, bundle: TBundle, error: unknown): Promise<void> {
+    const { errorHandlers, renderers } = route;
     const { res, logger } = bundle;
 
     const errorHandler = findErrorHandler(errorHandlers, getContentType(bundle));
@@ -51,7 +48,7 @@ export async function renderError (collection: TAddableData, bundle: TBundle, er
 }
 
 function getContentType ({ res }: TBundle): string {
-    return String(res.getHeader('Content-Type') || 'text/plain');
+    return String(res.getHeader('Content-Type') ?? 'text/plain');
 }
 
 function addOptionsHeaders ({ req, res, methods }: TBundle): void {
@@ -65,6 +62,8 @@ function addOptionsHeaders ({ req, res, methods }: TBundle): void {
     if (allowHeaders) {
         res.setHeader('Access-Control-Allow-Headers', allowHeaders);
     }
+
+    res.setHeader('Content-Length', 0);
 }
 
 async function finalize (renderers: TRendererData[], bundle: TBundle, payload: unknown): Promise<void> {

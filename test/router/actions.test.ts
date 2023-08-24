@@ -4,13 +4,23 @@ import createGetBody from '../../src/body/create-get-body';
 import createGetResponse from '../../src/body/create-get-response';
 import { renderError, renderRoute } from '../../src/router/actions';
 import {
-    TAddableData,
     TBundle,
     TReqOptions,
-    TRouteData
+    TRoute
 } from '../../src/types';
-import Ex from '../../src/util/tools/ex';
+import Ex from '../../src/built-in/tools/ex';
 import { FakeReq, FakeRes } from '../../src/util/fake-http';
+
+const logger = {
+    log: util.spy(),
+    error: util.spy(),
+    warn: util.spy(),
+    info: util.spy(),
+    http: util.spy(),
+    verbose: util.spy(),
+    debug: util.spy(),
+    silly: util.spy()
+};
 
 function buildBundle (options: TReqOptions): TBundle {
     const req = new FakeReq(options) as any;
@@ -23,27 +33,27 @@ function buildBundle (options: TReqOptions): TBundle {
         getBody: createGetBody(req),
         context: {},
         params: {},
-        methods: []
+        methods: [],
+        logger
     };
 }
 
 describe('renderRoute', () => {
     it('renders a response', async () => {
-        const route: TRouteData = {
-            parts: [],
+        const route: TRoute = {
             handles: [({ res }) => {
                 res.end('hello there');
             }],
-            method: 'GET'
-        };
-        const bundle = buildBundle({ url: '/' });
-        const collection: TAddableData = {
-            routes: [route],
+            method: 'GET',
+            regexp: new RegExp(''),
+            autoHead: true,
+            logger,
             renderers: [],
             errorHandlers: []
         };
+        const bundle = buildBundle({ url: '/' });
 
-        await renderRoute(collection, bundle, route);
+        await renderRoute(route, bundle);
 
         const { res } = bundle;
 
@@ -60,25 +70,20 @@ describe('renderRoute', () => {
     });
 
     it('includes cors header when options available', async () => {
-        const route: TRouteData = {
-            parts: [],
+        const route: TRoute = {
             handles: [],
-            method: 'GET'
-        };
-        const bundle = buildBundle({ url: '/' });
-        const collection: TAddableData = {
-            routes: [route, {
-                parts: [],
-                handles: [],
-                method: 'OPTIONS'
-            }],
+            method: 'GET',
+            regexp: new RegExp(''),
+            autoHead: true,
+            logger,
             renderers: [],
             errorHandlers: []
         };
+        const bundle = buildBundle({ url: '/' });
 
         bundle.methods.push('GET', 'HEAD', 'OPTIONS');
 
-        await renderRoute(collection, bundle, route);
+        await renderRoute(route, bundle);
 
         const { res } = bundle;
 
@@ -91,10 +96,14 @@ describe('renderRoute', () => {
     });
 
     it('includes additional headers when method is options', async () => {
-        const route: TRouteData = {
-            parts: [],
+        const route: TRoute = {
             handles: [],
-            method: 'OPTIONS'
+            method: 'OPTIONS',
+            regexp: new RegExp(''),
+            autoHead: true,
+            logger,
+            renderers: [],
+            errorHandlers: []
         };
         const bundle = buildBundle({
             url: '/',
@@ -103,19 +112,10 @@ describe('renderRoute', () => {
                 'access-control-request-headers': 'X-PINGOTHER, Content-Type'
             }
         });
-        const collection: TAddableData = {
-            routes: [route, {
-                parts: [],
-                handles: [],
-                method: 'GET'
-            }],
-            renderers: [],
-            errorHandlers: []
-        };
 
         bundle.methods.push('GET', 'HEAD', 'OPTIONS');
 
-        await renderRoute(collection, bundle, route);
+        await renderRoute(route, bundle);
 
         const { res } = bundle;
 
@@ -131,11 +131,14 @@ describe('renderRoute', () => {
 describe('renderError', () => {
     it('renders an error', async () => {
         const bundle = buildBundle({ url: '/' });
-        const collection: TAddableData = {
-            routes: [],
+        const route: TRoute = {
+            handles: [],
+            method: 'OPTIONS',
+            regexp: new RegExp(''),
+            autoHead: true,
+            logger,
             renderers: [],
             errorHandlers: [{
-                parts: [],
                 contentType: '*',
                 handle (ex, { res }) {
                     res.setHeader('Content-Type', 'text/plain');
@@ -144,7 +147,7 @@ describe('renderError', () => {
             }]
         };
 
-        await renderError(collection, bundle, Ex.NotFound());
+        await renderError(route, bundle, Ex.NotFound());
 
         const { res } = bundle;
 

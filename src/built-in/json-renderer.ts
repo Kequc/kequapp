@@ -1,15 +1,18 @@
-import createRenderer from '../router/modules/create-renderer';
-import Ex from '../util/tools/ex';
+import { createRenderer } from '../router/modules';
+import Ex from '../built-in/tools/ex';
 
-export default createRenderer('application/json', (payload, { req, res }) => {
-    const json = generateJson(payload);
+export default createRenderer({
+    contentType: 'application/json',
+    handle (payload, { req, res }) {
+        const json = generateJson(payload);
 
-    res.setHeader('Content-Length', Buffer.byteLength(json));
+        res.setHeader('Content-Length', Buffer.byteLength(json));
 
-    if (req.method === 'HEAD') {
-        res.end();
-    } else {
-        res.end(json);
+        if (req.method === 'HEAD') {
+            res.end();
+        } else {
+            res.end(json);
+        }
     }
 });
 

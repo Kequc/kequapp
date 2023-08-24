@@ -89,9 +89,9 @@ export function unknownToEx (error: unknown): TServerEx {
     }
 
     const ex = error as TServerEx;
-    ex.statusCode = ex.statusCode || 500;
-    ex.info = ex.info || [];
-    ex.name = ex.name || createMethodName(ex.statusCode);
+    ex.statusCode = ex.statusCode ?? 500;
+    ex.info = ex.info ?? [];
+    ex.name = ex.name ?? createMethodName(ex.statusCode);
 
     return ex;
 }
@@ -105,7 +105,7 @@ function createMessage (message: unknown): string {
 }
 
 function createMethodName (statusCode: number) {
-    return (STATUS_CODES[statusCode] || 'Error')
+    return (STATUS_CODES[statusCode] ?? 'Error')
         .replace('\'', '')
         .split(/[\s-]+/)
         .map(capitalize)
@@ -117,7 +117,7 @@ function capitalize (word: string): string {
 }
 
 function buildException (parent: any, name: string, statusCode: number, message?: string, ...info: unknown[]) {
-    const ex = new Error(message || STATUS_CODES[statusCode]) as TServerEx;
+    const ex = new Error(message ?? STATUS_CODES[statusCode]) as TServerEx;
     ex.name = name;
     ex.statusCode = statusCode;
     ex.info = info.map(normalize);

@@ -1,33 +1,41 @@
-import createRoute from '../../router/modules/create-route';
-import { IAddable, TPathname } from '../../types';
-import { extractContentType, extractUrl } from '../../util/extract';
-import { validatePathname, validateType } from '../../util/validate';
+import { createHandle, createRoute } from '../../router/modules';
+import { THandle, TPathname, TRouteData } from '../../types';
+import {
+    validateArray,
+    validateContentType,
+    validateExists,
+    validateObject,
+    validatePathname
+} from '../../util/validate';
 import sendFile from './send-file';
 
-interface IStaticFile {
-    (url: TPathname, asset: TPathname, mime: string): IAddable;
-    (url: TPathname, asset: TPathname): IAddable;
-    (asset: TPathname, mime: string): IAddable;
-    (asset: TPathname): IAddable;
+type TStaticFileOptions = {
+    url?: TPathname;
+    asset: TPathname;
+    contentType?: string;
+    handles?: THandle[];
+};
+
+export default function staticFile (options: TStaticFileOptions): TRouteData {
+    validateOptions(options);
+
+    const handle = createHandle(async ({ req, res }) => {
+        await sendFile(req, res, options.asset, options.contentType);
+    });
+
+    return createRoute({
+        method: 'GET',
+        url: options.url,
+        handles: [...options.handles ?? [], handle]
+    });
 }
 
-export default staticFile as IStaticFile;
-
-function staticFile (...params: unknown[]): IAddable {
-    let url = extractUrl(params);
-    let asset = extractUrl(params);
-    const mime = extractContentType(params, undefined);
-
-    if (asset === '/') {
-        asset = url;
-        url = '/';
-    }
-
-    validatePathname(url, 'Static file url');
-    validatePathname(asset, 'Static file asset');
-    validateType(mime, 'Static file mime', 'string');
-
-    return createRoute(url, async ({ req, res }) => {
-        await sendFile(req, res, asset, mime);
-    });
+function validateOptions (options: TStaticFileOptions): void {
+    validateExists(options, 'Static file options');
+    validateObject(options, 'Static file options');
+    validatePathname(options.url, 'Static file url');
+    validateExists(options.asset, 'Static file asset');
+    validatePathname(options.asset, 'Static file asset');
+    validateContentType(options.contentType, 'Static file contentType');
+    validateArray(options.handles, 'Static file handles', 'function');
 }

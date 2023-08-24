@@ -6,7 +6,7 @@ import { IGetResponse, TGetResponseOptions, TRawPart } from '../types';
 
 const parseBody = createParseBody({
     'text/': ({ data }) => data.toString(),
-    'application/json': parseJson,
+    'application/json': parseJson
 }, ({ data }) => data);
 
 export default function createGetResponse (res: ServerResponse): IGetResponse {
@@ -19,8 +19,8 @@ export default function createGetResponse (res: ServerResponse): IGetResponse {
 
             _body = {
                 headers: {
-                    'content-type': String(res.getHeader('Content-Type') || ''),
-                    'content-disposition': String(res.getHeader('Content-Disposition') || '')
+                    'content-type': String(res.getHeader('Content-Type') ?? ''),
+                    'content-disposition': String(res.getHeader('Content-Disposition') ?? '')
                 },
                 data
             };

@@ -1,58 +1,49 @@
 import path from 'path';
 import sendFile from './send-file';
-import createRoute from '../../router/modules/create-route';
-import { IAddable, TParams, TPathname, TPathnameWild } from '../../types';
-import { extractOptions, extractUrl } from '../../util/extract';
-import guessMime from '../../util/guess-mime';
-import { validateArray, validateObject, validatePathname } from '../../util/validate';
-import Ex from '../../util/tools/ex';
+import { createHandle, createRoute } from '../../router/modules';
+import { TRouteData, TParams, TPathname, TPathnameWild, THandle } from '../../types';
+import guessContentType from '../../util/guess-content-type';
+import { validateArray, validateExists, validateObject, validatePathname } from '../../util/validate';
+import Ex from '../tools/ex';
 
 type TStaticDirectoryOptions = {
-    dir: TPathname;
-    exclude: TPathname[];
-    mime: TParams;
+    url?: TPathnameWild;
+    dir?: TPathname;
+    exclude?: TPathname[];
+    contentTypes?: TParams;
+    handles?: THandle[];
 };
 
-const DEFAULT_OPTIONS: TStaticDirectoryOptions = {
-    dir: '/public',
-    exclude: [],
-    mime: {}
-};
-
-interface IStaticDirectory {
-    (url: TPathnameWild, options: Partial<TStaticDirectoryOptions>): IAddable;
-    (url: TPathnameWild): IAddable;
-    (options: Partial<TStaticDirectoryOptions>): IAddable;
-    (): IAddable;
-}
-
-export default staticDirectory as IStaticDirectory;
-
-function staticDirectory (...params: unknown[]): IAddable {
-    const url = extractUrl(params, '/**');
-    const options = extractOptions<TStaticDirectoryOptions>(params, DEFAULT_OPTIONS);
-
-    validatePathname(url, 'Static directory url', true);
+export default function staticDirectory (options: TStaticDirectoryOptions): TRouteData {
     validateOptions(options);
 
-    return createRoute(url, async ({ req, res, params }) => {
-        const asset = path.join(options.dir, params['**']) as TPathname;
+    const handle = createHandle(async ({ req, res, params }) => {
+        const asset = path.join(options.dir ?? '/public', params.wild) as TPathname;
 
-        if (isExcluded(options.exclude, asset)) {
+        if (isExcluded(options.exclude ?? [], asset)) {
             throw Ex.NotFound();
         }
 
-        await sendFile(req, res, asset, guessMime(asset, options.mime));
+        await sendFile(req, res, asset, guessContentType(asset, options.contentTypes));
+    });
+
+    return createRoute({
+        method: 'GET',
+        url: options.url ?? '/**',
+        handles: [...options.handles ?? [], handle]
     });
 }
 
 function validateOptions (options: TStaticDirectoryOptions): void {
+    validateExists(options, 'Static directory options');
     validateObject(options, 'Static directory options');
+    validatePathname(options.url, 'Static directory options.url', true);
     validatePathname(options.dir, 'Static directory options.dir');
     validateArray(options.exclude, 'Static directory options.exclude');
-    validateObject(options.mime, 'Static directory options.mime', 'string');
+    validateObject(options.contentTypes, 'Static directory options.contentTypes', 'string');
+    validateArray(options.handles, 'Static directory handles', 'function');
 
-    for (const value of options.exclude || []) {
+    for (const value of options.exclude ?? []) {
         validatePathname(value, 'Static directory options.exclude');
     }
 }

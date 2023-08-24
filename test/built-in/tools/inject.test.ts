@@ -1,10 +1,16 @@
 import assert from 'assert';
 import 'kequtest';
 import { createApp, createRoute } from '../../../src/main';
-import inject from '../../../src/util/tools/inject';
+import inject from '../../../src/built-in/tools/inject';
 
 it('can return a response from the app', async () => {
-    const app = createApp().add(createRoute(() => 'hello'));
+    const route = createRoute({
+        method: 'GET',
+        handles: [() => 'hello']
+    });
+    const app = createApp({
+        routes: [route]
+    });
     const { getResponse } = inject(app, {
         method: 'GET',
         url: '/'

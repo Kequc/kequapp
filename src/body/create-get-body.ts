@@ -7,11 +7,11 @@ import splitMultipart from './multipart/split-multipart';
 import normalizeBody from './normalize-body';
 import streamReader from './stream-reader';
 import { IGetBody, TGetBodyOptions, TRawPart } from '../types';
-import Ex from '../util/tools/ex';
+import Ex from '../built-in/tools/ex';
 
 const parseBody = createParseBody({
     'application/x-www-form-urlencoded': parseUrlEncoded,
-    'application/json': parseJson,
+    'application/json': parseJson
 });
 
 export default function createGetBody (req: IncomingMessage): IGetBody {
@@ -21,8 +21,8 @@ export default function createGetBody (req: IncomingMessage): IGetBody {
         if (_body === undefined) {
             _body = {
                 headers: {
-                    'content-type': req.headers['content-type'] || '',
-                    'content-disposition': req.headers['content-disposition'] || ''
+                    'content-type': req.headers['content-type'] ?? '',
+                    'content-disposition': req.headers['content-disposition'] ?? ''
                 },
                 data: await streamReader(getStream(req), getMaxPayloadSize(options))
             };
@@ -54,7 +54,7 @@ export default function createGetBody (req: IncomingMessage): IGetBody {
 }
 
 function getStream (req: IncomingMessage): Readable {
-    const encoding = (req.headers['content-encoding'] || 'identity').toLowerCase();
+    const encoding = (req.headers['content-encoding'] ?? 'identity').toLowerCase();
 
     switch (encoding) {
     case 'br': return req.pipe(zlib.createBrotliDecompress());

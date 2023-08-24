@@ -13,18 +13,18 @@ export default function parseMultipart (parts: TRawPart[]): [TBodyJson, TFilePar
 
     for (const part of parts) {
         const { filename, name } = headerAttributes(part.headers['content-disposition']);
-        const mime = getMime(part.headers['content-type']);
-        const isFile = filename || !mime.startsWith('text/');
+        const contentType = getContentType(part.headers['content-type']);
+        const isFile = filename ?? !contentType.startsWith('text/');
 
         if (isFile) {
-            files.push({ ...part, mime, name, filename });
+            files.push({ ...part, contentType, name, filename });
             continue;
         }
 
-        const key = name || 'undefined';
+        const key = name ?? 'undefined';
         const value = part.data.toString();
 
-        counters[key] = counters[key] || 0;
+        counters[key] = counters[key] ?? 0;
         counters[key]++;
 
         if (counters[key] === 2) {
@@ -44,6 +44,6 @@ export default function parseMultipart (parts: TRawPart[]): [TBodyJson, TFilePar
     return [result, files];
 }
 
-function getMime (contentType?: string): string {
-    return contentType?.split(';')[0].toLowerCase().trim() || 'text/plain';
+function getContentType (contentType?: string): string {
+    return contentType?.split(';')[0].toLowerCase().trim() ?? 'text/plain';
 }
