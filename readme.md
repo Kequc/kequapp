@@ -6,7 +6,7 @@ Non-intrusive Node JavaScript web app framework
 
 # Introduction
 
-Does the best it can to stay out of the way and leverage Node's built in features. Comes with a great deal of conveniences which makes it easy to structure an application with regard to modularity, body parsing, testing, handling any request, and returning any response.
+Does the best it can to stay out of the way and leverage Node's built in features. Comes with a great deal of conveniences which makes it easy to structure an application with regard to modularity, body parsing, cookies, and testing.
 
 Intended to be simple, powerful, and allows us to intercede at any time.
 
