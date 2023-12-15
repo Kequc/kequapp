@@ -1,6 +1,7 @@
 import { IncomingMessage, RequestListener, ServerResponse } from 'http';
 import createGetBody from './body/create-get-body';
 import { renderError, renderRoute } from './router/actions';
+import createCookies from './router/create-cookies';
 import createRouter from './router/create-router';
 import { IRouter, TBranchData, TBundle } from './types';
 
@@ -35,6 +36,7 @@ async function requestProcessor (router: IRouter, req: IncomingMessage, res: Ser
         context: {},
         params,
         methods,
+        cookies: createCookies(req, res),
         getBody: createGetBody(req),
         logger
     });

@@ -30,12 +30,30 @@ export type TBundle = {
     context: TBundleContext;
     params: TParams;
     methods: string[];
+    cookies: TCookies;
     getBody: IGetBody;
     logger: TLogger;
 };
 
 export type TBundleContext = {
     [k: string]: unknown;
+};
+
+export type TCookieOptions = {
+    expires?: Date | string;
+    maxAge?: number;
+    domain?: string;
+    path?: string;
+    secure?: boolean;
+    httpOnly?: boolean;
+    partitioned?: boolean;
+    sameSite?: 'Strict' | 'Lax' | 'None';
+};
+
+export type TCookies = {
+    get: (key: string) => string | undefined;
+    set: (key: string, value: string, options?: TCookieOptions) => void;
+    remove: (key: string) => void;
 };
 
 export interface IGetBody {

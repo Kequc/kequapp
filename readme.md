@@ -8,7 +8,7 @@ Non-intrusive Node JavaScript web app framework
 
 Does the best it can to stay out of the way and leverage Node's built in features. It comes with a great deal of conveniences which makes it easy to structure an application. With regard to modularity, body parsing, testing, handling any request, and returning any response.
 
-Intended to be simple,  powerful, and allows us to interceed at any time.
+Intended to be simple, powerful, and allows us to intercede at any time.
 
 **Features**
 
@@ -253,7 +253,7 @@ The `'Content-Type'` header set by our application determines the correct error 
 
 createErrorHandler({
     contentType: 'text/*',
-    handler: (ex, { res }) => `${ex.statusCode} ${ex.message}`
+    handle: (ex, { res }) => `${ex.statusCode} ${ex.message}`
 });
 ```
 
@@ -387,6 +387,21 @@ Param values are always a string.
 #### **`logger`**
 
 The logger being used by the application.
+
+#### **`cookies`**
+
+Includes helpers for `get()`, `set()`, and `remove()`. The `set()` method takes an optional third parameter with `expires`, `maxAge`, `domain`, `path`, `secure`, `httpOnly`, `partitioned`, and `sameSite`.
+
+```javascript
+createHandle(({ cookies }) => {
+    // get a cookie
+    const value: string | undefined = cookies.get('MyCookie');
+    // set a cookie
+    cookies.set('MyCookie', 'NewValue', { maxAge: 10000 });
+    // remove a cookie
+    cookies.remove('MyCookie');
+});
+```
 
 #### **`getBody`**
 
