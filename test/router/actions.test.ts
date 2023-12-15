@@ -10,6 +10,7 @@ import {
 } from '../../src/types';
 import Ex from '../../src/built-in/tools/ex';
 import { FakeReq, FakeRes } from '../../src/util/fake-http';
+import createCookies from '../../src/router/create-cookies';
 
 const logger = {
     log: util.spy(),
@@ -30,6 +31,7 @@ function buildBundle (options: TReqOptions): TBundle {
         req,
         res,
         url: new URL('http://fake.domain'),
+        cookies: createCookies(req, res),
         getBody: createGetBody(req),
         context: {},
         params: {},
