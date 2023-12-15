@@ -25,6 +25,14 @@ describe('get', () => {
 
         assert.strictEqual(cookies.get('hello'), 'there');
     });
+
+    it('gets a funny cookie', () => {
+        const cookies = buildCookies({
+            cookie: 'hello=1+2=3'
+        });
+
+        assert.strictEqual(cookies.get('hello'), '1+2=3');
+    });
 });
 
 describe('set', () => {
@@ -60,6 +68,20 @@ describe('set', () => {
         assert.deepStrictEqual(setHeader.calls.pop(), [
             'Set-Cookie',
             ['hello=there; Max-Age=1000; Domain=fake.domain; Path=/hello; Secure; HttpOnly; SameSite=Strict']
+        ]);
+    });
+
+    it('sets a funny cookie', () => {
+        const setHeader = util.spy();
+        const cookies = buildCookies({}, setHeader);
+
+        cookies.set('hello', '1+2=3', { maxAge: 1000 });
+
+        assert.strictEqual(cookies.get('hello'), '1+2=3');
+        assert.strictEqual(setHeader.calls.length, 1);
+        assert.deepStrictEqual(setHeader.calls.pop(), [
+            'Set-Cookie',
+            ['hello=1+2=3; Max-Age=1000']
         ]);
     });
 

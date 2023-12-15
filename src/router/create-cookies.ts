@@ -11,7 +11,9 @@ export default function createCookies (req: IncomingMessage, res: ServerResponse
         const cookies = req.headers.cookie?.split('; ') ?? [];
         const cookie = cookies.find(cookie => cookie.startsWith(`${key}=`));
 
-        return cookie?.split('=', 2)[1];
+        if (!cookie) return undefined;
+
+        return cookie.slice(cookie.indexOf('=') + 1);
     }
 
     function set (key: string, value: string, options?: TCookieOptions): void {
