@@ -45,6 +45,12 @@ describe('get', () => {
         assert.strictEqual(cookies.get('hello'), 'there');
         assert.strictEqual(cookies.get('baz'), '');
     });
+
+    it('does not parse an unnecessary cookie', () => {
+        const cookies = buildCookies();
+
+        assert.strictEqual(cookies.get(''), undefined);
+    });
 });
 
 describe('set', () => {

@@ -38,12 +38,14 @@ export default function createCookies (req: IncomingMessage, res: ServerResponse
     return { get, set, remove };
 }
 
-function parseCookieHeader (cookie = ''): TParams {
+function parseCookieHeader (cookie?: string): TParams {
     const result: TParams = {};
 
-    for (const part of cookie.split('; ')) {
-        const [key, value] = part.split('=');
-        result[key] = decodeURIComponent(value ?? '');
+    if (cookie !== undefined) {
+        for (const part of cookie.split('; ')) {
+            const [key, value] = part.split('=');
+            result[key] = decodeURIComponent(value ?? '');
+        }
     }
 
     return result;
