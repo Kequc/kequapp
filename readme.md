@@ -6,9 +6,7 @@ Non-intrusive Node JavaScript web app framework
 
 # Introduction
 
-Does the best it can to stay out of the way and leverage Node's built in features. Comes with a great deal of conveniences which makes it easy to structure an application with regard to modularity, body parsing, cookies, and testing.
-
-Intended to be simple, powerful, and allows us to intercede at any time.
+Does the best it can to stay out of the way and leverage Node's built in features. Comes with a great deal of little stuff which makes it easy to structure an application with regard to modularity, CORS, body parsing, cookies, and testing without dependencies.
 
 **Features**
 
@@ -50,7 +48,7 @@ createServer(app).listen(4000, () => {
 });
 ```
 
-This example responds to all `'GET'`, and `'HEAD'` requests made to `'/'` otherwise a `404 Not Found` error will be thrown. The framework comes with a built-in error handler and some renderers. We will look at how to create our own, but for now we don't need to worry about it.
+This example responds to all `'GET'`, and `'HEAD'` requests made to `'/'` otherwise a `404 Not Found` error will be thrown. The framework comes with a built-in error handler and some renderers so for now this is all we need.
 
 # # createApp()
 
@@ -384,10 +382,6 @@ When defining a route we can specify parameters to extract by prefixing a colon 
 
 Param values are always a string.
 
-#### **`logger`**
-
-The logger being used by the application.
-
 #### **`cookies`**
 
 Includes helpers for `get()`, `set()`, and `remove()`. The `set()` method takes an optional third parameter with `expires`, `maxAge`, `domain`, `path`, `secure`, `httpOnly`, `partitioned`, and `sameSite`.
@@ -402,6 +396,10 @@ createHandle(({ cookies }) => {
     cookies.remove('MyCookie');
 });
 ```
+
+#### **`logger`**
+
+The logger being used by the application.
 
 #### **`getBody`**
 

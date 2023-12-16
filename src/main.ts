@@ -11,6 +11,7 @@ export { default as staticDirectory } from './built-in/helpers/static-directory'
 export { default as Ex } from './built-in/tools/ex';
 export { default as inject } from './built-in/tools/inject';
 export * from './router/modules';
+export * from './types';
 
 export function createApp (structure: TBranchData): RequestListener {
     const router = createRouter(structure);

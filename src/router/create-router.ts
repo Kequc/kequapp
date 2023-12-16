@@ -1,5 +1,5 @@
 import createRegexp from './create-regexp';
-import { Ex } from '../main';
+import Ex from '../built-in/tools/ex';
 import {
     IRouter,
     TBranch,

@@ -1,23 +1,18 @@
 import { IncomingMessage, ServerResponse } from 'http';
-import { TCookieOptions, TCookies } from '../types';
+import { TCookieOptions, TCookies, TParams } from '../types';
+import Ex from '../built-in/tools/ex';
 
 export default function createCookies (req: IncomingMessage, res: ServerResponse): TCookies {
-    const result: { [key: string]: string } = {};
-    const values: { [key: string]: string | undefined } = {};
+    const result: TParams = {};
+    const values: TParams = parseCookieHeader(req.headers.cookie);
 
     function get (key: string): string | undefined {
-        if (Object.prototype.hasOwnProperty.call(values, key)) return values[key];
-
-        const cookies = req.headers.cookie?.split('; ') ?? [];
-        const cookie = cookies.find(cookie => cookie.startsWith(`${key}=`));
-
-        if (!cookie) return undefined;
-
-        return cookie.slice(cookie.indexOf('=') + 1);
+        return values[key];
     }
 
     function set (key: string, value: string, options?: TCookieOptions): void {
-        const attrs = [`${key}=${value}`];
+        validateCookieName(key);
+        const attrs = [`${key}=${encodeURIComponent(value)}`];
 
         if (options) {
             if (options.expires !== undefined) attrs.push(`Expires=${formatExpires(options.expires)}`);
@@ -37,10 +32,28 @@ export default function createCookies (req: IncomingMessage, res: ServerResponse
 
     function remove (key: string): void {
         set(key, '', { maxAge: 0 });
-        values[key] = undefined;
+        delete values[key];
     }
 
     return { get, set, remove };
+}
+
+function parseCookieHeader (cookie = ''): TParams {
+    const result: TParams = {};
+
+    for (const part of cookie.split('; ')) {
+        const [key, value] = part.split('=');
+        result[key] = decodeURIComponent(value ?? '');
+    }
+
+    return result;
+}
+
+function validateCookieName (name: string): void {
+    if (name.includes(';')) throw Ex.InternalServerError(`Cookie name "${name}" contains invalid character ";"`);
+    if (name.includes('=')) throw Ex.InternalServerError(`Cookie name "${name}" contains invalid character "="`);
+    if (name.includes(',')) throw Ex.InternalServerError(`Cookie name "${name}" contains invalid character ","`);
+    if (name.includes(' ')) throw Ex.InternalServerError(`Cookie name "${name}" contains invalid character " "`);
 }
 
 function formatExpires (expires: Date | string): string {

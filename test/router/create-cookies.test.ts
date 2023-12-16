@@ -6,6 +6,7 @@ import { TCookies } from '../../src/types';
 function buildCookies (headers: { cookie?: string } = {}, setHeader = () => {}): TCookies {
     const fakeReq = { headers } as any;
     const fakeRes = { setHeader } as any;
+
     return createCookies(fakeReq, fakeRes);
 }
 
@@ -28,10 +29,21 @@ describe('get', () => {
 
     it('gets a funny cookie', () => {
         const cookies = buildCookies({
-            cookie: 'hello=1+2=3'
+            cookie: 'hello=1%2B2%3D3'
         });
 
         assert.strictEqual(cookies.get('hello'), '1+2=3');
+    });
+
+    it('can read dumb cookies', () => {
+        const cookies = buildCookies({
+            cookie: 'foo; bar; hello=there; baz'
+        });
+
+        assert.strictEqual(cookies.get('foo'), '');
+        assert.strictEqual(cookies.get('bar'), '');
+        assert.strictEqual(cookies.get('hello'), 'there');
+        assert.strictEqual(cookies.get('baz'), '');
     });
 });
 
@@ -81,7 +93,7 @@ describe('set', () => {
         assert.strictEqual(setHeader.calls.length, 1);
         assert.deepStrictEqual(setHeader.calls.pop(), [
             'Set-Cookie',
-            ['hello=1+2=3; Max-Age=1000']
+            ['hello=1%2B2%3D3; Max-Age=1000']
         ]);
     });
 
@@ -104,6 +116,15 @@ describe('set', () => {
             'Set-Cookie',
             ['hello=there', 'foo=bar; Max-Age=1000']
         ]);
+    });
+
+    it('prevents use of invalid cookie names', () => {
+        const cookies = buildCookies();
+
+        assert.throws(() => { cookies.set('hello;there', 'value'); });
+        assert.throws(() => { cookies.set('hello=there', 'value'); });
+        assert.throws(() => { cookies.set('hello,there', 'value'); });
+        assert.throws(() => { cookies.set('hello there', 'value'); });
     });
 });
 
