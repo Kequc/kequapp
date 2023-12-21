@@ -52,6 +52,12 @@ it('creates a param regexp', () => {
 
     assert.ok(regexp.test('/hello/there/101'));
     assert.ok(regexp.test('/hello/foo/101'));
+    assert.ok(regexp.test('/hello/09a511fe-baa9-4080-b228-6a5e9b16a67c/101'));
+    assert.ok(regexp.test('/hello/foo_foo/101'));
+    assert.ok(regexp.test('/hello/@foo/101'));
+    assert.ok(regexp.test('/hello/+foo/101'));
+    assert.ok(regexp.test('/hello/foo.foo/101'));
+    assert.ok(regexp.test('/hello/~foo/101'));
 
     assert.ok(!regexp.test('/hello//there/101'));
     assert.ok(!regexp.test('/hello/foo//101'));
@@ -60,6 +66,11 @@ it('creates a param regexp', () => {
     assert.ok(!regexp.test('/hello/there/101/foo'));
     assert.ok(!regexp.test('/hello/there/**'));
     assert.ok(!regexp.test('/hello/there/:boo'));
+    assert.ok(!regexp.test('/hello/#there/101'));
+    assert.ok(!regexp.test('/hello/?there/101'));
+    assert.ok(!regexp.test('/hello/&there/101'));
+    assert.ok(!regexp.test('/hello/=there/101'));
+    assert.ok(!regexp.test('/hello/%there/101'));
 
     assert.deepStrictEqual(matchGroups('/hello/cats/101', regexp), {
         there: 'cats'
@@ -74,6 +85,12 @@ it('creates a wild param regexp', () => {
 
     assert.ok(regexp.test('/hello/there/101'));
     assert.ok(regexp.test('/hello/there/101/foo'));
+    assert.ok(regexp.test('/hello/there/101/09a511fe-baa9-4080-b228-6a5e9b16a67c'));
+    assert.ok(regexp.test('/hello/there/101/foo_foo'));
+    assert.ok(regexp.test('/hello/there/101/@foo'));
+    assert.ok(regexp.test('/hello/there/101/+foo'));
+    assert.ok(regexp.test('/hello/there/101/foo.foo'));
+    assert.ok(regexp.test('/hello/there/101/~foo'));
     assert.ok(regexp.test('/hello/there/101/foo/bar'));
     assert.ok(regexp.test('/hello/foo/101/bar'));
     assert.ok(regexp.test('/hello/there/101//foo'));
@@ -84,6 +101,9 @@ it('creates a wild param regexp', () => {
     assert.ok(!regexp.test('/hello/there'));
     assert.ok(!regexp.test('/hello/there/**'));
     assert.ok(!regexp.test('/hello/there/:boo'));
+    assert.ok(!regexp.test('/hello/there/101/&foo'));
+    assert.ok(!regexp.test('/hello/there/101/=foo'));
+    assert.ok(!regexp.test('/hello/there/101/%foo'));
 
     assert.deepStrictEqual(matchGroups('/hello/cats/101/foo/bar', regexp), {
         there: 'cats',
