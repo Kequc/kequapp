@@ -73,6 +73,38 @@ it('renders head routes', async () => {
     assert.strictEqual(result, 'HEAD');
 });
 
+it('renders a response for url', async () => {
+    const app = createApp({
+        routes: [{
+            url: '/foo/bar',
+            method: 'GET',
+            handles: [({ req, res }) => { res.end(req.method); }]
+        }]
+    });
+    const { res, getResponse } = inject(app, { url: '/foo/bar' });
+    const result = await getResponse();
+
+    assert.strictEqual(res.statusCode, 200);
+    assert.strictEqual(res.getHeader('Content-Type'), 'text/plain');
+    assert.strictEqual(result, 'GET');
+});
+
+it('renders a response for funny url', async () => {
+    const app = createApp({
+        routes: [{
+            url: '/@f~o+o/$b.a-r',
+            method: 'GET',
+            handles: [({ req, res }) => { res.end(req.method); }]
+        }]
+    });
+    const { res, getResponse } = inject(app, { url: '/@f~o+o/$b.a-r' });
+    const result = await getResponse();
+
+    assert.strictEqual(res.statusCode, 200);
+    assert.strictEqual(res.getHeader('Content-Type'), 'text/plain');
+    assert.strictEqual(result, 'GET');
+});
+
 const errorHandler = createErrorHandler({
     contentType: '*',
     handle (error, { res }) {

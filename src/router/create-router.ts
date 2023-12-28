@@ -11,9 +11,6 @@ import { validateBranch } from '../util/validate';
 import { cacheBranches, cacheRoutes } from './util/cacher';
 import { matchGroups } from './util/extract';
 
-// TODO:
-// create tests for new files
-
 export default function createRouter (structure: TBranchData): IRouter {
     validateBranch(structure);
 

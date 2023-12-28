@@ -1,8 +1,7 @@
 import { getParts } from './util/extract';
 
-const VALID = '0-9a-zA-Z_\\-@+.~';
-export const PARA = `[${VALID}]*`;
-export const WILD = `[${VALID}/]*`;
+export const PARA = '[^/]+';
+export const WILD = '.*';
 
 export default function createRegexp (url: string, isWild = false): RegExp {
     return new RegExp('^/' + convertUrl(url, isWild) + '$', 'i');
@@ -29,5 +28,9 @@ function replaceParam (part: string): string {
         return `(?<${part.substring(1)}>${PARA})`;
     }
 
-    return part;
+    return escapeRegExp(part);
+}
+
+function escapeRegExp (part: string): string {
+    return part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }

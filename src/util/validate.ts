@@ -7,7 +7,7 @@ import {
 } from '../types';
 import { getParts } from '../router/util/extract';
 
-export const PATHNAME_REGEX = /^(?:\/:[a-zA-Z_]\w*|\/[\w\-.]*|\/\*{2})+$/;
+export const PATHNAME_REGEX = /^(?:\/:[a-zA-Z_]\w*|\/[^/*:\\? ]*|\/\*{2})+$/;
 export const CONTENT_TYPE_REGEX = /^[a-zA-Z]+\/(?:[a-zA-Z]+|\*)|\*$/;
 
 export function validateObject (topic: unknown, name: string, type?: string): void {

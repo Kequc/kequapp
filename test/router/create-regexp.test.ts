@@ -31,13 +31,13 @@ it('creates a wild regexp', () => {
     assert.ok(regexp.test('/hello/there'));
     assert.ok(regexp.test('/hello/there/101'));
     assert.ok(regexp.test('/hello/there/101/foo'));
+    assert.ok(regexp.test('/hello/there/**'));
+    assert.ok(regexp.test('/hello/there/:boo'));
 
     assert.ok(!regexp.test('/hello//101/foo'));
     assert.ok(!regexp.test('/hello/101/foo'));
     assert.ok(!regexp.test('/hello/101/there'));
     assert.ok(!regexp.test('/hello'));
-    assert.ok(!regexp.test('/hello/there/**'));
-    assert.ok(!regexp.test('/hello/there/:boo'));
 
     assert.deepStrictEqual(matchGroups('/hello/there/101/foo', regexp), {
         wild: '/101/foo'
@@ -58,6 +58,12 @@ it('creates a param regexp', () => {
     assert.ok(regexp.test('/hello/+foo/101'));
     assert.ok(regexp.test('/hello/foo.foo/101'));
     assert.ok(regexp.test('/hello/~foo/101'));
+    assert.ok(regexp.test('/hello/#there/101'));
+    assert.ok(regexp.test('/hello/?there/101'));
+    assert.ok(regexp.test('/hello/&there/101'));
+    assert.ok(regexp.test('/hello/=there/101'));
+    assert.ok(regexp.test('/hello/%there/101'));
+    assert.ok(regexp.test('/hello/:there/101'));
 
     assert.ok(!regexp.test('/hello//there/101'));
     assert.ok(!regexp.test('/hello/foo//101'));
@@ -66,11 +72,6 @@ it('creates a param regexp', () => {
     assert.ok(!regexp.test('/hello/there/101/foo'));
     assert.ok(!regexp.test('/hello/there/**'));
     assert.ok(!regexp.test('/hello/there/:boo'));
-    assert.ok(!regexp.test('/hello/#there/101'));
-    assert.ok(!regexp.test('/hello/?there/101'));
-    assert.ok(!regexp.test('/hello/&there/101'));
-    assert.ok(!regexp.test('/hello/=there/101'));
-    assert.ok(!regexp.test('/hello/%there/101'));
 
     assert.deepStrictEqual(matchGroups('/hello/cats/101', regexp), {
         there: 'cats'
@@ -94,6 +95,10 @@ it('creates a wild param regexp', () => {
     assert.ok(regexp.test('/hello/there/101/foo/bar'));
     assert.ok(regexp.test('/hello/foo/101/bar'));
     assert.ok(regexp.test('/hello/there/101//foo'));
+    assert.ok(regexp.test('/hello/there/101/&foo'));
+    assert.ok(regexp.test('/hello/there/101/=foo'));
+    assert.ok(regexp.test('/hello/there/101/%foo'));
+    assert.ok(regexp.test('/hello/there/101/:foo'));
 
     assert.ok(!regexp.test('/hello//there/101'));
     assert.ok(!regexp.test('/hello/there//101/foo/bar'));
@@ -101,12 +106,23 @@ it('creates a wild param regexp', () => {
     assert.ok(!regexp.test('/hello/there'));
     assert.ok(!regexp.test('/hello/there/**'));
     assert.ok(!regexp.test('/hello/there/:boo'));
-    assert.ok(!regexp.test('/hello/there/101/&foo'));
-    assert.ok(!regexp.test('/hello/there/101/=foo'));
-    assert.ok(!regexp.test('/hello/there/101/%foo'));
 
     assert.deepStrictEqual(matchGroups('/hello/cats/101/foo/bar', regexp), {
         there: 'cats',
         wild: '/foo/bar'
     });
+});
+
+it('escapes funny inputs', () => {
+    assert.strictEqual(createRegexp('/th.re/101').toString(), `/^${S}th\\.re${S}101$/i`);
+    assert.strictEqual(createRegexp('/th+re/101').toString(), `/^${S}th\\+re${S}101$/i`);
+    assert.strictEqual(createRegexp('/th^re/101').toString(), `/^${S}th\\^re${S}101$/i`);
+    assert.strictEqual(createRegexp('/th$re/101').toString(), `/^${S}th\\$re${S}101$/i`);
+    assert.strictEqual(createRegexp('/th|re/101').toString(), `/^${S}th\\|re${S}101$/i`);
+    assert.strictEqual(createRegexp('/th(re)/101').toString(), `/^${S}th\\(re\\)${S}101$/i`);
+    assert.strictEqual(createRegexp('/th}re{/101').toString(), `/^${S}th\\}re\\{${S}101$/i`);
+    assert.strictEqual(createRegexp('/th-re/101').toString(), `/^${S}th-re${S}101$/i`);
+    assert.strictEqual(createRegexp('/~there/101').toString(), `/^${S}~there${S}101$/i`);
+    assert.strictEqual(createRegexp('/@there/101').toString(), `/^${S}@there${S}101$/i`);
+    assert.strictEqual(createRegexp('/@f~o+o/$b.a-r').toString(), `/^${S}@f~o\\+o${S}\\$b\\.a-r$/i`);
 });
