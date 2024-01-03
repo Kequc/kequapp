@@ -1,7 +1,6 @@
-import { createHandle, createRoute } from '../../router/modules';
-import { THandle, TPathname, TRouteData } from '../../types';
+import { createHandle } from '../../router/modules';
+import { THandle, TPathname } from '../../types';
 import {
-    validateArray,
     validateContentType,
     validateExists,
     validateObject,
@@ -10,32 +9,22 @@ import {
 import sendFile from './send-file';
 
 type TStaticFileOptions = {
-    url?: TPathname;
-    asset: TPathname;
+    location: TPathname;
     contentType?: string;
-    handles?: THandle[];
 };
 
-export default function staticFile (options: TStaticFileOptions): TRouteData {
+export default function staticFile (options: TStaticFileOptions): THandle {
     validateOptions(options);
 
-    const handle = createHandle(async ({ req, res }) => {
-        await sendFile(req, res, options.asset, options.contentType);
-    });
-
-    return createRoute({
-        method: 'GET',
-        url: options.url,
-        handles: [...options.handles ?? [], handle]
+    return createHandle(async ({ req, res }) => {
+        await sendFile(req, res, options.location, options.contentType);
     });
 }
 
 function validateOptions (options: TStaticFileOptions): void {
     validateExists(options, 'Static file options');
     validateObject(options, 'Static file options');
-    validatePathname(options.url, 'Static file url');
-    validateExists(options.asset, 'Static file asset');
-    validatePathname(options.asset, 'Static file asset');
-    validateContentType(options.contentType, 'Static file contentType');
-    validateArray(options.handles, 'Static file handles', 'function');
+    validateExists(options.location, 'Static file options.location');
+    validatePathname(options.location, 'Static file options.location');
+    validateContentType(options.contentType, 'Static file options.contentType');
 }

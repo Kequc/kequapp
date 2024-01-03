@@ -684,34 +684,57 @@ import { staticDirectory } from 'kequapp';
 
 | key | description | default |
 | ---- | ---- | ---- |
-| **url** | *Pathname* | `'/**'` |
-| **dir** | *Local* | `'/public'` |
-| **exclude** | *Exclusions* | `[]` |
+| **location \*** | *Local* | |
 | **contentTypes** | *Additions* | `{}` |
-| **handles** | *Sequence* | `[]` |
 
-Pairs a `url` with a static directory.
+Pairs a `wild` parameter with a static directory relative to the root of our project.
 
 ```javascript
 // staticDirectory
 
+const staticAssets = staticDirectory({
+    location: '/my-assets-dir',
+    contentTypes: {
+        '.3gp': 'audio/3gpp'
+    }
+});
+
 createApp({
     routes: [
-        staticDirectory({
+        {
+            method: 'GET',
             url: '/assets/**',
-            dir: '/my-assets-dir',
-            exclude: ['/my-assets-dir/private'],
-            contentTypes: {
-                '.3gp': 'audio/3gpp'
-            }
-        })
+            handles: [staticAssets]
+        }
     ]
-);
+});
 ```
 
-The `url` must end with `'/**'` capturing all possible paths.
+The `url` should end with `'/**'` capturing all possible paths.
 
-Exclusions can be provided if we want to ignore some files or directories using `exclude`. A `'Content-Type'` header is guessed based on every asset's file extension. If there are assets in the directory with unusual file extensions then additional `contentTypes` may be provided.
+A `'Content-Type'` header is guessed based on every asset's file extension. If there are assets in the directory with unusual file extensions then additional `contentTypes` may be provided. Exclusions can be provided if we want to ignore certain requests, or headers for assets can be set by using a handle.
+
+```javascript
+// staticDirectory
+
+const setupAssets = createHandle(({ res, params }) => {
+    if (params.wild === 'secret.txt') {
+        throw Ex.NotFound();
+    }
+
+    res.setHeader('Cache-Control', 'max-age=604800');
+});
+
+createApp({
+    routes: [
+        {
+            method: 'GET',
+            url: '/assets/**',
+            handles: [setupAssets, staticAssets]
+        }
+    ]
+});
+```
 
 # # staticFile()
 
@@ -721,22 +744,25 @@ import { staticFile } from 'kequapp';
 
 | key | description | default |
 | ---- | ---- | ---- |
-| **asset \*** | *Local* | |
-| **url** | *Pathname* | `'/'` |
+| **location \*** | *Local* | |
 | **contentType** | *Content type* | |
-| **handles** | *Sequence* | `[]` |
 
-Pairs a `url` and a local file. This asset will be delivered to the client.
+Delivers a static asset to the client.
 
 ```javascript
 // staticFile
 
+const serveDb = staticFile({
+    location: '/db/my-db.json'
+});
+
 createApp({
     routes: [
-        staticFile({
+        {
+            method: 'GET',
             url: '/db.json',
-            asset: '/db/my-db.json'
-        })
+            handles: [serveDb]
+        }
     ]
 );
 ```
@@ -758,14 +784,16 @@ The following is the same as the `staticFile()` example above.
 ```javascript
 // sendFile
 
+const serveDb = createHandle(async ({ req, res }) => {
+    await sendFile(req, res, '/db/my-db.json');
+});
+
 createApp({
     routes: [
         {
             method: 'GET',
             url: '/db.json'
-            handles: [async ({ req, res }) => {
-                await sendFile(req, res, '/db/my-db.json');
-            }],
+            handles: [serveDb],
         }
     ]
 );

@@ -1,15 +1,42 @@
-import { createApp, staticDirectory, staticFile } from '../../src/main'; // 'kequapp'
+import {
+    Ex,
+    createApp,
+    createHandle,
+    staticDirectory,
+    staticFile
+} from '../../src/main'; // 'kequapp'
+
+const PRIVATE = [
+    '/private.txt'
+];
+
+const setupAssets = createHandle(({ params }) => {
+    if (PRIVATE.includes(params.wild)) {
+        throw Ex.NotFound();
+    }
+});
 
 const app = createApp({
     routes: [
-        staticDirectory({
+        {
+            method: 'GET',
             url: '/assets/**',
-            dir: '/examples/file-server/assets',
-            exclude: ['/examples/file-server/assets/private.txt']
-        }),
-        staticFile({
-            asset: '/examples/file-server/assets/index.html'
-        })
+            handles: [
+                setupAssets,
+                staticDirectory({
+                    location: '/examples/file-server/assets'
+                })
+            ]
+        },
+        {
+            method: 'GET',
+            url: '/',
+            handles: [
+                staticFile({
+                    location: '/examples/file-server/assets/index.html'
+                })
+            ]
+        }
     ]
 });
 

@@ -5,11 +5,11 @@ import Ex from '../tools/ex';
 import guessContentType from '../../util/guess-content-type';
 import { TPathname } from '../../types';
 
-export default async function sendFile (req: IncomingMessage, res: ServerResponse, asset: TPathname, contentType?: string): Promise<void> {
-    const location = path.join(process.cwd(), asset);
-    const stats = await getStats(location);
+export default async function sendFile (req: IncomingMessage, res: ServerResponse, location: TPathname, contentType?: string): Promise<void> {
+    const asset = path.join(process.cwd(), location);
+    const stats = await getStats(asset);
 
-    res.setHeader('Content-Type', contentType ?? guessContentType(asset));
+    res.setHeader('Content-Type', contentType ?? guessContentType(location));
     res.setHeader('Content-Length', stats.size);
 
     if (req.method === 'HEAD') {
@@ -19,7 +19,7 @@ export default async function sendFile (req: IncomingMessage, res: ServerRespons
 
     try {
         await new Promise((resolve, reject) => {
-            const stream = fs.createReadStream(location);
+            const stream = fs.createReadStream(asset);
             stream.pipe(res);
             stream.on('end', resolve);
             stream.on('error', reject);
@@ -29,7 +29,7 @@ export default async function sendFile (req: IncomingMessage, res: ServerRespons
         });
     } catch (error) {
         throw Ex.InternalServerError(undefined, {
-            location,
+            location: asset,
             error
         });
     }

@@ -1,57 +1,30 @@
 import path from 'path';
 import sendFile from './send-file';
-import { createHandle, createRoute } from '../../router/modules';
-import { TRouteData, TParams, TPathname, TPathnameWild, THandle } from '../../types';
+import { createHandle } from '../../router/modules';
+import { TParams, TPathname, THandle } from '../../types';
 import guessContentType from '../../util/guess-content-type';
-import { validateArray, validateExists, validateObject, validatePathname } from '../../util/validate';
-import Ex from '../tools/ex';
+import { validateExists, validateObject, validatePathname } from '../../util/validate';
 
 type TStaticDirectoryOptions = {
-    url?: TPathnameWild;
-    dir?: TPathname;
-    exclude?: TPathname[];
+    location: TPathname;
     contentTypes?: TParams;
-    handles?: THandle[];
 };
 
-export default function staticDirectory (options: TStaticDirectoryOptions): TRouteData {
+export default function staticDirectory (options: TStaticDirectoryOptions): THandle {
     validateOptions(options);
 
-    const handle = createHandle(async ({ req, res, params }) => {
-        const asset = path.join(options.dir ?? '/public', params.wild) as TPathname;
+    return createHandle(async ({ req, res, params }) => {
+        const location = path.join(options.location, params.wild) as TPathname;
+        const contentType = guessContentType(location, options.contentTypes);
 
-        if (isExcluded(options.exclude ?? [], asset)) {
-            throw Ex.NotFound();
-        }
-
-        await sendFile(req, res, asset, guessContentType(asset, options.contentTypes));
-    });
-
-    return createRoute({
-        method: 'GET',
-        url: options.url ?? '/**',
-        handles: [...options.handles ?? [], handle]
+        await sendFile(req, res, location, contentType);
     });
 }
 
 function validateOptions (options: TStaticDirectoryOptions): void {
     validateExists(options, 'Static directory options');
     validateObject(options, 'Static directory options');
-    validatePathname(options.url, 'Static directory options.url', true);
-    validatePathname(options.dir, 'Static directory options.dir');
-    validateArray(options.exclude, 'Static directory options.exclude');
+    validateExists(options.location, 'Static directory options.location');
+    validatePathname(options.location, 'Static directory options.location');
     validateObject(options.contentTypes, 'Static directory options.contentTypes', 'string');
-    validateArray(options.handles, 'Static directory handles', 'function');
-
-    for (const value of options.exclude ?? []) {
-        validatePathname(value, 'Static directory options.exclude');
-    }
-}
-
-function isExcluded (values: string[], asset: string): boolean {
-    for (const value of values) {
-        if (asset.startsWith(value)) return true;
-    }
-
-    return false;
 }
