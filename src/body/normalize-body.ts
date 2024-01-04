@@ -102,7 +102,9 @@ function toNumber (value: TBodyJsonValue): number {
 }
 
 function toBoolean (value: TBodyJsonValue): boolean {
-    if (value === '0' || value === 'false') {
+    if (typeof value === 'string' && value.toLowerCase() === 'false') {
+        return false;
+    } else if (value === '0') {
         return false;
     } else {
         return Boolean(value);

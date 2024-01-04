@@ -325,10 +325,11 @@ describe('booleans', () => {
             bool4: '1',
             bool5: '',
             bool6: 'cat',
-            bool7: null
+            bool7: null,
+            bool8: 'FaLsE'
         };
         const options = {
-            booleans: ['bool1', 'bool2', 'bool3', 'bool4', 'bool5', 'bool6', 'bool7', 'bool8']
+            booleans: ['bool1', 'bool2', 'bool3', 'bool4', 'bool5', 'bool6', 'bool7', 'bool8', 'bool9']
         };
 
         assert.deepStrictEqual(normalizeBody(body, options), {
@@ -339,14 +340,15 @@ describe('booleans', () => {
             bool4: true,
             bool5: false,
             bool6: true,
-            bool7: false
+            bool7: false,
+            bool8: false
         });
     });
 
     it('converts an array to booleans', () => {
         const body = {
             name: 'April',
-            age: ['false', 'true', '0', '1', '', 'cat', null]
+            age: ['false', 'true', '0', '1', '', 'cat', null, 'FaLsE']
         };
         const options = {
             arrays: ['age'],
@@ -355,7 +357,7 @@ describe('booleans', () => {
 
         assert.deepStrictEqual(normalizeBody(body, options), {
             name: 'April',
-            age: [false, true, false, true, false, true, false]
+            age: [false, true, false, true, false, true, false, false]
         });
     });
 });

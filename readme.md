@@ -6,15 +6,15 @@ Non-intrusive Node JavaScript web app framework
 
 # Introduction
 
-Does the best it can to stay out of the way and leverage Node's built in features. Comes with a great deal of little stuff which makes it easy to structure an application with regard to modularity, CORS, body parsing, cookies, and testing without dependencies.
+Does the best it can to stay out of the way and leverage Node's built in features. Comes with a great deal of little stuff which makes it easy to structure an application with CORS, extensive body parsing, cookies, and testing without dependencies.
 
 **Features**
 
-* Modern modular framework
+* Modular framework
 * CORS
 * Body parsing for multipart requests
-* Static file serving
 * Async await everywhere
+* Static file serving
 * Unit testing tool
 * Exposes Node features and functionality
 * No dependencies <3
@@ -251,11 +251,13 @@ The `'Content-Type'` header set by our application determines the correct error 
 
 createErrorHandler({
     contentType: 'text/*',
-    handle: (ex, { res }) => `${ex.statusCode} ${ex.message}`
+    handle: (ex, { url }) => {
+        return `${url.pathname} ${ex.statusCode}: ${ex.message}`;
+    }
 });
 ```
 
-This returns a string which will be passed to a renderer as the payload. Errors thrown within an error handler or the renderer it invokes will cause a fatal exception and an empty `body` will be delivered to the client.
+Errors thrown within an error handler or the renderer it invokes will cause a fatal exception and an empty `body` will be delivered to the client.
 
 For a good example of how to write an error handler see this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
 
@@ -281,10 +283,10 @@ The `'Content-Type'` header set by our application determines the correct render
 
 createRenderer({
     contentType: 'text/html',
-    handle: (payload, { res }) => {
+    handle: (payload, { req, res }) => {
         const html = myMarkupRenderer(payload);
 
-        res.setHeader('Content-Length', Buffer.byteLength(json));
+        res.setHeader('Content-Length', Buffer.byteLength(html));
 
         // finalize response
         if (req.method === 'HEAD') {
@@ -471,7 +473,25 @@ createRoute({
 
 #### **`raw`**
 
-Causes the body to be processed as minimally as possible and return a single buffer. When combined with `multipart`, the body is parsed into an array of separate buffers with their respective headers.
+Causes the body to be processed as minimally as possible and return a single buffer. This is especially useful when our application expects a content type other than `'application/x-www-form-urlencoded'` or `'application/json'`.
+
+```javascript
+// raw
+
+createRoute({
+    method: 'POST',
+    url: '/users',
+    handles: [async ({ getBody }) => {
+        const data = await getBody({ raw: true });
+
+        // data ~= Buffer <...>
+
+        return 'Avatar saved!';
+    }]
+});
+```
+
+When combined with `multipart`, the body is parsed into an array of separate buffers with their respective headers.
 
 ```javascript
 // raw
@@ -500,11 +520,9 @@ createRoute({
 });
 ```
 
-The `raw` parameter is especially useful when our application expects a content type other than `'application/x-www-form-urlencoded'` or `'application/json'`. We receive a buffer which is most useful in order to process the request correctly.
-
 #### **`skipNormalize`**
 
-By default the data received is pushed through some body normalization. This is so that the body we receive is in a format we expect and is therefore easier to work with.
+By default the data received is pushed through some body normalization. This is so that the body we receive is in a format we expect and is therefore easier to work with. Normalization is directed by `arrays`, `required`, `numbers`, `booleans`, and `validate`.
 
 Disable body normalization with either `raw` or `skipNormalize`.
 
@@ -546,7 +564,7 @@ When a `numbers` field is also an `arrays` field the array is all numbers.
 
 #### **`booleans`**
 
-The provided list of fields are converted into `false` if the value is falsy, `'0'`, or `'false'`, otherwise `true`. When a `booleans` field is also an `arrays` field the array is all booleans. When a `booleans` field is also a `numbers` field the value is first converted to a number and then to a boolean this is not recommended.
+The provided list of fields are converted into `false` if the value is falsy, `'0'`, or `'false'` (case insensitive), otherwise `true`. When a `booleans` field is also an `arrays` field the array is all booleans. When a `booleans` field is also a `numbers` field the value is first converted to a number and then to a boolean this is not recommended.
 
 #### **`validate`**
 
@@ -593,12 +611,6 @@ We know it is safe to use `result.ownedPets.length` in this example because it i
 #### **`maxPayloadSize`**
 
 The max payload size is `1e6` (approximately 1mb) by default. If this payload size is exceeded by the client the request will be terminated saving our application both memory and bandwidth. If we are absolutely sure we want to receive a payload of any size then a value of `Infinity` is accepted.
-
-# Logger
-
-One of the options provided to `createBranch()` is a `logger` parameter. The default logger for the application is a simple object with methods for `error`, `warn`, `info`, `http`, `verbose`, `debug`, `silly`, and `log`. Each mapping roughly to console.
-
-Overriding this logger requires an object with some or all of the same methods.
 
 # CORS and OPTIONS requests
 
@@ -683,6 +695,32 @@ createRoute({
 ```
 
 In most cases `HEAD` and `GET` requests should run the same code, so we have nothing to worry about. Detection of `HEAD` requests is already handled by the renderers that are built-in to the framework. Largely what will happen is no body will be sent to the client, which is what a `HEAD` request wanted.
+
+# # Ex()
+
+```javascript
+import { Ex } from 'kequapp';
+```
+
+An unhandled exception from our application results in a `500 Internal Server Error`. If we would like an error with a different status code there is a helper tool for that.
+
+```javascript
+// Ex
+
+createRoute({
+    method: 'GET',
+    url: '/throw-error',
+    handles: [() => {
+        throw Ex.NotFound();
+        throw Ex.NotFound('Custom message', { extra: 'info' });
+        // same as
+        throw Ex.StatusCode(404);
+        throw Ex.StatusCode(404, 'Custom message', { extra: 'info' });
+    }]
+});
+```
+
+This makes it easy to utilize any status code `400` and above. These methods create errors with correct stacktraces we can throw directly without the use of `new`.
 
 # # staticDirectory()
 
@@ -809,31 +847,11 @@ createApp({
 
 A fourth parameter may be provided defining a `'Content-Type'`, this header is otherwise guessed from the file extension.
 
-# # Ex()
+# Logger
 
-```javascript
-import { Ex } from 'kequapp';
-```
+One of the options provided to `createBranch()` is a `logger` parameter. The default logger for the application is a simple object with methods for `error`, `warn`, `info`, `http`, `verbose`, `debug`, `silly`, and `log`. Each mapping roughly to console.
 
-An unhandled exception from our application results in a `500 Internal Server Error`. If we would like an error with a different status code there is a helper tool for that.
-
-```javascript
-// Ex
-
-createRoute({
-    method: 'GET',
-    url: '/throw-error',
-    handles: [() => {
-        throw Ex.NotFound();
-        throw Ex.NotFound('Custom message', { extra: 'info' });
-        // same as
-        throw Ex.StatusCode(404);
-        throw Ex.StatusCode(404, 'Custom message', { extra: 'info' });
-    }]
-});
-```
-
-This makes it easy to utilize any status code `400` and above. These methods create errors with correct stacktraces we can throw directly without the use of `new`.
+Overriding this logger requires an object with some or all of the same methods.
 
 # # inject()
 
