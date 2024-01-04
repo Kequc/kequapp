@@ -242,7 +242,7 @@ import { createErrorHandler } from 'kequapp';
 
 An appropriate error handler is invoked whenever a handle throws an exception.
 
-Error handlers turn an exception into useful information that should be sent to the client. We may return a value to invoke a renderer or finalize the response ourselves directly. The default built-in error handler structures a json formatted response with helpful information for debugging.
+Error handlers turn an exception into useful information that should be sent to the client. The default built-in error handler structures a json formatted response with helpful information for debugging.
 
 The `'Content-Type'` header set by our application determines the correct error handler to use. Error handlers are sorted by the framework in favor of content type and hierarchical specificity. The following is a very simple error handler for text based responses.
 
@@ -255,7 +255,7 @@ createErrorHandler({
 });
 ```
 
-Errors thrown within an error handler or the renderer it invokes will cause a fatal exception and an empty `body` will be delivered to the client.
+This returns a string which will be passed to a renderer as the payload. Errors thrown within an error handler or the renderer it invokes will cause a fatal exception and an empty `body` will be delivered to the client.
 
 For a good example of how to write an error handler see this repo's [`/src/built-in`](https://github.com/Kequc/kequapp/tree/main/src/built-in) directory.
 
@@ -270,11 +270,11 @@ import { createRenderer } from 'kequapp';
 | **contentType \*** | *Content type* | |
 | **handle \*** | *Handler* | |
 
-An appropriate renderer is invoked whenever a handle returns a value apart from `undefined`.
+An appropriate renderer is invoked whenever a handle returns a value apart from `undefined`. We may return a value to invoke a renderer or finalize the response ourselves directly, which skips this step.
 
 Renderers are responsible for finalizing the response to the client. It is the last stage of a request and without one an empty `body` will be delivered. There are default renderers that come built-in for both `'text/*'` and `'application/json'`, however these can be overridden by defining our own.
 
-The `'Content-Type'` header set by our application determines the correct renderer to use. Error handlers are sorted by the framework in favor of content type and hierarchical specificity. The following is a simple example of what an html renderer might look like.
+The `'Content-Type'` header set by our application determines the correct renderer to use. Renderers are sorted by the framework in favor of content type and hierarchical specificity. The following is a simple example of what an html renderer might look like.
 
 ```javascript
 // createRenderer
@@ -284,8 +284,14 @@ createRenderer({
     handle: (payload, { res }) => {
         const html = myMarkupRenderer(payload);
 
+        res.setHeader('Content-Length', Buffer.byteLength(json));
+
         // finalize response
-        res.end(html);
+        if (req.method === 'HEAD') {
+            res.end();
+        } else {
+            res.end(html);
+        }
     }
 });
 ```
@@ -493,6 +499,8 @@ createRoute({
     }]
 });
 ```
+
+The `raw` parameter is especially useful when our application expects a content type other than `'application/x-www-form-urlencoded'` or `'application/json'`. We receive a buffer which is most useful in order to process the request correctly.
 
 #### **`skipNormalize`**
 
@@ -717,12 +725,12 @@ A `'Content-Type'` header is guessed based on every asset's file extension. If t
 ```javascript
 // staticDirectory
 
-const setupAssets = createHandle(({ res, params }) => {
-    if (params.wild === 'secret.txt') {
+const prepare = createHandle(({ res, params }) => {
+    res.setHeader('Cache-Control', 'max-age=604800');
+
+    if (params.wild === '/secret.txt') {
         throw Ex.NotFound();
     }
-
-    res.setHeader('Cache-Control', 'max-age=604800');
 });
 
 createApp({
@@ -730,7 +738,7 @@ createApp({
         {
             method: 'GET',
             url: '/assets/**',
-            handles: [setupAssets, staticAssets]
+            handles: [prepare, staticAssets]
         }
     ]
 });
