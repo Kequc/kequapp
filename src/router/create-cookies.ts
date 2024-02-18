@@ -4,13 +4,15 @@ import Ex from '../built-in/tools/ex';
 
 export default function createCookies (req: IncomingMessage, res: ServerResponse): TCookies {
     const result: TParams = {};
-    const values: TParams = parseCookieHeader(req.headers.cookie);
+    let values: TParams;
 
     function get (key: string): string | undefined {
+        setup();
         return values[key];
     }
 
     function set (key: string, value: string, options?: TCookieOptions): void {
+        setup();
         validateCookieName(key);
         const attrs = [`${key}=${encodeURIComponent(value)}`];
 
@@ -31,8 +33,13 @@ export default function createCookies (req: IncomingMessage, res: ServerResponse
     }
 
     function remove (key: string): void {
+        setup();
         set(key, '', { maxAge: 0 });
         delete values[key];
+    }
+
+    function setup () {
+        if (values === undefined) values = parseCookieHeader(req.headers.cookie);
     }
 
     return { get, set, remove };
@@ -42,9 +49,11 @@ function parseCookieHeader (cookie?: string): TParams {
     const result: TParams = {};
 
     if (cookie !== undefined) {
-        for (const part of cookie.split('; ')) {
+        for (const part of cookie.split(/; */)) {
             const [key, value] = part.split('=');
-            result[key] = decodeURIComponent(value ?? '');
+            if (key) {
+                result[key] = decodeURIComponent(value ?? '');
+            }
         }
     }
 

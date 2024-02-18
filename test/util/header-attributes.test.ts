@@ -71,3 +71,12 @@ it('handles poorly formatted', () => {
         boundary: 'boundary1'
     });
 });
+
+it('decodes other formats', () => {
+    const result = headerAttributes('foo=bar; hello="there"; baz=qux');
+    assert.deepStrictEqual(result, {
+        foo: 'bar',
+        hello: 'there',
+        baz: 'qux'
+    });
+});

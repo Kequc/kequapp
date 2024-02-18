@@ -473,7 +473,7 @@ createRoute({
 
 #### **`raw`**
 
-Causes the body to be processed as minimally as possible and return a single buffer. This is especially useful when our application expects a content type other than `'application/x-www-form-urlencoded'` or `'application/json'`.
+Causes the body to be processed as minimally as possible and return a single buffer. This is especially useful when our application expects a content type other than `'application/x-www-form-urlencoded'`, `'application/json'`, or `'multipart/form-data'`.
 
 ```javascript
 // raw
@@ -486,7 +486,7 @@ createRoute({
 
         // data ~= Buffer <...>
 
-        return 'Avatar saved!';
+        return 'Image received!';
     }]
 });
 ```
@@ -573,11 +573,11 @@ After normalization, this method further ensures the validity of the data. Retur
 ```javascript
 // validate
 
-type TBody = {
+interface TBody {
     ownedPets: string[];
     age: number;
     name: string;
-};
+}
 
 createRoute({
     method: 'POST',
@@ -585,7 +585,7 @@ createRoute({
     handles: [async ({ getBody }) => {
         const body = await getBody<TBody>({
             arrays: ['ownedPets'],
-            required: ['age', 'name']
+            required: ['age', 'name'],
             numbers: ['age'],
             validate (result) {
                 if (result.ownedPets.length > 99) {
@@ -847,12 +847,6 @@ createApp({
 
 A fourth parameter may be provided defining a `'Content-Type'`, this header is otherwise guessed from the file extension.
 
-# Logger
-
-One of the options provided to `createBranch()` is a `logger` parameter. The default logger for the application is a simple object with methods for `error`, `warn`, `info`, `http`, `verbose`, `debug`, `silly`, and `log`. Each mapping roughly to console.
-
-Overriding this logger requires an object with some or all of the same methods.
-
 # # inject()
 
 ```javascript
@@ -919,6 +913,12 @@ const body = await getResponse();
 ```
 
 Note that `getResponse()` will not resolve until the request is finalized.
+
+# Logger
+
+One of the options provided to `createBranch()` is a `logger` parameter. The default logger for the application is a simple object with methods for `error`, `warn`, `info`, `http`, `verbose`, `debug`, `silly`, and `log`. Each mapping roughly to console.
+
+Overriding this logger requires an object with some or all of the same methods.
 
 # Conclusion
 
