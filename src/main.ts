@@ -6,7 +6,6 @@ import createRouter from './router/create-router';
 import { IRouter, TBranchData, TBundle } from './types';
 
 export { default as sendFile } from './built-in/helpers/send-file';
-export { default as staticFile } from './built-in/helpers/static-file';
 export { default as staticDirectory } from './built-in/helpers/static-directory';
 export { default as Ex } from './built-in/tools/ex';
 export { default as inject } from './built-in/tools/inject';

@@ -52,19 +52,21 @@ it('can open a css file', async () => {
     assert.strictEqual(body, 'body {\n    margin: 0;\n}\n');
 });
 
-it('throws error accessing root directory', async () => {
+it('can access the root directory index', async () => {
     const { getResponse, res } = inject(app, {
         url: '/assets'
     });
 
     const body = await getResponse();
 
-    assert.strictEqual(res.getHeader('Content-Type'), 'application/json');
-    assert.strictEqual(res.statusCode, 404);
-    assert.strictEqual(body.error.message, 'Not Found');
+    assert.strictEqual(res.getHeader('Content-Type'), 'text/html');
+    assert.strictEqual(body, `<html>
+    <body>Hello world!</body>
+</html>
+`);
 });
 
-it('throws error accessing nested directory', async () => {
+it('throws error accessing directory without index', async () => {
     const { getResponse, res } = inject(app, {
         url: '/assets/css'
     });

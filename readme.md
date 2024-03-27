@@ -732,6 +732,7 @@ import { staticDirectory } from 'kequapp';
 | ---- | ---- | ---- |
 | **location \*** | *Local* | |
 | **contentTypes** | *Additions* | `{}` |
+| **index** | *Files* | `[]` |
 
 Pairs a `wild` parameter with a static directory relative to the root of our project.
 
@@ -760,6 +761,8 @@ The `url` should end with `'/**'` capturing all possible paths.
 
 A `'Content-Type'` header is guessed based on every asset's file extension. If there are assets in the directory with unusual file extensions then additional `contentTypes` may be provided. Exclusions can be provided if we want to ignore certain requests, or headers for assets can be set by using a handle.
 
+An array of index files for example `['index.html']` may be provided to resolve when the location is a directory.
+
 ```javascript
 // staticDirectory
 
@@ -782,39 +785,6 @@ createApp({
 });
 ```
 
-# # staticFile()
-
-```javascript
-import { staticFile } from 'kequapp';
-```
-
-| key | description | default |
-| ---- | ---- | ---- |
-| **location \*** | *Local* | |
-| **contentType** | *Content type* | |
-
-Delivers a static asset to the client.
-
-```javascript
-// staticFile
-
-const serveDb = staticFile({
-    location: '/db/my-db.json'
-});
-
-createApp({
-    routes: [
-        {
-            method: 'GET',
-            url: '/db.json',
-            handles: [serveDb]
-        }
-    ]
-);
-```
-
-If `contentType` is not provided a `'Content-Type'` header will be guessed from the file extension.
-
 # # sendFile()
 
 ```javascript
@@ -824,8 +794,6 @@ import { sendFile } from 'kequapp';
 Sends a file and finalizes the response.
 
 This is asyncronous and must be awaited otherwise the application might get confused as it continues processing the request unexpectedly.
-
-The following is the same as the `staticFile()` example above.
 
 ```javascript
 // sendFile

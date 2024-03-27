@@ -10,8 +10,7 @@ import {
     Ex,
     inject,
     sendFile,
-    staticDirectory,
-    staticFile
+    staticDirectory
 } from '../src/main';
 
 it('exports a lot of stuff', () => {
@@ -22,7 +21,6 @@ it('exports a lot of stuff', () => {
     assert.strictEqual(typeof createRoute, 'function');
     assert.strictEqual(typeof sendFile, 'function');
     assert.strictEqual(typeof staticDirectory, 'function');
-    assert.strictEqual(typeof staticFile, 'function');
     assert.strictEqual(typeof createHandle, 'function');
     assert.strictEqual(typeof Ex, 'object');
 });

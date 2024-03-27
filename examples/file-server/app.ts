@@ -3,7 +3,7 @@ import {
     createApp,
     createHandle,
     staticDirectory,
-    staticFile
+    sendFile
 } from '../../src/main'; // 'kequapp'
 
 const PRIVATE = [
@@ -24,18 +24,17 @@ const app = createApp({
             handles: [
                 setupAssets,
                 staticDirectory({
-                    location: '/examples/file-server/assets'
+                    location: '/examples/file-server/assets',
+                    index: ['index.html']
                 })
             ]
         },
         {
             method: 'GET',
             url: '/',
-            handles: [
-                staticFile({
-                    location: '/examples/file-server/assets/index.html'
-                })
-            ]
+            handles: [async ({ req, res }) => {
+                await sendFile(req, res, '/examples/file-server/assets/index.html');
+            }]
         }
     ]
 });
