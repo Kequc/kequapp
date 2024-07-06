@@ -4,7 +4,7 @@ import {
     createApp,
     createBranch,
     createErrorHandler,
-    createHandle,
+    createAction,
     createRenderer,
     createRoute,
     Ex,
@@ -21,22 +21,22 @@ it('exports a lot of stuff', () => {
     assert.strictEqual(typeof createRoute, 'function');
     assert.strictEqual(typeof sendFile, 'function');
     assert.strictEqual(typeof staticDirectory, 'function');
-    assert.strictEqual(typeof createHandle, 'function');
+    assert.strictEqual(typeof createAction, 'function');
     assert.strictEqual(typeof Ex, 'object');
 });
 
-it('accepts handles', () => {
+it('accepts actions', () => {
     createApp({
-        handles: [() => {}, () => {}]
+        actions: [() => {}, () => {}]
     });
 });
 
-it('throws error on invalid handles', () => {
+it('throws error on invalid actions', () => {
     assert.throws(() => createApp({
         // @ts-ignore
-        handles: [() => {}, 'foo']
+        actions: [() => {}, 'foo']
     }), {
-        message: 'Branch handles item must be a function'
+        message: 'Branch actions item must be a function'
     });
 });
 
@@ -44,7 +44,7 @@ it('renders a response', async () => {
     const app = createApp({
         routes: [{
             method: 'GET',
-            handles: [({ req, res }) => { res.end(req.method); }]
+            actions: [({ req, res }) => { res.end(req.method); }]
         }]
     });
     const { res, getResponse } = inject(app, { url: '/' });
@@ -59,7 +59,7 @@ it('renders head routes', async () => {
     const app = createApp({
         routes: [{
             method: 'GET',
-            handles: [({ req, res }) => { res.end(req.method); }]
+            actions: [({ req, res }) => { res.end(req.method); }]
         }]
     });
 
@@ -76,7 +76,7 @@ it('renders a response for url', async () => {
         routes: [{
             url: '/foo/bar',
             method: 'GET',
-            handles: [({ req, res }) => { res.end(req.method); }]
+            actions: [({ req, res }) => { res.end(req.method); }]
         }]
     });
     const { res, getResponse } = inject(app, { url: '/foo/bar' });
@@ -92,7 +92,7 @@ it('renders a response for funny url', async () => {
         routes: [{
             url: '/@f~o+o/$b.a-r',
             method: 'GET',
-            handles: [({ req, res }) => { res.end(req.method); }]
+            actions: [({ req, res }) => { res.end(req.method); }]
         }]
     });
     const { res, getResponse } = inject(app, { url: '/@f~o+o/$b.a-r' });
@@ -105,7 +105,7 @@ it('renders a response for funny url', async () => {
 
 const errorHandler = createErrorHandler({
     contentType: '*',
-    handle (error, { res }) {
+    action (error, { res }) {
         res.setHeader('Content-Type', 'text/plain');
         res.end((error as any).message);
     }
@@ -126,7 +126,7 @@ it('ignores head routes when autoHead false', async () => {
     const app = createApp({
         routes: [{
             method: 'GET',
-            handles: [({ req, res }) => { res.end(req.method); }]
+            actions: [({ req, res }) => { res.end(req.method); }]
         }],
         errorHandlers: [errorHandler],
         autoHead: false
@@ -143,7 +143,7 @@ it('ignores head routes when nested autoHead false', async () => {
         branches: [{
             routes: [{
                 method: 'GET',
-                handles: [({ req, res }) => { res.end(req.method); }]
+                actions: [({ req, res }) => { res.end(req.method); }]
             }]
         }],
         errorHandlers: [errorHandler],
@@ -160,7 +160,7 @@ it('finalizes response when stream not ended', async () => {
     const app = createApp({
         routes: [{
             method: 'GET',
-            handles: [({ res }) => { res.write('oops'); }]
+            actions: [({ res }) => { res.write('oops'); }]
         }]
     });
 

@@ -1,7 +1,7 @@
 import {
     Ex,
     createApp,
-    createHandle,
+    createAction,
     staticDirectory,
     sendFile
 } from '../../src/main'; // 'kequapp'
@@ -10,7 +10,7 @@ const PRIVATE = [
     '/private.txt'
 ];
 
-const setupAssets = createHandle(({ params }) => {
+const setupAssets = createAction(({ params }) => {
     if (PRIVATE.includes(params.wild)) {
         throw Ex.NotFound();
     }
@@ -21,7 +21,7 @@ const app = createApp({
         {
             method: 'GET',
             url: '/assets/**',
-            handles: [
+            actions: [
                 setupAssets,
                 staticDirectory({
                     location: '/examples/file-server/assets',
@@ -32,7 +32,7 @@ const app = createApp({
         {
             method: 'GET',
             url: '/',
-            handles: [async ({ req, res }) => {
+            actions: [async ({ req, res }) => {
                 await sendFile(req, res, '/examples/file-server/assets/index.html');
             }]
         }

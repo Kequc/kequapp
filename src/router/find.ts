@@ -11,7 +11,7 @@ export function findRenderer (renderers: TRendererData[], contentType: string): 
         });
     }
 
-    return renderer.handle;
+    return renderer.action;
 }
 
 export function findErrorHandler (errorHandlers: TErrorHandlerData[], contentType: string): TErrorHandler {
@@ -24,7 +24,7 @@ export function findErrorHandler (errorHandlers: TErrorHandlerData[], contentTyp
         });
     }
 
-    return errorHandler.handle;
+    return errorHandler.action;
 }
 
 function compareContentType (a: string, b: string): boolean {

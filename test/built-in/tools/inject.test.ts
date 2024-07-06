@@ -6,7 +6,7 @@ import inject from '../../../src/built-in/tools/inject';
 it('can return a response from the app', async () => {
     const route = createRoute({
         method: 'GET',
-        handles: [() => 'hello']
+        actions: [() => 'hello']
     });
     const app = createApp({
         routes: [route]

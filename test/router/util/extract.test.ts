@@ -2,7 +2,7 @@ import assert from 'assert';
 import 'kequtest';
 import {
     extractContentType,
-    extractHandles,
+    extractActions,
     extractMethod,
     extractOptions,
     extractUrl,
@@ -105,26 +105,26 @@ describe('extractContentType', () => {
     });
 });
 
-describe('extractHandles', () => {
+describe('extractActions', () => {
     const func1 = () => {};
     const func2 = () => {};
     const func3 = () => {};
 
     it('gets the remainder of the params', () => {
-        assert.deepStrictEqual(extractHandles([func1, func2, func3]), [func1, func2, func3]);
+        assert.deepStrictEqual(extractActions([func1, func2, func3]), [func1, func2, func3]);
     });
 
-    it('accepts no handles', () => {
-        assert.deepStrictEqual(extractHandles([]), []);
+    it('accepts no actions', () => {
+        assert.deepStrictEqual(extractActions([]), []);
     });
 
     it('accepts nested arrays', () => {
-        assert.deepStrictEqual(extractHandles([func1, [func2], func3]), [func1, func2, func3]);
+        assert.deepStrictEqual(extractActions([func1, [func2], func3]), [func1, func2, func3]);
     });
 
     it('throws error on bad params', () => {
-        assert.throws(() => extractHandles([func1, 1, func3]), {
-            message: 'Handle item must be a function'
+        assert.throws(() => extractActions([func1, 1, func3]), {
+            message: 'Action item must be a function'
         });
     });
 });

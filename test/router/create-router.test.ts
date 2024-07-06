@@ -2,21 +2,21 @@ import assert from 'assert';
 import 'kequtest';
 import { createBranch } from '../../src/main';
 import createRouter from '../../src/router/create-router';
-import { TErrorHandlerData, THandle, TPathname, TRendererData, TRouteData } from '../../src/types';
+import { TErrorHandlerData, TAction, TPathname, TRendererData, TRouteData } from '../../src/types';
 
-const handleA = () => {};
-const handleB = () => {};
+const actionA = () => {};
+const actionB = () => {};
 
-function route (method: string, url?: TPathname, handles: THandle[] = []): TRouteData {
-    return { method, url, handles };
+function route (method: string, url?: TPathname, actions: TAction[] = []): TRouteData {
+    return { method, url, actions };
 }
 
-function renderer (contentType = '*', handle = handleA): TRendererData {
-    return { contentType, handle };
+function renderer (contentType = '*', action = actionA): TRendererData {
+    return { contentType, action };
 }
 
-function errorHandler (contentType = '*', handle = handleA): TErrorHandlerData {
-    return { contentType, handle };
+function errorHandler (contentType = '*', action = actionA): TErrorHandlerData {
+    return { contentType, action };
 }
 
 const halloweenBranch = createBranch({
@@ -25,16 +25,16 @@ const halloweenBranch = createBranch({
         renderer('text/html'),
         renderer('application/*'),
         renderer('text/plain'),
-        renderer('application/json', handleA),
-        renderer('application/json', handleB),
+        renderer('application/json', actionA),
+        renderer('application/json', actionB),
         renderer()
     ],
     errorHandlers: [
         errorHandler('text/html'),
         errorHandler('application/*'),
         errorHandler('text/plain'),
-        errorHandler('application/json', handleA),
-        errorHandler('application/json', handleB),
+        errorHandler('application/json', actionA),
+        errorHandler('application/json', actionB),
         errorHandler()
     ],
     routes: [
@@ -47,11 +47,11 @@ const catsBranch = createBranch({
     routes: [
         route('GET'),
         route('GET', '/**'),
-        route('POST', undefined, [handleA]),
-        route('POST', undefined, [handleB]),
+        route('POST', undefined, [actionA]),
+        route('POST', undefined, [actionB]),
         route('GET', '/tiffany'),
-        route('OPTIONS', '/tiffany/**', [handleA]),
-        route('OPTIONS', '/tiffany/**', [handleB])
+        route('OPTIONS', '/tiffany/**', [actionA]),
+        route('OPTIONS', '/tiffany/**', [actionB])
     ],
     renderers: [
         renderer()

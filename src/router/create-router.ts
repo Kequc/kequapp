@@ -40,7 +40,7 @@ function getRoute (routes: TRoute[], method: string): TRoute | undefined {
 function generate404 (branches: TBranch[], key: string, method: string): TRoute {
     const branch: TBranch = branches.find(item => item.regexp.test(key)) ?? {
         regexp: createRegexp('/**'),
-        handles: [],
+        actions: [],
         errorHandlers: [],
         renderers: [],
         autoHead: true,
@@ -50,7 +50,7 @@ function generate404 (branches: TBranch[], key: string, method: string): TRoute 
     return {
         ...branch,
         method,
-        handles: [...branch.handles, () => { throw Ex.NotFound(); }]
+        actions: [...branch.actions, () => { throw Ex.NotFound(); }]
     };
 }
 

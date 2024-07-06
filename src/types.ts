@@ -13,7 +13,7 @@ export type TLogger = {
     silly: TLoggerLvl;
 };
 
-export type THandle = (bundle: TBundle) => Promise<unknown> | unknown;
+export type TAction = (bundle: TBundle) => Promise<unknown> | unknown;
 export type TRenderer = (payload: unknown, bundle: TBundle) => Promise<void> | void;
 export type TErrorHandler = (ex: TServerEx, bundle: TBundle) => Promise<unknown> | unknown;
 
@@ -129,7 +129,7 @@ export interface IRouter {
 export type TRouteData = {
     method: string;
     url?: TPathname;
-    handles?: THandle[];
+    actions?: TAction[];
     logger?: Partial<TLogger>;
     autoHead?: boolean;
 };
@@ -141,16 +141,16 @@ export type TBranchData = Omit<TRouteData, 'method'> & {
 };
 export type TRendererData = {
     contentType: string;
-    handle: TRenderer;
+    action: TRenderer;
 };
 export type TErrorHandlerData = {
     contentType: string;
-    handle: TErrorHandler;
+    action: TErrorHandler;
 };
 
 export type TCacheBranch = {
     url: TPathname;
-    handles: THandle[];
+    actions: TAction[];
     errorHandlers: TErrorHandlerData[];
     renderers: TRendererData[];
     autoHead?: boolean;

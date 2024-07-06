@@ -3,7 +3,7 @@ import Ex from '../built-in/tools/ex';
 
 export default createRenderer({
     contentType: 'text/*',
-    handle (payload, { req, res }) {
+    action (payload, { req, res }) {
         const text = generateText(payload);
 
         res.setHeader('Content-Length', Buffer.byteLength(text));

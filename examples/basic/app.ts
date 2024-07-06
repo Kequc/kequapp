@@ -1,6 +1,6 @@
-import { createApp, createBranch, createHandle, Ex } from '../../src/main'; // 'kequapp'
+import { createApp, createBranch, createAction, Ex } from '../../src/main'; // 'kequapp'
 
-const loggedIn = createHandle(({ req, context }) => {
+const loggedIn = createAction(({ req, context }) => {
     if (req.headers.authorization !== 'mike') {
         throw Ex.Unauthorized();
     }
@@ -13,7 +13,7 @@ const usersBranch = createBranch({
     routes: [
         {
             method: 'GET',
-            handles: [
+            actions: [
                 ({ url }) => {
                     const query = Object.fromEntries(url.searchParams);
 
@@ -24,7 +24,7 @@ const usersBranch = createBranch({
         {
             method: 'GET',
             url: '/:id',
-            handles: [
+            actions: [
                 ({ params }) => {
                     return `userId: ${params.id}!`;
                 }
@@ -33,7 +33,7 @@ const usersBranch = createBranch({
         {
             method: 'POST',
             url: '/secrets',
-            handles: [
+            actions: [
                 async ({ getBody }) => {
                     const [body, files] = await getBody<{ name: string, age: number }>({
                         multipart: true,
@@ -47,7 +47,7 @@ const usersBranch = createBranch({
         },
         {
             method: 'POST',
-            handles: [
+            actions: [
                 async ({ getBody }) => {
                     const body = await getBody<{ name: string }>({
                         required: ['name']
@@ -64,14 +64,14 @@ const app = createApp({
     routes: [
         {
             method: 'GET',
-            handles: [
+            actions: [
                 () => 'Hello world!'
             ]
         },
         {
             method: 'GET',
             url: '/admin/dashboard',
-            handles: [
+            actions: [
                 loggedIn,
                 ({ context }) => {
                     return `Hello admin ${context.auth}!`;

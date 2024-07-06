@@ -9,7 +9,7 @@ type TErrorResponse = {
 
 export default createErrorHandler({
     contentType: '*',
-    handle (ex, { res }) {
+    action (ex, { res }) {
         const error: TErrorResponse = {
             statusCode: ex.statusCode,
             message: ex.message

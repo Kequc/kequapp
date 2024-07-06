@@ -43,7 +43,7 @@ function buildBundle (options: TReqOptions): TBundle {
 describe('renderRoute', () => {
     it('renders a response', async () => {
         const route: TRoute = {
-            handles: [({ res }) => {
+            actions: [({ res }) => {
                 res.end('hello there');
             }],
             method: 'GET',
@@ -73,7 +73,7 @@ describe('renderRoute', () => {
 
     it('includes cors header when options available', async () => {
         const route: TRoute = {
-            handles: [],
+            actions: [],
             method: 'GET',
             regexp: new RegExp(''),
             autoHead: true,
@@ -99,7 +99,7 @@ describe('renderRoute', () => {
 
     it('includes additional headers when method is options', async () => {
         const route: TRoute = {
-            handles: [],
+            actions: [],
             method: 'OPTIONS',
             regexp: new RegExp(''),
             autoHead: true,
@@ -134,7 +134,7 @@ describe('renderError', () => {
     it('renders an error', async () => {
         const bundle = buildBundle({ url: '/' });
         const route: TRoute = {
-            handles: [],
+            actions: [],
             method: 'OPTIONS',
             regexp: new RegExp(''),
             autoHead: true,
@@ -142,7 +142,7 @@ describe('renderError', () => {
             renderers: [],
             errorHandlers: [{
                 contentType: '*',
-                handle (ex, { res }) {
+                action (ex, { res }) {
                     res.setHeader('Content-Type', 'text/plain');
                     res.end(ex.message);
                 }

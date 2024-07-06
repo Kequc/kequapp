@@ -97,8 +97,8 @@ export function validateBranch (branch: TBranchData): void {
     validateExists(branch, 'Branch');
     validateObject(branch, 'Branch');
     validatePathname(branch.url, 'Branch url');
-    validateArray(branch.handles, 'Branch handles', 'function');
-    validateArray(branch.branches, 'Branch handles');
+    validateArray(branch.actions, 'Branch actions', 'function');
+    validateArray(branch.branches, 'Branch actions');
     validateArray(branch.routes, 'Branch routes');
     validateArray(branch.errorHandlers, 'Branch errorHandlers');
     validateArray(branch.renderers, 'Branch renderers');
@@ -112,7 +112,7 @@ export function validateRoute (route: TRouteData): void {
     validateExists(route.method, 'Route method');
     validateType(route.method, 'Route method', 'string');
     validatePathname(route.url, 'Route url');
-    validateArray(route.handles, 'Route handles', 'function');
+    validateArray(route.actions, 'Route actions', 'function');
     validateLogger(route.logger);
     validateType(route.autoHead, 'Route autoHead', 'boolean');
 }
@@ -122,8 +122,8 @@ export function validateErrorHandler (errorHandler: TErrorHandlerData): void {
     validateObject(errorHandler, 'Error handler');
     validateExists(errorHandler.contentType, 'Error handler contentType');
     validateContentType(errorHandler.contentType, 'Error handler contentType');
-    validateExists(errorHandler.handle, 'Error handler handle');
-    validateType(errorHandler.handle, 'Error handler handle', 'function');
+    validateExists(errorHandler.action, 'Error handler action');
+    validateType(errorHandler.action, 'Error handler action', 'function');
 }
 
 export function validateRenderer (renderer: TRendererData): void {
@@ -131,8 +131,8 @@ export function validateRenderer (renderer: TRendererData): void {
     validateObject(renderer, 'Renderer');
     validateExists(renderer.contentType, 'Renderer contentType');
     validateContentType(renderer.contentType, 'Renderer contentType');
-    validateExists(renderer.handle, 'Renderer handle');
-    validateType(renderer.handle, 'Renderer handle', 'function');
+    validateExists(renderer.action, 'Renderer action');
+    validateType(renderer.action, 'Renderer action', 'function');
 }
 
 export function validateLogger (logger?: Partial<TLogger>): void {

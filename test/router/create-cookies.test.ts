@@ -27,7 +27,7 @@ describe('get', () => {
         assert.strictEqual(cookies.get('hello'), 'there');
     });
 
-    it('handles malformed cookie', () => {
+    it('actions malformed cookie', () => {
         const cookies = buildCookies({
             cookie: 'foo=bar;  hello=there;baz=qux;'
         });
