@@ -4,7 +4,7 @@ import { TBundle, TRendererData, TRoute } from '../types';
 
 export async function renderRoute (route: TRoute, bundle: TBundle): Promise<void> {
     const { res, methods } = bundle;
-    const { handles, method, renderers } = route;
+    const { actions, method, renderers } = route;
 
     let payload: unknown = undefined;
 
@@ -19,8 +19,8 @@ export async function renderRoute (route: TRoute, bundle: TBundle): Promise<void
         res.setHeader('Content-Type', 'text/plain');
     }
 
-    for (const handle of handles) {
-        payload = await handle(bundle);
+    for (const action of actions) {
+        payload = await action(bundle);
 
         if (res.writableEnded || payload !== undefined) {
             break;

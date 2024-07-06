@@ -4,7 +4,7 @@ import warnDuplicates from '../../../src/router/util/warn-duplicates';
 import { TCacheRoute, TPathname } from '../../../src/types';
 
 function route (method: string, url: TPathname): TCacheRoute {
-    return { method, url, handles: [], errorHandlers: [], renderers: [] };
+    return { method, url, actions: [], errorHandlers: [], renderers: [] };
 }
 
 function msg (method: string, a: string, b: string): string {

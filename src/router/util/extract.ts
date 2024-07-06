@@ -25,12 +25,12 @@ export function extractContentType (params: unknown[], contentType?: string): st
     return params.shift() as string;
 }
 
-export function extractHandles<T> (params: unknown[]): T[] {
-    const handles = params.flat(Infinity);
+export function extractActions<T> (params: unknown[]): T[] {
+    const actions = params.flat(Infinity);
 
-    validateArray(handles, 'Handle', 'function');
+    validateArray(actions, 'Action', 'function');
 
-    return handles as T[];
+    return actions as T[];
 }
 
 export function extractOptions<T> (params: unknown[], defaultOptions?: Partial<T>): T {

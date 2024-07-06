@@ -3,17 +3,17 @@ import 'kequtest';
 import {
     createBranch,
     createErrorHandler,
-    createHandle,
+    createAction,
     createRenderer,
     createRoute
 } from '../../src/router/modules';
 
-describe('createHandle', () => {
-    it('creates a handle', () => {
-        const handle = () => {};
-        const result = createHandle(handle);
+describe('createAction', () => {
+    it('creates a action', () => {
+        const action = () => {};
+        const result = createAction(action);
 
-        assert.deepStrictEqual(result, handle);
+        assert.deepStrictEqual(result, action);
     });
 });
 
@@ -21,7 +21,7 @@ describe('createRoute', () => {
     it('creates a route', () => {
         const route = {
             method: 'POST',
-            handles: [() => {}]
+            actions: [() => {}]
         };
         const result = createRoute(route);
 
@@ -32,7 +32,7 @@ describe('createRoute', () => {
 describe('createBranch', () => {
     it('creates a branch', () => {
         const branch = {
-            handles: [() => {}]
+            actions: [() => {}]
         };
         const result = createBranch(branch);
 
@@ -44,7 +44,7 @@ describe('createErrorHandler', () => {
     it('creates a error handler', () => {
         const errorHandler = {
             contentType: 'application/json',
-            handle: () => {}
+            action: () => {}
         };
         const result = createErrorHandler(errorHandler);
 
@@ -56,7 +56,7 @@ describe('createRenderer', () => {
     it('creates a renderer', () => {
         const renderer = {
             contentType: 'application/json',
-            handle: () => {}
+            action: () => {}
         };
         const result = createRenderer(renderer);
 

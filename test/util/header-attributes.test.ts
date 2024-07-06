@@ -57,7 +57,7 @@ it('parses strange attributes in quotes', () => {
     });
 });
 
-it('handles mixed', () => {
+it('actions mixed', () => {
     const result = headerAttributes('multipart/form-data; boundary=boundary1; name="name1"');
     assert.deepStrictEqual(result, {
         boundary: 'boundary1',
@@ -65,7 +65,7 @@ it('handles mixed', () => {
     });
 });
 
-it('handles poorly formatted', () => {
+it('actions poorly formatted', () => {
     const result = headerAttributes('multipart/form-data; boundary=boundary1; name="name1');
     assert.deepStrictEqual(result, {
         boundary: 'boundary1'

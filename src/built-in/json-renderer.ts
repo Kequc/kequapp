@@ -3,7 +3,7 @@ import Ex from '../built-in/tools/ex';
 
 export default createRenderer({
     contentType: 'application/json',
-    handle (payload, { req, res }) {
+    action (payload, { req, res }) {
         const json = generateJson(payload);
 
         res.setHeader('Content-Length', Buffer.byteLength(json));

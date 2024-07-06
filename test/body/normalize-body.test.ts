@@ -171,7 +171,7 @@ describe('arrays', () => {
         });
     });
 
-    it('handles empty parameter in required array', () => {
+    it('actions empty parameter in required array', () => {
         const body = {
             name: 'April',
             age: '23',
@@ -255,7 +255,7 @@ describe('numbers', () => {
         });
     });
 
-    it('handles missing number parameter', () => {
+    it('actions missing number parameter', () => {
         const body = {
             name: 'April'
         };

@@ -1,8 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import sendFile from './send-file';
-import { createHandle } from '../../router/modules';
-import { TParams, TPathname, THandle } from '../../types';
+import { createAction } from '../../router/modules';
+import { TParams, TPathname, TAction } from '../../types';
 import guessContentType from '../../util/guess-content-type';
 import { validateArray, validateExists, validateObject, validatePathname } from '../../util/validate';
 import Ex from '../tools/ex';
@@ -13,10 +13,10 @@ type TStaticDirectoryOptions = {
     contentTypes?: TParams;
 };
 
-export default function staticDirectory (options: TStaticDirectoryOptions): THandle {
+export default function staticDirectory (options: TStaticDirectoryOptions): TAction {
     validateOptions(options);
 
-    return createHandle(async ({ req, res, params }) => {
+    return createAction(async ({ req, res, params }) => {
         const location = await getLocation(options.location, params.wild, options.index);
         const contentType = guessContentType(location, options.contentTypes);
 

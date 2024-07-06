@@ -55,7 +55,7 @@ export function cacheBranches (structure: TBranchData): TBranch[] {
     const branches = cacheBranchesMeta(structure);
 
     branches.push({
-        handles: [...structure.handles ?? []],
+        actions: [...structure.actions ?? []],
         errorHandlers: [...structure.errorHandlers ?? []],
         renderers: [...structure.renderers ?? []],
         autoHead: structure.autoHead,
@@ -83,7 +83,7 @@ function cacheBranchesMeta (target: TBranchData): TCacheBranch[] {
 
 function sanitize (item: TCacheBranch): TBranch {
     return {
-        handles: item.handles,
+        actions: item.actions,
         regexp: createRegexp(item.url),
         errorHandlers: [...item.errorHandlers.sort(priorityContentType), errorHandler],
         renderers: [...item.renderers.sort(priorityContentType), jsonRenderer, textRenderer],
@@ -94,7 +94,7 @@ function sanitize (item: TCacheBranch): TBranch {
 
 function extendBranch (target: TBranchData, source: TCacheBranch) {
     return {
-        handles: [...target.handles ?? [], ...source.handles],
+        actions: [...target.actions ?? [], ...source.actions],
         errorHandlers: [...source.errorHandlers, ...target.errorHandlers ?? []],
         renderers: [...source.renderers, ...target.renderers ?? []],
         autoHead: source.autoHead ?? target.autoHead,
@@ -104,7 +104,7 @@ function extendBranch (target: TBranchData, source: TCacheBranch) {
 
 function extendRoute (target: TBranchData, route: TRouteData) {
     return {
-        handles: [...target.handles ?? [], ...route.handles ?? []],
+        actions: [...target.actions ?? [], ...route.actions ?? []],
         errorHandlers: [...target.errorHandlers ?? []],
         renderers: [...target.renderers ?? []],
         autoHead: route.autoHead ?? target.autoHead,
