@@ -53,4 +53,4 @@ Contributions welcome! If you have any questions, need further assistance, or wa
 
 ## License
 
-Kequapp is licensed under the ISC License.
+Kequapp is licensed under the ISC license.
