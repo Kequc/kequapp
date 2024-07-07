@@ -4,12 +4,6 @@ Non-intrusive Node JavaScript web application framework
 
 *\ `hek-yü-ap \\*
 
-## Upgrading
-
-0.7.0 -> 0.8.0
-
-Handles are now called actions. Replace all instances of "handle" with "action", "createHandle" with "createAction".
-
 ## Introduction
 
 Kequapp is a framework designed to leverage Node's built-in features while staying out of your way. It can be used to create performant api's, html pages, and anything you can think of. Kequapp provides a robust and flexible foundation to build your web applications with ease.
@@ -17,6 +11,12 @@ Kequapp is a framework designed to leverage Node's built-in features while stayi
 ## Documentation
 
 For detailed documentation, guides, and more examples, please visit the <a href="https://kequapp.kequtech.com" target="_blank">official documentation website</a>.
+
+## Upgrading
+
+0.7.0 -> 0.8.0
+
+Handles are now called actions. Replace all instances of "handle" with "action", "createHandle" with "createAction".
 
 ## Installation
 
