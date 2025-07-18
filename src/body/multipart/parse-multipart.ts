@@ -1,18 +1,22 @@
-import {
+import type {
     TBodyJson,
     TBodyJsonValue,
     TFilePart,
-    TRawPart
-} from '../../types';
-import headerAttributes from '../../util/header-attributes';
+    TRawPart,
+} from '../../types.ts';
+import headerAttributes from '../../util/header-attributes.ts';
 
-export default function parseMultipart (parts: TRawPart[]): [TBodyJson, TFilePart[]] {
+export default function parseMultipart(
+    parts: TRawPart[],
+): [TBodyJson, TFilePart[]] {
     const result: TBodyJson = {};
     const files: TFilePart[] = [];
     const counters: { [k: string]: number } = {};
 
     for (const part of parts) {
-        const { filename, name } = headerAttributes(part.headers['content-disposition']);
+        const { filename, name } = headerAttributes(
+            part.headers['content-disposition'],
+        );
         const contentType = getContentType(part.headers['content-type']);
         const isFile = filename ?? !contentType.startsWith('text/');
 
@@ -44,6 +48,6 @@ export default function parseMultipart (parts: TRawPart[]): [TBodyJson, TFilePar
     return [result, files];
 }
 
-function getContentType (contentType?: string): string {
+function getContentType(contentType?: string): string {
     return contentType?.split(';')[0].toLowerCase().trim() ?? 'text/plain';
 }

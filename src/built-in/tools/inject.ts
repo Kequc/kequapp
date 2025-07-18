@@ -1,9 +1,13 @@
-import { RequestListener } from 'http';
-import createGetResponse from '../../body/create-get-response';
-import { TInject, TReqOptions } from '../../types';
-import { FakeReq, FakeRes } from '../../util/fake-http';
+/** biome-ignore-all lint/suspicious/noExplicitAny: too many possibilities */
+import type { RequestListener } from 'node:http';
+import createGetResponse from '../../body/create-get-response.ts';
+import type { TInject, TReqOptions } from '../../types.ts';
+import { FakeReq, FakeRes } from '../../util/fake-http.ts';
 
-export default function inject (app: RequestListener, options: TReqOptions): TInject {
+export default function inject(
+    app: RequestListener,
+    options: TReqOptions,
+): TInject {
     const req = new FakeReq(options) as any;
     const res = new FakeRes() as any;
 
@@ -12,6 +16,6 @@ export default function inject (app: RequestListener, options: TReqOptions): TIn
     return {
         req,
         res,
-        getResponse: createGetResponse(res)
+        getResponse: createGetResponse(res),
     };
 }

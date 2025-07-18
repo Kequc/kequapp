@@ -1,14 +1,12 @@
 import {
-    Ex,
-    createApp,
     createAction,
+    createApp,
+    Ex,
+    sendFile,
     staticDirectory,
-    sendFile
-} from '../../src/main'; // 'kequapp'
+} from '../../src/main.ts'; // 'kequapp'
 
-const PRIVATE = [
-    '/private.txt'
-];
+const PRIVATE = ['/private.txt'];
 
 const setupAssets = createAction(({ params }) => {
     if (PRIVATE.includes(params.wild)) {
@@ -25,18 +23,24 @@ const app = createApp({
                 setupAssets,
                 staticDirectory({
                     location: '/examples/file-server/assets',
-                    index: ['index.html']
-                })
-            ]
+                    index: ['index.html'],
+                }),
+            ],
         },
         {
             method: 'GET',
             url: '/',
-            actions: [async ({ req, res }) => {
-                await sendFile(req, res, '/examples/file-server/assets/index.html');
-            }]
-        }
-    ]
+            actions: [
+                async ({ req, res }) => {
+                    await sendFile(
+                        req,
+                        res,
+                        '/examples/file-server/assets/index.html',
+                    );
+                },
+            ],
+        },
+    ],
 });
 
 export default app;

@@ -1,30 +1,46 @@
-import {
+import { getParts } from '../router/util/extract.ts';
+import type {
     TBranchData,
     TErrorHandlerData,
     TLogger,
     TRendererData,
-    TRouteData
-} from '../types';
-import { getParts } from '../router/util/extract';
+    TRouteData,
+} from '../types.ts';
 
 export const PATHNAME_REGEX = /^(?:\/:[a-zA-Z_]\w*|\/[^/*:\\? ]*|\/\*{2})+$/;
 export const CONTENT_TYPE_REGEX = /^[a-zA-Z]+\/(?:[a-zA-Z]+|\*)|\*$/;
 
-export function validateObject (topic: unknown, name: string, type?: string): void {
+export function validateObject(
+    topic: unknown,
+    name: string,
+    type?: string,
+): void {
     if (topic !== undefined) {
-        if (typeof topic !== 'object' || topic === null || Array.isArray(topic)) {
+        if (
+            typeof topic !== 'object' ||
+            topic === null ||
+            Array.isArray(topic)
+        ) {
             throw new Error(`${name} must be an object`);
         }
 
         if (type !== undefined) {
             for (const key of Object.keys(topic)) {
-                validateType((topic as { [k: string]: unknown })[key], `${name} ${key}`, type);
+                validateType(
+                    (topic as { [k: string]: unknown })[key],
+                    `${name} ${key}`,
+                    type,
+                );
             }
         }
     }
 }
 
-export function validateArray (topic: unknown, name: string, type?: string): void {
+export function validateArray(
+    topic: unknown,
+    name: string,
+    type?: string,
+): void {
     if (topic !== undefined) {
         if (!Array.isArray(topic)) {
             throw new Error(`${name} must be an array`);
@@ -38,7 +54,7 @@ export function validateArray (topic: unknown, name: string, type?: string): voi
     }
 }
 
-export function validateType (topic: unknown, name: string, type: string): void {
+export function validateType(topic: unknown, name: string, type: string): void {
     if (topic !== undefined) {
         if (type === 'object') {
             validateObject(topic, name);
@@ -48,7 +64,11 @@ export function validateType (topic: unknown, name: string, type: string): void 
     }
 }
 
-export function validatePathname (topic: unknown, name: string, isWild = false): void {
+export function validatePathname(
+    topic: unknown,
+    name: string,
+    isWild = false,
+): void {
     if (topic !== undefined) {
         validateType(topic, name, 'string');
 
@@ -77,7 +97,7 @@ export function validatePathname (topic: unknown, name: string, isWild = false):
     }
 }
 
-export function validateContentType (topic: unknown, name: string): void {
+export function validateContentType(topic: unknown, name: string): void {
     if (topic !== undefined) {
         validateType(topic, name, 'string');
 
@@ -87,13 +107,13 @@ export function validateContentType (topic: unknown, name: string): void {
     }
 }
 
-export function validateExists (topic: unknown, name: string): void {
+export function validateExists(topic: unknown, name: string): void {
     if (topic === undefined) {
         throw new Error(`${name} is undefined`);
     }
 }
 
-export function validateBranch (branch: TBranchData): void {
+export function validateBranch(branch: TBranchData): void {
     validateExists(branch, 'Branch');
     validateObject(branch, 'Branch');
     validatePathname(branch.url, 'Branch url');
@@ -106,7 +126,7 @@ export function validateBranch (branch: TBranchData): void {
     validateType(branch.autoHead, 'Branch autoHead', 'boolean');
 }
 
-export function validateRoute (route: TRouteData): void {
+export function validateRoute(route: TRouteData): void {
     validateExists(route, 'Route');
     validateObject(route, 'Route');
     validateExists(route.method, 'Route method');
@@ -117,7 +137,7 @@ export function validateRoute (route: TRouteData): void {
     validateType(route.autoHead, 'Route autoHead', 'boolean');
 }
 
-export function validateErrorHandler (errorHandler: TErrorHandlerData): void {
+export function validateErrorHandler(errorHandler: TErrorHandlerData): void {
     validateExists(errorHandler, 'Error handler');
     validateObject(errorHandler, 'Error handler');
     validateExists(errorHandler.contentType, 'Error handler contentType');
@@ -126,7 +146,7 @@ export function validateErrorHandler (errorHandler: TErrorHandlerData): void {
     validateType(errorHandler.action, 'Error handler action', 'function');
 }
 
-export function validateRenderer (renderer: TRendererData): void {
+export function validateRenderer(renderer: TRendererData): void {
     validateExists(renderer, 'Renderer');
     validateObject(renderer, 'Renderer');
     validateExists(renderer.contentType, 'Renderer contentType');
@@ -135,7 +155,7 @@ export function validateRenderer (renderer: TRendererData): void {
     validateType(renderer.action, 'Renderer action', 'function');
 }
 
-export function validateLogger (logger?: Partial<TLogger>): void {
+export function validateLogger(logger?: Partial<TLogger>): void {
     validateObject(logger, 'Logger');
 
     if (logger !== undefined) {

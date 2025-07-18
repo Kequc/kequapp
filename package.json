@@ -1,49 +1,53 @@
 {
-  "name": "kequapp",
-  "version": "0.8.1",
-  "description": "Non-intrusive Node JavaScript web app framework",
-  "main": "dist/main.js",
-  "types": "dist/main.d.ts",
-  "scripts": {
-    "build": "rm -rf dist && tsc",
-    "start:basic": "ts-node ./examples/basic/server.ts",
-    "start:file-server": "ts-node ./examples/file-server/server.ts",
-    "test": "kequtest --ts",
-    "watch": "nodemon --watch \"**\" --ext \"ts\" --exec \"npm t\"",
-    "lint": "eslint ."
-  },
-  "files": [
-    "dist"
-  ],
-  "bugs": {
-    "url": "https://github.com/Kequc/kequapp/issues"
-  },
-  "homepage": "https://kequapp.kequtech.com",
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/Kequc/kequapp.git"
-  },
-  "author": "Nathan Lunde-Berry",
-  "license": "ISC",
-  "keywords": [
-    "createApp",
-    "IncomingMessage",
-    "ServerResponse",
-    "web",
-    "framework",
-    "http",
-    "rest",
-    "server",
-    "api"
-  ],
-  "devDependencies": {
-    "@types/node": "^16.10.2",
-    "@typescript-eslint/eslint-plugin": "^4.33.0",
-    "@typescript-eslint/parser": "^4.33.0",
-    "eslint": "^7.32.0",
-    "kequtest": "^1.0.1",
-    "nodemon": "^2.0.16",
-    "ts-node": "^10.2.1",
-    "typescript": "^4.6.2"
-  }
+    "name": "kequapp",
+    "version": "0.8.1",
+    "description": "Non-intrusive Node JavaScript web app framework",
+    "type": "module",
+    "exports": {
+        ".": {
+            "types": "./dist/main.d.ts",
+            "import": "./dist/main.js"
+        },
+        "./package.json": "./package.json"
+    },
+    "engines": { "node": ">=18.17" },
+    "sideEffects": false,
+    "scripts": {
+        "build": "rm -rf dist && tsc",
+        "prepare": "npm run build",
+        "start:basic": "node ./examples/basic/server.ts",
+        "start:file-server": "node ./examples/file-server/server.ts",
+        "test": "node --test"
+    },
+    "files": [
+        "dist",
+        "readme.md",
+        "LICENSE"
+    ],
+    "bugs": {
+        "url": "https://github.com/Kequc/kequapp/issues"
+    },
+    "homepage": "https://kequapp.kequtech.com",
+    "repository": {
+        "type": "git",
+        "url": "git+ssh://git@github.com/Kequc/kequapp.git"
+    },
+    "author": "Nathan Lunde-Berry",
+    "license": "ISC",
+    "keywords": [
+        "createApp",
+        "IncomingMessage",
+        "ServerResponse",
+        "web",
+        "framework",
+        "http",
+        "rest",
+        "server",
+        "api"
+    ],
+    "devDependencies": {
+        "@biomejs/biome": "^2.1.1",
+        "@types/node": "^24.0.14",
+        "typescript": "^5.8.3"
+    }
 }

@@ -1,10 +1,14 @@
-import { TBodyJson, TRawPart } from '../types';
-import Ex from '../built-in/tools/ex';
+import Ex from '../built-in/tools/ex.ts';
+import type { TBodyJson, TRawPart } from '../types.ts';
 
+// biome-ignore lint/suspicious/noExplicitAny: it really can be anything
 type TParser = (body: TRawPart) => any;
 
-export default function createParseBody (parsers: { [k: string]: TParser }, _default?: TParser): TParser {
-    return function (body: TRawPart) {
+export default function createParseBody(
+    parsers: { [k: string]: TParser },
+    _default?: TParser,
+): TParser {
+    return (body: TRawPart) => {
         const contentType = body.headers['content-type'] ?? 'text/plain';
 
         try {
@@ -20,13 +24,13 @@ export default function createParseBody (parsers: { [k: string]: TParser }, _def
         } catch (error) {
             throw Ex.BadRequest('Unable to process request', {
                 contentType,
-                error
+                error,
             });
         }
     };
 }
 
-export function parseUrlEncoded (body: TRawPart): TBodyJson {
+export function parseUrlEncoded(body: TRawPart): TBodyJson {
     const params = new URLSearchParams(body.data.toString());
     const result: TBodyJson = {};
 
@@ -41,6 +45,6 @@ export function parseUrlEncoded (body: TRawPart): TBodyJson {
     return result;
 }
 
-export function parseJson (body: TRawPart): TBodyJson {
+export function parseJson(body: TRawPart): TBodyJson {
     return JSON.parse(body.data.toString());
 }

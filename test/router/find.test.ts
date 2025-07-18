@@ -1,110 +1,143 @@
-import assert from 'assert';
-import 'kequtest';
-import { findErrorHandler, findRenderer } from '../../src/router/find';
-import { TErrorHandlerData, TRendererData } from '../../src/types';
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
+import { findErrorHandler, findRenderer } from '../../src/router/find.ts';
+import type { TErrorHandlerData, TRendererData } from '../../src/types.ts';
 
 describe('findRenderer', () => {
-    function buildRenderer (contentType: string): TRendererData {
+    function buildRenderer(contentType: string): TRendererData {
         return { action: () => {}, contentType };
     }
 
     it('returns a renderer', () => {
         const renderers = [
             buildRenderer('application/json'),
-            buildRenderer('text/plain')
+            buildRenderer('text/plain'),
         ];
-        assert.strictEqual(findRenderer(renderers, 'text/plain'), renderers[1].action);
+        assert.equal(
+            findRenderer(renderers, 'text/plain'),
+            renderers[1].action,
+        );
     });
 
     it('throws error when no renderer', () => {
         const renderers = [
             buildRenderer('application/json'),
-            buildRenderer('text/plain')
+            buildRenderer('text/plain'),
         ];
         assert.throws(() => findRenderer(renderers, 'text/html'), {
-            message: 'Renderer not found'
+            message: 'Renderer not found',
         });
     });
 
     it('returns a renderer with wildcard', () => {
         const renderers = [
             buildRenderer('application/json'),
-            buildRenderer('text/*')
+            buildRenderer('text/*'),
         ];
-        assert.strictEqual(findRenderer(renderers, 'text/plain'), renderers[1].action);
-        assert.strictEqual(findRenderer(renderers, 'text/html'), renderers[1].action);
+        assert.equal(
+            findRenderer(renderers, 'text/plain'),
+            renderers[1].action,
+        );
+        assert.equal(findRenderer(renderers, 'text/html'), renderers[1].action);
     });
 
     it('prefers accurate content type', () => {
         const renderers = [
             buildRenderer('application/json'),
             buildRenderer('text/html'),
-            buildRenderer('text/*')
+            buildRenderer('text/*'),
         ];
-        assert.strictEqual(findRenderer(renderers, 'text/plain'), renderers[2].action);
-        assert.strictEqual(findRenderer(renderers, 'text/html'), renderers[1].action);
+        assert.equal(
+            findRenderer(renderers, 'text/plain'),
+            renderers[2].action,
+        );
+        assert.equal(findRenderer(renderers, 'text/html'), renderers[1].action);
     });
 
     it('returns full wildcard renderer', () => {
         const renderers = [
             buildRenderer('application/json'),
             buildRenderer('text/html'),
-            buildRenderer('*')
+            buildRenderer('*'),
         ];
-        assert.strictEqual(findRenderer(renderers, 'text/plain'), renderers[2].action);
-        assert.strictEqual(findRenderer(renderers, 'text/html'), renderers[1].action);
+        assert.equal(
+            findRenderer(renderers, 'text/plain'),
+            renderers[2].action,
+        );
+        assert.equal(findRenderer(renderers, 'text/html'), renderers[1].action);
     });
 });
 
 describe('findErrorHandler', () => {
-    function buildErrorHandler (contentType: string): TErrorHandlerData {
+    function buildErrorHandler(contentType: string): TErrorHandlerData {
         return { action: () => {}, contentType };
     }
 
     it('returns a errorHandler', () => {
         const errorHandlers = [
             buildErrorHandler('application/json'),
-            buildErrorHandler('text/plain')
+            buildErrorHandler('text/plain'),
         ];
-        assert.strictEqual(findErrorHandler(errorHandlers, 'text/plain'), errorHandlers[1].action);
+        assert.equal(
+            findErrorHandler(errorHandlers, 'text/plain'),
+            errorHandlers[1].action,
+        );
     });
 
     it('throws error when no errorHandler', () => {
         const errorHandlers = [
             buildErrorHandler('application/json'),
-            buildErrorHandler('text/plain')
+            buildErrorHandler('text/plain'),
         ];
         assert.throws(() => findErrorHandler(errorHandlers, 'text/html'), {
-            message: 'Error handler not found'
+            message: 'Error handler not found',
         });
     });
 
     it('returns a errorHandler with wildcard', () => {
         const errorHandlers = [
             buildErrorHandler('application/json'),
-            buildErrorHandler('text/*')
+            buildErrorHandler('text/*'),
         ];
-        assert.strictEqual(findErrorHandler(errorHandlers, 'text/plain'), errorHandlers[1].action);
-        assert.strictEqual(findErrorHandler(errorHandlers, 'text/html'), errorHandlers[1].action);
+        assert.equal(
+            findErrorHandler(errorHandlers, 'text/plain'),
+            errorHandlers[1].action,
+        );
+        assert.equal(
+            findErrorHandler(errorHandlers, 'text/html'),
+            errorHandlers[1].action,
+        );
     });
 
     it('prefers accurate content type', () => {
         const errorHandlers = [
             buildErrorHandler('application/json'),
             buildErrorHandler('text/html'),
-            buildErrorHandler('text/*')
+            buildErrorHandler('text/*'),
         ];
-        assert.strictEqual(findErrorHandler(errorHandlers, 'text/plain'), errorHandlers[2].action);
-        assert.strictEqual(findErrorHandler(errorHandlers, 'text/html'), errorHandlers[1].action);
+        assert.equal(
+            findErrorHandler(errorHandlers, 'text/plain'),
+            errorHandlers[2].action,
+        );
+        assert.equal(
+            findErrorHandler(errorHandlers, 'text/html'),
+            errorHandlers[1].action,
+        );
     });
 
     it('returns full wildcard errorHandler', () => {
         const errorHandlers = [
             buildErrorHandler('application/json'),
             buildErrorHandler('text/html'),
-            buildErrorHandler('*')
+            buildErrorHandler('*'),
         ];
-        assert.strictEqual(findErrorHandler(errorHandlers, 'text/plain'), errorHandlers[2].action);
-        assert.strictEqual(findErrorHandler(errorHandlers, 'text/html'), errorHandlers[1].action);
+        assert.equal(
+            findErrorHandler(errorHandlers, 'text/plain'),
+            errorHandlers[2].action,
+        );
+        assert.equal(
+            findErrorHandler(errorHandlers, 'text/html'),
+            errorHandlers[1].action,
+        );
     });
 });

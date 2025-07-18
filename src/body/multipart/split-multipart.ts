@@ -1,16 +1,16 @@
-import { TParams, TRawPart } from '../../types';
-import Ex from '../../built-in/tools/ex';
-import headerAttributes from '../../util/header-attributes';
+import Ex from '../../built-in/tools/ex.ts';
+import type { TParams, TRawPart } from '../../types.ts';
+import headerAttributes from '../../util/header-attributes.ts';
 
 const CR = 0x0d;
 const LF = 0x0a;
 
-export default function splitMultipart (body: TRawPart): TRawPart[] {
+export default function splitMultipart(body: TRawPart): TRawPart[] {
     const contentType = body.headers['content-type'];
 
     if (!contentType?.startsWith('multipart/')) {
         throw Ex.BadRequest('Unable to process request', {
-            contentType
+            contentType,
         });
     }
 
@@ -21,7 +21,7 @@ export default function splitMultipart (body: TRawPart): TRawPart[] {
     let headers: TParams = {};
     let i = findNextLine(buffer, buffer.indexOf(boundary, 0));
 
-    function addHeader (nextLine: number) {
+    function addHeader(nextLine: number) {
         const line = buffer.slice(i, nextLine).toString();
         const parts = line.split(':');
         const key = parts[0].trim().toLowerCase();
@@ -29,11 +29,12 @@ export default function splitMultipart (body: TRawPart): TRawPart[] {
         if (key && value) headers[key] = value;
     }
 
-    function addPart (nextBoundary: number) {
-        const dataEnd = nextBoundary - (buffer[nextBoundary-2] === CR ? 2 : 1);
+    function addPart(nextBoundary: number) {
+        const dataEnd =
+            nextBoundary - (buffer[nextBoundary - 2] === CR ? 2 : 1);
         result.push({
             headers,
-            data: buffer.slice(i, dataEnd)
+            data: buffer.slice(i, dataEnd),
         });
         headers = {};
     }
@@ -48,7 +49,7 @@ export default function splitMultipart (body: TRawPart): TRawPart[] {
         }
 
         if (i < 0) break;
-        i += (buffer[i] === CR ? 2 : 1);
+        i += buffer[i] === CR ? 2 : 1;
         if (i >= buffer.length) break;
 
         // data start
@@ -62,17 +63,17 @@ export default function splitMultipart (body: TRawPart): TRawPart[] {
     return result;
 }
 
-function extractBoundary (contentType: string) {
+function extractBoundary(contentType: string) {
     const boundary = headerAttributes(contentType).boundary;
     if (!boundary) {
         throw Ex.BadRequest('Multipart request requires boundary attribute', {
-            contentType
+            contentType,
         });
     }
     return `--${boundary}`;
 }
 
-function findNextLine (buffer: Buffer, from: number) {
+function findNextLine(buffer: Buffer, from: number) {
     const i = buffer.indexOf(LF, from) + 1;
     if (i < 1 || i >= buffer.length) return -1;
     return i;

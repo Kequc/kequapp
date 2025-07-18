@@ -1,107 +1,117 @@
-import assert from 'assert';
-import 'kequtest';
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 import {
-    extractContentType,
     extractActions,
+    extractContentType,
     extractMethod,
     extractOptions,
     extractUrl,
     getParams,
-    getParts
-} from '../../../src/router/util/extract';
+    getParts,
+} from '../../../src/router/util/extract.ts';
 
 describe('extractMethod', () => {
     it('gets the first string', () => {
-        assert.strictEqual(extractMethod(['HELLO', 'BOO']), 'HELLO');
+        assert.equal(extractMethod(['HELLO', 'BOO']), 'HELLO');
     });
 
     it('defaults to GET', () => {
-        assert.strictEqual(extractMethod([1, 'HELLO']), 'GET');
+        assert.equal(extractMethod([1, 'HELLO']), 'GET');
     });
 
     it('ignores pathnames', () => {
-        assert.strictEqual(extractMethod(['/oops', 'HELLO']), 'GET');
+        assert.equal(extractMethod(['/oops', 'HELLO']), 'GET');
     });
 
     it('modifies the params', () => {
         const params = ['HELLO', 'BOO'];
-        assert.strictEqual(extractMethod(params), 'HELLO');
-        assert.deepStrictEqual(params, ['BOO']);
+        assert.equal(extractMethod(params), 'HELLO');
+        assert.deepEqual(params, ['BOO']);
     });
 });
 
 describe('extractUrl', () => {
     it('gets the first pathname', () => {
-        assert.strictEqual(extractUrl(['/hello', '/boo'], '/yay'), '/hello');
+        assert.equal(extractUrl(['/hello', '/boo'], '/yay'), '/hello');
     });
 
     it('defaults to /', () => {
-        assert.strictEqual(extractUrl([1, 'HELLO']), '/');
+        assert.equal(extractUrl([1, 'HELLO']), '/');
     });
 
     it('ignores non-pathnames', () => {
-        assert.strictEqual(extractUrl(['HELLO', '/hello']), '/');
+        assert.equal(extractUrl(['HELLO', '/hello']), '/');
     });
 
     it('accepts a default', () => {
-        assert.strictEqual(extractUrl([1, 'HELLO'], '/yay'), '/yay');
+        assert.equal(extractUrl([1, 'HELLO'], '/yay'), '/yay');
     });
 
     it('modifies the params', () => {
         const params = ['/hello', '/boo'];
-        assert.strictEqual(extractUrl(params), '/hello');
-        assert.deepStrictEqual(params, ['/boo']);
+        assert.equal(extractUrl(params), '/hello');
+        assert.deepEqual(params, ['/boo']);
     });
 });
 
 describe('getParts', () => {
     it('splits pathname into array', () => {
-        assert.deepStrictEqual(getParts('/hello/there'), ['hello', 'there']);
+        assert.deepEqual(getParts('/hello/there'), ['hello', 'there']);
     });
 
     it('ignores too many starting separators', () => {
-        assert.deepStrictEqual(getParts('//hello///there'), ['hello', 'there']);
+        assert.deepEqual(getParts('//hello///there'), ['hello', 'there']);
     });
 
     it('accepts wildcard', () => {
-        assert.deepStrictEqual(getParts('/hello/there/**'), ['hello', 'there', '**']);
+        assert.deepEqual(getParts('/hello/there/**'), ['hello', 'there', '**']);
     });
 
     it('ignores everything after wildcard', () => {
-        assert.deepStrictEqual(getParts('/hello/there/**/boo'), ['hello', 'there', '**']);
+        assert.deepEqual(getParts('/hello/there/**/boo'), [
+            'hello',
+            'there',
+            '**',
+        ]);
     });
 });
 
 describe('getParams', () => {
     it('extracts params from a path', () => {
-        const result = getParams(['hello', 'there', 'boo'], ['hello', ':foo', ':bar']);
-        assert.deepStrictEqual(result, { foo: 'there', bar: 'boo' });
+        const result = getParams(
+            ['hello', 'there', 'boo'],
+            ['hello', ':foo', ':bar'],
+        );
+        assert.deepEqual(result, { foo: 'there', bar: 'boo' });
     });
 
     it('returns no params', () => {
-        const result = getParams(['hello', 'there', 'boo'], ['hello', 'there', 'boo']);
-        assert.deepStrictEqual(result, {});
+        const result = getParams(
+            ['hello', 'there', 'boo'],
+            ['hello', 'there', 'boo'],
+        );
+        assert.deepEqual(result, {});
     });
 
     it('extracts wild route params', () => {
         const result = getParams(['hello', 'there', 'boo'], ['hello', '**']);
-        assert.deepStrictEqual(result, { '**': '/there/boo' });
+        assert.deepEqual(result, { '**': '/there/boo' });
     });
 });
 
 describe('extractContentType', () => {
     it('gets the first string', () => {
-        assert.strictEqual(extractContentType(['HELLO/*', 'BOO'], '*'), 'HELLO/*');
+        assert.equal(extractContentType(['HELLO/*', 'BOO'], '*'), 'HELLO/*');
     });
 
     it('accepts a default', () => {
-        assert.strictEqual(extractContentType([1, 'HELLO'], 'text/*'), 'text/*');
+        assert.equal(extractContentType([1, 'HELLO'], 'text/*'), 'text/*');
     });
 
     it('modifies the params', () => {
         const params = ['HELLO/*', 'BOO'];
-        assert.strictEqual(extractContentType(params, '*'), 'HELLO/*');
-        assert.deepStrictEqual(params, ['BOO']);
+        assert.equal(extractContentType(params, '*'), 'HELLO/*');
+        assert.deepEqual(params, ['BOO']);
     });
 });
 
@@ -111,55 +121,70 @@ describe('extractActions', () => {
     const func3 = () => {};
 
     it('gets the remainder of the params', () => {
-        assert.deepStrictEqual(extractActions([func1, func2, func3]), [func1, func2, func3]);
+        assert.deepEqual(extractActions([func1, func2, func3]), [
+            func1,
+            func2,
+            func3,
+        ]);
     });
 
     it('accepts no actions', () => {
-        assert.deepStrictEqual(extractActions([]), []);
+        assert.deepEqual(extractActions([]), []);
     });
 
     it('accepts nested arrays', () => {
-        assert.deepStrictEqual(extractActions([func1, [func2], func3]), [func1, func2, func3]);
+        assert.deepEqual(extractActions([func1, [func2], func3]), [
+            func1,
+            func2,
+            func3,
+        ]);
     });
 
     it('throws error on bad params', () => {
         assert.throws(() => extractActions([func1, 1, func3]), {
-            message: 'Action item must be a function'
+            message: 'Action item must be a function',
         });
     });
 });
 
 describe('extractOptions', () => {
     it('gets the first object', () => {
-        assert.deepStrictEqual(extractOptions([{ test: 'hello' }, { test: 'boo' }]), { test: 'hello' });
+        assert.deepEqual(extractOptions([{ test: 'hello' }, { test: 'boo' }]), {
+            test: 'hello',
+        });
     });
 
     it('defaults to empty', () => {
-        assert.deepStrictEqual(extractOptions([1, 'HELLO']), {});
+        assert.deepEqual(extractOptions([1, 'HELLO']), {});
     });
 
     it('accepts a default', () => {
-        assert.deepStrictEqual(extractOptions([1, 'HELLO'], { test: 'yay' }), { test: 'yay' });
+        assert.deepEqual(extractOptions([1, 'HELLO'], { test: 'yay' }), {
+            test: 'yay',
+        });
     });
 
     it('ignores null', () => {
-        assert.deepStrictEqual(extractOptions([null, 'HELLO']), {});
+        assert.deepEqual(extractOptions([null, 'HELLO']), {});
     });
 
     it('ignores array', () => {
-        assert.deepStrictEqual(extractOptions([[{ test: 'boo' }], 'HELLO']), {});
+        assert.deepEqual(extractOptions([[{ test: 'boo' }], 'HELLO']), {});
     });
 
     it('combines with default', () => {
-        assert.deepStrictEqual(extractOptions([{ test: 'hello' }, 'HELLO'], { test2: 'hello2' }), {
-            test: 'hello',
-            test2: 'hello2'
-        });
+        assert.deepEqual(
+            extractOptions([{ test: 'hello' }, 'HELLO'], { test2: 'hello2' }),
+            {
+                test: 'hello',
+                test2: 'hello2',
+            },
+        );
     });
 
     it('modifies the params', () => {
         const params = [{ test: 'hello' }, { test: 'boo' }];
-        assert.deepStrictEqual(extractOptions(params), { test: 'hello' });
-        assert.deepStrictEqual(params, [{ test: 'boo' }]);
+        assert.deepEqual(extractOptions(params), { test: 'hello' });
+        assert.deepEqual(params, [{ test: 'boo' }]);
     });
 });

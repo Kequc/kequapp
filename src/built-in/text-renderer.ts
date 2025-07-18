@@ -1,9 +1,9 @@
-import { createRenderer } from '../router/modules';
-import Ex from '../built-in/tools/ex';
+import Ex from '../built-in/tools/ex.ts';
+import { createRenderer } from '../router/modules.ts';
 
 export default createRenderer({
     contentType: 'text/*',
-    action (payload, { req, res }) {
+    action(payload, { req, res }) {
         const text = generateText(payload);
 
         res.setHeader('Content-Length', Buffer.byteLength(text));
@@ -13,13 +13,16 @@ export default createRenderer({
         } else {
             res.end(text);
         }
-    }
+    },
 });
 
-function generateText (payload: unknown): string {
+function generateText(payload: unknown): string {
     try {
         return String(payload);
     } catch (error) {
-        throw Ex.InternalServerError('Invalid text response', { payload, error });
+        throw Ex.InternalServerError('Invalid text response', {
+            payload,
+            error,
+        });
     }
 }

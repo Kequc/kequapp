@@ -1,47 +1,58 @@
-import assert from 'assert';
-import 'kequtest';
-import warnDuplicates from '../../../src/router/util/warn-duplicates';
-import { TCacheRoute, TPathname } from '../../../src/types';
+import assert from 'node:assert/strict';
+import { it, mock } from 'node:test';
+import warnDuplicates from '../../../src/router/util/warn-duplicates.ts';
+import type { TCacheRoute, TPathname } from '../../../src/types.ts';
 
-function route (method: string, url: TPathname): TCacheRoute {
+function route(method: string, url: TPathname): TCacheRoute {
     return { method, url, actions: [], errorHandlers: [], renderers: [] };
 }
 
-function msg (method: string, a: string, b: string): string {
+function msg(method: string, a: string, b: string): string {
     return `Duplicate route detected: ${method} '${a}' '${b}'`;
 }
 
 it('does nothing when no duplicates', () => {
-    const warn = util.spy();
+    const warn = mock.fn();
 
-    warnDuplicates([
-        route('GET', '/free/stuff'),
-        route('GET', '/'),
-        route('GET', '/cats/**'),
-        route('GET', '/cats/tiffany'),
-        route('GET', '/other/:userId')
-    ], warn);
+    warnDuplicates(
+        [
+            route('GET', '/free/stuff'),
+            route('GET', '/'),
+            route('GET', '/cats/**'),
+            route('GET', '/cats/tiffany'),
+            route('GET', '/other/:userId'),
+        ],
+        warn,
+    );
 
-    assert.strictEqual(warn.calls.length, 0);
+    assert.equal(warn.mock.callCount(), 0);
 });
 
 it('finds duplicates', () => {
-    const warn = util.spy();
+    const warn = mock.fn();
 
-    warnDuplicates([
-        route('GET', '/free/stuff'),
-        route('GET', '/'),
-        route('GET', '/cats/**'),
-        route('GET', '/cats/tiffany'),
-        route('GET', '/cats/:userId'),
-        route('GET', '/cats/tiffany/:userId'),
-        route('GET', '/cats/tiffany/:carId'),
-        route('GET', '/free/stuff')
-    ], warn);
+    warnDuplicates(
+        [
+            route('GET', '/free/stuff'),
+            route('GET', '/'),
+            route('GET', '/cats/**'),
+            route('GET', '/cats/tiffany'),
+            route('GET', '/cats/:userId'),
+            route('GET', '/cats/tiffany/:userId'),
+            route('GET', '/cats/tiffany/:carId'),
+            route('GET', '/free/stuff'),
+        ],
+        warn,
+    );
 
-    assert.deepStrictEqual(warn.calls, [
-        [msg('GET', '/free/stuff', '/free/stuff')],
-        [msg('GET', '/cats/**', '/cats/:userId')],
-        [msg('GET', '/cats/tiffany/:userId', '/cats/tiffany/:carId')]
+    assert.equal(warn.mock.callCount(), 3);
+    assert.deepEqual(warn.mock.calls[0].arguments, [
+        msg('GET', '/free/stuff', '/free/stuff'),
+    ]);
+    assert.deepEqual(warn.mock.calls[1].arguments, [
+        msg('GET', '/cats/**', '/cats/:userId'),
+    ]);
+    assert.deepEqual(warn.mock.calls[2].arguments, [
+        msg('GET', '/cats/tiffany/:userId', '/cats/tiffany/:carId'),
     ]);
 });

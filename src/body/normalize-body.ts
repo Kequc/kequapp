@@ -1,7 +1,10 @@
-import { TBodyJson, TBodyJsonValue, TGetBodyOptions } from '../types';
-import Ex from '../built-in/tools/ex';
+import Ex from '../built-in/tools/ex.ts';
+import type { TBodyJson, TBodyJsonValue, TGetBodyOptions } from '../types.ts';
 
-export default function normalizeBody (body: TBodyJson, options: TGetBodyOptions): TBodyJson {
+export default function normalizeBody(
+    body: TBodyJson,
+    options: TGetBodyOptions,
+): TBodyJson {
     if (options.skipNormalize === true) return body;
 
     const result: TBodyJson = { ...body };
@@ -10,7 +13,7 @@ export default function normalizeBody (body: TBodyJson, options: TGetBodyOptions
         arrays = [],
         numbers = [],
         booleans = [],
-        validate
+        validate,
     } = options;
 
     // arrays
@@ -32,7 +35,9 @@ export default function normalizeBody (body: TBodyJson, options: TGetBodyOptions
     // required
     for (const key of required) {
         if (arrays.includes(key)) {
-            const values = (result[key] as TBodyJsonValue[]).filter(value => !isEmpty(value));
+            const values = (result[key] as TBodyJsonValue[]).filter(
+                (value) => !isEmpty(value),
+            );
             result[key] = values;
             if (values.length > 0) continue;
         } else {
@@ -41,7 +46,7 @@ export default function normalizeBody (body: TBodyJson, options: TGetBodyOptions
 
         throw Ex.UnprocessableEntity(`Value ${key} is required`, {
             body,
-            required
+            required,
         });
     }
 
@@ -52,16 +57,16 @@ export default function normalizeBody (body: TBodyJson, options: TGetBodyOptions
         if (arrays.includes(key)) {
             const values = (result[key] as TBodyJsonValue[]).map(toNumber);
             result[key] = values;
-            if (!values.some(value => isNaN(value))) continue;
+            if (!values.some((value) => Number.isNaN(value))) continue;
         } else {
             const value = toNumber(result[key]);
             result[key] = value;
-            if (!isNaN(value)) continue;
+            if (!Number.isNaN(value)) continue;
         }
 
         throw Ex.UnprocessableEntity(`Value ${key} must be a number`, {
             body,
-            numbers
+            numbers,
         });
     }
 
@@ -83,7 +88,7 @@ export default function normalizeBody (body: TBodyJson, options: TGetBodyOptions
 
         if (problem) {
             throw Ex.UnprocessableEntity(problem, {
-                body
+                body,
             });
         }
     }
@@ -91,17 +96,17 @@ export default function normalizeBody (body: TBodyJson, options: TGetBodyOptions
     return result;
 }
 
-function isEmpty (value: TBodyJsonValue): boolean {
+function isEmpty(value: TBodyJsonValue): boolean {
     if (value === null) return true;
     if (value === undefined) return true;
     return false;
 }
 
-function toNumber (value: TBodyJsonValue): number {
+function toNumber(value: TBodyJsonValue): number {
     return parseFloat(value as string);
 }
 
-function toBoolean (value: TBodyJsonValue): boolean {
+function toBoolean(value: TBodyJsonValue): boolean {
     if (typeof value === 'string' && value.toLowerCase() === 'false') {
         return false;
     } else if (value === '0') {

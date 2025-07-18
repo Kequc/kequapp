@@ -1,11 +1,16 @@
-import fs from 'fs';
-import { IncomingMessage, ServerResponse } from 'http';
-import path from 'path';
-import Ex from '../tools/ex';
-import guessContentType from '../../util/guess-content-type';
-import { TPathname } from '../../types';
+import fs from 'node:fs';
+import type { IncomingMessage, ServerResponse } from 'node:http';
+import path from 'node:path';
+import type { TPathname } from '../../types.ts';
+import guessContentType from '../../util/guess-content-type.ts';
+import Ex from '../tools/ex.ts';
 
-export default async function sendFile (req: IncomingMessage, res: ServerResponse, location: TPathname, contentType?: string): Promise<void> {
+export default async function sendFile(
+    req: IncomingMessage,
+    res: ServerResponse,
+    location: TPathname,
+    contentType?: string,
+): Promise<void> {
     const asset = path.join(process.cwd(), location);
     const stats = await getStats(asset);
 
@@ -18,7 +23,7 @@ export default async function sendFile (req: IncomingMessage, res: ServerRespons
     }
 
     try {
-        await new Promise((resolve, reject) => {
+        await new Promise<void>((resolve, reject) => {
             const stream = fs.createReadStream(asset);
             stream.pipe(res);
             stream.on('end', resolve);
@@ -30,17 +35,17 @@ export default async function sendFile (req: IncomingMessage, res: ServerRespons
     } catch (error) {
         throw Ex.InternalServerError(undefined, {
             location: asset,
-            error
+            error,
         });
     }
 }
 
-async function getStats (location: string): Promise<fs.Stats> {
+async function getStats(location: string): Promise<fs.Stats> {
     try {
         const stats = await fs.promises.stat(location);
 
         if (stats.isFile()) return stats;
-    } catch (error) {
+    } catch (_error) {
         // fail
     }
 

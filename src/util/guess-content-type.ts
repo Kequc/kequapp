@@ -1,5 +1,5 @@
-import path from 'path';
-import { TParams } from '../types';
+import path from 'node:path';
+import type { TParams } from '../types.ts';
 
 const DEFAULT_CONTENT_TYPES: TParams = {
     '.aac': 'audio/aac',
@@ -16,7 +16,8 @@ const DEFAULT_CONTENT_TYPES: TParams = {
     '.css': 'text/css',
     '.csv': 'text/csv',
     '.doc': 'application/msword',
-    '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    '.docx':
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     '.eot': 'application/vnd.ms-fontobject',
     '.epub': 'application/epub+zip',
     '.gz': 'application/gzip',
@@ -50,7 +51,8 @@ const DEFAULT_CONTENT_TYPES: TParams = {
     '.pdf': 'application/pdf',
     '.php': 'application/x-httpd-php',
     '.ppt': 'application/vnd.ms-powerpoint',
-    '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    '.pptx':
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
     '.rar': 'application/vnd.rar',
     '.rtf': 'application/rtf',
     '.sh': 'application/x-sh',
@@ -72,15 +74,23 @@ const DEFAULT_CONTENT_TYPES: TParams = {
     '.woff2': 'font/woff2',
     '.xhtml': 'application/xhtml+xml',
     '.xls': 'application/vnd.ms-excel',
-    '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    '.xlsx':
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     '.xml': 'application/xml',
     '.xul': 'application/vnd.mozilla.xul+xml',
     '.zip': 'application/zip',
-    '.7z': 'application/x-7z-compressed'
+    '.7z': 'application/x-7z-compressed',
 };
 
-export default function guessContentType (asset: string, contentTypes: TParams = {}): string {
+export default function guessContentType(
+    asset: string,
+    contentTypes: TParams = {},
+): string {
     const ext: string = path.extname(asset).toLowerCase();
 
-    return contentTypes[ext] ?? DEFAULT_CONTENT_TYPES[ext] ?? 'application/octet-stream';
+    return (
+        contentTypes[ext] ??
+        DEFAULT_CONTENT_TYPES[ext] ??
+        'application/octet-stream'
+    );
 }

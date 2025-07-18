@@ -1,8 +1,8 @@
-import { getParts } from './extract';
+import { getParts } from './extract.ts';
 
 type TSortableUrl = { url: string };
 
-export function priorityUrl (a: TSortableUrl, b: TSortableUrl): number {
+export function priorityUrl(a: TSortableUrl, b: TSortableUrl): number {
     const partsa = getParts(a.url);
     const partsb = getParts(b.url);
     const count = Math.max(partsa.length, partsb.length);
@@ -30,7 +30,10 @@ export function priorityUrl (a: TSortableUrl, b: TSortableUrl): number {
 
 type TSortableContentType = { contentType: string };
 
-export function priorityContentType (a: TSortableContentType, b: TSortableContentType): number {
+export function priorityContentType(
+    a: TSortableContentType,
+    b: TSortableContentType,
+): number {
     const aa = a.contentType.indexOf('*');
     const bb = b.contentType.indexOf('*');
 

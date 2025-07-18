@@ -1,6 +1,7 @@
-import { OutgoingHttpHeaders, STATUS_CODES } from 'http';
-import { Transform } from 'stream';
-import { THeader, TParams, TReqOptions } from '../types';
+/** biome-ignore-all lint/suspicious/noExplicitAny: too many possibilities */
+import { type OutgoingHttpHeaders, STATUS_CODES } from 'node:http';
+import { Transform } from 'node:stream';
+import type { THeader, TParams, TReqOptions } from '../types.ts';
 
 export class FakeReq extends Transform {
     [key: string]: any;
@@ -9,7 +10,7 @@ export class FakeReq extends Transform {
     headers: TParams;
     rawHeaders: string[];
 
-    constructor (options: TReqOptions) {
+    constructor(options: TReqOptions) {
         super();
 
         for (const key of Object.keys(options)) {
@@ -35,7 +36,7 @@ export class FakeReq extends Transform {
         }
     }
 
-    _transform (chunk: string | Buffer, enc: string, done: () => void): void {
+    _transform(chunk: string | Buffer, _enc: string, done: () => void): void {
         if (typeof chunk === 'string' || Buffer.isBuffer(chunk)) {
             this.push(chunk);
         } else {
@@ -52,46 +53,51 @@ export class FakeRes extends Transform {
     private _headers: OutgoingHttpHeaders;
     private _responseData: Buffer[];
 
-    constructor () {
+    constructor() {
         super();
 
         this.statusCode = 200;
-        this.statusMessage = STATUS_CODES[this.statusCode]!;
+        this.statusMessage = STATUS_CODES[this.statusCode] ?? 'OK';
 
         this._headers = {};
         this._responseData = [];
     }
 
-    _transform (chunk: Buffer, enc: string, done: () => void): void {
+    _transform(chunk: Buffer, _enc: string, done: () => void): void {
         this.push(chunk);
         this._responseData.push(chunk);
         done();
     }
 
-    setHeader (name: string, value: THeader): void {
+    setHeader(name: string, value: THeader): void {
         this._headers[name.toLowerCase()] = value;
     }
 
-    getHeader (name: string): THeader {
+    getHeader(name: string): THeader {
         return this._headers[name.toLowerCase()];
     }
 
-    getHeaders (): OutgoingHttpHeaders {
+    getHeaders(): OutgoingHttpHeaders {
         return this._headers;
     }
 
-    removeHeader (name: string): void {
+    removeHeader(name: string): void {
         delete this._headers[name.toLowerCase()];
     }
 
-    writeHead (statusCode: number, statusMessage?: string, headers?: OutgoingHttpHeaders): void {
+    writeHead(
+        statusCode: number,
+        statusMessage?: string,
+        headers?: OutgoingHttpHeaders,
+    ): void {
         if (statusMessage !== undefined && typeof statusMessage !== 'string') {
             headers = statusMessage;
             statusMessage = undefined;
         }
 
         this.statusCode = statusCode;
-        this.statusMessage = statusMessage ?? STATUS_CODES[statusCode] ?? 'unknown';
+        this.statusMessage =
+            statusMessage ?? STATUS_CODES[statusCode] ?? 'unknown';
 
         if (!headers) return;
 
@@ -100,11 +106,11 @@ export class FakeRes extends Transform {
         }
     }
 
-    _getString (): string {
+    _getString(): string {
         return Buffer.concat(this._responseData).toString();
     }
 
-    _getJSON (): any {
+    _getJSON(): any {
         return JSON.parse(this._getString());
     }
 }

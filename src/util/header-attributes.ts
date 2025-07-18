@@ -1,6 +1,6 @@
-import { TParams } from '../types';
+import type { TParams } from '../types.ts';
 
-export default function headerAttributes (header = ''): TParams {
+export default function headerAttributes(header = ''): TParams {
     const result: TParams = {};
 
     let inQuotes = false;
@@ -8,7 +8,7 @@ export default function headerAttributes (header = ''): TParams {
     let key = '';
     let value = '';
 
-    function reset () {
+    function reset() {
         inQuotes = false;
         isAssignment = false;
         key = '';

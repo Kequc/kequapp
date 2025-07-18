@@ -1,173 +1,221 @@
-import assert from 'assert';
-import 'kequtest';
+import assert from 'node:assert/strict';
+import { it } from 'node:test';
 import {
+    createAction,
     createApp,
     createBranch,
     createErrorHandler,
-    createAction,
     createRenderer,
     createRoute,
     Ex,
     inject,
     sendFile,
-    staticDirectory
-} from '../src/main';
+    staticDirectory,
+} from '../src/main.ts';
 
 it('exports a lot of stuff', () => {
-    assert.strictEqual(typeof createApp, 'function');
-    assert.strictEqual(typeof createBranch, 'function');
-    assert.strictEqual(typeof createErrorHandler, 'function');
-    assert.strictEqual(typeof createRenderer, 'function');
-    assert.strictEqual(typeof createRoute, 'function');
-    assert.strictEqual(typeof sendFile, 'function');
-    assert.strictEqual(typeof staticDirectory, 'function');
-    assert.strictEqual(typeof createAction, 'function');
-    assert.strictEqual(typeof Ex, 'object');
+    assert.equal(typeof createApp, 'function');
+    assert.equal(typeof createBranch, 'function');
+    assert.equal(typeof createErrorHandler, 'function');
+    assert.equal(typeof createRenderer, 'function');
+    assert.equal(typeof createRoute, 'function');
+    assert.equal(typeof sendFile, 'function');
+    assert.equal(typeof staticDirectory, 'function');
+    assert.equal(typeof createAction, 'function');
+    assert.equal(typeof Ex, 'object');
 });
 
 it('accepts actions', () => {
     createApp({
-        actions: [() => {}, () => {}]
+        actions: [() => {}, () => {}],
     });
 });
 
 it('throws error on invalid actions', () => {
-    assert.throws(() => createApp({
-        // @ts-ignore
-        actions: [() => {}, 'foo']
-    }), {
-        message: 'Branch actions item must be a function'
-    });
+    assert.throws(
+        () =>
+            createApp({
+                // @ts-ignore
+                actions: [() => {}, 'foo'],
+            }),
+        {
+            message: 'Branch actions item must be a function',
+        },
+    );
 });
 
 it('renders a response', async () => {
     const app = createApp({
-        routes: [{
-            method: 'GET',
-            actions: [({ req, res }) => { res.end(req.method); }]
-        }]
+        routes: [
+            {
+                method: 'GET',
+                actions: [
+                    ({ req, res }) => {
+                        res.end(req.method);
+                    },
+                ],
+            },
+        ],
     });
     const { res, getResponse } = inject(app, { url: '/' });
     const result = await getResponse();
 
-    assert.strictEqual(res.statusCode, 200);
-    assert.strictEqual(res.getHeader('Content-Type'), 'text/plain');
-    assert.strictEqual(result, 'GET');
+    assert.equal(res.statusCode, 200);
+    assert.equal(res.getHeader('Content-Type'), 'text/plain');
+    assert.equal(result, 'GET');
 });
 
 it('renders head routes', async () => {
     const app = createApp({
-        routes: [{
-            method: 'GET',
-            actions: [({ req, res }) => { res.end(req.method); }]
-        }]
+        routes: [
+            {
+                method: 'GET',
+                actions: [
+                    ({ req, res }) => {
+                        res.end(req.method);
+                    },
+                ],
+            },
+        ],
     });
 
     const { res, getResponse } = inject(app, { url: '/', method: 'HEAD' });
     const result = await getResponse();
 
-    assert.strictEqual(res.statusCode, 200);
-    assert.strictEqual(res.getHeader('Content-Type'), 'text/plain');
-    assert.strictEqual(result, 'HEAD');
+    assert.equal(res.statusCode, 200);
+    assert.equal(res.getHeader('Content-Type'), 'text/plain');
+    assert.equal(result, 'HEAD');
 });
 
 it('renders a response for url', async () => {
     const app = createApp({
-        routes: [{
-            url: '/foo/bar',
-            method: 'GET',
-            actions: [({ req, res }) => { res.end(req.method); }]
-        }]
+        routes: [
+            {
+                url: '/foo/bar',
+                method: 'GET',
+                actions: [
+                    ({ req, res }) => {
+                        res.end(req.method);
+                    },
+                ],
+            },
+        ],
     });
     const { res, getResponse } = inject(app, { url: '/foo/bar' });
     const result = await getResponse();
 
-    assert.strictEqual(res.statusCode, 200);
-    assert.strictEqual(res.getHeader('Content-Type'), 'text/plain');
-    assert.strictEqual(result, 'GET');
+    assert.equal(res.statusCode, 200);
+    assert.equal(res.getHeader('Content-Type'), 'text/plain');
+    assert.equal(result, 'GET');
 });
 
 it('renders a response for funny url', async () => {
     const app = createApp({
-        routes: [{
-            url: '/@f~o+o/$b.a-r',
-            method: 'GET',
-            actions: [({ req, res }) => { res.end(req.method); }]
-        }]
+        routes: [
+            {
+                url: '/@f~o+o/$b.a-r',
+                method: 'GET',
+                actions: [
+                    ({ req, res }) => {
+                        res.end(req.method);
+                    },
+                ],
+            },
+        ],
     });
     const { res, getResponse } = inject(app, { url: '/@f~o+o/$b.a-r' });
     const result = await getResponse();
 
-    assert.strictEqual(res.statusCode, 200);
-    assert.strictEqual(res.getHeader('Content-Type'), 'text/plain');
-    assert.strictEqual(result, 'GET');
+    assert.equal(res.statusCode, 200);
+    assert.equal(res.getHeader('Content-Type'), 'text/plain');
+    assert.equal(result, 'GET');
 });
 
 const errorHandler = createErrorHandler({
     contentType: '*',
-    action (error, { res }) {
+    action(error, { res }) {
         res.setHeader('Content-Type', 'text/plain');
-        res.end((error as any).message);
-    }
+        res.end(error.message);
+    },
 });
 
 it('returns error when route not found', async () => {
     const app = createApp({
-        errorHandlers: [errorHandler]
+        errorHandlers: [errorHandler],
     });
 
     const { getResponse } = inject(app, { url: '/' });
     const result = await getResponse();
 
-    assert.deepStrictEqual(result, 'Not Found');
+    assert.deepEqual(result, 'Not Found');
 });
 
 it('ignores head routes when autoHead false', async () => {
     const app = createApp({
-        routes: [{
-            method: 'GET',
-            actions: [({ req, res }) => { res.end(req.method); }]
-        }],
+        routes: [
+            {
+                method: 'GET',
+                actions: [
+                    ({ req, res }) => {
+                        res.end(req.method);
+                    },
+                ],
+            },
+        ],
         errorHandlers: [errorHandler],
-        autoHead: false
+        autoHead: false,
     });
 
     const { getResponse } = inject(app, { url: '/', method: 'HEAD' });
     const result = await getResponse();
 
-    assert.deepStrictEqual(result, 'Not Found');
+    assert.deepEqual(result, 'Not Found');
 });
 
 it('ignores head routes when nested autoHead false', async () => {
     const app = createApp({
-        branches: [{
-            routes: [{
-                method: 'GET',
-                actions: [({ req, res }) => { res.end(req.method); }]
-            }]
-        }],
+        branches: [
+            {
+                routes: [
+                    {
+                        method: 'GET',
+                        actions: [
+                            ({ req, res }) => {
+                                res.end(req.method);
+                            },
+                        ],
+                    },
+                ],
+            },
+        ],
         errorHandlers: [errorHandler],
-        autoHead: false
+        autoHead: false,
     });
 
     const { getResponse } = inject(app, { url: '/', method: 'HEAD' });
     const result = await getResponse();
 
-    assert.deepStrictEqual(result, 'Not Found');
+    assert.deepEqual(result, 'Not Found');
 });
 
 it('finalizes response when stream not ended', async () => {
     const app = createApp({
-        routes: [{
-            method: 'GET',
-            actions: [({ res }) => { res.write('oops'); }]
-        }]
+        routes: [
+            {
+                method: 'GET',
+                actions: [
+                    ({ res }) => {
+                        res.write('oops');
+                    },
+                ],
+            },
+        ],
     });
 
     const { res, getResponse } = inject(app, { url: '/' });
     const result = await getResponse();
 
-    assert.strictEqual(res.statusCode, 200);
-    assert.strictEqual(res.getHeader('Content-Type'), 'text/plain');
-    assert.strictEqual(result, 'oops');
+    assert.equal(res.statusCode, 200);
+    assert.equal(res.getHeader('Content-Type'), 'text/plain');
+    assert.equal(result, 'oops');
 });

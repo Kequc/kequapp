@@ -1,7 +1,10 @@
-import { TCacheRoute, TLoggerLvl } from '../../types';
-import { getParts } from './extract';
+import type { TCacheRoute, TLoggerLvl } from '../../types.ts';
+import { getParts } from './extract.ts';
 
-export default function warnDuplicates (routes: TCacheRoute[], warn: TLoggerLvl): void {
+export default function warnDuplicates(
+    routes: TCacheRoute[],
+    warn: TLoggerLvl,
+): void {
     const found: number[] = [];
 
     for (let i = 0; i < routes.length; i++) {
@@ -15,12 +18,14 @@ export default function warnDuplicates (routes: TCacheRoute[], warn: TLoggerLvl)
             found.push(i);
             const a = partsi.join('/');
             const b = partsj.join('/');
-            warn(`Duplicate route detected: ${routes[i].method} '/${a}' '/${b}'`);
+            warn(
+                `Duplicate route detected: ${routes[i].method} '/${a}' '/${b}'`,
+            );
         }
     }
 }
 
-function isMatch (aa: string[], bb: string[]): boolean {
+function isMatch(aa: string[], bb: string[]): boolean {
     let aIsWild = false;
     let bIsWild = false;
 
@@ -30,7 +35,8 @@ function isMatch (aa: string[], bb: string[]): boolean {
         if (a === '**') aIsWild = true;
         if (b === '**') bIsWild = true;
 
-        if ((aIsWild || a?.startsWith(':')) && (bIsWild || b?.startsWith(':'))) continue;
+        if ((aIsWild || a?.startsWith(':')) && (bIsWild || b?.startsWith(':')))
+            continue;
         if (a === b) continue;
 
         return false;

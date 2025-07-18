@@ -1,38 +1,49 @@
-import { IncomingMessage } from 'http';
-import { Readable } from 'stream';
-import zlib from 'zlib';
-import createParseBody, { parseJson, parseUrlEncoded } from './create-parse-body';
-import parseMultipart from './multipart/parse-multipart';
-import splitMultipart from './multipart/split-multipart';
-import normalizeBody from './normalize-body';
-import streamReader from './stream-reader';
-import { IGetBody, TGetBodyOptions, TRawPart } from '../types';
-import Ex from '../built-in/tools/ex';
+import type { IncomingMessage } from 'node:http';
+import type { Readable } from 'node:stream';
+import zlib from 'node:zlib';
+import Ex from '../built-in/tools/ex.ts';
+import type { IGetBody, TGetBodyOptions, TRawPart } from '../types.ts';
+import createParseBody, {
+    parseJson,
+    parseUrlEncoded,
+} from './create-parse-body.ts';
+import parseMultipart from './multipart/parse-multipart.ts';
+import splitMultipart from './multipart/split-multipart.ts';
+import normalizeBody from './normalize-body.ts';
+import streamReader from './stream-reader.ts';
 
 const parseBody = createParseBody({
     'application/x-www-form-urlencoded': parseUrlEncoded,
-    'application/json': parseJson
+    'application/json': parseJson,
 });
 
-export default function createGetBody (req: IncomingMessage): IGetBody {
+export default function createGetBody(req: IncomingMessage): IGetBody {
     let _body: TRawPart;
 
-    return async function (options: TGetBodyOptions = {}): Promise<any> {
+    // biome-ignore lint/suspicious/noExplicitAny: simplicity
+    return async (options: TGetBodyOptions = {}): Promise<any> => {
         if (_body === undefined) {
             _body = {
                 headers: {
                     'content-type': req.headers['content-type'] ?? '',
-                    'content-disposition': req.headers['content-disposition'] ?? ''
+                    'content-disposition':
+                        req.headers['content-disposition'] ?? '',
                 },
-                data: await streamReader(getStream(req), getMaxPayloadSize(options))
+                data: await streamReader(
+                    getStream(req),
+                    getMaxPayloadSize(options),
+                ),
             };
         }
 
-        const isMultipartRequest = _body.headers['content-type'].startsWith('multipart/');
+        const isMultipartRequest =
+            _body.headers['content-type'].startsWith('multipart/');
 
         if (options.raw === true) {
             if (options.multipart === true) {
-                return isMultipartRequest ? splitMultipart(_body) : [clone(_body)];
+                return isMultipartRequest
+                    ? splitMultipart(_body)
+                    : [clone(_body)];
             }
             return _body.data;
         }
@@ -53,28 +64,37 @@ export default function createGetBody (req: IncomingMessage): IGetBody {
     };
 }
 
-function getStream (req: IncomingMessage): Readable {
-    const encoding = (req.headers['content-encoding'] ?? 'identity').toLowerCase();
+function getStream(req: IncomingMessage): Readable {
+    const encoding = (
+        req.headers['content-encoding'] ?? 'identity'
+    ).toLowerCase();
 
     switch (encoding) {
-    case 'br': return req.pipe(zlib.createBrotliDecompress());
-    case 'gzip': return req.pipe(zlib.createGunzip());
-    case 'deflate': return req.pipe(zlib.createInflate());
-    case 'identity': return req;
+        case 'br':
+            return req.pipe(zlib.createBrotliDecompress());
+        case 'gzip':
+            return req.pipe(zlib.createGunzip());
+        case 'deflate':
+            return req.pipe(zlib.createInflate());
+        case 'identity':
+            return req;
     }
 
     throw Ex.UnsupportedMediaType(`Unsupported encoding: ${encoding}`, {
-        encoding
+        encoding,
     });
 }
 
-function getMaxPayloadSize (options: TGetBodyOptions): number {
-    if (typeof options.maxPayloadSize === 'number' && options.maxPayloadSize > 0) {
+function getMaxPayloadSize(options: TGetBodyOptions): number {
+    if (
+        typeof options.maxPayloadSize === 'number' &&
+        options.maxPayloadSize > 0
+    ) {
         return options.maxPayloadSize;
     }
     return 1e6;
 }
 
-function clone (body: TRawPart): TRawPart {
+function clone(body: TRawPart): TRawPart {
     return { ...body, headers: { ...body.headers } };
 }

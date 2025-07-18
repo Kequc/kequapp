@@ -1,5 +1,5 @@
-import { IncomingMessage, ServerResponse } from 'http';
-import { Transform } from 'stream';
+import type { IncomingMessage, ServerResponse } from 'node:http';
+import type { Transform } from 'node:stream';
 
 export type TLoggerLvl = (...params: unknown[]) => void;
 export type TLogger = {
@@ -14,8 +14,14 @@ export type TLogger = {
 };
 
 export type TAction = (bundle: TBundle) => Promise<unknown> | unknown;
-export type TRenderer = (payload: unknown, bundle: TBundle) => Promise<void> | void;
-export type TErrorHandler = (ex: TServerEx, bundle: TBundle) => Promise<unknown> | unknown;
+export type TRenderer = (
+    payload: unknown,
+    bundle: TBundle,
+) => Promise<void> | void;
+export type TErrorHandler = (
+    ex: TServerEx,
+    bundle: TBundle,
+) => Promise<unknown> | unknown;
 
 export type TPathname = `/${string}`;
 export type TPathnameWild = TPathname & `${string}/**`;
@@ -57,11 +63,17 @@ export type TCookies = {
 };
 
 export interface IGetBody {
-    (format: TGetBodyOptions & { raw: true, multipart: true }): Promise<TRawPart[]>;
+    (
+        format: TGetBodyOptions & { raw: true; multipart: true },
+    ): Promise<TRawPart[]>;
     (format: TGetBodyOptions & { raw: true }): Promise<Buffer>;
-    (format: TGetBodyOptions & { multipart: true }): Promise<[TBodyJson, TFilePart[]]>;
+    (
+        format: TGetBodyOptions & { multipart: true },
+    ): Promise<[TBodyJson, TFilePart[]]>;
     (format?: TGetBodyOptions): Promise<TBodyJson>;
-    <T>(format: TGetBodyOptions<T> & { multipart: true }): Promise<[T, TFilePart[]]>;
+    <T>(
+        format: TGetBodyOptions<T> & { multipart: true },
+    ): Promise<[T, TFilePart[]]>;
     <T>(format?: TGetBodyOptions<T>): Promise<T>;
 }
 
@@ -74,15 +86,17 @@ export type TGetBodyOptions<T = TBodyJson> = {
     numbers?: string[];
     booleans?: string[];
     required?: string[];
-    validate? (body: T): string | void;
+    validate?(body: T): string | undefined;
 };
 
 export interface IGetResponse {
     (format: TGetResponseOptions & { raw: true }): Promise<Buffer>;
+    // biome-ignore lint/suspicious/noExplicitAny: simplicity
     (format?: TGetResponseOptions): Promise<any>;
 }
 
 export type TReqOptions = {
+    // biome-ignore lint/suspicious/noExplicitAny: simplicity
     [key: string]: any;
     method?: string;
     url?: string;
@@ -106,7 +120,14 @@ export type TFilePart = TRawPart & {
     filename?: string;
 };
 
-export type TBodyJsonValue = string | number | boolean | Date | null | TBodyJson | TBodyJsonValue[];
+export type TBodyJsonValue =
+    | string
+    | number
+    | boolean
+    | Date
+    | null
+    | TBodyJson
+    | TBodyJsonValue[];
 export type TBodyJson = {
     [k: string]: TBodyJsonValue;
 };
@@ -122,9 +143,10 @@ export type TInject = {
     getResponse: IGetResponse;
 };
 
-export interface IRouter {
-    (method: string, url: string): [TRoute, TParams, string[]];
-}
+export type IRouter = (
+    method: string,
+    url: string,
+) => [TRoute, TParams, string[]];
 
 export type TRouteData = {
     method: string;

@@ -1,22 +1,22 @@
-import assert from 'assert';
-import 'kequtest';
-import { createApp, createRoute } from '../../../src/main';
-import inject from '../../../src/built-in/tools/inject';
+import assert from 'node:assert/strict';
+import { it } from 'node:test';
+import inject from '../../../src/built-in/tools/inject.ts';
+import { createApp, createRoute } from '../../../src/main.ts';
 
 it('can return a response from the app', async () => {
     const route = createRoute({
         method: 'GET',
-        actions: [() => 'hello']
+        actions: [() => 'hello'],
     });
     const app = createApp({
-        routes: [route]
+        routes: [route],
     });
     const { getResponse } = inject(app, {
         method: 'GET',
-        url: '/'
+        url: '/',
     });
 
     const result = await getResponse();
 
-    assert.strictEqual(result, 'hello');
+    assert.equal(result, 'hello');
 });

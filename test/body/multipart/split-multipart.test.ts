@@ -1,11 +1,12 @@
-import assert from 'assert';
-import 'kequtest';
-import splitMultipart from '../../../src/body/multipart/split-multipart';
+import assert from 'node:assert/strict';
+import { it } from 'node:test';
+import splitMultipart from '../../../src/body/multipart/split-multipart.ts';
 
 it('reads buffer', () => {
     const part = {
         headers: {
-            'content-type': 'multipart/form-data; boundary=------------------------d74496d66958873e'
+            'content-type':
+                'multipart/form-data; boundary=------------------------d74496d66958873e',
         },
         data: Buffer.from(`--------------------------d74496d66958873e
 Content-Disposition: form-data; name="name"
@@ -20,29 +21,34 @@ Content-Disposition: form-data; name="secret"; filename="secrets.txt"
 Content-Type: text/plain
 
 contents of the file
---------------------------d74496d66958873e--`)
+--------------------------d74496d66958873e--`),
     };
 
     const result = splitMultipart(part);
 
-    assert.deepStrictEqual(result, [{
-        headers: {
-            'content-disposition': 'form-data; name="name"'
+    assert.deepEqual(result, [
+        {
+            headers: {
+                'content-disposition': 'form-data; name="name"',
+            },
+            data: result[0]?.data,
         },
-        data: result[0]?.data
-    }, {
-        headers: {
-            'content-disposition': 'form-data; name="age"'
+        {
+            headers: {
+                'content-disposition': 'form-data; name="age"',
+            },
+            data: result[1]?.data,
         },
-        data: result[1]?.data
-    }, {
-        headers: {
-            'content-disposition': 'form-data; name="secret"; filename="secrets.txt"',
-            'content-type': 'text/plain'
+        {
+            headers: {
+                'content-disposition':
+                    'form-data; name="secret"; filename="secrets.txt"',
+                'content-type': 'text/plain',
+            },
+            data: result[2]?.data,
         },
-        data: result[2]?.data
-    }]);
-    assert.strictEqual(result[0].data.toString(), 'April');
-    assert.strictEqual(result[1].data.toString(), '23');
-    assert.strictEqual(result[2].data.toString(), 'contents of the file');
+    ]);
+    assert.equal(result[0].data.toString(), 'April');
+    assert.equal(result[1].data.toString(), '23');
+    assert.equal(result[2].data.toString(), 'contents of the file');
 });

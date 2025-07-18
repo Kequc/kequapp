@@ -1,42 +1,42 @@
-import assert from 'assert';
-import 'kequtest';
-import logger, { extendLogger } from '../../src/util/logger';
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
+import logger, { extendLogger } from '../../src/util/logger.ts';
 
 it('returns a logger', () => {
-    assert.strictEqual(typeof logger.error, 'function');
-    assert.strictEqual(typeof logger.warn, 'function');
-    assert.strictEqual(typeof logger.info, 'function');
-    assert.strictEqual(typeof logger.http, 'function');
-    assert.strictEqual(typeof logger.verbose, 'function');
-    assert.strictEqual(typeof logger.debug, 'function');
-    assert.strictEqual(typeof logger.silly, 'function');
-    assert.strictEqual(typeof logger.log, 'function');
+    assert.equal(typeof logger.error, 'function');
+    assert.equal(typeof logger.warn, 'function');
+    assert.equal(typeof logger.info, 'function');
+    assert.equal(typeof logger.http, 'function');
+    assert.equal(typeof logger.verbose, 'function');
+    assert.equal(typeof logger.debug, 'function');
+    assert.equal(typeof logger.silly, 'function');
+    assert.equal(typeof logger.log, 'function');
 });
 
 describe('extendLogger', () => {
     it('returns the logger', () => {
         const result = extendLogger(logger, undefined);
-        assert.strictEqual(logger.error, result.error);
-        assert.strictEqual(logger.warn, result.warn);
-        assert.strictEqual(logger.info, result.info);
-        assert.strictEqual(logger.http, result.http);
-        assert.strictEqual(logger.verbose, result.verbose);
-        assert.strictEqual(logger.debug, result.debug);
-        assert.strictEqual(logger.silly, result.silly);
-        assert.strictEqual(logger.log, result.log);
+        assert.equal(logger.error, result.error);
+        assert.equal(logger.warn, result.warn);
+        assert.equal(logger.info, result.info);
+        assert.equal(logger.http, result.http);
+        assert.equal(logger.verbose, result.verbose);
+        assert.equal(logger.debug, result.debug);
+        assert.equal(logger.silly, result.silly);
+        assert.equal(logger.log, result.log);
     });
 
     it('extends part of the logger', () => {
         const warn = () => {};
         const http = () => {};
         const result = extendLogger(logger, { warn, http });
-        assert.strictEqual(result.error, logger.error);
-        assert.strictEqual(result.warn, warn);
-        assert.strictEqual(result.info, logger.info);
-        assert.strictEqual(result.http, http);
-        assert.strictEqual(result.verbose, logger.verbose);
-        assert.strictEqual(result.debug, logger.debug);
-        assert.strictEqual(result.silly, logger.silly);
-        assert.strictEqual(result.log, logger.log);
+        assert.equal(result.error, logger.error);
+        assert.equal(result.warn, warn);
+        assert.equal(result.info, logger.info);
+        assert.equal(result.http, http);
+        assert.equal(result.verbose, logger.verbose);
+        assert.equal(result.debug, logger.debug);
+        assert.equal(result.silly, logger.silly);
+        assert.equal(result.log, logger.log);
     });
 });

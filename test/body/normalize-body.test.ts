@@ -1,33 +1,33 @@
-import assert from 'assert';
-import 'kequtest';
-import normalizeBody from '../../src/body/normalize-body';
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
+import normalizeBody from '../../src/body/normalize-body.ts';
 
 describe('required', () => {
     it('returns the body', () => {
         const body = {
             name: 'April',
-            age: '23'
+            age: '23',
         };
         const options = {};
 
-        assert.deepStrictEqual(normalizeBody(body, options), {
+        assert.deepEqual(normalizeBody(body, options), {
             name: 'April',
-            age: '23'
+            age: '23',
         });
     });
 
     it('throws error on missing required parameter', () => {
         const body = {
             name: 'April',
-            age: '23'
+            age: '23',
         };
         const options = {
-            required: ['name', 'ownedPets', 'age']
+            required: ['name', 'ownedPets', 'age'],
         };
 
         assert.throws(() => normalizeBody(body, options), {
             statusCode: 422,
-            message: 'Value ownedPets is required'
+            message: 'Value ownedPets is required',
         });
     });
 
@@ -35,15 +35,15 @@ describe('required', () => {
         const body = {
             name: 'April',
             age: '23',
-            ownedPets: null
+            ownedPets: null,
         };
         const options = {
-            required: ['name', 'ownedPets', 'age']
+            required: ['name', 'ownedPets', 'age'],
         };
 
         assert.throws(() => normalizeBody(body, options), {
             statusCode: 422,
-            message: 'Value ownedPets is required'
+            message: 'Value ownedPets is required',
         });
     });
 
@@ -51,16 +51,16 @@ describe('required', () => {
         const body = {
             name: 'April',
             age: '23',
-            ownedPets: ''
+            ownedPets: '',
         };
         const options = {
-            required: ['name', 'ownedPets', 'age']
+            required: ['name', 'ownedPets', 'age'],
         };
 
-        assert.deepStrictEqual(normalizeBody(body, options), {
+        assert.deepEqual(normalizeBody(body, options), {
             name: 'April',
             age: '23',
-            ownedPets: ''
+            ownedPets: '',
         });
     });
 
@@ -68,17 +68,17 @@ describe('required', () => {
         const body = {
             name: 'April',
             age: '23',
-            ownedPets: ['']
+            ownedPets: [''],
         };
         const options = {
             arrays: ['ownedPets'],
-            required: ['name', 'ownedPets', 'age']
+            required: ['name', 'ownedPets', 'age'],
         };
 
-        assert.deepStrictEqual(normalizeBody(body, options), {
+        assert.deepEqual(normalizeBody(body, options), {
             name: 'April',
             age: '23',
-            ownedPets: ['']
+            ownedPets: [''],
         });
     });
 
@@ -86,16 +86,16 @@ describe('required', () => {
         const body = {
             name: 'April',
             age: '23',
-            ownedPets: '  '
+            ownedPets: '  ',
         };
         const options = {
-            required: ['name', 'ownedPets', 'age']
+            required: ['name', 'ownedPets', 'age'],
         };
 
-        assert.deepStrictEqual(normalizeBody(body, options), {
+        assert.deepEqual(normalizeBody(body, options), {
             name: 'April',
             age: '23',
-            ownedPets: '  '
+            ownedPets: '  ',
         });
     });
 });
@@ -104,16 +104,16 @@ describe('skipNormalize', () => {
     it('skips normalization', () => {
         const body = {
             name: 'April',
-            age: '23'
+            age: '23',
         };
         const options = {
             skipNormalize: true,
-            required: ['name', 'ownedPets', 'age']
+            required: ['name', 'ownedPets', 'age'],
         };
 
-        assert.deepStrictEqual(normalizeBody(body, options), {
+        assert.deepEqual(normalizeBody(body, options), {
             name: 'April',
-            age: '23'
+            age: '23',
         });
     });
 });
@@ -124,33 +124,33 @@ describe('arrays', () => {
             name: 'April',
             age: '23',
             ownedPets: 'cat',
-            tooMany: ['hello', 'there']
+            tooMany: ['hello', 'there'],
         };
         const options = {
-            arrays: ['ownedPets']
+            arrays: ['ownedPets'],
         };
 
-        assert.deepStrictEqual(normalizeBody(body, options), {
+        assert.deepEqual(normalizeBody(body, options), {
             name: 'April',
             age: '23',
             ownedPets: ['cat'],
-            tooMany: 'hello'
+            tooMany: 'hello',
         });
     });
 
     it('converts empty value to an array', () => {
         const body = {
             name: 'April',
-            age: '23'
+            age: '23',
         };
         const options = {
-            arrays: ['ownedPets']
+            arrays: ['ownedPets'],
         };
 
-        assert.deepStrictEqual(normalizeBody(body, options), {
+        assert.deepEqual(normalizeBody(body, options), {
             name: 'April',
             age: '23',
-            ownedPets: []
+            ownedPets: [],
         });
     });
 
@@ -158,16 +158,16 @@ describe('arrays', () => {
         const body = {
             name: 'April',
             age: '23',
-            ownedPets: null
+            ownedPets: null,
         };
         const options = {
-            arrays: ['ownedPets']
+            arrays: ['ownedPets'],
         };
 
-        assert.deepStrictEqual(normalizeBody(body, options), {
+        assert.deepEqual(normalizeBody(body, options), {
             name: 'April',
             age: '23',
-            ownedPets: [null]
+            ownedPets: [null],
         });
     });
 
@@ -175,33 +175,33 @@ describe('arrays', () => {
         const body = {
             name: 'April',
             age: '23',
-            ownedPets: [null, 'hello', '']
+            ownedPets: [null, 'hello', ''],
         };
         const options = {
             required: ['ownedPets'],
-            arrays: ['ownedPets']
+            arrays: ['ownedPets'],
         };
 
-        assert.deepStrictEqual(normalizeBody(body, options), {
+        assert.deepEqual(normalizeBody(body, options), {
             name: 'April',
             age: '23',
-            ownedPets: ['hello', '']
+            ownedPets: ['hello', ''],
         });
     });
 
     it('throws error on missing required array parameter', () => {
         const body = {
             name: 'April',
-            age: '23'
+            age: '23',
         };
         const options = {
             arrays: ['ownedPets'],
-            required: ['name', 'ownedPets', 'age']
+            required: ['name', 'ownedPets', 'age'],
         };
 
         assert.throws(() => normalizeBody(body, options), {
             statusCode: 422,
-            message: 'Value ownedPets is required'
+            message: 'Value ownedPets is required',
         });
     });
 
@@ -209,16 +209,16 @@ describe('arrays', () => {
         const body = {
             name: 'April',
             age: '23',
-            ownedPets: ['cat']
+            ownedPets: ['cat'],
         };
         const options = {
-            arrays: ['ownedPets']
+            arrays: ['ownedPets'],
         };
 
-        assert.deepStrictEqual(normalizeBody(body, options), {
+        assert.deepEqual(normalizeBody(body, options), {
             name: 'April',
             age: '23',
-            ownedPets: ['cat']
+            ownedPets: ['cat'],
         });
     });
 });
@@ -227,90 +227,90 @@ describe('numbers', () => {
     it('converts a value to a number', () => {
         const body = {
             name: 'April',
-            age: '23'
+            age: '23',
         };
         const options = {
-            numbers: ['age']
+            numbers: ['age'],
         };
 
-        assert.deepStrictEqual(normalizeBody(body, options), {
+        assert.deepEqual(normalizeBody(body, options), {
             name: 'April',
-            age: 23
+            age: 23,
         });
     });
 
     it('converts an array to numbers', () => {
         const body = {
             name: 'April',
-            age: ['23', '32']
+            age: ['23', '32'],
         };
         const options = {
             arrays: ['age'],
-            numbers: ['age']
+            numbers: ['age'],
         };
 
-        assert.deepStrictEqual(normalizeBody(body, options), {
+        assert.deepEqual(normalizeBody(body, options), {
             name: 'April',
-            age: [23, 32]
+            age: [23, 32],
         });
     });
 
     it('actions missing number parameter', () => {
         const body = {
-            name: 'April'
+            name: 'April',
         };
         const options = {
-            numbers: ['age']
+            numbers: ['age'],
         };
 
-        assert.deepStrictEqual(normalizeBody(body, options), {
-            name: 'April'
+        assert.deepEqual(normalizeBody(body, options), {
+            name: 'April',
         });
     });
 
     it('throws error null number parameter', () => {
         const body = {
             name: 'April',
-            age: null
+            age: null,
         };
         const options = {
-            numbers: ['age']
+            numbers: ['age'],
         };
 
         assert.throws(() => normalizeBody(body, options), {
             statusCode: 422,
-            message: 'Value age must be a number'
+            message: 'Value age must be a number',
         });
     });
 
     it('throws error on invalid number parameter', () => {
         const body = {
             name: 'April',
-            age: 'cat'
+            age: 'cat',
         };
         const options = {
-            numbers: ['age']
+            numbers: ['age'],
         };
 
         assert.throws(() => normalizeBody(body, options), {
             statusCode: 422,
-            message: 'Value age must be a number'
+            message: 'Value age must be a number',
         });
     });
 
     it('throws error on invalid number parameter in array', () => {
         const body = {
             name: 'April',
-            age: ['23', 'cat']
+            age: ['23', 'cat'],
         };
         const options = {
             arrays: ['age'],
-            numbers: ['age']
+            numbers: ['age'],
         };
 
         assert.throws(() => normalizeBody(body, options), {
             statusCode: 422,
-            message: 'Value age must be a number'
+            message: 'Value age must be a number',
         });
     });
 });
@@ -326,13 +326,23 @@ describe('booleans', () => {
             bool5: '',
             bool6: 'cat',
             bool7: null,
-            bool8: 'FaLsE'
+            bool8: 'FaLsE',
         };
         const options = {
-            booleans: ['bool1', 'bool2', 'bool3', 'bool4', 'bool5', 'bool6', 'bool7', 'bool8', 'bool9']
+            booleans: [
+                'bool1',
+                'bool2',
+                'bool3',
+                'bool4',
+                'bool5',
+                'bool6',
+                'bool7',
+                'bool8',
+                'bool9',
+            ],
         };
 
-        assert.deepStrictEqual(normalizeBody(body, options), {
+        assert.deepEqual(normalizeBody(body, options), {
             name: 'April',
             bool1: false,
             bool2: true,
@@ -341,23 +351,23 @@ describe('booleans', () => {
             bool5: false,
             bool6: true,
             bool7: false,
-            bool8: false
+            bool8: false,
         });
     });
 
     it('converts an array to booleans', () => {
         const body = {
             name: 'April',
-            age: ['false', 'true', '0', '1', '', 'cat', null, 'FaLsE']
+            age: ['false', 'true', '0', '1', '', 'cat', null, 'FaLsE'],
         };
         const options = {
             arrays: ['age'],
-            booleans: ['age']
+            booleans: ['age'],
         };
 
-        assert.deepStrictEqual(normalizeBody(body, options), {
+        assert.deepEqual(normalizeBody(body, options), {
             name: 'April',
-            age: [false, true, false, true, false, true, false, false]
+            age: [false, true, false, true, false, true, false, false],
         });
     });
 });
@@ -367,18 +377,18 @@ describe('validate', () => {
         const body = {
             name: 'April',
             age: '23',
-            ownedPets: 'cat'
+            ownedPets: 'cat',
         };
         const options = {
             arrays: ['ownedPets'],
             validate: (result) => {
                 if (result.ownedPets.length < 2) return 'Must have two pets';
-            }
+            },
         };
 
         assert.throws(() => normalizeBody(body, options), {
             statusCode: 422,
-            message: 'Must have two pets'
+            message: 'Must have two pets',
         });
     });
 
@@ -386,19 +396,19 @@ describe('validate', () => {
         const body = {
             name: 'April',
             age: '23',
-            ownedPets: 'cat'
+            ownedPets: 'cat',
         };
         const options = {
             arrays: ['ownedPets'],
             validate: (result) => {
                 if (result.ownedPets.length > 2) return 'Too many pets';
-            }
+            },
         };
 
-        assert.deepStrictEqual(normalizeBody(body, options), {
+        assert.deepEqual(normalizeBody(body, options), {
             name: 'April',
             age: '23',
-            ownedPets: ['cat']
+            ownedPets: ['cat'],
         });
     });
 });

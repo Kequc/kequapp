@@ -1,4 +1,4 @@
-import { createErrorHandler } from '../router/modules';
+import { createErrorHandler } from '../router/modules.ts';
 
 type TErrorResponse = {
     statusCode: number;
@@ -9,10 +9,10 @@ type TErrorResponse = {
 
 export default createErrorHandler({
     contentType: '*',
-    action (ex, { res }) {
+    action(ex, { res }) {
         const error: TErrorResponse = {
             statusCode: ex.statusCode,
-            message: ex.message
+            message: ex.message,
         };
 
         if (process.env.NODE_ENV !== 'production') {
@@ -23,5 +23,5 @@ export default createErrorHandler({
         res.setHeader('Content-Type', 'application/json');
 
         return { error };
-    }
+    },
 });
