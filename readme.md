@@ -4,7 +4,7 @@
 
 **A minimal, zero-magic Node web framework built on native APIs**
 
-*\ \`hek-yü-ap \\*
+*\\`hek-yü-ap \\*
 
 [![npm version](https://img.shields.io/npm/v/kequapp?color=2e7dd7)](https://www.npmjs.com/package/kequapp)
 [![Node Version](https://img.shields.io/node/v/kequapp?color=2e7dd7)](#installation)
@@ -18,7 +18,7 @@ Kequapp emphasizes *clarity* and *explicit control* with a minimal surface area:
 
 * **Zero Runtime Dependencies** – Uses only built‑in Node modules while still providing body parsing, cookies, and related helpers.
 * **ESM‑Only, Modern Target** – Distributed as standard ES modules with TypeScript support.
-* **Explicit Actions Pipeline** – Sequential async functions; returning a value terminates execution and dispatches to the appropriate renderer.
+* **Explicit Actions Pipeline** – Sequential functions; returning a value terminates execution and dispatches to the appropriate renderer.
 * **Content‑Type–Driven Rendering and Errors** – The `Content-Type` header determines which renderer or error handler is chosen.
 * **Correct CORS / OPTIONS Handling** – Automatically responds to `OPTIONS` with the exact allowed methods for the requested path; further customization via actions.
 * **Minimal, Predictable API Surface** – Core factories: apps, branches, routes, actions, renderers, and error handlers with no hidden magic.
@@ -26,14 +26,14 @@ Kequapp emphasizes *clarity* and *explicit control* with a minimal surface area:
 ---
 ### Core Factories
 
-| Factory              | Description                                                                                                              |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `createApp`          | Constructs the root `(req, res)` handler for direct use with `http.createServer()` (or any Node HTTP server).            |
-| `createBranch`       | Composes an additional set of routes under a common context.                               |
-| `createRoute`        | Declares a HTTP route, method, URL pattern, and actions.                                                     |
-| `createAction`       | Defines a pipeline step (async function supported) with typed context; return a value to finalize, throw to signal error handling. |
-| `createRenderer`     | Registers a renderer for the given `Content-Type` when an action returns a value.                               |
-| `createErrorHandler` | Registers an error handler for the provided `Content-Type` whick is invoked when an action throws.                                             |
+| Factory | Description |
+| -------------------- | -------------------- |
+| `createApp` | Constructs the root `(req, res)` handler for direct use with `http.createServer()` (or any Node HTTP server). |
+| `createBranch` | Composes an additional set of routes under a common context. |
+| `createRoute` | Declares a HTTP route, method, URL pattern, and actions. |
+| `createAction` | Defines a pipeline step (async function supported) with typed context; return a value to finalize, throw to signal error handling. |
+| `createRenderer` | Registers a renderer for the given `Content-Type` when any action returns a value. |
+| `createErrorHandler` | Registers an error handler for the provided `Content-Type` which is invoked when any action throws an error. |
 
 ---
 
@@ -43,18 +43,8 @@ Kequapp emphasizes *clarity* and *explicit control* with a minimal surface area:
 npm install kequapp
 ```
 
-Caveats:
-
 * **Node:** Current, modern Node is expected above 20.
 * **Module system:** ESM only.
-
----
-
-### Documentation
-
-Extended guides and reference (renderers, error handling, content negotiation, advanced routing, body helpers, cookies):
-
-**[https://kequapp.kequtech.com](https://kequapp.kequtech.com)**
 
 ---
 
@@ -111,6 +101,14 @@ The library comes with a renderer for `application/json` (as well as `text/*`) a
 
 ---
 
+### Documentation
+
+Extended guides and reference (renderers, error handling, content negotiation, advanced routing, body helpers, cookies):
+
+**[https://kequapp.kequtech.com](https://kequapp.kequtech.com)**
+
+---
+
 ### CORS & OPTIONS
 
 Kequapp returns an accurate `OPTIONS` response for URLs where you define an `OPTIONS` route.
@@ -121,7 +119,7 @@ Add a single wildcard `OPTIONS` route at the root to cover your application, or 
 
 ### Upgrading
 
-Breaking changes and migration notes are tracked in the **[CHANGELOG](./changelog.md)**.
+Breaking changes and migration notes are tracked in the **[changelog](./changelog.md)**.
 
 ---
 
