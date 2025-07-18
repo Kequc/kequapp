@@ -1,6 +1,6 @@
 {
     "name": "kequapp",
-    "version": "0.9.0",
+    "version": "0.9.1",
     "description": "A minimal, zero-magic Node web framework built on native APIs",
     "type": "module",
     "exports": {
