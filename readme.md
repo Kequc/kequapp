@@ -4,12 +4,11 @@
 
 **A minimal, zero-magic Node web framework built on native APIs**
 
-*\\`hek-yü-ap \\*
+*\ \`hek-yü-ap \\*
 
 [![npm version](https://img.shields.io/npm/v/kequapp?color=2e7dd7)](https://www.npmjs.com/package/kequapp)
 [![Node Version](https://img.shields.io/node/v/kequapp?color=2e7dd7)](#installation)
 [![License](https://img.shields.io/npm/l/kequapp?color=2e7dd7)](./LICENSE)
-![TypeScript](https://img.shields.io/badge/types-TypeScript-3178c6?color=2e7dd7)
 
 ---
 ### Why Kequapp?
