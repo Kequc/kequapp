@@ -1,56 +1,130 @@
-<img alt="kequapp" src="https://github.com/Kequc/kequapp/blob/main/logo.png?raw=true" width="142" height="85" />
+<img alt="kequapp" src="https://github.com/Kequc/kequapp/blob/main/logo.png?raw=true" width="370" height="95" />
 
-Non-intrusive Node JavaScript web application framework
+# Kequapp
 
-*\ `hek-yü-ap \\*
+**A minimal, zero-magic Node web framework built on native APIs**
 
-## Introduction
+*\ \`hek-yü-ap \\*
 
-Kequapp is a framework designed to leverage Node's built-in features while staying out of your way. It can be used to create performant api's, html pages, and anything you can think of. Kequapp provides a robust and flexible foundation to build your web applications with ease.
+[![npm version](https://img.shields.io/npm/v/kequapp?color=2e7dd7)](https://www.npmjs.com/package/kequapp)
+[![Node Version](https://img.shields.io/node/v/kequapp?color=2e7dd7)](#installation)
+[![License](https://img.shields.io/npm/l/kequapp?color=2e7dd7)](./LICENSE)
+![TypeScript](https://img.shields.io/badge/types-TypeScript-3178c6?color=2e7dd7)
 
-## Documentation
+---
+### Why Kequapp?
 
-For detailed documentation, guides, and more examples, please visit the <a href="https://kequapp.kequtech.com" target="_blank">official documentation website</a>.
+Kequapp emphasizes *clarity* and *explicit control* with a minimal surface area:
 
-## Upgrading
+* **Zero Runtime Dependencies** – Uses only built‑in Node modules while still providing body parsing, cookies, and related helpers.
+* **ESM‑Only, Modern Target** – Distributed as standard ES modules with TypeScript support.
+* **Explicit Actions Pipeline** – Sequential async functions; returning a value terminates execution and dispatches to the appropriate renderer.
+* **Content‑Type–Driven Rendering and Errors** – The `Content-Type` header determines which renderer or error handler is chosen.
+* **Correct CORS / OPTIONS Handling** – Automatically responds to `OPTIONS` with the exact allowed methods for the requested path; further customization via actions.
+* **Minimal, Predictable API Surface** – Core factories: apps, branches, routes, actions, renderers, and error handlers with no hidden magic.
 
-0.7.0 -> 0.8.0
+---
+### Core Factories
 
-Handles are now called actions. Replace all instances of "handle" with "action", "createHandle" with "createAction".
+| Factory              | Description                                                                                                              |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `createApp`          | Constructs the root `(req, res)` handler for direct use with `http.createServer()` (or any Node HTTP server).            |
+| `createBranch`       | Composes an additional set of routes under a common context.                               |
+| `createRoute`        | Declares a HTTP route, method, URL pattern, and actions.                                                     |
+| `createAction`       | Defines a pipeline step (async function supported) with typed context; return a value to finalize, throw to signal error handling. |
+| `createRenderer`     | Registers a renderer for the given `Content-Type` when an action returns a value.                               |
+| `createErrorHandler` | Registers an error handler for the provided `Content-Type` whick is invoked when an action throws.                                             |
 
-## Installation
+---
+
+### Installation
 
 ```bash
 npm install kequapp
 ```
 
-## Hello World Example
+Caveats:
 
-Here's a simple example to get you started with Kequapp.
+* **Node:** Current, modern Node is expected above 20.
+* **Module system:** ESM only.
 
-```javascript
-import { createServer } from 'http';
+---
+
+### Documentation
+
+Extended guides and reference (renderers, error handling, content negotiation, advanced routing, body helpers, cookies):
+
+**[https://kequapp.kequtech.com](https://kequapp.kequtech.com)**
+
+---
+
+### Hello World!
+
+```js
+import { createServer } from 'node:http';
 import { createApp } from 'kequapp';
 
 const app = createApp({
-    routes: [
-        {
-            method: 'GET',
-            url: '/',
-            actions: [() => 'Hello world!'],
-        },
-    ],
+  routes: [
+    {
+      method: 'GET',
+      url: '/',
+      actions: [() => 'Hello world!'],
+    },
+  ],
 });
 
 createServer(app).listen(4000, () => {
-    console.log('Server running at http://localhost:4000');
+  console.log('Server running at http://localhost:4000');
 });
 ```
 
-## Contributing
+Returning the string triggers a renderer selected by the current `Content-Type`. Because no header is set yet, the default resolves to `text/plain`.
 
-Contributions welcome! If you have any questions, need further assistance, or want to contribute, please visit our <a href="https://github.com/Kequc/kequapp" target="_blank">GitHub page</a>.
+To emit JSON instead, set the header *in the actions* before returning a value:
 
-## License
+```js
+import { createApp, createBranch, createAction } from 'kequapp';
 
-Kequapp is licensed under the ISC license.
+const jsonAction = createAction(({ res }) => {
+  res.setHeader('Content-Type', 'application/json');
+});
+
+const apiBranch = createBranch({
+  url: '/api',
+  actions: [jsonAction],
+  routes: [
+    {
+      method: 'GET',
+      url: '/',
+      actions: [() => ({ message: 'Hello world!' })]
+    }
+  ]
+});
+
+const app = createApp({
+  branches: [apiBranch]
+});
+```
+
+The library comes with a renderer for `application/json` (as well as `text/*`) already built-in so this works without additional effort.
+
+---
+
+### CORS & OPTIONS
+
+Kequapp returns an accurate `OPTIONS` response for URLs where you define an `OPTIONS` route.
+
+Add a single wildcard `OPTIONS` route at the root to cover your application, or per‑path routes if you need granular control. Customize CORS (e.g. `Access-Control-Allow-Origin`, `Access-Control-Max-Age`) by attaching actions to those `OPTIONS` routes.
+
+---
+
+### Upgrading
+
+Breaking changes and migration notes are tracked in the **[CHANGELOG](./changelog.md)**.
+
+---
+
+### License
+
+ISC © Nathan Lunde-Berry

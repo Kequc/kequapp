@@ -1,7 +1,7 @@
 {
     "name": "kequapp",
     "version": "0.9.0",
-    "description": "Non-intrusive Node JavaScript web app framework",
+    "description": "A minimal, zero-magic Node web framework built on native APIs",
     "type": "module",
     "exports": {
         ".": {
@@ -11,7 +11,7 @@
         "./package.json": "./package.json"
     },
     "engines": {
-        "node": ">=18.17"
+        "node": ">=20.10"
     },
     "sideEffects": false,
     "scripts": {
@@ -23,8 +23,9 @@
     },
     "files": [
         "dist",
-        "readme.md",
-        "LICENSE"
+        "changelog.md",
+        "LICENSE",
+        "readme.md"
     ],
     "bugs": {
         "url": "https://github.com/Kequc/kequapp/issues"
