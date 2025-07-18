@@ -1,6 +1,6 @@
 {
     "name": "kequapp",
-    "version": "0.8.1",
+    "version": "0.9.0",
     "description": "Non-intrusive Node JavaScript web app framework",
     "type": "module",
     "exports": {
@@ -10,7 +10,9 @@
         },
         "./package.json": "./package.json"
     },
-    "engines": { "node": ">=18.17" },
+    "engines": {
+        "node": ">=18.17"
+    },
     "sideEffects": false,
     "scripts": {
         "build": "rm -rf dist && tsc",
