@@ -79,7 +79,7 @@ describe('set', () => {
         assert.equal(setHeader.mock.callCount(), 1);
         assert.deepEqual(setHeader.mock.calls[0].arguments, [
             'Set-Cookie',
-            ['hello=there'],
+            ['hello=there; Path=/'],
         ]);
     });
 
@@ -89,8 +89,6 @@ describe('set', () => {
 
         cookies.set('hello', 'there', {
             maxAge: 1000,
-            domain: 'fake.domain',
-            path: '/hello',
             secure: true,
             httpOnly: true,
             sameSite: 'Strict',
@@ -101,7 +99,7 @@ describe('set', () => {
         assert.deepEqual(setHeader.mock.calls[0].arguments, [
             'Set-Cookie',
             [
-                'hello=there; Max-Age=1000; Domain=fake.domain; Path=/hello; Secure; HttpOnly; SameSite=Strict',
+                'hello=there; Path=/; Max-Age=1000; Secure; HttpOnly; SameSite=Strict',
             ],
         ]);
     });
@@ -116,7 +114,7 @@ describe('set', () => {
         assert.equal(setHeader.mock.callCount(), 1);
         assert.deepEqual(setHeader.mock.calls[0].arguments, [
             'Set-Cookie',
-            ['hello=1%2B2%3D3; Max-Age=1000'],
+            ['hello=1%2B2%3D3; Path=/; Max-Age=1000'],
         ]);
     });
 
@@ -140,7 +138,7 @@ describe('set', () => {
         assert.equal(setHeader.mock.callCount(), 3);
         assert.deepEqual(setHeader.mock.calls[2].arguments, [
             'Set-Cookie',
-            ['hello=there', 'foo=bar; Max-Age=1000'],
+            ['hello=there; Path=/', 'foo=bar; Path=/; Max-Age=1000'],
         ]);
     });
 
@@ -180,7 +178,7 @@ describe('remove', () => {
         assert.equal(setHeader.mock.callCount(), 1);
         assert.deepEqual(setHeader.mock.calls[0].arguments, [
             'Set-Cookie',
-            ['hello=; Max-Age=0'],
+            ['hello=; Path=/; Max-Age=0'],
         ]);
     });
 
@@ -198,7 +196,7 @@ describe('remove', () => {
         assert.equal(setHeader.mock.callCount(), 2);
         assert.deepEqual(setHeader.mock.calls[1].arguments, [
             'Set-Cookie',
-            ['hello=; Max-Age=0'],
+            ['hello=; Path=/; Max-Age=0'],
         ]);
     });
 });
