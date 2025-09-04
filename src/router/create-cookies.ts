@@ -17,19 +17,16 @@ export default function createCookies(
     function set(key: string, value: string, options?: TCookieOptions): void {
         setup();
         validateCookieName(key);
-        const attrs = [`${key}=${encodeURIComponent(value)}`];
+        const attrs = [`${key}=${encodeURIComponent(value)}`, 'Path=/'];
 
         if (options) {
             if (options.expires !== undefined)
-                attrs.push(`Expires=${formatExpires(options.expires)}`);
+                attrs.push(`Expires=${options.expires.toUTCString()}`);
             if (options.maxAge !== undefined)
-                attrs.push(`Max-Age=${options.maxAge}`);
-            if (options.domain !== undefined)
-                attrs.push(`Domain=${options.domain}`);
-            if (options.path !== undefined) attrs.push(`Path=${options.path}`);
-            if (options.secure) attrs.push('Secure');
+                attrs.push(`Max-Age=${Math.max(Math.floor(options.maxAge), 0)}`);
+            if (options.secure === true || options.sameSite === 'None')
+                attrs.push('Secure');
             if (options.httpOnly) attrs.push('HttpOnly');
-            if (options.partitioned) attrs.push('Partitioned');
             if (options.sameSite !== undefined)
                 attrs.push(`SameSite=${options.sameSite}`);
         }
@@ -58,9 +55,11 @@ function parseCookieHeader(cookie?: string): TParams {
 
     if (cookie !== undefined) {
         for (const part of cookie.split(/; */)) {
-            const [key, value] = part.split('=');
+            const i = part.indexOf('=');
+            const key = i >= 0 ? part.slice(0, i).trim() : part.trim();
+            const value = i >= 0 ? part.slice(i + 1).trim() : '';
             if (key) {
-                result[key] = decodeURIComponent(value ?? '');
+                result[key] = decodeURIComponent(value);
             }
         }
     }
@@ -69,25 +68,7 @@ function parseCookieHeader(cookie?: string): TParams {
 }
 
 function validateCookieName(name: string): void {
-    if (name.includes(';'))
-        throw Ex.InternalServerError(
-            `Cookie name "${name}" contains invalid character ";"`,
-        );
-    if (name.includes('='))
-        throw Ex.InternalServerError(
-            `Cookie name "${name}" contains invalid character "="`,
-        );
-    if (name.includes(','))
-        throw Ex.InternalServerError(
-            `Cookie name "${name}" contains invalid character ","`,
-        );
-    if (name.includes(' '))
-        throw Ex.InternalServerError(
-            `Cookie name "${name}" contains invalid character " "`,
-        );
-}
-
-function formatExpires(expires: Date | string): string {
-    if (expires instanceof Date) return expires.toUTCString();
-    return expires;
+    if (!/^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/.test(name)) {
+        throw Ex.InternalServerError(`Cookie name contains invalid characters: ${name}`);
+    }
 }

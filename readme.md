@@ -2,7 +2,7 @@
 
 # Kequapp
 
-**A minimal, zero-magic Node web framework built on native APIs**
+**A minimal, zero-magic Node web framework built on native APIs.**
 
 *\ \`hek-yü-ap \\*
 
@@ -20,7 +20,7 @@ Kequapp emphasizes *clarity* and *explicit control* with a minimal surface area:
 * **Explicit Actions Pipeline** – Sequential functions; returning a value terminates execution and dispatches to the appropriate renderer.
 * **Content‑Type–Driven Rendering and Errors** – The `Content-Type` header determines which renderer or error handler is chosen.
 * **Correct CORS / OPTIONS Handling** – Automatically responds to `OPTIONS` with the exact allowed methods for the requested path; further customization via actions.
-* **Minimal, Predictable API Surface** – Core factories: apps, branches, routes, actions, renderers, and error handlers with no hidden magic.
+* **Minimal, Predictable API** – Core factories: apps, branches, routes, actions, renderers, and error handlers with no hidden magic.
 
 ---
 ### Core Factories
@@ -70,7 +70,7 @@ createServer(app).listen(4000, () => {
 
 Returning the string triggers a renderer selected by the current `Content-Type`. Because no header is set yet, the default resolves to `text/plain`.
 
-To emit JSON instead, set the header *in the actions* before returning a value:
+To emit JSON instead, set the header in the *actions* before returning a value:
 
 ```js
 import { createApp, createBranch, createAction } from 'kequapp';
@@ -105,14 +105,6 @@ The library comes with a renderer for `application/json` (as well as `text/*`) a
 Extended guides and reference (renderers, error handling, content negotiation, advanced routing, body helpers, cookies):
 
 **[https://kequapp.kequtech.com](https://kequapp.kequtech.com)**
-
----
-
-### CORS & OPTIONS
-
-Kequapp returns an accurate `OPTIONS` response for URLs where you define an `OPTIONS` route.
-
-Add a single wildcard `OPTIONS` route at the root to cover your application, or per‑path routes if you need granular control. Customize CORS (e.g. `Access-Control-Allow-Origin`, `Access-Control-Max-Age`) by attaching actions to those `OPTIONS` routes.
 
 ---
 
