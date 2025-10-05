@@ -15,7 +15,7 @@
     },
     "sideEffects": false,
     "scripts": {
-        "build": "rm -rf dist && tsc",
+        "build": "rm -rf dist && tsc && node fix-dts.ts",
         "prepare": "npm run build",
         "start:basic": "node ./examples/basic/server.ts",
         "start:file-server": "node ./examples/file-server/server.ts",
@@ -23,9 +23,9 @@
     },
     "files": [
         "dist",
-        "changelog.md",
+        "CHANGELOG.md",
         "LICENSE",
-        "readme.md"
+        "README.md"
     ],
     "bugs": {
         "url": "https://github.com/Kequc/kequapp/issues"

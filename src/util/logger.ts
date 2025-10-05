@@ -28,10 +28,8 @@ export function extendLogger(
     return { ...target, ...pick(source) };
 }
 
-type Tpojo = { [key: string]: unknown };
-
-function pick(obj: Tpojo): Partial<TLogger> {
-    const result: Tpojo = {};
+function pick(obj: Record<string, unknown>): Partial<TLogger> {
+    const result: Record<string, unknown> = {};
 
     for (const key of Object.keys(logger)) {
         if (key in obj) result[key] = obj[key];

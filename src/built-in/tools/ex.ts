@@ -2,12 +2,12 @@
 import { STATUS_CODES } from 'node:http';
 import type { TServerEx } from '../../types.ts';
 
-type TServerExHelper = (message?: string, ...info: unknown[]) => TServerEx;
-type TEx = {
+type TServerExHelper = (message?: string, options?: Record<string, unknown>) => TServerEx;
+interface TEx {
     StatusCode: (
         statusCode: number,
         message?: string,
-        ...info: unknown[]
+        options?: Record<string, unknown>,
     ) => TServerEx;
     BadRequest: TServerExHelper; // 400
     Unauthorized: TServerExHelper; // 401
@@ -50,30 +50,30 @@ type TEx = {
     BandwidthLimitExceeded: TServerExHelper; // 509
     NotExtended: TServerExHelper; // 510
     NetworkAuthenticationRequired: TServerExHelper; // 511
-};
+}
 
 const Ex = {
     StatusCode,
     ...errorHelpers(),
 };
 
-function StatusCode(statusCode: number, message?: string, ...info: unknown[]) {
+function StatusCode(statusCode: number, message?: string, options?: Record<string, unknown>) {
     if (!STATUS_CODES[statusCode]) {
         return buildException(
             StatusCode,
             'Error',
             statusCode,
             message,
-            ...info,
+            options,
         );
     }
 
     const key = createMethodName(statusCode);
-    return buildException(StatusCode, key, statusCode, message, ...info);
+    return buildException(StatusCode, key, statusCode, message, options);
 }
 
 function errorHelpers() {
-    const errorHelpers: { [key: string]: TServerExHelper } = {};
+    const errorHelpers: Record<string, TServerExHelper> = {};
     const statusCodes = Object.keys(STATUS_CODES).map((statusCode) =>
         parseInt(statusCode, 10),
     );
@@ -83,13 +83,13 @@ function errorHelpers() {
 
         const key = createMethodName(statusCode);
 
-        errorHelpers[key] = (message?: string, ...info: unknown[]) => {
+        errorHelpers[key] = (message?: string, options?: Record<string, unknown>) => {
             return buildException(
                 errorHelpers[key],
                 key,
                 statusCode,
                 message,
-                ...info,
+                options,
             );
         };
     }
@@ -140,33 +140,36 @@ function buildException(
     name: string,
     statusCode: number,
     message?: string,
-    ...info: unknown[]
+    options?: Record<string, unknown>,
 ) {
+    const { cause, ...info } = options ?? {};
     const ex = new Error(message ?? STATUS_CODES[statusCode]) as TServerEx;
     ex.name = name;
     ex.statusCode = statusCode;
-    ex.info = info.map(normalize);
+    ex.cause = normalize(cause);
+    ex.info = normalize(info) as Record<string, unknown>;
 
     Error.captureStackTrace(ex, parent);
 
     return ex;
 }
 
-function normalize(value: any): any {
+function normalize(value: unknown): unknown {
     if (typeof value !== 'object' || value === null) return value;
     if (value instanceof Date) return value;
     if (value instanceof Error)
         return {
             message: value.message,
             name: value.name,
+            cause: normalize(value.cause),
             stack: value.stack?.split(/\r?\n/),
         };
     if (Array.isArray(value)) return value.map(normalize);
 
-    const result: { [key: string]: any } = {};
+    const result: Record<string, unknown> = {};
 
-    for (const key of Object.keys(value)) {
-        result[key] = normalize(value[key]);
+    for (const [k, v] of Object.entries(value)) {
+        result[k] = normalize(v);
     }
 
     return result;

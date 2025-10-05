@@ -12,11 +12,11 @@ import {
 import Ex from '../tools/ex.ts';
 import sendFile from './send-file.ts';
 
-type TStaticDirectoryOptions = {
+interface TStaticDirectoryOptions {
     location: TPathname;
     index?: string[];
     contentTypes?: TParams;
-};
+}
 
 export default function staticDirectory(
     options: TStaticDirectoryOptions,

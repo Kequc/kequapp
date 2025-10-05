@@ -1,6 +1,6 @@
 import { getParts } from './extract.ts';
 
-type TSortableUrl = { url: string };
+interface TSortableUrl { url: string }
 
 export function priorityUrl(a: TSortableUrl, b: TSortableUrl): number {
     const partsa = getParts(a.url);
@@ -28,7 +28,7 @@ export function priorityUrl(a: TSortableUrl, b: TSortableUrl): number {
     return 0;
 }
 
-type TSortableContentType = { contentType: string };
+interface TSortableContentType { contentType: string }
 
 export function priorityContentType(
     a: TSortableContentType,

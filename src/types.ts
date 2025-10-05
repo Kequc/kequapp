@@ -2,7 +2,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { Transform } from 'node:stream';
 
 export type TLoggerLvl = (...params: unknown[]) => void;
-export type TLogger = {
+export interface TLogger {
     log: TLoggerLvl;
     error: TLoggerLvl;
     warn: TLoggerLvl;
@@ -11,25 +11,19 @@ export type TLogger = {
     verbose: TLoggerLvl;
     debug: TLoggerLvl;
     silly: TLoggerLvl;
-};
+}
 
 export type TAction = (bundle: TBundle) => Promise<unknown> | unknown;
-export type TRenderer = (
-    payload: unknown,
-    bundle: TBundle,
-) => Promise<void> | void;
-export type TErrorHandler = (
-    ex: TServerEx,
-    bundle: TBundle,
-) => Promise<unknown> | unknown;
+export type TRenderer = (payload: unknown, bundle: TBundle) => Promise<void> | void;
+export type TErrorHandler = (ex: TServerEx, bundle: TBundle) => Promise<unknown> | unknown;
 
 export type TPathname = `/${string}`;
 export type TPathnameWild = TPathname & `${string}/**`;
 export type THeader = string | number | string[] | undefined;
-export type THeaders = { [key: string]: THeader };
-export type TParams = { [k: string]: string };
+export type THeaders = Record<string, THeader>;
+export type TParams = Record<string, string>;
 
-export type TBundle = {
+export interface TBundle {
     req: IncomingMessage;
     res: ServerResponse;
     url: URL;
@@ -39,25 +33,25 @@ export type TBundle = {
     cookies: TCookies;
     getBody: IGetBody;
     logger: TLogger;
-};
+}
 
-export type TBundleContext = {
+export interface TBundleContext {
     [k: string]: unknown;
-};
+}
 
-export type TCookieOptions = {
+export interface TCookieOptions {
     expires?: Date;
     maxAge?: number;
     secure?: boolean;
     httpOnly?: boolean;
     sameSite?: 'Strict' | 'Lax' | 'None';
-};
+}
 
-export type TCookies = {
+export interface TCookies {
     get: (key: string) => string | undefined;
     set: (key: string, value: string, options?: TCookieOptions) => void;
     remove: (key: string) => void;
-};
+}
 
 export interface IGetBody {
     (
@@ -74,7 +68,7 @@ export interface IGetBody {
     <T>(format?: TGetBodyOptions<T>): Promise<T>;
 }
 
-export type TGetBodyOptions<T = TBodyJson> = {
+export interface TGetBodyOptions<T = TBodyJson> {
     raw?: boolean;
     multipart?: boolean;
     maxPayloadSize?: number;
@@ -84,7 +78,7 @@ export type TGetBodyOptions<T = TBodyJson> = {
     booleans?: string[];
     required?: string[];
     validate?(body: T): string | undefined;
-};
+}
 
 export interface IGetResponse {
     (format: TGetResponseOptions & { raw: true }): Promise<Buffer>;
@@ -92,30 +86,29 @@ export interface IGetResponse {
     (format?: TGetResponseOptions): Promise<any>;
 }
 
-export type TReqOptions = {
-    // biome-ignore lint/suspicious/noExplicitAny: simplicity
-    [key: string]: any;
+// biome-ignore lint/suspicious/noExplicitAny: simplicity
+export interface TReqOptions extends Record<string, any> {
     method?: string;
     url?: string;
     headers?: TParams;
     rawHeaders?: string[];
     body?: unknown;
-};
+}
 
-export type TGetResponseOptions = {
+export interface TGetResponseOptions {
     raw?: boolean;
-};
+}
 
-export type TRawPart = {
+export interface TRawPart {
     headers: TParams;
     data: Buffer;
 };
 
-export type TFilePart = TRawPart & {
+export interface TFilePart extends TRawPart {
     contentType?: string;
     name?: string;
     filename?: string;
-};
+}
 
 export type TBodyJsonValue =
     | string
@@ -125,66 +118,63 @@ export type TBodyJsonValue =
     | null
     | TBodyJson
     | TBodyJsonValue[];
-export type TBodyJson = {
+export interface TBodyJson {
     [k: string]: TBodyJsonValue;
-};
+}
 
-export type TServerEx = Error & {
+export interface TServerEx extends Error {
     statusCode: number;
-    info: unknown[];
-};
+    info: Record<string, unknown>;
+}
 
-export type TInject = {
+export interface TInject {
     req: IncomingMessage & Transform;
     res: ServerResponse & Transform;
     getResponse: IGetResponse;
-};
+}
 
-export type IRouter = (
-    method: string,
-    url: string,
-) => [TRoute, TParams, string[]];
+export type IRouter = (method: string, url: string) => [TRoute, TParams, string[]];
 
-export type TRouteData = {
+export interface TRouteData {
     method: string;
     url?: TPathname;
     actions?: TAction[];
     logger?: Partial<TLogger>;
     autoHead?: boolean;
-};
-export type TBranchData = Omit<TRouteData, 'method'> & {
+}
+export interface TBranchData extends Omit<TRouteData, 'method'> {
     routes?: TRouteData[];
     branches?: TBranchData[];
     errorHandlers?: TErrorHandlerData[];
     renderers?: TRendererData[];
-};
-export type TRendererData = {
+}
+export interface TRendererData {
     contentType: string;
     action: TRenderer;
-};
-export type TErrorHandlerData = {
+}
+export interface TErrorHandlerData {
     contentType: string;
     action: TErrorHandler;
-};
+}
 
-export type TCacheBranch = {
+export interface TCacheBranch {
     url: TPathname;
     actions: TAction[];
     errorHandlers: TErrorHandlerData[];
     renderers: TRendererData[];
     autoHead?: boolean;
     logger?: Partial<TLogger>;
-};
-export type TCacheRoute = TCacheBranch & {
+}
+export interface TCacheRoute extends TCacheBranch {
     method: string;
-};
-export type TBranch = Omit<TCacheBranch, 'url'> & {
+}
+export interface TBranch extends Omit<TCacheBranch, 'url'> {
     regexp: RegExp;
     autoHead: boolean;
     logger: TLogger;
-};
-export type TRoute = Omit<TCacheRoute, 'url'> & {
+}
+export interface TRoute extends Omit<TCacheRoute, 'url'> {
     regexp: RegExp;
     autoHead: boolean;
     logger: TLogger;
-};
+}

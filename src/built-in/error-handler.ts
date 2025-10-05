@@ -1,11 +1,12 @@
 import { createErrorHandler } from '../router/modules.ts';
 
-type TErrorResponse = {
+interface TErrorResponse {
     statusCode: number;
     message: string;
+    cause?: unknown;
     stack?: string[];
-    info?: unknown[];
-};
+    info?: Record<string, unknown>;
+}
 
 export default createErrorHandler({
     contentType: '*',
@@ -13,6 +14,7 @@ export default createErrorHandler({
         const error: TErrorResponse = {
             statusCode: ex.statusCode,
             message: ex.message,
+            cause: ex.cause,
         };
 
         if (process.env.NODE_ENV !== 'production') {
