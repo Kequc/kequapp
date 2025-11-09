@@ -49,14 +49,13 @@ async function requestProcessor(
         methods,
         cookies: createCookies(req, res),
         getBody: createGetBody(req),
-        logger,
     });
 
     try {
         await renderRoute(route, bundle);
     } catch (error) {
         try {
-            await renderError(route, bundle, error);
+            await renderError(route, bundle, error, logger);
         } catch (fatalError) {
             res.statusCode = 500;
             logger.error(fatalError);
@@ -67,5 +66,5 @@ async function requestProcessor(
         res.end();
     }
 
-    logger.http(res.statusCode, Date.now() - startedAt, method, url.pathname);
+    logger.info(res.statusCode, Date.now() - startedAt, method, url.pathname);
 }

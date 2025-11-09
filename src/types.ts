@@ -1,21 +1,22 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { Transform } from 'node:stream';
 
-export type TLoggerLvl = (...params: unknown[]) => void;
+export type TLoggerFn = (...params: unknown[]) => void;
 export interface TLogger {
-    log: TLoggerLvl;
-    error: TLoggerLvl;
-    warn: TLoggerLvl;
-    info: TLoggerLvl;
-    http: TLoggerLvl;
-    verbose: TLoggerLvl;
-    debug: TLoggerLvl;
-    silly: TLoggerLvl;
+    error: TLoggerFn;
+    warn: TLoggerFn;
+    info: TLoggerFn;
 }
 
 export type TAction = (bundle: TBundle) => Promise<unknown> | unknown;
-export type TRenderer = (payload: unknown, bundle: TBundle) => Promise<void> | void;
-export type TErrorHandler = (ex: TServerEx, bundle: TBundle) => Promise<unknown> | unknown;
+export type TRenderer = (
+    payload: unknown,
+    bundle: TBundle,
+) => Promise<void> | void;
+export type TErrorHandler = (
+    ex: TServerEx,
+    bundle: TBundle,
+) => Promise<unknown> | unknown;
 
 export type TPathname = `/${string}`;
 export type TPathnameWild = TPathname & `${string}/**`;
@@ -32,7 +33,6 @@ export interface TBundle {
     methods: string[];
     cookies: TCookies;
     getBody: IGetBody;
-    logger: TLogger;
 }
 
 export interface TBundleContext {
@@ -40,6 +40,7 @@ export interface TBundleContext {
 }
 
 export interface TCookieOptions {
+    domain?: string;
     expires?: Date;
     maxAge?: number;
     secure?: boolean;
@@ -102,7 +103,7 @@ export interface TGetResponseOptions {
 export interface TRawPart {
     headers: TParams;
     data: Buffer;
-};
+}
 
 export interface TFilePart extends TRawPart {
     contentType?: string;
@@ -133,7 +134,10 @@ export interface TInject {
     getResponse: IGetResponse;
 }
 
-export type IRouter = (method: string, url: string) => [TRoute, TParams, string[]];
+export type IRouter = (
+    method: string,
+    url: string,
+) => [TRoute, TParams, string[]];
 
 export interface TRouteData {
     method: string;

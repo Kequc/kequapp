@@ -162,10 +162,5 @@ export function validateLogger(logger?: Partial<TLogger>): void {
         validateType(logger.error, 'Logger error', 'function');
         validateType(logger.warn, 'Logger warn', 'function');
         validateType(logger.info, 'Logger info', 'function');
-        validateType(logger.http, 'Logger http', 'function');
-        validateType(logger.verbose, 'Logger verbose', 'function');
-        validateType(logger.debug, 'Logger debug', 'function');
-        validateType(logger.silly, 'Logger silly', 'function');
-        validateType(logger.log, 'Logger log', 'function');
     }
 }

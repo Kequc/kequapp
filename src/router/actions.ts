@@ -1,6 +1,6 @@
-import { unknownToEx } from '../built-in/tools/ex.ts';
-import type { TBundle, TRendererData, TRoute } from '../types.ts';
-import { findErrorHandler, findRenderer } from './find.ts';
+import { unknownToEx } from "../built-in/tools/ex.ts";
+import type { TBundle, TLogger, TRendererData, TRoute } from "../types.ts";
+import { findErrorHandler, findRenderer } from "./find.ts";
 
 export async function renderRoute(
     route: TRoute,
@@ -11,15 +11,15 @@ export async function renderRoute(
 
     let payload: unknown;
 
-    if (methods.includes('OPTIONS')) {
-        res.setHeader('Access-Control-Allow-Origin', '*');
+    if (methods.includes("OPTIONS")) {
+        res.setHeader("Access-Control-Allow-Origin", "*");
     }
-    if (method === 'OPTIONS') {
+    if (method === "OPTIONS") {
         res.statusCode = 204;
         addOptionsHeaders(bundle);
     } else {
         res.statusCode = 200;
-        res.setHeader('Content-Type', 'text/plain');
+        res.setHeader("Content-Type", "text/plain");
     }
 
     for (const action of actions) {
@@ -37,9 +37,10 @@ export async function renderError(
     route: TRoute,
     bundle: TBundle,
     error: unknown,
+    logger: TLogger,
 ): Promise<void> {
     const { errorHandlers, renderers } = route;
-    const { res, logger } = bundle;
+    const { res } = bundle;
 
     const errorHandler = findErrorHandler(
         errorHandlers,
@@ -58,22 +59,22 @@ export async function renderError(
 }
 
 function getContentType({ res }: TBundle): string {
-    return String(res.getHeader('Content-Type') ?? 'text/plain');
+    return String(res.getHeader("Content-Type") ?? "text/plain");
 }
 
 function addOptionsHeaders({ req, res, methods }: TBundle): void {
-    const allowMethods = methods.join(', ');
-    const allowHeaders = req.headers['access-control-request-headers'];
+    const allowMethods = methods.join(", ");
+    const allowHeaders = req.headers["access-control-request-headers"];
 
     if (allowMethods) {
-        res.setHeader('Valid', allowMethods);
-        res.setHeader('Access-Control-Allow-Methods', allowMethods);
+        res.setHeader("Valid", allowMethods);
+        res.setHeader("Access-Control-Allow-Methods", allowMethods);
     }
     if (allowHeaders) {
-        res.setHeader('Access-Control-Allow-Headers', allowHeaders);
+        res.setHeader("Access-Control-Allow-Headers", allowHeaders);
     }
 
-    res.setHeader('Content-Length', 0);
+    res.setHeader("Content-Length", 0);
 }
 
 async function finalize(

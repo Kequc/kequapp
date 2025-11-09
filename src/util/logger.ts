@@ -4,11 +4,6 @@ const logger: TLogger = {
     error: console.error,
     warn: console.warn,
     info: console.info,
-    http: console.debug,
-    verbose: console.debug,
-    debug: console.debug,
-    silly: console.debug,
-    log: console.log,
 };
 
 export default logger;
@@ -44,9 +39,4 @@ export const silentLogger: TLogger = {
     error: noop,
     warn: noop,
     info: noop,
-    http: noop,
-    verbose: noop,
-    debug: noop,
-    silly: noop,
-    log: noop,
 };

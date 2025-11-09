@@ -17,21 +17,8 @@ export default function createCookies(
     function set(key: string, value: string, options?: TCookieOptions): void {
         setup();
         validateCookieName(key);
-        const attrs = [`${key}=${encodeURIComponent(value)}`, 'Path=/'];
 
-        if (options) {
-            if (options.expires !== undefined)
-                attrs.push(`Expires=${options.expires.toUTCString()}`);
-            if (options.maxAge !== undefined)
-                attrs.push(`Max-Age=${Math.max(Math.floor(options.maxAge), 0)}`);
-            if (options.secure === true || options.sameSite === 'None')
-                attrs.push('Secure');
-            if (options.httpOnly) attrs.push('HttpOnly');
-            if (options.sameSite !== undefined)
-                attrs.push(`SameSite=${options.sameSite}`);
-        }
-
-        result[key] = attrs.join('; ');
+        result[key] = buildAttrs(key, value, options);
         values[key] = value;
         res.setHeader('Set-Cookie', Object.values(result));
     }
@@ -48,6 +35,23 @@ export default function createCookies(
     }
 
     return { get, set, remove };
+}
+
+function buildAttrs(key: string, value: string, options?: TCookieOptions) {
+    const attrs = [`${key}=${encodeURIComponent(value)}`, 'Path=/'];
+
+    if (options?.domain !== undefined) attrs.push(`Domain=${options.domain}`);
+    if (options?.expires !== undefined)
+        attrs.push(`Expires=${options.expires.toUTCString()}`);
+    if (options?.maxAge !== undefined)
+        attrs.push(`Max-Age=${Math.max(Math.floor(options.maxAge), 0)}`);
+    if (options?.secure === true || options?.sameSite === 'None')
+        attrs.push('Secure');
+    if (options?.httpOnly) attrs.push('HttpOnly');
+    if (options?.sameSite !== undefined)
+        attrs.push(`SameSite=${options.sameSite}`);
+
+    return attrs.join('; ');
 }
 
 function parseCookieHeader(cookie?: string): TParams {
@@ -69,6 +73,8 @@ function parseCookieHeader(cookie?: string): TParams {
 
 function validateCookieName(name: string): void {
     if (!/^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/.test(name)) {
-        throw Ex.InternalServerError(`Cookie name contains invalid characters: ${name}`);
+        throw Ex.InternalServerError(
+            `Cookie name contains invalid characters: ${name}`,
+        );
     }
 }

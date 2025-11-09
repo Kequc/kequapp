@@ -24,7 +24,6 @@ function buildBundle(options: TReqOptions): TBundle {
         context: {},
         params: {},
         methods: [],
-        logger: silentLogger,
     };
 }
 
@@ -128,13 +127,14 @@ describe('renderRoute', () => {
 
 describe('renderError', () => {
     it('renders an error', async () => {
+        const logger = silentLogger;
         const bundle = buildBundle({ url: '/' });
         const route: TRoute = {
             actions: [],
             method: 'OPTIONS',
             regexp: /(?:)/,
             autoHead: true,
-            logger: silentLogger,
+            logger,
             renderers: [],
             errorHandlers: [
                 {
@@ -147,7 +147,7 @@ describe('renderError', () => {
             ],
         };
 
-        await renderError(route, bundle, Ex.NotFound());
+        await renderError(route, bundle, Ex.NotFound(), logger);
 
         const { res } = bundle;
 
