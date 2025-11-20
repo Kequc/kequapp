@@ -78,6 +78,7 @@ export interface TGetBodyOptions<T = TBodyJson> {
     numbers?: string[];
     booleans?: string[];
     required?: string[];
+    trim?: boolean;
     validate?(body: T): string | undefined;
 }
 

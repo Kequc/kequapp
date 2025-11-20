@@ -2,6 +2,18 @@
 
 Pre‑1.0: minor versions may include breaking changes.
 
+## 0.12.0 - 2025-11-20
+
+**Added:** `getBody` now accepts a `trim` attribute. When `true`, leading and trailing whitespace is removed from all string body values. In addition to trimming strings, it also removes empty strings. Thus `required` fields are not allowed to be empty strings, `array` fields will not contain empty strings, and so on.
+
+## 0.11.0 - 2025-11-09
+
+**Added:** `cookies` helper now supports the `domain` attribute.
+
+**Changed:** Applying the `logger` parameter in your tree only affects which logger kequapp uses internally. It no longer injects the logger into your code. Methods for `error` `warn` and `info` are the only methods used by kequapp.
+
+**Removed:** `logger` parameter removed from bundle. Use `import { logger } from '<your logger>'` to get a logger instance in any file.
+
 ## 0.10.0 - 2025-10-05
 
 **Breaking:** `Ex.<ErrorName>()` methods no longer accept 3+ parameters. Second parameter is `options` and it is a `Record<string, unknown>`.

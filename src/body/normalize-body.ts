@@ -5,16 +5,31 @@ export default function normalizeBody(
     body: TBodyJson,
     options: TGetBodyOptions,
 ): TBodyJson {
-    if (options.skipNormalize === true) return body;
-
     const result: TBodyJson = { ...body };
+    if (options.skipNormalize === true) return result;
     const {
         required = [],
         arrays = [],
         numbers = [],
         booleans = [],
+        trim = false,
         validate,
     } = options;
+
+    // trim strings
+    if (trim) {
+        for (const key of Object.keys(result)) {
+            if (Array.isArray(result[key])) {
+                result[key] = result[key]
+                    .map(trimValue)
+                    .filter((v) => v !== undefined);
+            } else {
+                const value = trimValue(result[key]);
+                if (value === undefined) delete result[key];
+                else result[key] = value;
+            }
+        }
+    }
 
     // arrays
     for (const key of arrays) {
@@ -26,24 +41,20 @@ export default function normalizeBody(
     // not arrays!
     for (const key of Object.keys(result)) {
         if (arrays.includes(key)) continue;
-
         if (Array.isArray(result[key])) {
-            result[key] = (result[key] as TBodyJsonValue[])[0];
+            result[key] = result[key][0];
         }
     }
 
     // required
     for (const key of required) {
-        if (arrays.includes(key)) {
-            const values = (result[key] as TBodyJsonValue[]).filter(
-                (value) => !isEmpty(value),
-            );
+        if (Array.isArray(result[key])) {
+            const values = result[key].filter((value) => !isEmpty(value));
             result[key] = values;
             if (values.length > 0) continue;
         } else {
             if (!isEmpty(result[key])) continue;
         }
-
         throw Ex.UnprocessableEntity(`Value ${key} is required`, {
             body,
             required,
@@ -53,9 +64,8 @@ export default function normalizeBody(
     // numbers
     for (const key of numbers) {
         if (!(key in result)) continue;
-
-        if (arrays.includes(key)) {
-            const values = (result[key] as TBodyJsonValue[]).map(toNumber);
+        if (Array.isArray(result[key])) {
+            const values = result[key].map(toNumber);
             result[key] = values;
             if (!values.some((value) => Number.isNaN(value))) continue;
         } else {
@@ -63,7 +73,6 @@ export default function normalizeBody(
             result[key] = value;
             if (!Number.isNaN(value)) continue;
         }
-
         throw Ex.UnprocessableEntity(`Value ${key} must be a number`, {
             body,
             numbers,
@@ -73,9 +82,8 @@ export default function normalizeBody(
     // booleans
     for (const key of booleans) {
         if (!(key in result)) continue;
-
-        if (arrays.includes(key)) {
-            const values = (result[key] as TBodyJsonValue[]).map(toBoolean);
+        if (Array.isArray(result[key])) {
+            const values = result[key].map(toBoolean);
             result[key] = values;
         } else {
             result[key] = toBoolean(result[key]);
@@ -85,7 +93,6 @@ export default function normalizeBody(
     // validate
     if (typeof validate === 'function') {
         const problem = validate(result);
-
         if (problem) {
             throw Ex.UnprocessableEntity(problem, {
                 body,
@@ -96,10 +103,16 @@ export default function normalizeBody(
     return result;
 }
 
+function trimValue(value: TBodyJsonValue): TBodyJsonValue | undefined {
+    if (typeof value === 'string') {
+        const trimmed = value.trim();
+        return trimmed === '' ? undefined : trimmed;
+    }
+    return value;
+}
+
 function isEmpty(value: TBodyJsonValue): boolean {
-    if (value === null) return true;
-    if (value === undefined) return true;
-    return false;
+    return value === null || value === undefined;
 }
 
 function toNumber(value: TBodyJsonValue): number {

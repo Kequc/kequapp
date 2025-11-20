@@ -2,6 +2,45 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import normalizeBody from '../../src/body/normalize-body.ts';
 
+describe('trim', () => {
+    it('trims strings and removes empty string properties', () => {
+        const body = {
+            name: ' April ',
+            note: '   ',
+            age: '23',
+        };
+        const options = { trim: true };
+
+        assert.deepEqual(normalizeBody(body, options), {
+            name: 'April',
+            age: '23',
+        });
+    });
+
+    it('trims array elements and removes empty strings from arrays', () => {
+        const body = {
+            tags: [' one ', '', ' two ', '   '],
+        };
+        const options = { arrays: ['tags'], trim: true };
+
+        assert.deepEqual(normalizeBody(body, options), {
+            tags: ['one', 'two'],
+        });
+    });
+
+    it('interacts with required: only-spaces becomes missing', () => {
+        const body = {
+            ownedPets: '   ',
+        };
+        const options = { required: ['ownedPets'], trim: true };
+
+        assert.throws(() => normalizeBody(body, options), {
+            statusCode: 422,
+            message: 'Value ownedPets is required',
+        });
+    });
+});
+
 describe('required', () => {
     it('returns the body', () => {
         const body = {
