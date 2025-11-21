@@ -1,6 +1,6 @@
-import type { TLogger } from '../types.ts';
+import type { Logger } from '../types.ts';
 
-const logger: TLogger = {
+const logger: Logger = {
     error: console.error,
     warn: console.warn,
     info: console.info,
@@ -8,10 +8,7 @@ const logger: TLogger = {
 
 export default logger;
 
-export function extendLogger(
-    target: TLogger,
-    source?: Partial<TLogger>,
-): TLogger {
+export function extendLogger(target: Logger, source?: Partial<Logger>): Logger {
     if (
         typeof source !== 'object' ||
         source === null ||
@@ -23,7 +20,7 @@ export function extendLogger(
     return { ...target, ...pick(source) };
 }
 
-function pick(obj: Record<string, unknown>): Partial<TLogger> {
+function pick(obj: Record<string, unknown>): Partial<Logger> {
     const result: Record<string, unknown> = {};
 
     for (const key of Object.keys(logger)) {
@@ -35,7 +32,7 @@ function pick(obj: Record<string, unknown>): Partial<TLogger> {
 
 const noop = (): void => {};
 
-export const silentLogger: TLogger = {
+export const silentLogger: Logger = {
     error: noop,
     warn: noop,
     info: noop,

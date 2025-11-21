@@ -1,17 +1,16 @@
-/** biome-ignore-all lint/suspicious/noExplicitAny: too many possibilities */
 import type {
     IncomingMessage,
     RequestListener,
     ServerResponse,
 } from 'node:http';
 import createGetResponse from '../../body/create-get-response.ts';
-import type { TInject, TReqOptions } from '../../types.ts';
+import type { Inject, ReqOptions } from '../../types.ts';
 import { FakeReq, FakeRes } from '../../util/fake-http.ts';
 
 export default function inject(
     app: RequestListener,
-    options: TReqOptions,
-): TInject {
+    options: ReqOptions,
+): Inject {
     const req = new FakeReq(options);
     const res = new FakeRes();
 

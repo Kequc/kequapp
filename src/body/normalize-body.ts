@@ -1,11 +1,11 @@
 import Ex from '../built-in/tools/ex.ts';
-import type { TBodyJson, TBodyJsonValue, TGetBodyOptions } from '../types.ts';
+import type { BodyJson, BodyJsonValue, GetBodyOptions } from '../types.ts';
 
 export default function normalizeBody(
-    body: TBodyJson,
-    options: TGetBodyOptions,
-): TBodyJson {
-    const result: TBodyJson = { ...body };
+    body: BodyJson,
+    options: GetBodyOptions,
+): BodyJson {
+    const result: BodyJson = { ...body };
     const errors: Record<string, string> = {};
     if (options.skipNormalize === true) return result;
     const {
@@ -109,7 +109,7 @@ export default function normalizeBody(
     }
 }
 
-function trimValue(value: TBodyJsonValue): TBodyJsonValue | undefined {
+function trimValue(value: BodyJsonValue): BodyJsonValue | undefined {
     if (typeof value === 'string') {
         const trimmed = value.trim();
         return trimmed === '' ? undefined : trimmed;
@@ -117,15 +117,15 @@ function trimValue(value: TBodyJsonValue): TBodyJsonValue | undefined {
     return value;
 }
 
-function isEmpty(value: TBodyJsonValue): boolean {
+function isEmpty(value: BodyJsonValue): boolean {
     return value === null || value === undefined;
 }
 
-function toNumber(value: TBodyJsonValue): number {
+function toNumber(value: BodyJsonValue): number {
     return parseFloat(value as string);
 }
 
-function toBoolean(value: TBodyJsonValue): boolean {
+function toBoolean(value: BodyJsonValue): boolean {
     if (typeof value === 'string' && value.toLowerCase() === 'false') {
         return false;
     } else if (value === '0') {

@@ -1,14 +1,14 @@
 import fs from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import path from 'node:path';
-import type { TPathname } from '../../types.ts';
+import type { Pathname } from '../../types.ts';
 import guessContentType from '../../util/guess-content-type.ts';
 import Ex from '../tools/ex.ts';
 
 export default async function sendFile(
     req: IncomingMessage,
     res: ServerResponse,
-    location: TPathname,
+    location: Pathname,
     contentType?: string,
 ): Promise<void> {
     const asset = path.join(process.cwd(), location);

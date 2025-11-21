@@ -1,11 +1,11 @@
 import Ex from '../../built-in/tools/ex.ts';
-import type { TParams, TRawPart } from '../../types.ts';
+import type { Params, RawPart } from '../../types.ts';
 import headerAttributes from '../../util/header-attributes.ts';
 
 const CR = 0x0d;
 const LF = 0x0a;
 
-export default function splitMultipart(body: TRawPart): TRawPart[] {
+export default function splitMultipart(body: RawPart): RawPart[] {
     const contentType = body.headers['content-type'];
 
     if (!contentType?.startsWith('multipart/')) {
@@ -16,9 +16,9 @@ export default function splitMultipart(body: TRawPart): TRawPart[] {
 
     const boundary = extractBoundary(contentType);
     const buffer = body.data;
-    const result: TRawPart[] = [];
+    const result: RawPart[] = [];
 
-    let headers: TParams = {};
+    let headers: Params = {};
     let i = findNextLine(buffer, buffer.indexOf(boundary, 0));
 
     function addHeader(nextLine: number) {

@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { it } from 'node:test';
 import parseMultipart from '../../../src/body/multipart/parse-multipart.ts';
-import type { TRawPart } from '../../../src/types.ts';
+import type { RawPart } from '../../../src/types.ts';
 
 it('reads buffers', () => {
-    const parts: TRawPart[] = [
+    const parts: RawPart[] = [
         {
             headers: {
                 'content-disposition': 'form-data; name="name"',

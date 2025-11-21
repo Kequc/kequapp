@@ -1,15 +1,15 @@
 import Ex from '../built-in/tools/ex.ts';
 import type {
-    TErrorHandler,
-    TErrorHandlerData,
-    TRenderer,
-    TRendererData,
+    ErrorHandler,
+    ErrorHandlerData,
+    Renderer,
+    RendererData,
 } from '../types.ts';
 
 export function findRenderer(
-    renderers: TRendererData[],
+    renderers: RendererData[],
     contentType: string,
-): TRenderer {
+): Renderer {
     const renderer = renderers.find((renderer) =>
         compareContentType(renderer.contentType, contentType),
     );
@@ -25,9 +25,9 @@ export function findRenderer(
 }
 
 export function findErrorHandler(
-    errorHandlers: TErrorHandlerData[],
+    errorHandlers: ErrorHandlerData[],
     contentType: string,
-): TErrorHandler {
+): ErrorHandler {
     const errorHandler = errorHandlers.find((errorHandler) =>
         compareContentType(errorHandler.contentType, contentType),
     );

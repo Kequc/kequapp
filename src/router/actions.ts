@@ -1,25 +1,22 @@
-import { unknownToEx } from "../built-in/tools/ex.ts";
-import type { TBundle, TLogger, TRendererData, TRoute } from "../types.ts";
-import { findErrorHandler, findRenderer } from "./find.ts";
+import { unknownToEx } from '../built-in/tools/ex.ts';
+import type { Bundle, Logger, RendererData, Route } from '../types.ts';
+import { findErrorHandler, findRenderer } from './find.ts';
 
-export async function renderRoute(
-    route: TRoute,
-    bundle: TBundle,
-): Promise<void> {
+export async function renderRoute(route: Route, bundle: Bundle): Promise<void> {
     const { res, methods } = bundle;
     const { actions, method, renderers } = route;
 
     let payload: unknown;
 
-    if (methods.includes("OPTIONS")) {
-        res.setHeader("Access-Control-Allow-Origin", "*");
+    if (methods.includes('OPTIONS')) {
+        res.setHeader('Access-Control-Allow-Origin', '*');
     }
-    if (method === "OPTIONS") {
+    if (method === 'OPTIONS') {
         res.statusCode = 204;
         addOptionsHeaders(bundle);
     } else {
         res.statusCode = 200;
-        res.setHeader("Content-Type", "text/plain");
+        res.setHeader('Content-Type', 'text/plain');
     }
 
     for (const action of actions) {
@@ -34,10 +31,10 @@ export async function renderRoute(
 }
 
 export async function renderError(
-    route: TRoute,
-    bundle: TBundle,
+    route: Route,
+    bundle: Bundle,
     error: unknown,
-    logger: TLogger,
+    logger: Logger,
 ): Promise<void> {
     const { errorHandlers, renderers } = route;
     const { res } = bundle;
@@ -58,28 +55,28 @@ export async function renderError(
     }
 }
 
-function getContentType({ res }: TBundle): string {
-    return String(res.getHeader("Content-Type") ?? "text/plain");
+function getContentType({ res }: Bundle): string {
+    return String(res.getHeader('Content-Type') ?? 'text/plain');
 }
 
-function addOptionsHeaders({ req, res, methods }: TBundle): void {
-    const allowMethods = methods.join(", ");
-    const allowHeaders = req.headers["access-control-request-headers"];
+function addOptionsHeaders({ req, res, methods }: Bundle): void {
+    const allowMethods = methods.join(', ');
+    const allowHeaders = req.headers['access-control-request-headers'];
 
     if (allowMethods) {
-        res.setHeader("Valid", allowMethods);
-        res.setHeader("Access-Control-Allow-Methods", allowMethods);
+        res.setHeader('Valid', allowMethods);
+        res.setHeader('Access-Control-Allow-Methods', allowMethods);
     }
     if (allowHeaders) {
-        res.setHeader("Access-Control-Allow-Headers", allowHeaders);
+        res.setHeader('Access-Control-Allow-Headers', allowHeaders);
     }
 
-    res.setHeader("Content-Length", 0);
+    res.setHeader('Content-Length', 0);
 }
 
 async function finalize(
-    renderers: TRendererData[],
-    bundle: TBundle,
+    renderers: RendererData[],
+    bundle: Bundle,
     payload: unknown,
 ): Promise<void> {
     const { res } = bundle;

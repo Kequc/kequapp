@@ -1,16 +1,14 @@
 import assert from 'node:assert/strict';
 import { describe, it, mock } from 'node:test';
 import createCookies from '../../src/router/create-cookies.ts';
-import type { TCookies } from '../../src/types.ts';
+import type { Cookies } from '../../src/types.ts';
 
 function buildCookies(
     headers: { cookie?: string } = {},
     setHeader = () => {},
-): TCookies {
-    // biome-ignore lint/suspicious/noExplicitAny: simplicity
-    const fakeReq = { headers } as any;
-    // biome-ignore lint/suspicious/noExplicitAny: simplicity
-    const fakeRes = { setHeader } as any;
+): Cookies {
+    const fakeReq = { headers };
+    const fakeRes = { setHeader };
 
     return createCookies(fakeReq, fakeRes);
 }

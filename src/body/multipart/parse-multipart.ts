@@ -1,16 +1,16 @@
 import type {
-    TBodyJson,
-    TBodyJsonValue,
-    TFilePart,
-    TRawPart,
+    BodyJson,
+    BodyJsonValue,
+    FilePart,
+    RawPart,
 } from '../../types.ts';
 import headerAttributes from '../../util/header-attributes.ts';
 
 export default function parseMultipart(
-    parts: TRawPart[],
-): [TBodyJson, TFilePart[]] {
-    const result: TBodyJson = {};
-    const files: TFilePart[] = [];
+    parts: RawPart[],
+): [BodyJson, FilePart[]] {
+    const result: BodyJson = {};
+    const files: FilePart[] = [];
     const counters: { [k: string]: number } = {};
 
     for (const part of parts) {
@@ -38,7 +38,7 @@ export default function parseMultipart(
 
         if (counters[key] > 1) {
             // add to array
-            (result[key] as TBodyJsonValue[]).push(value);
+            (result[key] as BodyJsonValue[]).push(value);
         } else {
             // set value
             result[key] = value;

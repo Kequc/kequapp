@@ -1,45 +1,45 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { FakeReq, FakeRes } from './util/fake-http.ts';
 
-export type TLoggerFn = (...params: unknown[]) => void;
-export interface TLogger {
-    error: TLoggerFn;
-    warn: TLoggerFn;
-    info: TLoggerFn;
+export type LoggerFn = (...params: unknown[]) => void;
+export interface Logger {
+    error: LoggerFn;
+    warn: LoggerFn;
+    info: LoggerFn;
 }
 
-export type TAction = (bundle: TBundle) => Promise<unknown> | unknown;
-export type TRenderer = (
+export type Action = (bundle: Bundle) => Promise<unknown> | unknown;
+export type Renderer = (
     payload: unknown,
-    bundle: TBundle,
+    bundle: Bundle,
 ) => Promise<void> | void;
-export type TErrorHandler = (
-    ex: TServerEx,
-    bundle: TBundle,
+export type ErrorHandler = (
+    ex: ServerEx,
+    bundle: Bundle,
 ) => Promise<unknown> | unknown;
 
-export type TPathname = `/${string}`;
-export type TPathnameWild = TPathname & `${string}/**`;
-export type THeader = string | number | string[] | undefined;
-export type THeaders = Record<string, THeader>;
-export type TParams = Record<string, string>;
+export type Pathname = `/${string}`;
+export type PathnameWild = Pathname & `${string}/**`;
+export type Header = string | number | string[] | undefined;
+export type Headers = Record<string, Header>;
+export type Params = Record<string, string>;
 
-export interface TBundle {
+export interface Bundle {
     req: IncomingMessage;
     res: ServerResponse;
     url: URL;
-    context: TBundleContext;
-    params: TParams;
+    context: BundleContext;
+    params: Params;
     methods: string[];
-    cookies: TCookies;
-    getBody: IGetBody;
+    cookies: Cookies;
+    getBody: GetBody;
 }
 
-export interface TBundleContext {
+export interface BundleContext {
     [k: string]: unknown;
 }
 
-export interface TCookieOptions {
+export interface CookieOptions {
     domain?: string;
     expires?: Date;
     maxAge?: number;
@@ -48,32 +48,32 @@ export interface TCookieOptions {
     sameSite?: 'Strict' | 'Lax' | 'None';
 }
 
-export interface TCookies {
+export interface Cookies {
     get: (key: string) => string | undefined;
-    set: (key: string, value: string, options?: TCookieOptions) => void;
+    set: (key: string, value: string, options?: CookieOptions) => void;
     remove: (key: string) => void;
 }
 
-export interface IGetBody {
+export interface GetBody {
     // prettier-ignore
-    (format: TGetBodyOptions & { raw: true; multipart: true }): Promise<TRawPart[]>;
+    (format: GetBodyOptions & { raw: true; multipart: true }): Promise<RawPart[]>;
     // prettier-ignore
-    (format: TGetBodyOptions & { raw: true }): Promise<Buffer>;
+    (format: GetBodyOptions & { raw: true }): Promise<Buffer>;
     // prettier-ignore
-    <T>(format: TGetBodyOptions<T> & { multipart: true; throws: false }): Promise<[TValidationResult<T>, TFilePart[]]>;
+    <T>(format: GetBodyOptions<T> & { multipart: true; throws: false }): Promise<[ValidationResult<T>, FilePart[]]>;
     // prettier-ignore
-    <T>(format: TGetBodyOptions<T> & { multipart: true }): Promise<[T, TFilePart[]]>;
+    <T>(format: GetBodyOptions<T> & { multipart: true }): Promise<[T, FilePart[]]>;
     // prettier-ignore
-    <T>(format: TGetBodyOptions<T> & { throws: false }): Promise<TValidationResult<T>>;
+    <T>(format: GetBodyOptions<T> & { throws: false }): Promise<ValidationResult<T>>;
     // prettier-ignore
-    <T>(format?: TGetBodyOptions<T>): Promise<T>;
+    <T>(format?: GetBodyOptions<T>): Promise<T>;
 }
 
-export type TValidationResult<T> =
+export type ValidationResult<T> =
     | ({ ok: true } & T)
     | { ok: false; errors: { [K in keyof T]?: string } };
 
-export interface TGetBodyOptions<T = TBodyJson> {
+export interface GetBodyOptions<T = BodyJson> {
     raw?: boolean;
     multipart?: boolean;
     maxPayloadSize?: number;
@@ -89,104 +89,99 @@ export interface TGetBodyOptions<T = TBodyJson> {
     throws?: boolean;
 }
 
-export interface IGetResponse {
-    (format: TGetResponseOptions & { raw: true }): Promise<Buffer>;
-    // biome-ignore lint/suspicious/noExplicitAny: simplicity
-    (format?: TGetResponseOptions): Promise<any>;
+export interface GetResponse {
+    (format: GetResponseOptions & { raw: true }): Promise<Buffer>;
+    (format?: GetResponseOptions): Promise<any>;
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: simplicity
-export interface TReqOptions extends Record<string, any> {
+export interface ReqOptions extends Record<string, any> {
     method?: string;
     url?: string;
-    headers?: TParams;
+    headers?: Params;
     rawHeaders?: string[];
     body?: unknown;
 }
 
-export interface TGetResponseOptions {
+export interface GetResponseOptions {
     raw?: boolean;
 }
 
-export interface TRawPart {
-    headers: TParams;
+export interface RawPart {
+    headers: Params;
     data: Buffer;
 }
 
-export interface TFilePart extends TRawPart {
+export interface FilePart extends RawPart {
     contentType?: string;
     name?: string;
     filename?: string;
 }
 
-export type TBodyJsonValue =
+export type BodyJsonValue =
     | string
     | number
     | boolean
     | Date
     | null
-    | TBodyJson
-    | TBodyJsonValue[];
-export interface TBodyJson {
-    [k: string]: TBodyJsonValue;
+    | BodyJson
+    | BodyJsonValue[];
+export interface BodyJson {
+    [k: string]: BodyJsonValue;
 }
 
-export interface TServerEx extends Error {
+export interface ServerEx extends Error {
     statusCode: number;
     info: Record<string, unknown>;
 }
 
-export interface TInject {
+export interface Inject {
     req: FakeReq;
     res: FakeRes;
-    getResponse: IGetResponse;
+    getResponse: GetResponse;
 }
 
-export type IRouter = (
-    method: string,
-    url: string,
-) => [TRoute, TParams, string[]];
+export type Router = (method: string, url: string) => [Route, Params, string[]];
 
-export interface TRouteData {
+export interface RouteData {
     method: string;
-    url?: TPathname;
-    actions?: TAction[];
-    logger?: Partial<TLogger>;
+    url?: Pathname;
+    actions?: Action[];
+    logger?: Partial<Logger>;
     autoHead?: boolean;
 }
-export interface TBranchData extends Omit<TRouteData, 'method'> {
-    routes?: TRouteData[];
-    branches?: TBranchData[];
-    errorHandlers?: TErrorHandlerData[];
-    renderers?: TRendererData[];
+export interface BranchData extends Omit<RouteData, 'method'> {
+    routes?: RouteData[];
+    branches?: BranchData[];
+    errorHandlers?: ErrorHandlerData[];
+    renderers?: RendererData[];
 }
-export interface TRendererData {
+export interface RendererData {
     contentType: string;
-    action: TRenderer;
+    action: Renderer;
 }
-export interface TErrorHandlerData {
+export interface ErrorHandlerData {
     contentType: string;
-    action: TErrorHandler;
+    action: ErrorHandler;
 }
 
-export interface TCacheBranch {
-    url: TPathname;
-    actions: TAction[];
-    errorHandlers: TErrorHandlerData[];
-    renderers: TRendererData[];
+export interface CacheBranch {
+    url: Pathname;
+    actions: Action[];
+    errorHandlers: ErrorHandlerData[];
+    renderers: RendererData[];
     autoHead?: boolean;
-    logger?: Partial<TLogger>;
+    logger?: Partial<Logger>;
 }
-export interface TCacheRoute extends TCacheBranch {
+export interface CacheRoute extends CacheBranch {
     method: string;
 }
-export interface TBranch extends Omit<TCacheBranch, 'url'> {
+export interface Branch extends Omit<CacheBranch, 'url'> {
     regexp: RegExp;
     autoHead: boolean;
-    logger: TLogger;
+    logger: Logger;
 }
-export interface TRoute extends Omit<TCacheRoute, 'url'> {
+export interface Route extends Omit<CacheRoute, 'url'> {
     regexp: RegExp;
     autoHead: boolean;
-    logger: TLogger;
+    logger: Logger;
 }

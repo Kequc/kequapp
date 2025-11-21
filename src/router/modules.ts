@@ -1,9 +1,9 @@
 import type {
-    TAction,
-    TBranchData,
-    TErrorHandlerData,
-    TRendererData,
-    TRouteData,
+    Action,
+    BranchData,
+    ErrorHandlerData,
+    RendererData,
+    RouteData,
 } from '../types.ts';
 import {
     validateBranch,
@@ -14,30 +14,30 @@ import {
     validateType,
 } from '../util/validate.ts';
 
-export function createAction(action: TAction): TAction {
+export function createAction(action: Action): Action {
     validateExists(action, 'Action');
     validateType(action, 'Action', 'function');
     return action;
 }
 
-export function createRoute(data: TRouteData): TRouteData {
+export function createRoute(data: RouteData): RouteData {
     validateRoute(data);
     return data;
 }
 
-export function createBranch(branch: TBranchData): TBranchData {
+export function createBranch(branch: BranchData): BranchData {
     validateBranch(branch);
     return branch;
 }
 
 export function createErrorHandler(
-    errorHandler: TErrorHandlerData,
-): TErrorHandlerData {
+    errorHandler: ErrorHandlerData,
+): ErrorHandlerData {
     validateErrorHandler(errorHandler);
     return errorHandler;
 }
 
-export function createRenderer(renderer: TRendererData): TRendererData {
+export function createRenderer(renderer: RendererData): RendererData {
     validateRenderer(renderer);
     return renderer;
 }

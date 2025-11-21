@@ -1,20 +1,21 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import Ex from '../built-in/tools/ex.ts';
-import type { TCookieOptions, TCookies, TParams } from '../types.ts';
+import type { CookieOptions, Cookies, Params } from '../types.ts';
+import type { FakeReq, FakeRes } from '../util/fake-http.ts';
 
 export default function createCookies(
-    req: IncomingMessage,
-    res: ServerResponse,
-): TCookies {
-    const result: TParams = {};
-    let values: TParams;
+    req: Pick<IncomingMessage | FakeReq, 'headers'>,
+    res: Pick<ServerResponse | FakeRes, 'setHeader'>,
+): Cookies {
+    const result: Params = {};
+    let values: Params;
 
     function get(key: string): string | undefined {
         setup();
         return values[key];
     }
 
-    function set(key: string, value: string, options?: TCookieOptions): void {
+    function set(key: string, value: string, options?: CookieOptions): void {
         setup();
         validateCookieName(key);
 
@@ -37,7 +38,7 @@ export default function createCookies(
     return { get, set, remove };
 }
 
-function buildAttrs(key: string, value: string, options?: TCookieOptions) {
+function buildAttrs(key: string, value: string, options?: CookieOptions) {
     const attrs = [`${key}=${encodeURIComponent(value)}`, 'Path=/'];
 
     if (options?.domain !== undefined) attrs.push(`Domain=${options.domain}`);
@@ -54,8 +55,8 @@ function buildAttrs(key: string, value: string, options?: TCookieOptions) {
     return attrs.join('; ');
 }
 
-function parseCookieHeader(cookie?: string): TParams {
-    const result: TParams = {};
+function parseCookieHeader(cookie?: string): Params {
+    const result: Params = {};
 
     if (cookie !== undefined) {
         for (const part of cookie.split(/; */)) {

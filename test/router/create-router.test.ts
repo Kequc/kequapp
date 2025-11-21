@@ -3,11 +3,11 @@ import { describe, it } from 'node:test';
 import { createBranch } from '../../src/main.ts';
 import createRouter from '../../src/router/create-router.ts';
 import type {
-    TAction,
-    TErrorHandlerData,
-    TPathname,
-    TRendererData,
-    TRouteData,
+    Action,
+    ErrorHandlerData,
+    Pathname,
+    RendererData,
+    RouteData,
 } from '../../src/types.ts';
 
 const actionA = () => {};
@@ -15,17 +15,17 @@ const actionB = () => {};
 
 function route(
     method: string,
-    url?: TPathname,
-    actions: TAction[] = [],
-): TRouteData {
+    url?: Pathname,
+    actions: Action[] = [],
+): RouteData {
     return { method, url, actions };
 }
 
-function renderer(contentType = '*', action = actionA): TRendererData {
+function renderer(contentType = '*', action = actionA): RendererData {
     return { contentType, action };
 }
 
-function errorHandler(contentType = '*', action = actionA): TErrorHandlerData {
+function errorHandler(contentType = '*', action = actionA): ErrorHandlerData {
     return { contentType, action };
 }
 

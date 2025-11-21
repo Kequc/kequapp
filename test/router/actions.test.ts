@@ -1,19 +1,18 @@
 import assert from 'node:assert/strict';
+import type { IncomingMessage, ServerResponse } from 'node:http';
 import { describe, it } from 'node:test';
 import createGetBody from '../../src/body/create-get-body.ts';
 import createGetResponse from '../../src/body/create-get-response.ts';
 import Ex from '../../src/built-in/tools/ex.ts';
 import { renderError, renderRoute } from '../../src/router/actions.ts';
 import createCookies from '../../src/router/create-cookies.ts';
-import type { TBundle, TReqOptions, TRoute } from '../../src/types.ts';
+import type { Bundle, ReqOptions, Route } from '../../src/types.ts';
 import { FakeReq, FakeRes } from '../../src/util/fake-http.ts';
 import { silentLogger } from '../../src/util/logger.ts';
 
-function buildBundle(options: TReqOptions): TBundle {
-    // biome-ignore lint/suspicious/noExplicitAny: simplicity
-    const req = new FakeReq(options) as any;
-    // biome-ignore lint/suspicious/noExplicitAny: simplicity
-    const res = new FakeRes() as any;
+function buildBundle(options: ReqOptions): Bundle {
+    const req = new FakeReq(options) as unknown as IncomingMessage;
+    const res = new FakeRes() as unknown as ServerResponse;
 
     return {
         req,
@@ -29,7 +28,7 @@ function buildBundle(options: TReqOptions): TBundle {
 
 describe('renderRoute', () => {
     it('renders a response', async () => {
-        const route: TRoute = {
+        const route: Route = {
             actions: [
                 ({ res }) => {
                     res.end('hello there');
@@ -61,7 +60,7 @@ describe('renderRoute', () => {
     });
 
     it('includes cors header when options available', async () => {
-        const route: TRoute = {
+        const route: Route = {
             actions: [],
             method: 'GET',
             regexp: /(?:)/,
@@ -87,7 +86,7 @@ describe('renderRoute', () => {
     });
 
     it('includes additional headers when method is options', async () => {
-        const route: TRoute = {
+        const route: Route = {
             actions: [],
             method: 'OPTIONS',
             regexp: /(?:)/,
@@ -129,7 +128,7 @@ describe('renderError', () => {
     it('renders an error', async () => {
         const logger = silentLogger;
         const bundle = buildBundle({ url: '/' });
-        const route: TRoute = {
+        const route: Route = {
             actions: [],
             method: 'OPTIONS',
             regexp: /(?:)/,

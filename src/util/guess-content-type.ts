@@ -1,7 +1,7 @@
 import path from 'node:path';
-import type { TParams } from '../types.ts';
+import type { Params } from '../types.ts';
 
-const DEFAULT_CONTENT_TYPES: TParams = {
+const DEFAULT_CONTENT_TYPES: Params = {
     '.aac': 'audio/aac',
     '.abw': 'application/x-abiword',
     '.arc': 'application/x-freearc',
@@ -84,7 +84,7 @@ const DEFAULT_CONTENT_TYPES: TParams = {
 
 export default function guessContentType(
     asset: string,
-    contentTypes: TParams = {},
+    contentTypes: Params = {},
 ): string {
     const ext: string = path.extname(asset).toLowerCase();
 

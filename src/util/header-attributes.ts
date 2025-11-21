@@ -1,7 +1,7 @@
-import type { TParams } from '../types.ts';
+import type { Params } from '../types.ts';
 
-export default function headerAttributes(header = ''): TParams {
-    const result: TParams = {};
+export default function headerAttributes(header = ''): Params {
+    const result: Params = {};
 
     let inQuotes = false;
     let isAssignment = false;

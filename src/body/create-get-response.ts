@@ -1,6 +1,6 @@
 import type { ServerResponse } from 'node:http';
 import type { Readable } from 'node:stream';
-import type { IGetResponse, TGetResponseOptions, TRawPart } from '../types.ts';
+import type { GetResponse, GetResponseOptions, RawPart } from '../types.ts';
 import type { FakeRes } from '../util/fake-http.ts';
 import createParseBody, { parseJson } from './create-parse-body.ts';
 import streamReader from './stream-reader.ts';
@@ -15,10 +15,10 @@ const parseBody = createParseBody(
 
 export default function createGetResponse(
     res: ServerResponse | FakeRes,
-): IGetResponse {
-    let _body: TRawPart;
+): GetResponse {
+    let _body: RawPart;
 
-    return async (options: TGetResponseOptions = {}) => {
+    return async (options: GetResponseOptions = {}) => {
         if (_body === undefined) {
             // ensures application has responded
             const data = await streamReader(res as unknown as Readable);

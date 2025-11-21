@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import normalizeBody from '../../src/body/normalize-body.ts';
-import type { TBodyJsonValue, TGetBodyOptions } from '../../src/types.ts';
+import type { BodyJsonValue, GetBodyOptions } from '../../src/types.ts';
 
 describe('trim', () => {
     it('trims strings and removes empty string properties', () => {
@@ -419,7 +419,7 @@ describe('validate', () => {
             age: '23',
             ownedPets: [],
         };
-        const options: TGetBodyOptions = {
+        const options: GetBodyOptions = {
             arrays: ['ownedPets'],
             validate: {
                 ownedPets(ownedPets) {
@@ -444,7 +444,7 @@ describe('validate', () => {
         const options = {
             arrays: ['ownedPets'],
             validate: {
-                ownedPets(ownedPets: TBodyJsonValue) {
+                ownedPets(ownedPets: BodyJsonValue) {
                     if ((ownedPets as string[]).length > 2)
                         return 'too many pets';
                 },

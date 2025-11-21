@@ -3,20 +3,20 @@ import errorHandler from '../../built-in/error-handler.ts';
 import jsonRenderer from '../../built-in/json-renderer.ts';
 import textRenderer from '../../built-in/text-renderer.ts';
 import type {
-    TBranch,
-    TBranchData,
-    TCacheBranch,
-    TCacheRoute,
-    TPathname,
-    TRoute,
-    TRouteData,
+    Branch,
+    BranchData,
+    CacheBranch,
+    CacheRoute,
+    Pathname,
+    Route,
+    RouteData,
 } from '../../types.ts';
 import logger, { extendLogger } from '../../util/logger.ts';
 import createRegexp from '../create-regexp.ts';
 import { priorityContentType, priorityUrl } from './priority.ts';
 import warnDuplicates from './warn-duplicates.ts';
 
-export function cacheRoutes(structure: TBranchData): TRoute[] {
+export function cacheRoutes(structure: BranchData): Route[] {
     const routes = cacheRoutesMeta(structure);
 
     warnDuplicates(routes, structure.logger?.warn ?? logger.warn);
@@ -27,8 +27,8 @@ export function cacheRoutes(structure: TBranchData): TRoute[] {
     }));
 }
 
-function cacheRoutesMeta(target: TBranchData): TCacheRoute[] {
-    const routes: TCacheRoute[] = [];
+function cacheRoutesMeta(target: BranchData): CacheRoute[] {
+    const routes: CacheRoute[] = [];
 
     for (const route of target.routes ?? []) {
         routes.push({
@@ -51,7 +51,7 @@ function cacheRoutesMeta(target: TBranchData): TCacheRoute[] {
     return routes;
 }
 
-export function cacheBranches(structure: TBranchData): TBranch[] {
+export function cacheBranches(structure: BranchData): Branch[] {
     const branches = cacheBranchesMeta(structure);
 
     branches.push({
@@ -66,8 +66,8 @@ export function cacheBranches(structure: TBranchData): TBranch[] {
     return branches.map(sanitize);
 }
 
-function cacheBranchesMeta(target: TBranchData): TCacheBranch[] {
-    const branches: TCacheBranch[] = [];
+function cacheBranchesMeta(target: BranchData): CacheBranch[] {
+    const branches: CacheBranch[] = [];
 
     for (const branch of target.branches ?? []) {
         for (const source of cacheBranchesMeta(branch)) {
@@ -81,7 +81,7 @@ function cacheBranchesMeta(target: TBranchData): TCacheBranch[] {
     return branches;
 }
 
-function sanitize(item: TCacheBranch): TBranch {
+function sanitize(item: CacheBranch): Branch {
     return {
         actions: item.actions,
         regexp: createRegexp(item.url),
@@ -99,7 +99,7 @@ function sanitize(item: TCacheBranch): TBranch {
     };
 }
 
-function extendBranch(target: TBranchData, source: TCacheBranch) {
+function extendBranch(target: BranchData, source: CacheBranch) {
     return {
         actions: [...(target.actions ?? []), ...source.actions],
         errorHandlers: [
@@ -112,7 +112,7 @@ function extendBranch(target: TBranchData, source: TCacheBranch) {
     };
 }
 
-function extendRoute(target: TBranchData, route: TRouteData) {
+function extendRoute(target: BranchData, route: RouteData) {
     return {
         actions: [...(target.actions ?? []), ...(route.actions ?? [])],
         errorHandlers: [...(target.errorHandlers ?? [])],
@@ -122,9 +122,6 @@ function extendRoute(target: TBranchData, route: TRouteData) {
     };
 }
 
-function extendUrl(
-    target: TPathname = '/',
-    source: TPathname = '/',
-): TPathname {
-    return path.join('/', target, source) as TPathname;
+function extendUrl(target: Pathname = '/', source: Pathname = '/'): Pathname {
+    return path.join('/', target, source) as Pathname;
 }

@@ -1,12 +1,12 @@
 import Ex from '../built-in/tools/ex.ts';
-import type { IRouter, TBranch, TBranchData, TRoute } from '../types.ts';
+import type { Branch, BranchData, Route, Router } from '../types.ts';
 import logger from '../util/logger.ts';
 import { validateBranch } from '../util/validate.ts';
 import createRegexp from './create-regexp.ts';
 import { cacheBranches, cacheRoutes } from './util/cacher.ts';
 import { matchGroups } from './util/extract.ts';
 
-export default function createRouter(structure: TBranchData): IRouter {
+export default function createRouter(structure: BranchData): Router {
     validateBranch(structure);
 
     const routes = cacheRoutes(structure);
@@ -24,7 +24,7 @@ export default function createRouter(structure: TBranchData): IRouter {
     };
 }
 
-function getRoute(routes: TRoute[], method: string): TRoute | undefined {
+function getRoute(routes: Route[], method: string): Route | undefined {
     const route = routes.find((item) => item.method === method);
 
     if (route === undefined && method === 'HEAD') {
@@ -34,8 +34,8 @@ function getRoute(routes: TRoute[], method: string): TRoute | undefined {
     return route;
 }
 
-function generate404(branches: TBranch[], key: string, method: string): TRoute {
-    const branch: TBranch = branches.find((item) => item.regexp.test(key)) ?? {
+function generate404(branches: Branch[], key: string, method: string): Route {
+    const branch: Branch = branches.find((item) => item.regexp.test(key)) ?? {
         regexp: createRegexp('/**'),
         actions: [],
         errorHandlers: [],
@@ -56,7 +56,7 @@ function generate404(branches: TBranch[], key: string, method: string): TRoute {
     };
 }
 
-function getMethods(routes: TRoute[], autoHead: boolean): string[] {
+function getMethods(routes: Route[], autoHead: boolean): string[] {
     const set = new Set(routes.map((item) => item.method));
 
     if (autoHead && set.has('GET')) set.add('HEAD');

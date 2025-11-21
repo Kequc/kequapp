@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { createAction } from '../../router/modules.ts';
-import type { TAction, TParams, TPathname } from '../../types.ts';
+import type { Action, Params, Pathname } from '../../types.ts';
 import guessContentType from '../../util/guess-content-type.ts';
 import {
     validateArray,
@@ -13,14 +13,14 @@ import Ex from '../tools/ex.ts';
 import sendFile from './send-file.ts';
 
 interface TStaticDirectoryOptions {
-    location: TPathname;
+    location: Pathname;
     index?: string[];
-    contentTypes?: TParams;
+    contentTypes?: Params;
 }
 
 export default function staticDirectory(
     options: TStaticDirectoryOptions,
-): TAction {
+): Action {
     validateOptions(options);
 
     return createAction(async ({ req, res, params }) => {
@@ -52,7 +52,7 @@ async function getLocation(
     location: string,
     wild = '',
     index: string[] = [],
-): Promise<TPathname> {
+): Promise<Pathname> {
     const absolute = path.join(process.cwd(), location, wild);
 
     try {
@@ -63,11 +63,11 @@ async function getLocation(
 
             for (const file of index) {
                 if (files.includes(file))
-                    return path.join(location, wild, file) as TPathname;
+                    return path.join(location, wild, file) as Pathname;
             }
         }
 
-        if (stats.isFile()) return path.join(location, wild) as TPathname;
+        if (stats.isFile()) return path.join(location, wild) as Pathname;
     } catch (_error) {
         // fail
     }

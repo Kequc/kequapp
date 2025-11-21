@@ -1,10 +1,10 @@
 import { getParts } from '../router/util/extract.ts';
 import type {
-    TBranchData,
-    TErrorHandlerData,
-    TLogger,
-    TRendererData,
-    TRouteData,
+    BranchData,
+    ErrorHandlerData,
+    Logger,
+    RendererData,
+    RouteData,
 } from '../types.ts';
 
 export const PATHNAME_REGEX = /^(?:\/:[a-zA-Z_]\w*|\/[^/*:\\? ]*|\/\*{2})+$/;
@@ -113,7 +113,7 @@ export function validateExists(topic: unknown, name: string): void {
     }
 }
 
-export function validateBranch(branch: TBranchData): void {
+export function validateBranch(branch: BranchData): void {
     validateExists(branch, 'Branch');
     validateObject(branch, 'Branch');
     validatePathname(branch.url, 'Branch url');
@@ -126,7 +126,7 @@ export function validateBranch(branch: TBranchData): void {
     validateType(branch.autoHead, 'Branch autoHead', 'boolean');
 }
 
-export function validateRoute(route: TRouteData): void {
+export function validateRoute(route: RouteData): void {
     validateExists(route, 'Route');
     validateObject(route, 'Route');
     validateExists(route.method, 'Route method');
@@ -137,7 +137,7 @@ export function validateRoute(route: TRouteData): void {
     validateType(route.autoHead, 'Route autoHead', 'boolean');
 }
 
-export function validateErrorHandler(errorHandler: TErrorHandlerData): void {
+export function validateErrorHandler(errorHandler: ErrorHandlerData): void {
     validateExists(errorHandler, 'Error handler');
     validateObject(errorHandler, 'Error handler');
     validateExists(errorHandler.contentType, 'Error handler contentType');
@@ -146,7 +146,7 @@ export function validateErrorHandler(errorHandler: TErrorHandlerData): void {
     validateType(errorHandler.action, 'Error handler action', 'function');
 }
 
-export function validateRenderer(renderer: TRendererData): void {
+export function validateRenderer(renderer: RendererData): void {
     validateExists(renderer, 'Renderer');
     validateObject(renderer, 'Renderer');
     validateExists(renderer.contentType, 'Renderer contentType');
@@ -155,7 +155,7 @@ export function validateRenderer(renderer: TRendererData): void {
     validateType(renderer.action, 'Renderer action', 'function');
 }
 
-export function validateLogger(logger?: Partial<TLogger>): void {
+export function validateLogger(logger?: Partial<Logger>): void {
     validateObject(logger, 'Logger');
 
     if (logger !== undefined) {

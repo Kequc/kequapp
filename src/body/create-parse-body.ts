@@ -1,14 +1,13 @@
 import Ex from '../built-in/tools/ex.ts';
-import type { TBodyJson, TRawPart } from '../types.ts';
+import type { BodyJson, RawPart } from '../types.ts';
 
-// biome-ignore lint/suspicious/noExplicitAny: it really can be anything
-type TParser = (body: TRawPart) => any;
+type Parser = (body: RawPart) => any;
 
 export default function createParseBody(
-    parsers: { [k: string]: TParser },
-    _default?: TParser,
-): TParser {
-    return (body: TRawPart) => {
+    parsers: { [k: string]: Parser },
+    _default?: Parser,
+): Parser {
+    return (body: RawPart) => {
         const contentType = body.headers['content-type'] ?? 'text/plain';
 
         try {
@@ -30,9 +29,9 @@ export default function createParseBody(
     };
 }
 
-export function parseUrlEncoded(body: TRawPart): TBodyJson {
+export function parseUrlEncoded(body: RawPart): BodyJson {
     const params = new URLSearchParams(body.data.toString());
-    const result: TBodyJson = {};
+    const result: BodyJson = {};
 
     for (const key of params.keys()) {
         if (params.getAll(key).length > 1) {
@@ -45,6 +44,6 @@ export function parseUrlEncoded(body: TRawPart): TBodyJson {
     return result;
 }
 
-export function parseJson(body: TRawPart): TBodyJson {
+export function parseJson(body: RawPart): BodyJson {
     return JSON.parse(body.data.toString());
 }

@@ -7,7 +7,7 @@ import createGetBody from './body/create-get-body.ts';
 import { renderError, renderRoute } from './router/actions.ts';
 import createCookies from './router/create-cookies.ts';
 import createRouter from './router/create-router.ts';
-import type { IRouter, TBranchData, TBundle } from './types.ts';
+import type { BranchData, Bundle, Router } from './types.ts';
 
 export { default as sendFile } from './built-in/helpers/send-file.ts';
 export { default as staticDirectory } from './built-in/helpers/static-directory.ts';
@@ -16,7 +16,7 @@ export { default as inject } from './built-in/tools/inject.ts';
 export * from './router/modules.ts';
 export * from './types.ts';
 
-export function createApp(structure: TBranchData): RequestListener {
+export function createApp(structure: BranchData): RequestListener {
     const router = createRouter(structure);
 
     function app(req: IncomingMessage, res: ServerResponse): void {
@@ -27,7 +27,7 @@ export function createApp(structure: TBranchData): RequestListener {
 }
 
 async function requestProcessor(
-    router: IRouter,
+    router: Router,
     req: IncomingMessage,
     res: ServerResponse,
 ): Promise<void> {
@@ -40,7 +40,7 @@ async function requestProcessor(
     const [route, params, methods] = router(method, url.pathname);
     const { logger } = route;
 
-    const bundle: TBundle = Object.freeze({
+    const bundle: Bundle = Object.freeze({
         req,
         res,
         url,

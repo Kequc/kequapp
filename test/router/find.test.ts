@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { findErrorHandler, findRenderer } from '../../src/router/find.ts';
-import type { TErrorHandlerData, TRendererData } from '../../src/types.ts';
+import type { ErrorHandlerData, RendererData } from '../../src/types.ts';
 
 describe('findRenderer', () => {
-    function buildRenderer(contentType: string): TRendererData {
+    function buildRenderer(contentType: string): RendererData {
         return { action: () => {}, contentType };
     }
 
@@ -69,7 +69,7 @@ describe('findRenderer', () => {
 });
 
 describe('findErrorHandler', () => {
-    function buildErrorHandler(contentType: string): TErrorHandlerData {
+    function buildErrorHandler(contentType: string): ErrorHandlerData {
         return { action: () => {}, contentType };
     }
 

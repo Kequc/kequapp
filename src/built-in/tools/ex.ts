@@ -1,55 +1,57 @@
-/** biome-ignore-all lint/suspicious/noExplicitAny: too many possibilities */
 import { STATUS_CODES } from 'node:http';
-import type { TServerEx } from '../../types.ts';
+import type { ServerEx } from '../../types.ts';
 
-type TServerExHelper = (message?: string, options?: Record<string, unknown>) => TServerEx;
+type ServerExHelper = (
+    message?: string,
+    options?: Record<string, unknown>,
+) => ServerEx;
 interface TEx {
     StatusCode: (
         statusCode: number,
         message?: string,
         options?: Record<string, unknown>,
-    ) => TServerEx;
-    BadRequest: TServerExHelper; // 400
-    Unauthorized: TServerExHelper; // 401
-    PaymentRequired: TServerExHelper; // 402
-    Forbidden: TServerExHelper; // 403
-    NotFound: TServerExHelper; // 404
-    MethodNotAllowed: TServerExHelper; // 405
-    NotAcceptable: TServerExHelper; // 406
-    ProxyAuthenticationRequired: TServerExHelper; // 407
-    RequestTimeout: TServerExHelper; // 408
-    Conflict: TServerExHelper; // 409
-    Gone: TServerExHelper; // 410
-    LengthRequired: TServerExHelper; // 411
-    PreconditionFailed: TServerExHelper; // 412
-    PayloadTooLarge: TServerExHelper; // 413
-    URITooLong: TServerExHelper; // 414
-    UnsupportedMediaType: TServerExHelper; // 415
-    RangeNotSatisfiable: TServerExHelper; // 416
-    ExpectationFailed: TServerExHelper; // 417
-    ImATeapot: TServerExHelper; // 418
-    MisdirectedRequest: TServerExHelper; // 421
-    UnprocessableEntity: TServerExHelper; // 422
-    Locked: TServerExHelper; // 423
-    FailedDependency: TServerExHelper; // 424
-    TooEarly: TServerExHelper; // 425
-    UpgradeRequired: TServerExHelper; // 426
-    PreconditionRequired: TServerExHelper; // 428
-    TooManyRequests: TServerExHelper; // 429
-    RequestHeaderFieldsTooLarge: TServerExHelper; // 431
-    UnavailableForLegalReasons: TServerExHelper; // 451
-    InternalServerError: TServerExHelper; // 500
-    NotImplemented: TServerExHelper; // 501
-    BadGateway: TServerExHelper; // 502
-    ServiceUnavailable: TServerExHelper; // 503
-    GatewayTimeout: TServerExHelper; // 504
-    HTTPVersionNotSupported: TServerExHelper; // 505
-    VariantAlsoNegotiates: TServerExHelper; // 506
-    InsufficientStorage: TServerExHelper; // 507
-    LoopDetected: TServerExHelper; // 508
-    BandwidthLimitExceeded: TServerExHelper; // 509
-    NotExtended: TServerExHelper; // 510
-    NetworkAuthenticationRequired: TServerExHelper; // 511
+    ) => ServerEx;
+    BadRequest: ServerExHelper; // 400
+    Unauthorized: ServerExHelper; // 401
+    PaymentRequired: ServerExHelper; // 402
+    Forbidden: ServerExHelper; // 403
+    NotFound: ServerExHelper; // 404
+    MethodNotAllowed: ServerExHelper; // 405
+    NotAcceptable: ServerExHelper; // 406
+    ProxyAuthenticationRequired: ServerExHelper; // 407
+    RequestTimeout: ServerExHelper; // 408
+    Conflict: ServerExHelper; // 409
+    Gone: ServerExHelper; // 410
+    LengthRequired: ServerExHelper; // 411
+    PreconditionFailed: ServerExHelper; // 412
+    PayloadTooLarge: ServerExHelper; // 413
+    URITooLong: ServerExHelper; // 414
+    UnsupportedMediaType: ServerExHelper; // 415
+    RangeNotSatisfiable: ServerExHelper; // 416
+    ExpectationFailed: ServerExHelper; // 417
+    ImATeapot: ServerExHelper; // 418
+    MisdirectedRequest: ServerExHelper; // 421
+    UnprocessableEntity: ServerExHelper; // 422
+    Locked: ServerExHelper; // 423
+    FailedDependency: ServerExHelper; // 424
+    TooEarly: ServerExHelper; // 425
+    UpgradeRequired: ServerExHelper; // 426
+    PreconditionRequired: ServerExHelper; // 428
+    TooManyRequests: ServerExHelper; // 429
+    RequestHeaderFieldsTooLarge: ServerExHelper; // 431
+    UnavailableForLegalReasons: ServerExHelper; // 451
+    InternalServerError: ServerExHelper; // 500
+    NotImplemented: ServerExHelper; // 501
+    BadGateway: ServerExHelper; // 502
+    ServiceUnavailable: ServerExHelper; // 503
+    GatewayTimeout: ServerExHelper; // 504
+    HTTPVersionNotSupported: ServerExHelper; // 505
+    VariantAlsoNegotiates: ServerExHelper; // 506
+    InsufficientStorage: ServerExHelper; // 507
+    LoopDetected: ServerExHelper; // 508
+    BandwidthLimitExceeded: ServerExHelper; // 509
+    NotExtended: ServerExHelper; // 510
+    NetworkAuthenticationRequired: ServerExHelper; // 511
 }
 
 const Ex = {
@@ -57,7 +59,11 @@ const Ex = {
     ...errorHelpers(),
 };
 
-function StatusCode(statusCode: number, message?: string, options?: Record<string, unknown>) {
+function StatusCode(
+    statusCode: number,
+    message?: string,
+    options?: Record<string, unknown>,
+) {
     if (!STATUS_CODES[statusCode]) {
         return buildException(
             StatusCode,
@@ -73,7 +79,7 @@ function StatusCode(statusCode: number, message?: string, options?: Record<strin
 }
 
 function errorHelpers() {
-    const errorHelpers: Record<string, TServerExHelper> = {};
+    const errorHelpers: Record<string, ServerExHelper> = {};
     const statusCodes = Object.keys(STATUS_CODES).map((statusCode) =>
         parseInt(statusCode, 10),
     );
@@ -83,7 +89,10 @@ function errorHelpers() {
 
         const key = createMethodName(statusCode);
 
-        errorHelpers[key] = (message?: string, options?: Record<string, unknown>) => {
+        errorHelpers[key] = (
+            message?: string,
+            options?: Record<string, unknown>,
+        ) => {
             return buildException(
                 errorHelpers[key],
                 key,
@@ -99,7 +108,7 @@ function errorHelpers() {
 
 export default Ex as TEx;
 
-export function unknownToEx(error: unknown): TServerEx {
+export function unknownToEx(error: unknown): ServerEx {
     if (!(error instanceof Error)) {
         const ex = StatusCode(500, createMessage(error));
         delete ex.stack;
@@ -107,7 +116,7 @@ export function unknownToEx(error: unknown): TServerEx {
         return ex;
     }
 
-    const ex = error as TServerEx;
+    const ex = error as ServerEx;
     ex.statusCode = ex.statusCode ?? 500;
     ex.info = ex.info ?? [];
     ex.name = ex.name ?? createMethodName(ex.statusCode);
@@ -143,7 +152,7 @@ function buildException(
     options?: Record<string, unknown>,
 ) {
     const { cause, ...info } = options ?? {};
-    const ex = new Error(message ?? STATUS_CODES[statusCode]) as TServerEx;
+    const ex = new Error(message ?? STATUS_CODES[statusCode]) as ServerEx;
     ex.name = name;
     ex.statusCode = statusCode;
     ex.cause = normalize(cause);

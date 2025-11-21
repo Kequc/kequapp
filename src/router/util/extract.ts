@@ -1,4 +1,4 @@
-import type { TParams, TPathname } from '../../types.ts';
+import type { Params, Pathname } from '../../types.ts';
 import {
     CONTENT_TYPE_REGEX,
     PATHNAME_REGEX,
@@ -13,12 +13,12 @@ export function extractMethod(params: unknown[], method = 'GET'): string {
     return params.shift() as string;
 }
 
-export function extractUrl(params: unknown[], url: TPathname = '/'): TPathname {
+export function extractUrl(params: unknown[], url: Pathname = '/'): Pathname {
     if (typeof params[0] !== 'string' || !PATHNAME_REGEX.test(params[0])) {
         return url;
     }
 
-    return params.shift() as TPathname;
+    return params.shift() as Pathname;
 }
 
 export function extractContentType(
@@ -68,8 +68,8 @@ export function getParts(pathname?: string): string[] {
     return parts;
 }
 
-export function getParams(clientParts: string[], parts: string[]): TParams {
-    const params: TParams = {};
+export function getParams(clientParts: string[], parts: string[]): Params {
+    const params: Params = {};
 
     for (let i = 0; i < parts.length; i++) {
         if (parts[i] === '**') {
@@ -85,6 +85,6 @@ export function getParams(clientParts: string[], parts: string[]): TParams {
     return params;
 }
 
-export function matchGroups(url: string, regexp: RegExp): TParams {
+export function matchGroups(url: string, regexp: RegExp): Params {
     return Object.assign({}, url.match(regexp)?.groups);
 }
