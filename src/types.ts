@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import type { Transform } from 'node:stream';
+import type { FakeReq, FakeRes } from './util/fake-http.ts';
 
 export type TLoggerFn = (...params: unknown[]) => void;
 export interface TLogger {
@@ -55,19 +55,23 @@ export interface TCookies {
 }
 
 export interface IGetBody {
-    (
-        format: TGetBodyOptions & { raw: true; multipart: true },
-    ): Promise<TRawPart[]>;
+    // prettier-ignore
+    (format: TGetBodyOptions & { raw: true; multipart: true }): Promise<TRawPart[]>;
+    // prettier-ignore
     (format: TGetBodyOptions & { raw: true }): Promise<Buffer>;
-    (
-        format: TGetBodyOptions & { multipart: true },
-    ): Promise<[TBodyJson, TFilePart[]]>;
-    (format?: TGetBodyOptions): Promise<TBodyJson>;
-    <T>(
-        format: TGetBodyOptions<T> & { multipart: true },
-    ): Promise<[T, TFilePart[]]>;
+    // prettier-ignore
+    <T>(format: TGetBodyOptions<T> & { multipart: true; throws: false }): Promise<[TValidationResult<T>, TFilePart[]]>;
+    // prettier-ignore
+    <T>(format: TGetBodyOptions<T> & { multipart: true }): Promise<[T, TFilePart[]]>;
+    // prettier-ignore
+    <T>(format: TGetBodyOptions<T> & { throws: false }): Promise<TValidationResult<T>>;
+    // prettier-ignore
     <T>(format?: TGetBodyOptions<T>): Promise<T>;
 }
+
+export type TValidationResult<T> =
+    | ({ ok: true } & T)
+    | { ok: false; errors: { [K in keyof T]?: string } };
 
 export interface TGetBodyOptions<T = TBodyJson> {
     raw?: boolean;
@@ -79,7 +83,10 @@ export interface TGetBodyOptions<T = TBodyJson> {
     booleans?: string[];
     required?: string[];
     trim?: boolean;
-    validate?(body: T): string | undefined;
+    validate?: {
+        [K in keyof T]?: (value: T[K], body: T) => string | undefined;
+    };
+    throws?: boolean;
 }
 
 export interface IGetResponse {
@@ -130,8 +137,8 @@ export interface TServerEx extends Error {
 }
 
 export interface TInject {
-    req: IncomingMessage & Transform;
-    res: ServerResponse & Transform;
+    req: FakeReq;
+    res: FakeRes;
     getResponse: IGetResponse;
 }
 

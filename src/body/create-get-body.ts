@@ -3,6 +3,7 @@ import type { Readable } from 'node:stream';
 import zlib from 'node:zlib';
 import Ex from '../built-in/tools/ex.ts';
 import type { IGetBody, TGetBodyOptions, TRawPart } from '../types.ts';
+import type { FakeReq } from '../util/fake-http.ts';
 import createParseBody, {
     parseJson,
     parseUrlEncoded,
@@ -17,7 +18,9 @@ const parseBody = createParseBody({
     'application/json': parseJson,
 });
 
-export default function createGetBody(req: IncomingMessage): IGetBody {
+export default function createGetBody(
+    req: IncomingMessage | FakeReq,
+): IGetBody {
     let _body: TRawPart;
 
     // biome-ignore lint/suspicious/noExplicitAny: simplicity
@@ -64,7 +67,7 @@ export default function createGetBody(req: IncomingMessage): IGetBody {
     };
 }
 
-function getStream(req: IncomingMessage): Readable {
+function getStream(req: IncomingMessage | FakeReq): Readable {
     const encoding = (
         req.headers['content-encoding'] ?? 'identity'
     ).toLowerCase();

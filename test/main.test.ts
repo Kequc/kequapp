@@ -12,6 +12,7 @@ import {
     sendFile,
     staticDirectory,
 } from '../src/main.ts';
+import { silentLogger } from '../src/util/logger.ts';
 
 it('exports a lot of stuff', () => {
     assert.equal(typeof createApp, 'function');
@@ -27,6 +28,7 @@ it('exports a lot of stuff', () => {
 
 it('accepts actions', () => {
     createApp({
+        logger: silentLogger,
         actions: [() => {}, () => {}],
     });
 });
@@ -35,6 +37,7 @@ it('throws error on invalid actions', () => {
     assert.throws(
         () =>
             createApp({
+                logger: silentLogger,
                 // @ts-ignore
                 actions: [() => {}, 'foo'],
             }),
@@ -46,6 +49,7 @@ it('throws error on invalid actions', () => {
 
 it('renders a response', async () => {
     const app = createApp({
+        logger: silentLogger,
         routes: [
             {
                 method: 'GET',
@@ -67,6 +71,7 @@ it('renders a response', async () => {
 
 it('renders head routes', async () => {
     const app = createApp({
+        logger: silentLogger,
         routes: [
             {
                 method: 'GET',
@@ -89,6 +94,7 @@ it('renders head routes', async () => {
 
 it('renders a response for url', async () => {
     const app = createApp({
+        logger: silentLogger,
         routes: [
             {
                 url: '/foo/bar',
@@ -111,6 +117,7 @@ it('renders a response for url', async () => {
 
 it('renders a response for funny url', async () => {
     const app = createApp({
+        logger: silentLogger,
         routes: [
             {
                 url: '/@f~o+o/$b.a-r',
@@ -141,6 +148,7 @@ const errorHandler = createErrorHandler({
 
 it('returns error when route not found', async () => {
     const app = createApp({
+        logger: silentLogger,
         errorHandlers: [errorHandler],
     });
 
@@ -152,6 +160,7 @@ it('returns error when route not found', async () => {
 
 it('ignores head routes when autoHead false', async () => {
     const app = createApp({
+        logger: silentLogger,
         routes: [
             {
                 method: 'GET',
@@ -174,6 +183,7 @@ it('ignores head routes when autoHead false', async () => {
 
 it('ignores head routes when nested autoHead false', async () => {
     const app = createApp({
+        logger: silentLogger,
         branches: [
             {
                 routes: [
@@ -200,6 +210,7 @@ it('ignores head routes when nested autoHead false', async () => {
 
 it('finalizes response when stream not ended', async () => {
     const app = createApp({
+        logger: silentLogger,
         routes: [
             {
                 method: 'GET',

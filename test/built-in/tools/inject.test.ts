@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { it } from 'node:test';
 import inject from '../../../src/built-in/tools/inject.ts';
 import { createApp, createRoute } from '../../../src/main.ts';
+import { silentLogger } from '../../../src/util/logger.ts';
 
 it('can return a response from the app', async () => {
     const route = createRoute({
@@ -10,6 +11,7 @@ it('can return a response from the app', async () => {
     });
     const app = createApp({
         routes: [route],
+        logger: silentLogger,
     });
     const { getResponse } = inject(app, {
         method: 'GET',

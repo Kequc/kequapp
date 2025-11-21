@@ -6,6 +6,7 @@ export default function normalizeBody(
     options: TGetBodyOptions,
 ): TBodyJson {
     const result: TBodyJson = { ...body };
+    const errors: Record<string, string> = {};
     if (options.skipNormalize === true) return result;
     const {
         required = [],
@@ -14,6 +15,7 @@ export default function normalizeBody(
         booleans = [],
         trim = false,
         validate,
+        throws = true,
     } = options;
 
     // trim strings
@@ -55,15 +57,12 @@ export default function normalizeBody(
         } else {
             if (!isEmpty(result[key])) continue;
         }
-        throw Ex.UnprocessableEntity(`Value ${key} is required`, {
-            body,
-            required,
-        });
+        errors[key] = 'is required';
     }
 
     // numbers
     for (const key of numbers) {
-        if (!(key in result)) continue;
+        if (!(key in result) || key in errors) continue;
         if (Array.isArray(result[key])) {
             const values = result[key].map(toNumber);
             result[key] = values;
@@ -73,15 +72,12 @@ export default function normalizeBody(
             result[key] = value;
             if (!Number.isNaN(value)) continue;
         }
-        throw Ex.UnprocessableEntity(`Value ${key} must be a number`, {
-            body,
-            numbers,
-        });
+        errors[key] = 'must be a number';
     }
 
     // booleans
     for (const key of booleans) {
-        if (!(key in result)) continue;
+        if (!(key in result) || key in errors) continue;
         if (Array.isArray(result[key])) {
             const values = result[key].map(toBoolean);
             result[key] = values;
@@ -91,16 +87,26 @@ export default function normalizeBody(
     }
 
     // validate
-    if (typeof validate === 'function') {
-        const problem = validate(result);
-        if (problem) {
-            throw Ex.UnprocessableEntity(problem, {
-                body,
-            });
+    if (validate) {
+        for (const [key, validator] of Object.entries(validate)) {
+            if (!(key in result) || key in errors) continue;
+            const error = validator?.(result[key], result);
+            if (error) errors[key] = error;
         }
     }
 
-    return result;
+    const key = Object.keys(errors)[0];
+    if (throws) {
+        // old school
+        if (!key) return result;
+        throw Ex.UnprocessableEntity(`Value ${key} ${errors[key]}`, {
+            errors,
+            body,
+        });
+    } else {
+        if (!key) return { ...result, ok: true };
+        return { errors, ok: false };
+    }
 }
 
 function trimValue(value: TBodyJsonValue): TBodyJsonValue | undefined {

@@ -1,4 +1,5 @@
 import { createAction, createApp, createBranch, Ex } from '../../src/main.ts'; // 'kequapp'
+import { silentLogger } from '../../src/util/logger.ts';
 
 const loggedIn = createAction(({ req, context }) => {
     if (req.headers.authorization !== 'mike') {
@@ -81,6 +82,7 @@ const app = createApp({
         },
     ],
     branches: [usersBranch],
+    logger: silentLogger,
 });
 
 export default app;

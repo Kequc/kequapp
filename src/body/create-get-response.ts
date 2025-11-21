@@ -1,6 +1,7 @@
 import type { ServerResponse } from 'node:http';
 import type { Readable } from 'node:stream';
 import type { IGetResponse, TGetResponseOptions, TRawPart } from '../types.ts';
+import type { FakeRes } from '../util/fake-http.ts';
 import createParseBody, { parseJson } from './create-parse-body.ts';
 import streamReader from './stream-reader.ts';
 
@@ -12,7 +13,9 @@ const parseBody = createParseBody(
     ({ data }) => data,
 );
 
-export default function createGetResponse(res: ServerResponse): IGetResponse {
+export default function createGetResponse(
+    res: ServerResponse | FakeRes,
+): IGetResponse {
     let _body: TRawPart;
 
     return async (options: TGetResponseOptions = {}) => {

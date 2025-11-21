@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import normalizeBody from '../../src/body/normalize-body.ts';
+import type { TBodyJsonValue, TGetBodyOptions } from '../../src/types.ts';
 
 describe('trim', () => {
     it('trims strings and removes empty string properties', () => {
@@ -416,18 +417,21 @@ describe('validate', () => {
         const body = {
             name: 'April',
             age: '23',
-            ownedPets: 'cat',
+            ownedPets: [],
         };
-        const options = {
+        const options: TGetBodyOptions = {
             arrays: ['ownedPets'],
-            validate: (result) => {
-                if (result.ownedPets.length < 2) return 'Must have two pets';
+            validate: {
+                ownedPets(ownedPets) {
+                    if ((ownedPets as string[]).length === 0)
+                        return 'must have at least one pet';
+                },
             },
         };
 
         assert.throws(() => normalizeBody(body, options), {
             statusCode: 422,
-            message: 'Must have two pets',
+            message: 'Value ownedPets must have at least one pet',
         });
     });
 
@@ -439,8 +443,11 @@ describe('validate', () => {
         };
         const options = {
             arrays: ['ownedPets'],
-            validate: (result) => {
-                if (result.ownedPets.length > 2) return 'Too many pets';
+            validate: {
+                ownedPets(ownedPets: TBodyJsonValue) {
+                    if ((ownedPets as string[]).length > 2)
+                        return 'too many pets';
+                },
             },
         };
 
