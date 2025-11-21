@@ -36,18 +36,13 @@ describe('validateObject', () => {
     });
 
     it('throws error if invalid type', () => {
-        assert.throws(
-            () => validateObject({ test: 'hello' }, 'Test', 'number'),
-            {
-                message: 'Test test must be a number',
-            },
-        );
+        assert.throws(() => validateObject({ test: 'hello' }, 'Test', 'number'), {
+            message: 'Test test must be a number',
+        });
     });
 
     it('does nothing if valid type', () => {
-        assert.doesNotThrow(() =>
-            validateObject({ test: 1 }, 'Test', 'number'),
-        );
+        assert.doesNotThrow(() => validateObject({ test: 1 }, 'Test', 'number'));
     });
 });
 
@@ -129,9 +124,7 @@ describe('validatePathname', () => {
     });
 
     it('does nothing if wild pathname', () => {
-        assert.doesNotThrow(() =>
-            validatePathname('/hello/there/**', 'Test', true),
-        );
+        assert.doesNotThrow(() => validatePathname('/hello/there/**', 'Test', true));
     });
 
     it('does nothing if pathname includes extra slashes', () => {

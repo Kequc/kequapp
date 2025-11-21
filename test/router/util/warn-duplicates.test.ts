@@ -46,12 +46,8 @@ it('finds duplicates', () => {
     );
 
     assert.equal(warn.mock.callCount(), 3);
-    assert.deepEqual(warn.mock.calls[0].arguments, [
-        msg('GET', '/free/stuff', '/free/stuff'),
-    ]);
-    assert.deepEqual(warn.mock.calls[1].arguments, [
-        msg('GET', '/cats/**', '/cats/:userId'),
-    ]);
+    assert.deepEqual(warn.mock.calls[0].arguments, [msg('GET', '/free/stuff', '/free/stuff')]);
+    assert.deepEqual(warn.mock.calls[1].arguments, [msg('GET', '/cats/**', '/cats/:userId')]);
     assert.deepEqual(warn.mock.calls[2].arguments, [
         msg('GET', '/cats/tiffany/:userId', '/cats/tiffany/:carId'),
     ]);

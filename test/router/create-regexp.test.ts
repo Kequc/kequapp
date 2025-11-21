@@ -48,10 +48,7 @@ it('creates a param regexp', () => {
     const regexp = createRegexp('/hello/:there/101');
 
     assert.ok(regexp instanceof RegExp);
-    assert.equal(
-        regexp.toString(),
-        `/^${S}hello${S}(?<there>${PARA})${S}101$/i`,
-    );
+    assert.equal(regexp.toString(), `/^${S}hello${S}(?<there>${PARA})${S}101$/i`);
 
     assert.ok(regexp.test('/hello/there/101'));
     assert.ok(regexp.test('/hello/foo/101'));
@@ -85,16 +82,11 @@ it('creates a wild param regexp', () => {
     const regexp = createRegexp('/hello/:there/101/**');
 
     assert.ok(regexp instanceof RegExp);
-    assert.equal(
-        regexp.toString(),
-        `/^${S}hello${S}(?<there>${PARA})${S}101(?<wild>${WILD})$/i`,
-    );
+    assert.equal(regexp.toString(), `/^${S}hello${S}(?<there>${PARA})${S}101(?<wild>${WILD})$/i`);
 
     assert.ok(regexp.test('/hello/there/101'));
     assert.ok(regexp.test('/hello/there/101/foo'));
-    assert.ok(
-        regexp.test('/hello/there/101/09a511fe-baa9-4080-b228-6a5e9b16a67c'),
-    );
+    assert.ok(regexp.test('/hello/there/101/09a511fe-baa9-4080-b228-6a5e9b16a67c'));
     assert.ok(regexp.test('/hello/there/101/foo_foo'));
     assert.ok(regexp.test('/hello/there/101/@foo'));
     assert.ok(regexp.test('/hello/there/101/+foo'));
@@ -122,48 +114,15 @@ it('creates a wild param regexp', () => {
 });
 
 it('escapes funny inputs', () => {
-    assert.equal(
-        createRegexp('/th.re/101').toString(),
-        `/^${S}th\\.re${S}101$/i`,
-    );
-    assert.equal(
-        createRegexp('/th+re/101').toString(),
-        `/^${S}th\\+re${S}101$/i`,
-    );
-    assert.equal(
-        createRegexp('/th^re/101').toString(),
-        `/^${S}th\\^re${S}101$/i`,
-    );
-    assert.equal(
-        createRegexp('/th$re/101').toString(),
-        `/^${S}th\\$re${S}101$/i`,
-    );
-    assert.equal(
-        createRegexp('/th|re/101').toString(),
-        `/^${S}th\\|re${S}101$/i`,
-    );
-    assert.equal(
-        createRegexp('/th(re)/101').toString(),
-        `/^${S}th\\(re\\)${S}101$/i`,
-    );
-    assert.equal(
-        createRegexp('/th}re{/101').toString(),
-        `/^${S}th\\}re\\{${S}101$/i`,
-    );
-    assert.equal(
-        createRegexp('/th-re/101').toString(),
-        `/^${S}th-re${S}101$/i`,
-    );
-    assert.equal(
-        createRegexp('/~there/101').toString(),
-        `/^${S}~there${S}101$/i`,
-    );
-    assert.equal(
-        createRegexp('/@there/101').toString(),
-        `/^${S}@there${S}101$/i`,
-    );
-    assert.equal(
-        createRegexp('/@f~o+o/$b.a-r').toString(),
-        `/^${S}@f~o\\+o${S}\\$b\\.a-r$/i`,
-    );
+    assert.equal(createRegexp('/th.re/101').toString(), `/^${S}th\\.re${S}101$/i`);
+    assert.equal(createRegexp('/th+re/101').toString(), `/^${S}th\\+re${S}101$/i`);
+    assert.equal(createRegexp('/th^re/101').toString(), `/^${S}th\\^re${S}101$/i`);
+    assert.equal(createRegexp('/th$re/101').toString(), `/^${S}th\\$re${S}101$/i`);
+    assert.equal(createRegexp('/th|re/101').toString(), `/^${S}th\\|re${S}101$/i`);
+    assert.equal(createRegexp('/th(re)/101').toString(), `/^${S}th\\(re\\)${S}101$/i`);
+    assert.equal(createRegexp('/th}re{/101').toString(), `/^${S}th\\}re\\{${S}101$/i`);
+    assert.equal(createRegexp('/th-re/101').toString(), `/^${S}th-re${S}101$/i`);
+    assert.equal(createRegexp('/~there/101').toString(), `/^${S}~there${S}101$/i`);
+    assert.equal(createRegexp('/@there/101').toString(), `/^${S}@there${S}101$/i`);
+    assert.equal(createRegexp('/@f~o+o/$b.a-r').toString(), `/^${S}@f~o\\+o${S}\\$b\\.a-r$/i`);
 });

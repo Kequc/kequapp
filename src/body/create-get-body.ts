@@ -1,21 +1,18 @@
-import type { IncomingMessage } from "node:http";
-import type { Readable } from "node:stream";
-import zlib from "node:zlib";
-import Ex from "../built-in/tools/ex.ts";
-import type { GetBody, GetBodyOptions, RawPart } from "../types.ts";
-import type { FakeReq } from "../util/fake-http.ts";
-import createParseBody, {
-    parseJson,
-    parseUrlEncoded,
-} from "./create-parse-body.ts";
-import parseMultipart from "./multipart/parse-multipart.ts";
-import splitMultipart from "./multipart/split-multipart.ts";
-import normalizeBody from "./normalize-body.ts";
-import streamReader from "./stream-reader.ts";
+import type { IncomingMessage } from 'node:http';
+import type { Readable } from 'node:stream';
+import zlib from 'node:zlib';
+import Ex from '../built-in/tools/ex.ts';
+import type { GetBody, GetBodyOptions, RawPart } from '../types.ts';
+import type { FakeReq } from '../util/fake-http.ts';
+import createParseBody, { parseJson, parseUrlEncoded } from './create-parse-body.ts';
+import parseMultipart from './multipart/parse-multipart.ts';
+import splitMultipart from './multipart/split-multipart.ts';
+import normalizeBody from './normalize-body.ts';
+import streamReader from './stream-reader.ts';
 
 const parseBody = createParseBody({
-    "application/x-www-form-urlencoded": parseUrlEncoded,
-    "application/json": parseJson,
+    'application/x-www-form-urlencoded': parseUrlEncoded,
+    'application/json': parseJson,
 });
 
 export default function createGetBody(req: IncomingMessage | FakeReq): GetBody {
@@ -25,25 +22,18 @@ export default function createGetBody(req: IncomingMessage | FakeReq): GetBody {
         if (_body === undefined) {
             _body = {
                 headers: {
-                    "content-type": req.headers["content-type"] ?? "",
-                    "content-disposition":
-                        req.headers["content-disposition"] ?? "",
+                    'content-type': req.headers['content-type'] ?? '',
+                    'content-disposition': req.headers['content-disposition'] ?? '',
                 },
-                data: await streamReader(
-                    getStream(req),
-                    getMaxPayloadSize(options),
-                ),
+                data: await streamReader(getStream(req), getMaxPayloadSize(options)),
             };
         }
 
-        const isMultipartRequest =
-            _body.headers["content-type"].startsWith("multipart/");
+        const isMultipartRequest = _body.headers['content-type'].startsWith('multipart/');
 
         if (options.raw === true) {
             if (options.multipart === true) {
-                return isMultipartRequest
-                    ? splitMultipart(_body)
-                    : [clone(_body)];
+                return isMultipartRequest ? splitMultipart(_body) : [clone(_body)];
             }
             return _body.data;
         }
@@ -65,18 +55,16 @@ export default function createGetBody(req: IncomingMessage | FakeReq): GetBody {
 }
 
 function getStream(req: IncomingMessage | FakeReq): Readable {
-    const encoding = (
-        req.headers["content-encoding"] ?? "identity"
-    ).toLowerCase();
+    const encoding = (req.headers['content-encoding'] ?? 'identity').toLowerCase();
 
     switch (encoding) {
-        case "br":
+        case 'br':
             return req.pipe(zlib.createBrotliDecompress());
-        case "gzip":
+        case 'gzip':
             return req.pipe(zlib.createGunzip());
-        case "deflate":
+        case 'deflate':
             return req.pipe(zlib.createInflate());
-        case "identity":
+        case 'identity':
             return req;
     }
 
@@ -86,10 +74,7 @@ function getStream(req: IncomingMessage | FakeReq): Readable {
 }
 
 function getMaxPayloadSize(options: GetBodyOptions): number {
-    if (
-        typeof options.maxPayloadSize === "number" &&
-        options.maxPayloadSize > 0
-    ) {
+    if (typeof options.maxPayloadSize === 'number' && options.maxPayloadSize > 0) {
         return options.maxPayloadSize;
     }
     return 1e6;

@@ -9,14 +9,8 @@ export interface Logger {
 }
 
 export type Action = (bundle: Bundle) => Promise<unknown> | unknown;
-export type Renderer = (
-    payload: unknown,
-    bundle: Bundle,
-) => Promise<void> | void;
-export type ErrorHandler = (
-    ex: ServerEx,
-    bundle: Bundle,
-) => Promise<unknown> | unknown;
+export type Renderer = (payload: unknown, bundle: Bundle) => Promise<void> | void;
+export type ErrorHandler = (ex: ServerEx, bundle: Bundle) => Promise<unknown> | unknown;
 
 export type Pathname = `/${string}`;
 export type PathnameWild = Pathname & `${string}/**`;
@@ -117,14 +111,7 @@ export interface FilePart extends RawPart {
     filename?: string;
 }
 
-export type BodyJsonValue =
-    | string
-    | number
-    | boolean
-    | Date
-    | null
-    | BodyJson
-    | BodyJsonValue[];
+export type BodyJsonValue = string | number | boolean | Date | null | BodyJson | BodyJsonValue[];
 export interface BodyJson {
     [k: string]: BodyJsonValue;
 }

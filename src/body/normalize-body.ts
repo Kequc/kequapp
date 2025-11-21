@@ -1,10 +1,7 @@
 import Ex from '../built-in/tools/ex.ts';
 import type { BodyJson, BodyJsonValue, GetBodyOptions } from '../types.ts';
 
-export default function normalizeBody(
-    body: BodyJson,
-    options: GetBodyOptions,
-): BodyJson {
+export default function normalizeBody(body: BodyJson, options: GetBodyOptions): BodyJson {
     const result: BodyJson = { ...body };
     const errors: Record<string, string> = {};
     if (options.skipNormalize === true) return result;
@@ -22,9 +19,7 @@ export default function normalizeBody(
     if (trim) {
         for (const key of Object.keys(result)) {
             if (Array.isArray(result[key])) {
-                result[key] = result[key]
-                    .map(trimValue)
-                    .filter((v) => v !== undefined);
+                result[key] = result[key].map(trimValue).filter((v) => v !== undefined);
             } else {
                 const value = trimValue(result[key]);
                 if (value === undefined) delete result[key];

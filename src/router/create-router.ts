@@ -14,9 +14,7 @@ export default function createRouter(structure: BranchData): Router {
 
     return function router(method: string, url: string) {
         const matchedRoutes = routes.filter((item) => item.regexp.test(url));
-        const route =
-            getRoute(matchedRoutes, method) ??
-            generate404(branches, url, method);
+        const route = getRoute(matchedRoutes, method) ?? generate404(branches, url, method);
         const params = matchGroups(url, route.regexp);
         const methods = getMethods(matchedRoutes, route.autoHead);
 

@@ -1,46 +1,24 @@
 import { getParts } from '../router/util/extract.ts';
-import type {
-    BranchData,
-    ErrorHandlerData,
-    Logger,
-    RendererData,
-    RouteData,
-} from '../types.ts';
+import type { BranchData, ErrorHandlerData, Logger, RendererData, RouteData } from '../types.ts';
 
 export const PATHNAME_REGEX = /^(?:\/:[a-zA-Z_]\w*|\/[^/*:\\? ]*|\/\*{2})+$/;
 export const CONTENT_TYPE_REGEX = /^[a-zA-Z]+\/(?:[a-zA-Z]+|\*)|\*$/;
 
-export function validateObject(
-    topic: unknown,
-    name: string,
-    type?: string,
-): void {
+export function validateObject(topic: unknown, name: string, type?: string): void {
     if (topic !== undefined) {
-        if (
-            typeof topic !== 'object' ||
-            topic === null ||
-            Array.isArray(topic)
-        ) {
+        if (typeof topic !== 'object' || topic === null || Array.isArray(topic)) {
             throw new Error(`${name} must be an object`);
         }
 
         if (type !== undefined) {
             for (const key of Object.keys(topic)) {
-                validateType(
-                    (topic as { [k: string]: unknown })[key],
-                    `${name} ${key}`,
-                    type,
-                );
+                validateType((topic as { [k: string]: unknown })[key], `${name} ${key}`, type);
             }
         }
     }
 }
 
-export function validateArray(
-    topic: unknown,
-    name: string,
-    type?: string,
-): void {
+export function validateArray(topic: unknown, name: string, type?: string): void {
     if (topic !== undefined) {
         if (!Array.isArray(topic)) {
             throw new Error(`${name} must be an array`);
@@ -64,11 +42,7 @@ export function validateType(topic: unknown, name: string, type: string): void {
     }
 }
 
-export function validatePathname(
-    topic: unknown,
-    name: string,
-    isWild = false,
-): void {
+export function validatePathname(topic: unknown, name: string, isWild = false): void {
     if (topic !== undefined) {
         validateType(topic, name, 'string');
 

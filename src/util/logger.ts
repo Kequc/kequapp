@@ -9,11 +9,7 @@ const logger: Logger = {
 export default logger;
 
 export function extendLogger(target: Logger, source?: Partial<Logger>): Logger {
-    if (
-        typeof source !== 'object' ||
-        source === null ||
-        Array.isArray(source)
-    ) {
+    if (typeof source !== 'object' || source === null || Array.isArray(source)) {
         return target;
     }
 

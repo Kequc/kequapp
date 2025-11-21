@@ -13,9 +13,7 @@ const parseBody = createParseBody(
     ({ data }) => data,
 );
 
-export default function createGetResponse(
-    res: ServerResponse | FakeRes,
-): GetResponse {
+export default function createGetResponse(res: ServerResponse | FakeRes): GetResponse {
     let _body: RawPart;
 
     return async (options: GetResponseOptions = {}) => {
@@ -26,9 +24,7 @@ export default function createGetResponse(
             _body = {
                 headers: {
                     'content-type': String(res.getHeader('Content-Type') ?? ''),
-                    'content-disposition': String(
-                        res.getHeader('Content-Disposition') ?? '',
-                    ),
+                    'content-disposition': String(res.getHeader('Content-Disposition') ?? ''),
                 },
                 data,
             };

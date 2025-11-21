@@ -1,10 +1,4 @@
-import type {
-    Action,
-    BranchData,
-    ErrorHandlerData,
-    RendererData,
-    RouteData,
-} from '../types.ts';
+import type { Action, BranchData, ErrorHandlerData, RendererData, RouteData } from '../types.ts';
 import {
     validateBranch,
     validateErrorHandler,
@@ -30,9 +24,7 @@ export function createBranch(branch: BranchData): BranchData {
     return branch;
 }
 
-export function createErrorHandler(
-    errorHandler: ErrorHandlerData,
-): ErrorHandlerData {
+export function createErrorHandler(errorHandler: ErrorHandlerData): ErrorHandlerData {
     validateErrorHandler(errorHandler);
     return errorHandler;
 }

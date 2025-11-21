@@ -41,8 +41,7 @@ contents of the file
         },
         {
             headers: {
-                'content-disposition':
-                    'form-data; name="secret"; filename="secrets.txt"',
+                'content-disposition': 'form-data; name="secret"; filename="secrets.txt"',
                 'content-type': 'text/plain',
             },
             data: result[2]?.data,

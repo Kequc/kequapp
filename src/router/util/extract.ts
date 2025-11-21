@@ -1,9 +1,5 @@
 import type { Params, Pathname } from '../../types.ts';
-import {
-    CONTENT_TYPE_REGEX,
-    PATHNAME_REGEX,
-    validateArray,
-} from '../../util/validate.ts';
+import { CONTENT_TYPE_REGEX, PATHNAME_REGEX, validateArray } from '../../util/validate.ts';
 
 export function extractMethod(params: unknown[], method = 'GET'): string {
     if (typeof params[0] !== 'string' || params[0].includes('/')) {
@@ -21,10 +17,7 @@ export function extractUrl(params: unknown[], url: Pathname = '/'): Pathname {
     return params.shift() as Pathname;
 }
 
-export function extractContentType(
-    params: unknown[],
-    contentType?: string,
-): string | undefined {
+export function extractContentType(params: unknown[], contentType?: string): string | undefined {
     if (typeof params[0] !== 'string' || !CONTENT_TYPE_REGEX.test(params[0])) {
         return contentType;
     }
@@ -40,15 +33,8 @@ export function extractActions<T>(params: unknown[]): T[] {
     return actions as T[];
 }
 
-export function extractOptions<T>(
-    params: unknown[],
-    defaultOptions?: Partial<T>,
-): T {
-    if (
-        typeof params[0] !== 'object' ||
-        params[0] === null ||
-        Array.isArray(params[0])
-    ) {
+export function extractOptions<T>(params: unknown[], defaultOptions?: Partial<T>): T {
+    if (typeof params[0] !== 'object' || params[0] === null || Array.isArray(params[0])) {
         return { ...defaultOptions } as T;
     }
 

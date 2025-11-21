@@ -423,8 +423,7 @@ describe('validate', () => {
             arrays: ['ownedPets'],
             validate: {
                 ownedPets(ownedPets) {
-                    if ((ownedPets as string[]).length === 0)
-                        return 'must have at least one pet';
+                    if ((ownedPets as string[]).length === 0) return 'must have at least one pet';
                 },
             },
         };
@@ -445,8 +444,7 @@ describe('validate', () => {
             arrays: ['ownedPets'],
             validate: {
                 ownedPets(ownedPets: BodyJsonValue) {
-                    if ((ownedPets as string[]).length > 2)
-                        return 'too many pets';
+                    if ((ownedPets as string[]).length > 2) return 'too many pets';
                 },
             },
         };

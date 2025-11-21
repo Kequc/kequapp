@@ -113,14 +113,8 @@ describe('renderRoute', () => {
         assert.equal(res.statusCode, 204);
         assert.equal(res.getHeader('Content-Length'), 0);
         assert.equal(res.getHeader('Valid'), 'GET, HEAD, OPTIONS');
-        assert.equal(
-            res.getHeader('Access-Control-Allow-Methods'),
-            'GET, HEAD, OPTIONS',
-        );
-        assert.equal(
-            res.getHeader('Access-Control-Allow-Headers'),
-            'X-PINGOTHER, Content-Type',
-        );
+        assert.equal(res.getHeader('Access-Control-Allow-Methods'), 'GET, HEAD, OPTIONS');
+        assert.equal(res.getHeader('Access-Control-Allow-Headers'), 'X-PINGOTHER, Content-Type');
     });
 });
 

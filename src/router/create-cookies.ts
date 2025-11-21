@@ -31,8 +31,7 @@ export default function createCookies(
     }
 
     function setup() {
-        if (values === undefined)
-            values = parseCookieHeader(req.headers.cookie);
+        if (values === undefined) values = parseCookieHeader(req.headers.cookie);
     }
 
     return { get, set, remove };
@@ -42,15 +41,12 @@ function buildAttrs(key: string, value: string, options?: CookieOptions) {
     const attrs = [`${key}=${encodeURIComponent(value)}`, 'Path=/'];
 
     if (options?.domain !== undefined) attrs.push(`Domain=${options.domain}`);
-    if (options?.expires !== undefined)
-        attrs.push(`Expires=${options.expires.toUTCString()}`);
+    if (options?.expires !== undefined) attrs.push(`Expires=${options.expires.toUTCString()}`);
     if (options?.maxAge !== undefined)
         attrs.push(`Max-Age=${Math.max(Math.floor(options.maxAge), 0)}`);
-    if (options?.secure === true || options?.sameSite === 'None')
-        attrs.push('Secure');
+    if (options?.secure === true || options?.sameSite === 'None') attrs.push('Secure');
     if (options?.httpOnly) attrs.push('HttpOnly');
-    if (options?.sameSite !== undefined)
-        attrs.push(`SameSite=${options.sameSite}`);
+    if (options?.sameSite !== undefined) attrs.push(`SameSite=${options.sameSite}`);
 
     return attrs.join('; ');
 }
@@ -74,8 +70,6 @@ function parseCookieHeader(cookie?: string): Params {
 
 function validateCookieName(name: string): void {
     if (!/^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/.test(name)) {
-        throw Ex.InternalServerError(
-            `Cookie name contains invalid characters: ${name}`,
-        );
+        throw Ex.InternalServerError(`Cookie name contains invalid characters: ${name}`);
     }
 }

@@ -18,17 +18,11 @@ interface TStaticDirectoryOptions {
     contentTypes?: Params;
 }
 
-export default function staticDirectory(
-    options: TStaticDirectoryOptions,
-): Action {
+export default function staticDirectory(options: TStaticDirectoryOptions): Action {
     validateOptions(options);
 
     return createAction(async ({ req, res, params }) => {
-        const location = await getLocation(
-            options.location,
-            params.wild,
-            options.index,
-        );
+        const location = await getLocation(options.location, params.wild, options.index);
         const contentType = guessContentType(location, options.contentTypes);
 
         await sendFile(req, res, location, contentType);
@@ -41,18 +35,10 @@ function validateOptions(options: TStaticDirectoryOptions): void {
     validateExists(options.location, 'Static directory options.location');
     validatePathname(options.location, 'Static directory options.location');
     validateArray(options.index, 'Static directory options.index', 'string');
-    validateObject(
-        options.contentTypes,
-        'Static directory options.contentTypes',
-        'string',
-    );
+    validateObject(options.contentTypes, 'Static directory options.contentTypes', 'string');
 }
 
-async function getLocation(
-    location: string,
-    wild = '',
-    index: string[] = [],
-): Promise<Pathname> {
+async function getLocation(location: string, wild = '', index: string[] = []): Promise<Pathname> {
     const absolute = path.join(process.cwd(), location, wild);
 
     try {
@@ -62,8 +48,7 @@ async function getLocation(
             const files = await fs.promises.readdir(absolute);
 
             for (const file of index) {
-                if (files.includes(file))
-                    return path.join(location, wild, file) as Pathname;
+                if (files.includes(file)) return path.join(location, wild, file) as Pathname;
             }
         }
 

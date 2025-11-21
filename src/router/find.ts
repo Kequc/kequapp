@@ -1,15 +1,7 @@
 import Ex from '../built-in/tools/ex.ts';
-import type {
-    ErrorHandler,
-    ErrorHandlerData,
-    Renderer,
-    RendererData,
-} from '../types.ts';
+import type { ErrorHandler, ErrorHandlerData, Renderer, RendererData } from '../types.ts';
 
-export function findRenderer(
-    renderers: RendererData[],
-    contentType: string,
-): Renderer {
+export function findRenderer(renderers: RendererData[], contentType: string): Renderer {
     const renderer = renderers.find((renderer) =>
         compareContentType(renderer.contentType, contentType),
     );
@@ -35,9 +27,7 @@ export function findErrorHandler(
     if (!errorHandler) {
         throw Ex.InternalServerError('Error handler not found', {
             contentType,
-            availalble: errorHandlers.map(
-                (errorHandler) => errorHandler.contentType,
-            ),
+            availalble: errorHandlers.map((errorHandler) => errorHandler.contentType),
         });
     }
 

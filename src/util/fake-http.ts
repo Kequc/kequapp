@@ -16,9 +16,9 @@
  *    state machine or exact semantics.
  */
 
-import { type OutgoingHttpHeaders, STATUS_CODES } from "node:http";
-import { Transform } from "node:stream";
-import type { Header, Params, ReqOptions } from "../types.ts";
+import { type OutgoingHttpHeaders, STATUS_CODES } from 'node:http';
+import { Transform } from 'node:stream';
+import type { Header, Params, ReqOptions } from '../types.ts';
 
 export class FakeReq extends Transform {
     [key: string]: unknown;
@@ -50,8 +50,8 @@ export class FakeReq extends Transform {
             this[key] = options[key];
         }
 
-        this.method = options.method ?? "GET";
-        this.url = options.url ?? "";
+        this.method = options.method ?? 'GET';
+        this.url = options.url ?? '';
         this.headers = {};
         this.rawHeaders = [];
 
@@ -71,13 +71,13 @@ export class FakeReq extends Transform {
             this.end(options.body);
         }
 
-        this.on("end", () => {
+        this.on('end', () => {
             this.complete = true;
         });
     }
 
     setTimeout(ms: number, cb?: () => void): this {
-        if (typeof cb === "function") setTimeout(cb, ms);
+        if (typeof cb === 'function') setTimeout(cb, ms);
         return this;
     }
 
@@ -96,7 +96,7 @@ export class FakeReq extends Transform {
     }
 
     destroy(err?: Error): this {
-        if (err) this.emit("error", err);
+        if (err) this.emit('error', err);
         try {
             Transform.prototype.destroy?.call(this, err);
         } catch (_) {}
@@ -104,7 +104,7 @@ export class FakeReq extends Transform {
     }
 
     _transform(chunk: string | Buffer, _enc: string, done: () => void): void {
-        if (typeof chunk === "string" || Buffer.isBuffer(chunk)) {
+        if (typeof chunk === 'string' || Buffer.isBuffer(chunk)) {
             this.push(chunk);
         } else {
             this.push(JSON.stringify(chunk));
@@ -128,7 +128,7 @@ export class FakeRes extends Transform {
         super();
 
         this.statusCode = 200;
-        this.statusMessage = STATUS_CODES[this.statusCode] ?? "OK";
+        this.statusMessage = STATUS_CODES[this.statusCode] ?? 'OK';
 
         this._headers = {};
         this._responseData = [];
@@ -137,7 +137,7 @@ export class FakeRes extends Transform {
         this.writableEnded = false;
         this.writableFinished = false;
 
-        this.on("finish", () => {
+        this.on('finish', () => {
             this.finished = true;
             this.writableFinished = true;
             this.writableEnded = true;
@@ -168,10 +168,7 @@ export class FakeRes extends Transform {
     }
 
     hasHeader(name: string): boolean {
-        return Object.prototype.hasOwnProperty.call(
-            this._headers,
-            name.toLowerCase(),
-        );
+        return Object.prototype.hasOwnProperty.call(this._headers, name.toLowerCase());
     }
 
     removeHeader(name: string): void {
@@ -188,19 +185,14 @@ export class FakeRes extends Transform {
         this.headersSent = true;
     }
 
-    writeHead(
-        statusCode: number,
-        statusMessage?: string,
-        headers?: OutgoingHttpHeaders,
-    ): void {
-        if (statusMessage !== undefined && typeof statusMessage !== "string") {
+    writeHead(statusCode: number, statusMessage?: string, headers?: OutgoingHttpHeaders): void {
+        if (statusMessage !== undefined && typeof statusMessage !== 'string') {
             headers = statusMessage as unknown as OutgoingHttpHeaders;
             statusMessage = undefined;
         }
 
         this.statusCode = statusCode;
-        this.statusMessage =
-            statusMessage ?? STATUS_CODES[statusCode] ?? "unknown";
+        this.statusMessage = statusMessage ?? STATUS_CODES[statusCode] ?? 'unknown';
 
         if (headers) {
             for (const name of Object.keys(headers)) {
@@ -241,7 +233,7 @@ export class FakeRes extends Transform {
     }
 
     setTimeout(ms: number, cb?: () => void): this {
-        if (typeof cb === "function") setTimeout(cb, ms);
+        if (typeof cb === 'function') setTimeout(cb, ms);
         return this;
     }
 }

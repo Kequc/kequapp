@@ -13,11 +13,7 @@ import type {
 const actionA = () => {};
 const actionB = () => {};
 
-function route(
-    method: string,
-    url?: Pathname,
-    actions: Action[] = [],
-): RouteData {
+function route(method: string, url?: Pathname, actions: Action[] = []): RouteData {
     return { method, url, actions };
 }
 
@@ -74,11 +70,7 @@ const catsBranch = createBranch({
 });
 
 const router = createRouter({
-    routes: [
-        route('GET', '/free/stuff'),
-        route('GET', '/'),
-        route('GET', '/**'),
-    ],
+    routes: [route('GET', '/free/stuff'), route('GET', '/'), route('GET', '/**')],
     renderers: [renderer()],
     errorHandlers: [errorHandler()],
     branches: [halloweenBranch, catsBranch],

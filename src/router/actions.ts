@@ -39,10 +39,7 @@ export async function renderError(
     const { errorHandlers, renderers } = route;
     const { res } = bundle;
 
-    const errorHandler = findErrorHandler(
-        errorHandlers,
-        getContentType(bundle),
-    );
+    const errorHandler = findErrorHandler(errorHandlers, getContentType(bundle));
     const ex = unknownToEx(error);
     res.statusCode = ex.statusCode;
 

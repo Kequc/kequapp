@@ -1,10 +1,7 @@
 import { STATUS_CODES } from 'node:http';
 import type { ServerEx } from '../../types.ts';
 
-type ServerExHelper = (
-    message?: string,
-    options?: Record<string, unknown>,
-) => ServerEx;
+type ServerExHelper = (message?: string, options?: Record<string, unknown>) => ServerEx;
 interface TEx {
     StatusCode: (
         statusCode: number,
@@ -59,19 +56,9 @@ const Ex = {
     ...errorHelpers(),
 };
 
-function StatusCode(
-    statusCode: number,
-    message?: string,
-    options?: Record<string, unknown>,
-) {
+function StatusCode(statusCode: number, message?: string, options?: Record<string, unknown>) {
     if (!STATUS_CODES[statusCode]) {
-        return buildException(
-            StatusCode,
-            'Error',
-            statusCode,
-            message,
-            options,
-        );
+        return buildException(StatusCode, 'Error', statusCode, message, options);
     }
 
     const key = createMethodName(statusCode);
@@ -80,26 +67,15 @@ function StatusCode(
 
 function errorHelpers() {
     const errorHelpers: Record<string, ServerExHelper> = {};
-    const statusCodes = Object.keys(STATUS_CODES).map((statusCode) =>
-        parseInt(statusCode, 10),
-    );
+    const statusCodes = Object.keys(STATUS_CODES).map((statusCode) => parseInt(statusCode, 10));
 
     for (const statusCode of statusCodes) {
         if (statusCode < 400) continue;
 
         const key = createMethodName(statusCode);
 
-        errorHelpers[key] = (
-            message?: string,
-            options?: Record<string, unknown>,
-        ) => {
-            return buildException(
-                errorHelpers[key],
-                key,
-                statusCode,
-                message,
-                options,
-            );
+        errorHelpers[key] = (message?: string, options?: Record<string, unknown>) => {
+            return buildException(errorHelpers[key], key, statusCode, message, options);
         };
     }
 

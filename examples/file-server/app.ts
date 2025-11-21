@@ -1,10 +1,4 @@
-import {
-    createAction,
-    createApp,
-    Ex,
-    sendFile,
-    staticDirectory,
-} from '../../src/main.ts'; // 'kequapp'
+import { createAction, createApp, Ex, sendFile, staticDirectory } from '../../src/main.ts'; // 'kequapp'
 import { silentLogger } from '../../src/util/logger.ts';
 
 const PRIVATE = ['/private.txt'];
@@ -33,11 +27,7 @@ const app = createApp({
             url: '/',
             actions: [
                 async ({ req, res }) => {
-                    await sendFile(
-                        req,
-                        res,
-                        '/examples/file-server/assets/index.html',
-                    );
+                    await sendFile(req, res, '/examples/file-server/assets/index.html');
                 },
             ],
         },

@@ -85,15 +85,8 @@ function sanitize(item: CacheBranch): Branch {
     return {
         actions: item.actions,
         regexp: createRegexp(item.url),
-        errorHandlers: [
-            ...item.errorHandlers.sort(priorityContentType),
-            errorHandler,
-        ],
-        renderers: [
-            ...item.renderers.sort(priorityContentType),
-            jsonRenderer,
-            textRenderer,
-        ],
+        errorHandlers: [...item.errorHandlers.sort(priorityContentType), errorHandler],
+        renderers: [...item.renderers.sort(priorityContentType), jsonRenderer, textRenderer],
         autoHead: item.autoHead ?? true,
         logger: extendLogger(logger, item.logger),
     };
@@ -102,10 +95,7 @@ function sanitize(item: CacheBranch): Branch {
 function extendBranch(target: BranchData, source: CacheBranch) {
     return {
         actions: [...(target.actions ?? []), ...source.actions],
-        errorHandlers: [
-            ...source.errorHandlers,
-            ...(target.errorHandlers ?? []),
-        ],
+        errorHandlers: [...source.errorHandlers, ...(target.errorHandlers ?? [])],
         renderers: [...source.renderers, ...(target.renderers ?? [])],
         autoHead: source.autoHead ?? target.autoHead,
         logger: source.logger ?? target.logger,

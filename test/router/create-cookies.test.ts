@@ -3,10 +3,7 @@ import { describe, it, mock } from 'node:test';
 import createCookies from '../../src/router/create-cookies.ts';
 import type { Cookies } from '../../src/types.ts';
 
-function buildCookies(
-    headers: { cookie?: string } = {},
-    setHeader = () => {},
-): Cookies {
+function buildCookies(headers: { cookie?: string } = {}, setHeader = () => {}): Cookies {
     const fakeReq = { headers };
     const fakeRes = { setHeader };
 
@@ -96,9 +93,7 @@ describe('set', () => {
         assert.equal(setHeader.mock.callCount(), 1);
         assert.deepEqual(setHeader.mock.calls[0].arguments, [
             'Set-Cookie',
-            [
-                'hello=there; Path=/; Max-Age=1000; Secure; HttpOnly; SameSite=Strict',
-            ],
+            ['hello=there; Path=/; Max-Age=1000; Secure; HttpOnly; SameSite=Strict'],
         ]);
     });
 

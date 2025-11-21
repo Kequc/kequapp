@@ -68,28 +68,18 @@ describe('getParts', () => {
     });
 
     it('ignores everything after wildcard', () => {
-        assert.deepEqual(getParts('/hello/there/**/boo'), [
-            'hello',
-            'there',
-            '**',
-        ]);
+        assert.deepEqual(getParts('/hello/there/**/boo'), ['hello', 'there', '**']);
     });
 });
 
 describe('getParams', () => {
     it('extracts params from a path', () => {
-        const result = getParams(
-            ['hello', 'there', 'boo'],
-            ['hello', ':foo', ':bar'],
-        );
+        const result = getParams(['hello', 'there', 'boo'], ['hello', ':foo', ':bar']);
         assert.deepEqual(result, { foo: 'there', bar: 'boo' });
     });
 
     it('returns no params', () => {
-        const result = getParams(
-            ['hello', 'there', 'boo'],
-            ['hello', 'there', 'boo'],
-        );
+        const result = getParams(['hello', 'there', 'boo'], ['hello', 'there', 'boo']);
         assert.deepEqual(result, {});
     });
 
@@ -121,11 +111,7 @@ describe('extractActions', () => {
     const func3 = () => {};
 
     it('gets the remainder of the params', () => {
-        assert.deepEqual(extractActions([func1, func2, func3]), [
-            func1,
-            func2,
-            func3,
-        ]);
+        assert.deepEqual(extractActions([func1, func2, func3]), [func1, func2, func3]);
     });
 
     it('accepts no actions', () => {
@@ -133,11 +119,7 @@ describe('extractActions', () => {
     });
 
     it('accepts nested arrays', () => {
-        assert.deepEqual(extractActions([func1, [func2], func3]), [
-            func1,
-            func2,
-            func3,
-        ]);
+        assert.deepEqual(extractActions([func1, [func2], func3]), [func1, func2, func3]);
     });
 
     it('throws error on bad params', () => {
@@ -173,13 +155,10 @@ describe('extractOptions', () => {
     });
 
     it('combines with default', () => {
-        assert.deepEqual(
-            extractOptions([{ test: 'hello' }, 'HELLO'], { test2: 'hello2' }),
-            {
-                test: 'hello',
-                test2: 'hello2',
-            },
-        );
+        assert.deepEqual(extractOptions([{ test: 'hello' }, 'HELLO'], { test2: 'hello2' }), {
+            test: 'hello',
+            test2: 'hello2',
+        });
     });
 
     it('modifies the params', () => {

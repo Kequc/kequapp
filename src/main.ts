@@ -1,8 +1,4 @@
-import type {
-    IncomingMessage,
-    RequestListener,
-    ServerResponse,
-} from 'node:http';
+import type { IncomingMessage, RequestListener, ServerResponse } from 'node:http';
 import createGetBody from './body/create-get-body.ts';
 import { renderError, renderRoute } from './router/actions.ts';
 import createCookies from './router/create-cookies.ts';
@@ -32,10 +28,7 @@ async function requestProcessor(
     res: ServerResponse,
 ): Promise<void> {
     const startedAt = Date.now();
-    const url = new URL(
-        req.url ?? '/',
-        `${req.headers.protocol}://${req.headers.host}`,
-    );
+    const url = new URL(req.url ?? '/', `${req.headers.protocol}://${req.headers.host}`);
     const method = req.method ?? 'GET';
     const [route, params, methods] = router(method, url.pathname);
     const { logger } = route;
