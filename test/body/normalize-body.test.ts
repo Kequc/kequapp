@@ -456,3 +456,40 @@ describe('validate', () => {
         });
     });
 });
+
+describe('throws', () => {
+    it('returns ok true when no errors', () => {
+        const body = {
+            name: 'April',
+            age: '23',
+            ownedPets: 'cat',
+        };
+        const options = {
+            arrays: ['ownedPets'],
+            throws: false,
+        };
+
+        assert.deepEqual(normalizeBody(body, options), {
+            name: 'April',
+            age: '23',
+            ownedPets: ['cat'],
+            ok: true,
+        });
+    });
+
+    it('returns ok false with errors when validation fails', () => {
+        const body = {
+            name: 'April',
+            age: '23',
+        };
+        const options: GetBodyOptions = {
+            required: ['name', 'ownedPets'],
+            throws: false,
+        };
+
+        assert.deepEqual(normalizeBody(body, options), {
+            errors: { ownedPets: 'is required' },
+            ok: false,
+        });
+    });
+});

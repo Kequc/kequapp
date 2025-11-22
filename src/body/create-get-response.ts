@@ -19,7 +19,7 @@ export function createGetResponse(res: ServerResponse | FakeRes): GetResponse {
     return async (options: GetResponseOptions = {}) => {
         if (_body === undefined) {
             // ensures application has responded
-            const data = await streamReader(res as unknown as Readable);
+            const data = await streamReader(res as Readable);
 
             _body = {
                 headers: {

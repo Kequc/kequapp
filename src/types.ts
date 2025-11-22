@@ -54,15 +54,16 @@ export interface GetBody {
     // prettier-ignore
     (format: GetBodyOptions & { raw: true }): Promise<Buffer>;
     // prettier-ignore
-    <T>(format: GetBodyOptions<T> & { multipart: true; throws: false }): Promise<[BodyResult<T>, FilePart[]]>;
+    <T>(format: GetBodyOptions<T> & { multipart: true; throws: false }): Promise<[Expand<BodyResult<T>>, FilePart[]]>;
     // prettier-ignore
     <T>(format: GetBodyOptions<T> & { multipart: true }): Promise<[T, FilePart[]]>;
     // prettier-ignore
-    <T>(format: GetBodyOptions<T> & { throws: false }): Promise<BodyResult<T>>;
+    <T>(format: GetBodyOptions<T> & { throws: false }): Promise<Expand<BodyResult<T>>>;
     // prettier-ignore
     <T>(format?: GetBodyOptions<T>): Promise<T>;
 }
 
+type Expand<T> = T extends infer O ? { [K in keyof O]: O[K] } : never;
 type BodyResult<T> = (T & { ok: true }) | { ok: false; errors: { [K in keyof T]?: string } };
 
 export interface GetBodyOptions<T = BodyJson> {
