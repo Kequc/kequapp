@@ -1,21 +1,10 @@
-import type { IncomingMessage, RequestListener, ServerResponse } from 'node:http';
+import type { IncomingMessage, ServerResponse } from 'node:http';
 import { createGetBody } from '../body/create-get-body.ts';
 import { renderError, renderRoute } from './actions.ts';
 import { createCookies } from './create-cookies.ts';
-import { createRouter } from './create-router.ts';
-import type { BranchData, Bundle, Router } from '../types.ts';
+import type { Bundle, Router } from '../types.ts';
 
-export function createApp(structure: BranchData): RequestListener {
-    const router = createRouter(structure);
-
-    function app(req: IncomingMessage, res: ServerResponse): void {
-        requestProcessor(router, req, res);
-    }
-
-    return app;
-}
-
-async function requestProcessor(
+export async function requestProcessor(
     router: Router,
     req: IncomingMessage,
     res: ServerResponse,
