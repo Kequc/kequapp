@@ -88,13 +88,13 @@ const branchApi = createBranch({
     {
       method: 'GET',
       url: '/',
-      actions: [() => ({ message: 'Hello world!' })]
-    }
-  ]
+      actions: [() => ({ message: 'Hello world!' })],
+    },
+  ],
 });
 
 const app = createApp({
-  branches: [branchApi]
+  branches: [branchApi],
 });
 ```
 
