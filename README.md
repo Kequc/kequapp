@@ -17,6 +17,8 @@ Kequapp emphasizes *clarity* and *explicit control* with a minimal surface area:
 
 * **Zero Runtime Dependencies** – Uses only built‑in Node modules while still providing body parsing, cookies, and related helpers.
 * **ESM‑Only, Modern Target** – Distributed as standard ES modules with TypeScript support.
+* **Body and Cookie Helpers** – Utilities for parsing request bodies and cookies no middleware required.
+* **Hierarchical Routing** – Branches group routes and share common actions.
 * **Explicit Actions Pipeline** – Sequential functions; returning a value terminates execution and dispatches to the appropriate renderer.
 * **Content‑Type–Driven Rendering and Errors** – The `Content-Type` header determines which renderer or error handler is chosen.
 * **Correct CORS / OPTIONS Handling** – Automatically responds to `OPTIONS` with the exact allowed methods for the requested path; further customization via actions.
@@ -75,13 +77,13 @@ To emit JSON instead, set the header in the *actions* before returning a value:
 ```js
 import { createApp, createBranch, createAction } from 'kequapp';
 
-const jsonAction = createAction(({ res }) => {
+const actionSetHeaderJson = createAction(({ res }) => {
   res.setHeader('Content-Type', 'application/json');
 });
 
-const apiBranch = createBranch({
+const branchApi = createBranch({
   url: '/api',
-  actions: [jsonAction],
+  actions: [actionSetHeaderJson],
   routes: [
     {
       method: 'GET',
@@ -92,7 +94,7 @@ const apiBranch = createBranch({
 });
 
 const app = createApp({
-  branches: [apiBranch]
+  branches: [branchApi]
 });
 ```
 
@@ -110,7 +112,7 @@ Extended guides and reference (renderers, error handling, content negotiation, a
 
 ### Upgrading
 
-Breaking changes and migration notes are tracked in the **[changelog](./changelog.md)**.
+Breaking changes and migration notes are tracked in the **[CHANGELOG](./CHANGELOG.md)**.
 
 ---
 
