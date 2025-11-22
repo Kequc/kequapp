@@ -85,7 +85,7 @@ export function normalizeBody(body: BodyJson, options: GetBodyOptions): BodyJson
     if (validate) {
         for (const [key, validator] of Object.entries(validate)) {
             if (!(key in result) || key in errors) continue;
-            const error = validator?.(result[key], result);
+            const error = validator?.(result[key]);
             if (error) errors[key] = error;
         }
     }

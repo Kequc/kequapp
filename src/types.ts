@@ -77,7 +77,7 @@ export interface GetBodyOptions<T = BodyJson> {
     required?: string[];
     trim?: boolean;
     validate?: {
-        [K in keyof T]?: (value: T[K], body: T) => string | undefined;
+        [K in keyof T]?: (value: T[K]) => string | undefined;
     };
     throws?: boolean;
 }
