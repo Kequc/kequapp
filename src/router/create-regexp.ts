@@ -3,7 +3,7 @@ import { getParts } from './util/extract.ts';
 export const PARA = '[^/]+';
 export const WILD = '.*';
 
-export default function createRegexp(url: string, isWild = false): RegExp {
+export function createRegexp(url: string, isWild = false): RegExp {
     return new RegExp(`^/${convertUrl(url, isWild)}$`, 'i');
 }
 

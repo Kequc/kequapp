@@ -1,4 +1,4 @@
-import Ex from '../built-in/tools/ex.ts';
+import { Ex } from '../built-in/tools/ex.ts';
 import type { ErrorHandler, ErrorHandlerData, Renderer, RendererData } from '../types.ts';
 
 export function findRenderer(renderers: RendererData[], contentType: string): Renderer {

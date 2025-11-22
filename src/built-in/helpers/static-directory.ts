@@ -2,15 +2,15 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createAction } from '../../router/modules.ts';
 import type { Action, Params, Pathname } from '../../types.ts';
-import guessContentType from '../../util/guess-content-type.ts';
+import { guessContentType } from '../../util/guess-content-type.ts';
 import {
     validateArray,
     validateExists,
     validateObject,
     validatePathname,
 } from '../../util/validate.ts';
-import Ex from '../tools/ex.ts';
-import sendFile from './send-file.ts';
+import { Ex } from '../tools/ex.ts';
+import { sendFile } from './send-file.ts';
 
 interface TStaticDirectoryOptions {
     location: Pathname;
@@ -18,7 +18,7 @@ interface TStaticDirectoryOptions {
     contentTypes?: Params;
 }
 
-export default function staticDirectory(options: TStaticDirectoryOptions): Action {
+export function staticDirectory(options: TStaticDirectoryOptions): Action {
     validateOptions(options);
 
     return createAction(async ({ req, res, params }) => {

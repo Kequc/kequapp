@@ -1,7 +1,7 @@
 import type { CacheRoute, LoggerFn } from '../../types.ts';
 import { getParts } from './extract.ts';
 
-export default function warnDuplicates(routes: CacheRoute[], warn: LoggerFn): void {
+export function warnDuplicates(routes: CacheRoute[], warn: LoggerFn): void {
     const found: number[] = [];
 
     for (let i = 0; i < routes.length; i++) {

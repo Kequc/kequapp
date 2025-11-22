@@ -6,7 +6,7 @@ const logger: Logger = {
     info: console.info,
 };
 
-export default logger;
+export { logger };
 
 export function extendLogger(target: Logger, source?: Partial<Logger>): Logger {
     if (typeof source !== 'object' || source === null || Array.isArray(source)) {

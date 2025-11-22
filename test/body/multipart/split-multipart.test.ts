@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { it } from 'node:test';
-import splitMultipart from '../../../src/body/multipart/split-multipart.ts';
+import { splitMultipart } from '../../../src/body/multipart/split-multipart.ts';
 
 it('reads buffer', () => {
     const part = {

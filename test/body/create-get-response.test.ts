@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import createGetResponse from '../../src/body/create-get-response.ts';
+import { createGetResponse } from '../../src/body/create-get-response.ts';
 import { FakeRes } from '../../src/util/fake-http.ts';
 
 describe('createGetResponse', () => {

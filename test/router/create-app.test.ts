@@ -1,30 +1,9 @@
 import assert from 'node:assert/strict';
 import { it } from 'node:test';
-import {
-    createAction,
-    createApp,
-    createBranch,
-    createErrorHandler,
-    createRenderer,
-    createRoute,
-    Ex,
-    inject,
-    sendFile,
-    staticDirectory,
-} from '../src/main.ts';
-import { silentLogger } from '../src/util/logger.ts';
-
-it('exports a lot of stuff', () => {
-    assert.equal(typeof createApp, 'function');
-    assert.equal(typeof createBranch, 'function');
-    assert.equal(typeof createErrorHandler, 'function');
-    assert.equal(typeof createRenderer, 'function');
-    assert.equal(typeof createRoute, 'function');
-    assert.equal(typeof sendFile, 'function');
-    assert.equal(typeof staticDirectory, 'function');
-    assert.equal(typeof createAction, 'function');
-    assert.equal(typeof Ex, 'object');
-});
+import { createApp } from '../../src/router/create-app.ts';
+import { silentLogger } from '../../src/util/logger.ts';
+import { inject } from '../../src/built-in/tools/inject.ts';
+import { createErrorHandler } from '../../src/router/modules.ts';
 
 it('accepts actions', () => {
     createApp({

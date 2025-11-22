@@ -1,6 +1,6 @@
 import type { Params } from '../types.ts';
 
-export default function headerAttributes(header = ''): Params {
+export function headerAttributes(header = ''): Params {
     const result: Params = {};
 
     let inQuotes = false;

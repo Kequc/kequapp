@@ -79,7 +79,7 @@ const DEFAULT_CONTENT_TYPES: Params = {
     '.7z': 'application/x-7z-compressed',
 };
 
-export default function guessContentType(asset: string, contentTypes: Params = {}): string {
+export function guessContentType(asset: string, contentTypes: Params = {}): string {
     const ext: string = path.extname(asset).toLowerCase();
 
     return contentTypes[ext] ?? DEFAULT_CONTENT_TYPES[ext] ?? 'application/octet-stream';

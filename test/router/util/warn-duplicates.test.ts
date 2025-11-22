@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { it, mock } from 'node:test';
-import warnDuplicates from '../../../src/router/util/warn-duplicates.ts';
+import { warnDuplicates } from '../../../src/router/util/warn-duplicates.ts';
 import type { CacheRoute, Pathname } from '../../../src/types.ts';
 
 function route(method: string, url: Pathname): CacheRoute {

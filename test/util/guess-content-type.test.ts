@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { it } from 'node:test';
-import guessContentType from '../../src/util/guess-content-type.ts';
+import { guessContentType } from '../../src/util/guess-content-type.ts';
 
 it('guesses a content type from a filename', () => {
     const result = guessContentType('myFile-1.json');

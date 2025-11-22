@@ -2,10 +2,10 @@ import fs from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import path from 'node:path';
 import type { Pathname } from '../../types.ts';
-import guessContentType from '../../util/guess-content-type.ts';
-import Ex from '../tools/ex.ts';
+import { guessContentType } from '../../util/guess-content-type.ts';
+import { Ex } from '../tools/ex.ts';
 
-export default async function sendFile(
+export async function sendFile(
     req: IncomingMessage,
     res: ServerResponse,
     location: Pathname,

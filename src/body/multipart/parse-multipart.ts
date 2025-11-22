@@ -1,22 +1,13 @@
-import type {
-    BodyJson,
-    BodyJsonValue,
-    FilePart,
-    RawPart,
-} from '../../types.ts';
-import headerAttributes from '../../util/header-attributes.ts';
+import type { BodyJson, BodyJsonValue, FilePart, RawPart } from '../../types.ts';
+import { headerAttributes } from '../../util/header-attributes.ts';
 
-export default function parseMultipart(
-    parts: RawPart[],
-): [BodyJson, FilePart[]] {
+export function parseMultipart(parts: RawPart[]): [BodyJson, FilePart[]] {
     const result: BodyJson = {};
     const files: FilePart[] = [];
     const counters: { [k: string]: number } = {};
 
     for (const part of parts) {
-        const { filename, name } = headerAttributes(
-            part.headers['content-disposition'],
-        );
+        const { filename, name } = headerAttributes(part.headers['content-disposition']);
         const contentType = getContentType(part.headers['content-type']);
         const isFile = filename ?? !contentType.startsWith('text/');
 

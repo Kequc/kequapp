@@ -1,4 +1,4 @@
-import { createAction, createApp, Ex, sendFile, staticDirectory } from '../../src/main.ts'; // 'kequapp'
+import { createAction, createApp, Ex, sendFile, staticDirectory } from '../../src/index.ts'; // 'kequapp'
 import { silentLogger } from '../../src/util/logger.ts';
 
 const PRIVATE = ['/private.txt'];
@@ -9,7 +9,7 @@ const setupAssets = createAction(({ params }) => {
     }
 });
 
-const app = createApp({
+export default createApp({
     routes: [
         {
             method: 'GET',
@@ -34,5 +34,3 @@ const app = createApp({
     ],
     logger: silentLogger,
 });
-
-export default app;

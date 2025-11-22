@@ -8,7 +8,7 @@ interface TErrorResponse {
     info?: Record<string, unknown>;
 }
 
-export default createErrorHandler({
+export const errorHandler = createErrorHandler({
     contentType: '*',
     action(ex, { res }) {
         const error: TErrorResponse = {

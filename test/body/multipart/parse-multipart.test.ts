@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { it } from 'node:test';
-import parseMultipart from '../../../src/body/multipart/parse-multipart.ts';
+import { parseMultipart } from '../../../src/body/multipart/parse-multipart.ts';
 import type { RawPart } from '../../../src/types.ts';
 
 it('reads buffers', () => {

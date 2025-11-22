@@ -1,4 +1,4 @@
-import { createAction, createApp, createBranch, Ex } from '../../src/main.ts'; // 'kequapp'
+import { createAction, createApp, createBranch, Ex } from '../../src/index.ts'; // 'kequapp'
 import { silentLogger } from '../../src/util/logger.ts';
 
 const loggedIn = createAction(({ req, context }) => {
@@ -64,7 +64,7 @@ const usersBranch = createBranch({
     ],
 });
 
-const app = createApp({
+export default createApp({
     routes: [
         {
             method: 'GET',
@@ -84,5 +84,3 @@ const app = createApp({
     branches: [usersBranch],
     logger: silentLogger,
 });
-
-export default app;

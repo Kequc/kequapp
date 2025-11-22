@@ -1,7 +1,7 @@
 import path from 'node:path';
-import errorHandler from '../../built-in/error-handler.ts';
-import jsonRenderer from '../../built-in/json-renderer.ts';
-import textRenderer from '../../built-in/text-renderer.ts';
+import { errorHandler } from '../../built-in/error-handler.ts';
+import { jsonRenderer } from '../../built-in/json-renderer.ts';
+import { textRenderer } from '../../built-in/text-renderer.ts';
 import type {
     Branch,
     BranchData,
@@ -11,10 +11,10 @@ import type {
     Route,
     RouteData,
 } from '../../types.ts';
-import logger, { extendLogger } from '../../util/logger.ts';
-import createRegexp from '../create-regexp.ts';
+import { logger, extendLogger } from '../../util/logger.ts';
+import { createRegexp } from '../create-regexp.ts';
 import { priorityContentType, priorityUrl } from './priority.ts';
-import warnDuplicates from './warn-duplicates.ts';
+import { warnDuplicates } from './warn-duplicates.ts';
 
 export function cacheRoutes(structure: BranchData): Route[] {
     const routes = cacheRoutesMeta(structure);

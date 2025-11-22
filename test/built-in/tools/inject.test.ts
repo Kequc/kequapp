@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { it } from 'node:test';
-import inject from '../../../src/built-in/tools/inject.ts';
-import { createApp, createRoute } from '../../../src/main.ts';
+import { inject } from '../../../src/built-in/tools/inject.ts';
+import { createApp } from '../../../src/router/create-app.ts';
+import { createRoute } from '../../../src/router/modules.ts';
 import { silentLogger } from '../../../src/util/logger.ts';
 
 it('can return a response from the app', async () => {

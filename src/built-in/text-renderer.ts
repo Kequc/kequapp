@@ -1,7 +1,7 @@
-import Ex from '../built-in/tools/ex.ts';
+import { Ex } from '../built-in/tools/ex.ts';
 import { createRenderer } from '../router/modules.ts';
 
-export default createRenderer({
+export const textRenderer = createRenderer({
     contentType: 'text/*',
     action(payload, { req, res }) {
         const text = generateText(payload);

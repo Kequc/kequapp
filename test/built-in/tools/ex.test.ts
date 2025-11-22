@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { it } from 'node:test';
-import Ex from '../../../src/built-in/tools/ex.ts';
+import { Ex } from '../../../src/built-in/tools/ex.ts';
 
 it('exports a few common errors', () => {
     const keys: (keyof typeof Ex)[] = ['Unauthorized', 'NotFound', 'BadRequest'];

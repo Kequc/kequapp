@@ -1,9 +1,9 @@
 import type { IncomingMessage, RequestListener, ServerResponse } from 'node:http';
-import createGetResponse from '../../body/create-get-response.ts';
+import { createGetResponse } from '../../body/create-get-response.ts';
 import type { Inject, ReqOptions } from '../../types.ts';
 import { FakeReq, FakeRes } from '../../util/fake-http.ts';
 
-export default function inject(app: RequestListener, options: ReqOptions): Inject {
+export function inject(app: RequestListener, options: ReqOptions): Inject {
     const req = new FakeReq(options);
     const res = new FakeRes();
 

@@ -1,13 +1,10 @@
 import { STATUS_CODES } from 'node:http';
 import type { ServerEx } from '../../types.ts';
 
-type ServerExHelper = (message?: string, options?: Record<string, unknown>) => ServerEx;
+type ExceptionOptions = { cause?: unknown } & Record<string, unknown>;
+type ServerExHelper = (message?: string, options?: ExceptionOptions) => ServerEx;
 interface TEx {
-    StatusCode: (
-        statusCode: number,
-        message?: string,
-        options?: Record<string, unknown>,
-    ) => ServerEx;
+    StatusCode: (statusCode: number, message?: string, options?: ExceptionOptions) => ServerEx;
     BadRequest: ServerExHelper; // 400
     Unauthorized: ServerExHelper; // 401
     PaymentRequired: ServerExHelper; // 402
@@ -51,12 +48,12 @@ interface TEx {
     NetworkAuthenticationRequired: ServerExHelper; // 511
 }
 
-const Ex = {
+export const Ex = {
     StatusCode,
     ...errorHelpers(),
-};
+} as TEx;
 
-function StatusCode(statusCode: number, message?: string, options?: Record<string, unknown>) {
+function StatusCode(statusCode: number, message?: string, options?: ExceptionOptions) {
     if (!STATUS_CODES[statusCode]) {
         return buildException(StatusCode, 'Error', statusCode, message, options);
     }
@@ -74,15 +71,13 @@ function errorHelpers() {
 
         const key = createMethodName(statusCode);
 
-        errorHelpers[key] = (message?: string, options?: Record<string, unknown>) => {
+        errorHelpers[key] = (message?: string, options?: ExceptionOptions) => {
             return buildException(errorHelpers[key], key, statusCode, message, options);
         };
     }
 
     return errorHelpers;
 }
-
-export default Ex as TEx;
 
 export function unknownToEx(error: unknown): ServerEx {
     if (!(error instanceof Error)) {
@@ -121,11 +116,11 @@ function capitalize(word: string): string {
 }
 
 function buildException(
-    parent: any,
+    parent: Function,
     name: string,
     statusCode: number,
     message?: string,
-    options?: Record<string, unknown>,
+    options?: ExceptionOptions,
 ) {
     const { cause, ...info } = options ?? {};
     const ex = new Error(message ?? STATUS_CODES[statusCode]) as ServerEx;

@@ -1,11 +1,11 @@
-import Ex from '../../built-in/tools/ex.ts';
+import { Ex } from '../../built-in/tools/ex.ts';
 import type { Params, RawPart } from '../../types.ts';
-import headerAttributes from '../../util/header-attributes.ts';
+import { headerAttributes } from '../../util/header-attributes.ts';
 
 const CR = 0x0d;
 const LF = 0x0a;
 
-export default function splitMultipart(body: RawPart): RawPart[] {
+export function splitMultipart(body: RawPart): RawPart[] {
     const contentType = body.headers['content-type'];
 
     if (!contentType?.startsWith('multipart/')) {
@@ -30,8 +30,7 @@ export default function splitMultipart(body: RawPart): RawPart[] {
     }
 
     function addPart(nextBoundary: number) {
-        const dataEnd =
-            nextBoundary - (buffer[nextBoundary - 2] === CR ? 2 : 1);
+        const dataEnd = nextBoundary - (buffer[nextBoundary - 2] === CR ? 2 : 1);
         result.push({
             headers,
             data: buffer.slice(i, dataEnd),

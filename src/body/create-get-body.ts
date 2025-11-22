@@ -1,21 +1,21 @@
 import type { IncomingMessage } from 'node:http';
 import type { Readable } from 'node:stream';
 import zlib from 'node:zlib';
-import Ex from '../built-in/tools/ex.ts';
+import { Ex } from '../built-in/tools/ex.ts';
 import type { GetBody, GetBodyOptions, RawPart } from '../types.ts';
 import type { FakeReq } from '../util/fake-http.ts';
-import createParseBody, { parseJson, parseUrlEncoded } from './create-parse-body.ts';
-import parseMultipart from './multipart/parse-multipart.ts';
-import splitMultipart from './multipart/split-multipart.ts';
-import normalizeBody from './normalize-body.ts';
-import streamReader from './stream-reader.ts';
+import { createParseBody, parseJson, parseUrlEncoded } from './create-parse-body.ts';
+import { parseMultipart } from './multipart/parse-multipart.ts';
+import { splitMultipart } from './multipart/split-multipart.ts';
+import { normalizeBody } from './normalize-body.ts';
+import { streamReader } from './stream-reader.ts';
 
 const parseBody = createParseBody({
     'application/x-www-form-urlencoded': parseUrlEncoded,
     'application/json': parseJson,
 });
 
-export default function createGetBody(req: IncomingMessage | FakeReq): GetBody {
+export function createGetBody(req: IncomingMessage | FakeReq): GetBody {
     let _body: RawPart;
 
     return async (options: GetBodyOptions = {}): Promise<any> => {
@@ -40,13 +40,13 @@ export default function createGetBody(req: IncomingMessage | FakeReq): GetBody {
 
         if (isMultipartRequest) {
             const [result, files] = parseMultipart(splitMultipart(_body));
-            const body = normalizeBody(result, options);
+            const body = normalizeBody(result, options as GetBodyOptions);
 
             if (options.multipart === true) return [body, files];
             return body;
         } else {
             const result = parseBody(_body);
-            const body = normalizeBody(result, options);
+            const body = normalizeBody(result, options as GetBodyOptions);
 
             if (options.multipart === true) return [body, []];
             return body;

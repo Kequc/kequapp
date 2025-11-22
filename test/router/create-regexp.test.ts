@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { it } from 'node:test';
-import createRegexp, { PARA, WILD } from '../../src/router/create-regexp.ts';
+import { createRegexp, PARA, WILD } from '../../src/router/create-regexp.ts';
 import { matchGroups } from '../../src/router/util/extract.ts';
 
 const S = '\\/';

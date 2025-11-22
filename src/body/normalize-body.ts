@@ -1,7 +1,7 @@
-import Ex from '../built-in/tools/ex.ts';
+import { Ex } from '../built-in/tools/ex.ts';
 import type { BodyJson, BodyJsonValue, GetBodyOptions } from '../types.ts';
 
-export default function normalizeBody(body: BodyJson, options: GetBodyOptions): BodyJson {
+export function normalizeBody(body: BodyJson, options: GetBodyOptions): BodyJson {
     const result: BodyJson = { ...body };
     const errors: Record<string, string> = {};
     if (options.skipNormalize === true) return result;

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { createBranch } from '../../src/main.ts';
-import createRouter from '../../src/router/create-router.ts';
+import { createBranch } from '../../src/router/modules.ts';
+import { createRouter } from '../../src/router/create-router.ts';
 import type {
     Action,
     ErrorHandlerData,

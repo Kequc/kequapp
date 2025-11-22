@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { it } from 'node:test';
-import { inject } from '../../src/main.ts'; // 'kequapp'
+import { inject } from '../../src/index.ts'; // 'kequapp'
 import app from './app.ts';
 
 it('can access the root', async () => {

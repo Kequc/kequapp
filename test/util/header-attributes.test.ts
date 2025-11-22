@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { it } from 'node:test';
-import headerAttributes from '../../src/util/header-attributes.ts';
+import { headerAttributes } from '../../src/util/header-attributes.ts';
 
 it('parses attributes', () => {
     const result = headerAttributes('multipart/form-data; boundary=boundary1; name=name1');

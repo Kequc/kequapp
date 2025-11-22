@@ -5,10 +5,9 @@
     "type": "module",
     "exports": {
         ".": {
-            "types": "./dist/main.d.ts",
-            "import": "./dist/main.js"
-        },
-        "./package.json": "./package.json"
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js"
+        }
     },
     "engines": {
         "node": ">=20.10"

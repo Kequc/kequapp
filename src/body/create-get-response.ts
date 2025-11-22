@@ -2,8 +2,8 @@ import type { ServerResponse } from 'node:http';
 import type { Readable } from 'node:stream';
 import type { GetResponse, GetResponseOptions, RawPart } from '../types.ts';
 import type { FakeRes } from '../util/fake-http.ts';
-import createParseBody, { parseJson } from './create-parse-body.ts';
-import streamReader from './stream-reader.ts';
+import { createParseBody, parseJson } from './create-parse-body.ts';
+import { streamReader } from './stream-reader.ts';
 
 const parseBody = createParseBody(
     {
@@ -13,7 +13,7 @@ const parseBody = createParseBody(
     ({ data }) => data,
 );
 
-export default function createGetResponse(res: ServerResponse | FakeRes): GetResponse {
+export function createGetResponse(res: ServerResponse | FakeRes): GetResponse {
     let _body: RawPart;
 
     return async (options: GetResponseOptions = {}) => {

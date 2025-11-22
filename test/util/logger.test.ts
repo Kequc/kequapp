@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import logger, { extendLogger } from '../../src/util/logger.ts';
+import { logger, extendLogger } from '../../src/util/logger.ts';
 
 it('returns a logger', () => {
     assert.equal(typeof logger.error, 'function');

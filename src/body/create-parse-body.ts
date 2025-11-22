@@ -1,12 +1,9 @@
-import Ex from '../built-in/tools/ex.ts';
+import { Ex } from '../built-in/tools/ex.ts';
 import type { BodyJson, RawPart } from '../types.ts';
 
 type Parser = (body: RawPart) => any;
 
-export default function createParseBody(
-    parsers: { [k: string]: Parser },
-    _default?: Parser,
-): Parser {
+export function createParseBody(parsers: { [k: string]: Parser }, _default?: Parser): Parser {
     return (body: RawPart) => {
         const contentType = body.headers['content-type'] ?? 'text/plain';
 
